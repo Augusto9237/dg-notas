@@ -58,7 +58,7 @@ async function fetchStudents(page: number, pageSize: number): Promise<FetchStude
   };
 }
 
-export function StudentsTable(){
+export function StudentsTable() {
   const [students, setStudents] = useState<Student[]>([]);
   const [pagination, setPagination] = useState<PaginationData>({ total: 0, page: 1, pageSize: 10 });
   const [loading, setLoading] = useState(true);
@@ -78,11 +78,11 @@ export function StudentsTable(){
 
   return (
     <div>
-      <Table>
+      <Table className='bg-card rounded-lg shadow-sm'>
         <TableHeader>
-          <TableRow>
-            <TableHead>Nome do Aluno</TableHead>
-            <TableHead className="text-right">Ações</TableHead>
+          <TableRow >
+            <TableHead className='pl-4'>Nome</TableHead>
+            <TableHead className="text-right"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -101,7 +101,7 @@ export function StudentsTable(){
           ) : (
             students.map((student) => (
               <TableRow key={student.id}>
-                <TableCell>{student.name}</TableCell>
+                <TableCell className='pl-4'>{student.name}</TableCell>
                 <TableCell className="text-right">
                   <Link href={`/alunos/${student.id}`} passHref>
                     <Button variant="outline" size="sm">
@@ -115,8 +115,8 @@ export function StudentsTable(){
         </TableBody>
       </Table>
       <div className="flex justify-between items-center mt-4">
-        <div className="text-sm text-gray-600">
-          Mostrando {(pagination.page - 1) * pagination.pageSize + 1} -{' '}
+        <div className="text-xs text-gray-600 md:text-nowrap">
+          {(pagination.page - 1) * pagination.pageSize + 1} -{' '}
           {Math.min(pagination.page * pagination.pageSize, pagination.total)} de {pagination.total} resultados
         </div>
         <Pagination>

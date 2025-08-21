@@ -15,8 +15,8 @@ import { Logo } from "./logo";
 
 export default function Header() {
   return (
-    <header className="sticky top-0  h-16 items-center gap-4 border-b bg-card  md:px-6 shadow-sm">
-      <div className="flex items-center gap-4 w-full max-w-screen-2xl mx-auto">
+    <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-card shadow-sm">
+      <div className="flex items-center gap-4 w-full max-w-screen-2xl mx-auto sticky px-4">
         <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
           <Logo />
           <Link
@@ -34,7 +34,7 @@ export default function Header() {
         </nav>
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+            <Button variant="outline" size="icon" className="md:hidden">
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
