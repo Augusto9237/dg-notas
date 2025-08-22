@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Plus } from "lucide-react"
 import { useState } from "react"
 
 interface GradingCriteria {
@@ -74,16 +75,19 @@ export function FormularioAvaliacoa() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Nova Avaliação</Button>
+        <Button variant='secondary'>
+          <Plus />
+          Nova Avaliação
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Grade Student Essay</DialogTitle>
+          <DialogTitle>Adicionar Avaliação</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="studentName">Student Name</Label>
-            <Input 
+            <Label htmlFor="studentName">Tema</Label>
+            <Input
               id="studentName"
               placeholder="Enter student name"
               value={studentName}
@@ -93,7 +97,7 @@ export function FormularioAvaliacoa() {
 
           <div className="grid gap-2">
             <Label htmlFor="assignmentTitle">Assignment Title</Label>
-            <Input 
+            <Input
               id="assignmentTitle"
               placeholder="Enter assignment title"
               value={assignmentTitle}
@@ -110,7 +114,7 @@ export function FormularioAvaliacoa() {
                     <p className="text-sm text-gray-500">{criterion.description}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Input 
+                    <Input
                       type="number"
                       className="w-20"
                       value={criterion.score}

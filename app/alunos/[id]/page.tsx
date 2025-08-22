@@ -12,6 +12,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { FormularioAvaliacoa } from '@/components/formulario-avaliação';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Search } from 'lucide-react';
 
 export default function AlunoDetalhesPage() {
   const params = useParams();
@@ -38,11 +41,19 @@ export default function AlunoDetalhesPage() {
   return (
     <div className="w-full max-w-screen-2xl mx-auto">
       <main className="p-4 flex flex-col gap-4">
-        <h1 className=" text-xl font-bold">{student.name}</h1>
-        <div className='flex gap-4 items-center'>
-          <p className="text-muted-foreground">E-mail: email.test@test.com.br</p>
-          <p className="text-muted-foreground">CPF: {student.id}</p>
-          <FormularioAvaliacoa/>
+        <h1 className=" text-xl font-bold">{student.name} - email.test@test.com.br - 00.000.000-00 </h1>
+        <div className='flex gap-4 items-center justify-between'>
+          <div className="flex items-center w-full max-w-md relative">
+            <Input type="text" placeholder="Buscar por Tema" className="bg-card/70" />
+            <Button className='absolute right-0 top-0 text-card rounded-bl-none rounded-tl-none'>
+              <Search />
+            </Button>
+          </div>
+          {/* <div className='flex gap-4 items-center'>
+            <p className="text-muted-foreground">E-mail: email.test@test.com.br</p>
+            <p className="text-muted-foreground">CPF: {student.id}</p>
+          </div> */}
+          <FormularioAvaliacoa />
         </div>
         <Table className='bg-card rounded-lg shadow-sm'>
           <TableHeader>
@@ -54,7 +65,8 @@ export default function AlunoDetalhesPage() {
               <TableHead>Competência 3</TableHead>
               <TableHead>Competência 4</TableHead>
               <TableHead>Competência 5</TableHead>
-              <TableHead className="text-right">Nota Total</TableHead>
+              <TableHead>Nota Total</TableHead>
+              <TableHead className="w-[100px] text-center">•••</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -70,8 +82,11 @@ export default function AlunoDetalhesPage() {
                   <TableCell key={index}>{score}
                   </TableCell>
                 ))}
-                <TableCell className="text-right font-bold">
+                <TableCell className="font-bold">
                   {calculateTotalScore(essay.competencies)}
+                </TableCell>
+                <TableCell className="w-[100px]">
+                  ACOES
                 </TableCell>
               </TableRow>
             ))}
