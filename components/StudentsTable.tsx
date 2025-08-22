@@ -19,6 +19,7 @@ import {
   PaginationLink,
   PaginationNext,
 } from '@/components/ui/pagination';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface Student {
   id: string;
@@ -82,6 +83,7 @@ export function StudentsTable() {
         <TableHeader>
           <TableRow >
             <TableHead className='pl-4'>Nome</TableHead>
+            <TableHead >E-mail</TableHead>
             <TableHead className="text-right"></TableHead>
           </TableRow>
         </TableHeader>
@@ -101,7 +103,14 @@ export function StudentsTable() {
           ) : (
             students.map((student) => (
               <TableRow key={student.id}>
-                <TableCell className='pl-4'>{student.name}</TableCell>
+                <TableCell className='pl-4 flex gap-4 items-center'>
+                  <Avatar>
+                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  {student.name}
+                </TableCell>
+                <TableCell>Email.test@teste.com</TableCell>
                 <TableCell className="text-right">
                   <Link href={`/alunos/${student.id}`} passHref>
                     <Button variant="outline" size="sm">
