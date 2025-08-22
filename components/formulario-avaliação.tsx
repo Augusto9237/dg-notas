@@ -17,7 +17,7 @@ interface GradingCriteria {
   score: number
 }
 
-export function GradeModal() {
+export function FormularioAvaliacoa() {
   const [studentName, setStudentName] = useState("")
   const [assignmentTitle, setAssignmentTitle] = useState("")
   const [criteria, setCriteria] = useState<GradingCriteria[]>([
@@ -74,7 +74,7 @@ export function GradeModal() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Grade Student Essay</Button>
+        <Button>Nova Avaliação</Button>
       </DialogTrigger>
       <DialogContent className="max-w-[600px]">
         <DialogHeader>

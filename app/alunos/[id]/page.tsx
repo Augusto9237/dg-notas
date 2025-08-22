@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { FormularioAvaliacoa } from '@/components/formulario-avaliação';
 
 export default function AlunoDetalhesPage() {
   const params = useParams();
@@ -38,9 +39,10 @@ export default function AlunoDetalhesPage() {
     <div className="w-full max-w-screen-2xl mx-auto">
       <main className="p-4 flex flex-col gap-4">
         <h1 className=" text-xl font-bold">{student.name}</h1>
-        <div className='flex gap-4'>
+        <div className='flex gap-4 items-center'>
           <p className="text-muted-foreground">E-mail: email.test@test.com.br</p>
           <p className="text-muted-foreground">CPF: {student.id}</p>
+          <FormularioAvaliacoa/>
         </div>
         <Table className='bg-card rounded-lg shadow-sm'>
           <TableHeader>
