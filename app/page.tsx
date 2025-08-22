@@ -1,5 +1,8 @@
+import { TabelaAlunos } from '@/components/tabela-alunos';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import StudentsTable from '@/components/StudentsTable';
+import { Search } from 'lucide-react';
+
 
 export default function Home() {
   return (
@@ -7,18 +10,13 @@ export default function Home() {
       <main className="p-4 flex flex-col gap-4">
         <h1 className=" text-xl font-bold">Alunos</h1>
 
-        {/* Filter/Search Area */}
-        <div className="flex items-center gap-4 max-w-sm">
-          {/* Placeholder filter inputs and buttons */}
-          <Input type="text" placeholder="Buscar por nome..." className="filter-input" />
-          <button className="filter-button">Buscar</button>
+        <div className="flex items-center max-w-md relative">
+          <Input type="text" placeholder="Buscar por nome..." className="bg-card/70" />
+          <Button className='absolute right-0 top-0 text-card rounded-bl-none rounded-tl-none'>
+            <Search/>
+          </Button>
         </div>
-
-        {/* Students Table */}
-        <StudentsTable />
-
-        {/* Pagination Control Area */}
-        <div className="pagination-area"></div>
+        <TabelaAlunos />
       </main>
     </div>
   );

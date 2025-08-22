@@ -15,21 +15,15 @@ import { Logo } from "./logo";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-card shadow-sm">
+    <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-card shadow-sm backdrop-blur-lg">
       <div className="flex items-center gap-4 w-full max-w-screen-2xl mx-auto sticky px-4">
         <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
           <Logo />
-          <Link
-            href="#"
-            className="flex items-center gap-2 text-lg font-semibold md:text-base"
-          >
-            Notas
-          </Link>
-          <Link
-            href="#"
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
+          <Link href="#">
             Alunos
+          </Link>
+          <Link href="#">
+            Mentoria
           </Link>
         </nav>
         <Sheet>

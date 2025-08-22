@@ -59,7 +59,7 @@ async function fetchStudents(page: number, pageSize: number): Promise<FetchStude
   };
 }
 
-export function StudentsTable() {
+export function TabelaAlunos() {
   const [students, setStudents] = useState<Student[]>([]);
   const [pagination, setPagination] = useState<PaginationData>({ total: 0, page: 1, pageSize: 10 });
   const [loading, setLoading] = useState(true);
@@ -82,8 +82,9 @@ export function StudentsTable() {
       <Table className='bg-card rounded-lg shadow-sm'>
         <TableHeader>
           <TableRow >
-            <TableHead className='pl-4'>Nome</TableHead>
+            <TableHead className='pl-4'>Aluno</TableHead>
             <TableHead >E-mail</TableHead>
+            <TableHead >CPF</TableHead>
             <TableHead className="text-right"></TableHead>
           </TableRow>
         </TableHeader>
@@ -111,6 +112,7 @@ export function StudentsTable() {
                   {student.name}
                 </TableCell>
                 <TableCell>Email.test@teste.com</TableCell>
+                <TableCell>00.000.000-00</TableCell>
                 <TableCell className="text-right">
                   <Link href={`/alunos/${student.id}`} passHref>
                     <Button variant="outline" size="sm">
@@ -158,5 +160,3 @@ export function StudentsTable() {
     </div>
   );
 };
-
-export default StudentsTable;
