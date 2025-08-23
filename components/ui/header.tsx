@@ -12,6 +12,7 @@ import { CircleUser } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./button";
 import { Logo } from "./logo";
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 
 export default function Header() {
   return (
@@ -76,8 +77,10 @@ export default function Header() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
-                <span className="sr-only">Toggle user menu</span>
+                <Avatar>
+                  <AvatarImage src="https://github.com/shadcn.png" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

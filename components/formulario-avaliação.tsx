@@ -10,6 +10,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Plus } from "lucide-react"
 import { useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Separator } from "@radix-ui/react-dropdown-menu"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 
 interface GradingCriteria {
   name: string
@@ -18,41 +24,70 @@ interface GradingCriteria {
   score: number
 }
 
+const formSchema = z.object({
+  tema: z.string().min(1, "Tema é obrigatório"),
+  titulo: z.string().min(1, "Título é obrigatório"),
+  criterios: z.array(
+    z.object({
+      name: z.string(),
+      description: z.string(),
+      maxScore: z.number(),
+      score: z.number().min(0).max(200)
+    })
+  )
+})
+
+const temas = [
+  { tema: "Cidadania e Direitos Humanos" },
+  { tema: "Educação" },
+  { tema: "Saúde Pública" },
+  { tema: "Meio Ambiente" },
+  { tema: "Tecnologia e Sociedade" },
+  { tema: "Cultura e Diversidade" },
+  { tema: "Segurança Pública" },
+  { tema: "Questões Sociais" },
+  { tema: "Trabalho e Economia" },
+  { tema: "Inclusão Social" }
+]
+
 export function FormularioAvaliacoa() {
   const [studentName, setStudentName] = useState("")
   const [assignmentTitle, setAssignmentTitle] = useState("")
-  const [criteria, setCriteria] = useState<GradingCriteria[]>([
-    {
-      name: "Grammar & Mechanics",
-      description: "Spelling, punctuation, syntax",
-      maxScore: 200,
-      score: 0
-    },
-    {
-      name: "Organization",
-      description: "Structure, flow, transitions",
-      maxScore: 200,
-      score: 0
-    },
-    {
-      name: "Content & Ideas",
-      description: "Depth, relevance, creativity",
-      maxScore: 200,
-      score: 0
-    },
-    {
-      name: "Style & Voice",
-      description: "Tone, clarity, engagement",
-      maxScore: 200,
-      score: 0
-    },
-    {
-      name: "Vocabulary",
-      description: "Word choice, variety, precision",
-      maxScore: 200,
-      score: 0
-    }
-  ])
+  const [criteria, setCriteria] = useState<GradingCriteria[]>(
+    [
+      {
+        name: "Gramática e norma culta",
+        description: "Uso correto da norma culta: ortografia, pontuação e gramática.",
+        maxScore: 200,
+        score: 0
+      },
+      {
+        name: "Foco no tema e repertório sociocultural",
+        description: "Manter-se no tema e usar repertório sociocultural relevante.",
+        maxScore: 200,
+        score: 0
+      },
+      {
+        name: "Argumentação consistente",
+        description: "Defender o ponto de vista com argumentos claros e organizados.",
+        maxScore: 200,
+        score: 0
+      },
+      {
+        name: "Coesão e organização textual",
+        description: "Usar conectivos e recursos linguísticos para dar fluidez ao texto.",
+        maxScore: 200,
+        score: 0
+      },
+      {
+        name: "Proposta de intervenção detalhada",
+        description: "Apresentar solução viável e detalhada para o problema discutido.",
+        maxScore: 200,
+        score: 0
+      }
+    ]
+
+  )
 
   const totalScore = criteria.reduce((sum, item) => sum + item.score, 0)
 
@@ -72,6 +107,22 @@ export function FormularioAvaliacoa() {
     })
   }
 
+  type FormValues = z.infer<typeof formSchema>
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      tema: "",
+      titulo: "",
+      criterios: criteria
+    }
+  })
+
+  const onSubmit = (data: FormValues) => {
+    console.log(data)
+  }
+
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -80,62 +131,86 @@ export function FormularioAvaliacoa() {
           Nova Avaliação
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[600px]">
+      <DialogContent style={{ maxWidth: "600px" }}>
         <DialogHeader>
           <DialogTitle>Adicionar Avaliação</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="studentName">Tema</Label>
-            <Input
-              id="studentName"
-              placeholder="Enter student name"
-              value={studentName}
-              onChange={(e) => setStudentName(e.target.value)}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <FormField
+              control={form.control}
+              name="tema"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tema</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder='Selecione um tema' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {temas.map((tema, index) => (
+                          <SelectItem key={index} value={tema.tema}>{tema.tema}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="assignmentTitle">Assignment Title</Label>
-            <Input
-              id="assignmentTitle"
-              placeholder="Enter assignment title"
-              value={assignmentTitle}
-              onChange={(e) => setAssignmentTitle(e.target.value)}
-            />
-          </div>
+            <Separator />
 
-          <div className="space-y-4">
             {criteria.map((criterion, index) => (
-              <div key={criterion.name} className="grid gap-2">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <Label>{criterion.name}</Label>
-                    <p className="text-sm text-gray-500">{criterion.description}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      className="w-20"
-                      value={criterion.score}
-                      onChange={(e) => handleScoreChange(index, e.target.value)}
-                      min={0}
-                      max={criterion.maxScore}
-                    />
-                    <span className="text-sm text-gray-500">/{criterion.maxScore}</span>
-                  </div>
-                </div>
-              </div>
+              <FormField
+                key={criterion.name}
+                control={form.control}
+                name={`criterios.${index}.score`}
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <FormLabel>{criterion.name}</FormLabel>
+                        <FormDescription className="text-xs">{criterion.description}</FormDescription>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <FormControl>
+                          <Input
+                            type="number"
+                            className="w-20"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(Number(e.target.value))
+                              handleScoreChange(index, e.target.value)
+                            }}
+                            min={0}
+                            max={criterion.maxScore}
+                          />
+                        </FormControl>
+                        <span className="text-sm text-gray-500">/{criterion.maxScore}</span>
+                      </div>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             ))}
-          </div>
 
-          <div className="flex justify-between items-center pt-4 border-t">
-            <div className="text-lg font-semibold">
-              Total Score: {totalScore}/1000
+            <Separator />
+
+            <div className="flex flex-col justify-between items-center pt-4 gap-4 border-t">
+              <div className="flex justify-between text-lg font-semibold w-full">
+                <span>Nota Final:</span>
+                <span>{totalScore}/1000</span>
+              </div>
+              <div className="flex justify-center gap-4">
+                <Button variant="outline" onClick={() => form.reset()} className="min-w-[100px]">Cancelar</Button>
+                <Button type="submit" className="min-w-[100px]">Salvar</Button>
+              </div>
             </div>
-            <Button onClick={handleSave}>Save Grade</Button>
-          </div>
-        </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )
