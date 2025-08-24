@@ -133,7 +133,7 @@ export function FormularioAvaliacoa() {
       </DialogTrigger>
       <DialogContent style={{ maxWidth: "600px" }}>
         <DialogHeader>
-          <DialogTitle>Adicionar Avaliação</DialogTitle>
+          <DialogTitle className="text-center">Adicionar Avaliação</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">

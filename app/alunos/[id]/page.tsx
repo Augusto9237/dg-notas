@@ -14,7 +14,9 @@ import {
 import { FormularioAvaliacoa } from '@/components/formulario-avaliação';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Delete, Edit, Search } from 'lucide-react';
+import { DeleteButton } from '@/components/ui/delete-button';
+import { EditButton } from '@/components/ui/edit-button';
 
 export default function AlunoDetalhesPage() {
   const params = useParams();
@@ -59,14 +61,14 @@ export default function AlunoDetalhesPage() {
           <TableHeader>
             <TableRow >
               <TableHead className='pl-4'>Tema</TableHead>
-              <TableHead className='pl-4'>Data</TableHead>
+              <TableHead >Data</TableHead>
               <TableHead>Competência 1</TableHead>
               <TableHead>Competência 2</TableHead>
               <TableHead>Competência 3</TableHead>
               <TableHead>Competência 4</TableHead>
               <TableHead>Competência 5</TableHead>
               <TableHead>Nota Total</TableHead>
-              <TableHead className="w-[100px] text-center">•••</TableHead>
+              <TableHead className="w-[100px] text-center pr-4">•••</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -75,7 +77,7 @@ export default function AlunoDetalhesPage() {
                 <TableCell className='pl-4'>
                   {essay.title}
                 </TableCell>
-                <TableCell className='pl-4'>
+                <TableCell>
                   {new Date().toLocaleDateString('pt-BR')}
                 </TableCell>
                 {essay.competencies.map((score, index) => (
@@ -85,8 +87,11 @@ export default function AlunoDetalhesPage() {
                 <TableCell className="font-bold">
                   {calculateTotalScore(essay.competencies)}
                 </TableCell>
-                <TableCell className="w-[100px]">
-                  ACOES
+                <TableCell className="w-[100px] pr-4">
+                  <div className='flex justify-center gap-4'>
+                    <EditButton onClick={() => alert(`Editar avaliação ${essay.id}`)} />
+                    <DeleteButton onClick={() => alert(`Excluir avaliação ${essay.id}`)} />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
