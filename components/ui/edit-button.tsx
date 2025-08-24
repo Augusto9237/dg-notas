@@ -15,6 +15,7 @@ export function EditButton({ onClick}: EditButtonProps) {
                     size="icon"
                     className="z-50 hover:cursor-pointer"
                     onClick={onClick}
+                    variant="outline"
                 >
                     <Pencil />
                 </Button>

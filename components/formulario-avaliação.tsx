@@ -1,3 +1,4 @@
+'use client'
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -24,9 +25,10 @@ interface GradingCriteria {
   score: number
 }
 
+type FormValues = z.infer<typeof formSchema>
+
 const formSchema = z.object({
   tema: z.string().min(1, "Tema é obrigatório"),
-  titulo: z.string().min(1, "Título é obrigatório"),
   criterios: z.array(
     z.object({
       name: z.string(),
@@ -51,6 +53,7 @@ const temas = [
 ]
 
 export function FormularioAvaliacoa() {
+  const [isOpen, setIsOpen] = useState(false) // Add this state for dialog control
   const [studentName, setStudentName] = useState("")
   const [assignmentTitle, setAssignmentTitle] = useState("")
   const [criteria, setCriteria] = useState<GradingCriteria[]>(
@@ -97,36 +100,31 @@ export function FormularioAvaliacoa() {
     setCriteria(newCriteria)
   }
 
-  const handleSave = () => {
-    // Add your save logic here
-    console.log({
-      studentName,
-      assignmentTitle,
-      criteria,
-      totalScore
-    })
-  }
-
-  type FormValues = z.infer<typeof formSchema>
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       tema: "",
-      titulo: "",
       criterios: criteria
     }
   })
 
-  const onSubmit = (data: FormValues) => {
-    console.log(data)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      console.log(values)
+      
+      // Reset form and close dialog on success
+      form.reset()
+      setIsOpen(false)
+    } catch (error) {
+      console.error('Error submitting form:', error)
+    }
   }
 
-
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={() => setIsOpen(open => !open)}>
       <DialogTrigger asChild>
-        <Button variant='secondary'>
+        <Button>
           <Plus />
           Nova Avaliação
         </Button>
@@ -205,8 +203,24 @@ export function FormularioAvaliacoa() {
                 <span>{totalScore}/1000</span>
               </div>
               <div className="flex justify-center gap-4">
-                <Button variant="outline" onClick={() => form.reset()} className="min-w-[100px]">Cancelar</Button>
-                <Button type="submit" className="min-w-[100px]">Salvar</Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => {
+                    form.reset()
+                    setIsOpen(false)
+                  }} 
+                  className="min-w-[100px]"
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="min-w-[100px]"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? 'Salvando...' : 'Salvar'}
+                </Button>
               </div>
             </div>
           </form>

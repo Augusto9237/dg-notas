@@ -16,15 +16,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-card shadow-sm backdrop-blur-lg">
-      <div className="flex items-center gap-4 w-full max-w-screen-2xl mx-auto sticky px-4">
-        <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
-          <Logo />
-          <Link href="#">
-            Alunos
+    <header className="flex  justify-center p-4 top-0 right-0 left-0 absolute h-[72px] max-md:max-h-[56px] bg-card shadow-md">
+      <div className="flex items-center gap-4 w-full max-w-screen-2xl mx-auto px-4">
+        <nav className="flex gap-5 items-center">
+          <Link href="/" className="w-44 h-10">
+            <Logo />
           </Link>
-          <Link href="#">
-            Mentoria
+
+          <Link href="/">
+            <Button variant="link" className="text-base">
+              Alunos
+            </Button>
+          </Link>
+
+          <Link href="/mentorias">
+            <Button variant="link" className="text-base">
+              Mentorias
+            </Button>
           </Link>
         </nav>
         <Sheet>

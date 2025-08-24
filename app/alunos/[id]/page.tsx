@@ -41,20 +41,16 @@ export default function AlunoDetalhesPage() {
     competencies.reduce((sum, score) => sum + score, 0);
 
   return (
-    <div className="w-full max-w-screen-2xl mx-auto">
+    <div className="w-full max-w-screen-2xl mx-auto pt-[72px]">
       <main className="p-4 flex flex-col gap-4">
         <h1 className=" text-xl font-bold">{student.name} - email.test@test.com.br - 00.000.000-00 </h1>
         <div className='flex gap-4 items-center justify-between'>
           <div className="flex items-center w-full max-w-md relative">
             <Input type="text" placeholder="Buscar por Tema" className="bg-card/70" />
-            <Button className='absolute right-0 top-0 text-card rounded-bl-none rounded-tl-none'>
+            <Button className='absolute right-0 top-0 bg-background border rounded-bl-none rounded-tl-none' variant='ghost'>
               <Search />
             </Button>
           </div>
-          {/* <div className='flex gap-4 items-center'>
-            <p className="text-muted-foreground">E-mail: email.test@test.com.br</p>
-            <p className="text-muted-foreground">CPF: {student.id}</p>
-          </div> */}
           <FormularioAvaliacoa />
         </div>
         <Table className='bg-card rounded-lg shadow-sm'>
