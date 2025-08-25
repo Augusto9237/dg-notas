@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import React from 'react';
-import logoGrande from '../../public/Sublogo1.svg';
+import logoGrande from '../../public/Sublogo4.svg';
 import logoPequeno from '../../public/Logo1.svg';
 
 interface LogoProps {
@@ -34,7 +34,7 @@ export function Logo({
                 width={grande.width}
                 height={grande.height}
                 priority
-                className='w-44 h-12 object-cover max-md:hidden'
+                className='w-52 h-12 object-cover max-md:hidden'
             />
             <Image
                 src={logoPequeno}
