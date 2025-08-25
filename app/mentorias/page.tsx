@@ -45,11 +45,11 @@ export default function MentoriasPage() {
         : mentorias
 
     return (
-        <div className="container mx-auto  pt-[72px]">
-            <div className="flex flex-col gap-4 p-4">
+        <div className="w-full p-5">
+            <div className="flex flex-col gap-4">
                 <h1 className=" text-xl font-bold">Mentorias Agendadas</h1>
 
-                <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6">
+                {/* <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6">
                     <Card>
                         <CardHeader>
                             <CardTitle>Calendário</CardTitle>
@@ -63,9 +63,9 @@ export default function MentoriasPage() {
                                 className="rounded-md border"
                             />
                         </CardContent>
-                    </Card>
+                    </Card> */}
 
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-4 gap-4">
                         {mentoriasFiltradas.length === 0 ? (
                             <Card>
                                 <CardContent className="p-6 text-center text-muted-foreground">
@@ -128,7 +128,7 @@ export default function MentoriasPage() {
                         )}
                     </div>
                 </div>
-            </div>
+            {/* </div> */}
         </div>
     )
 }

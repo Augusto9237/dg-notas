@@ -11,6 +11,7 @@ import {
 import Link from "next/link"
 import { Logo } from "./ui/logo"
 import { Users } from "lucide-react"
+import { NavUsuario } from "./nav-usuario"
 
 export function AppSidebar() {
   return (
@@ -23,18 +24,20 @@ export function AppSidebar() {
       <SidebarContent className="p-4">
         <SidebarMenuButton asChild className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5 ">
           <Link href="/" className="flex gap-2 items-center">
-            <Users/>
+            <Users />
             Alunos
           </Link>
         </SidebarMenuButton>
-         <SidebarMenuButton asChild className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5 ">
+        <SidebarMenuButton asChild className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5 ">
           <Link href="/mentorias " className="flex gap-2 items-center">
-            <Users/>
+            <Users />
             Mentorias
           </Link>
         </SidebarMenuButton>
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter className="p-5">
+        <NavUsuario />
+      </SidebarFooter>
     </Sidebar>
   )
 }

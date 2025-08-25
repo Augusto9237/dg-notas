@@ -34,7 +34,7 @@ export function Logo({
                 width={grande.width}
                 height={grande.height}
                 priority
-                className='w-52 h-12 object-cover max-md:hidden'
+                className='w-56 h-14 object-cover max-md:hidden'
             />
             <Image
                 src={logoPequeno}

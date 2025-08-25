@@ -41,8 +41,8 @@ export default function AlunoDetalhesPage() {
     competencies.reduce((sum, score) => sum + score, 0);
 
   return (
-    <div className="w-full max-w-screen-2xl mx-auto pt-[72px]">
-      <main className="p-4 flex flex-col gap-4">
+    <div className="w-full p-5">
+      <main className="flex flex-col gap-4">
         <h1 className=" text-xl font-bold">{student.name} - email.test@test.com.br - 00.000.000-00 </h1>
         <div className='flex gap-4 items-center justify-between'>
           <div className="flex items-center w-full max-w-md relative">
