@@ -13,11 +13,11 @@ export default function Home() {
         </div>
         <Button variant="secondary">
           <Plus />
-          Adicionar Tema
+          Novo Tema
         </Button>
       </div>
 
-      <main className="flex flex-col gap-4 p-5">
+      <main className="flex flex-col p-5">
         <TabelaAlunos />
       </main>
     </div>

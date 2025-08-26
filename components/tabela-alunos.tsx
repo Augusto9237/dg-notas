@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/pagination';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from './ui/input';
-import { Search } from 'lucide-react';
+import { FileCheck2, Search } from 'lucide-react';
 
 interface Student {
   id: string;
@@ -63,7 +63,7 @@ async function fetchStudents(page: number, pageSize: number): Promise<FetchStude
 
 export function TabelaAlunos() {
   const [students, setStudents] = useState<Student[]>([]);
-  const [pagination, setPagination] = useState<PaginationData>({ total: 0, page: 1, pageSize: 10 });
+  const [pagination, setPagination] = useState<PaginationData>({ total: 0, page: 1, pageSize: 12 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -123,8 +123,9 @@ export function TabelaAlunos() {
                 <TableCell>00.000.000-00</TableCell>
                 <TableCell className="text-right">
                   <Link href={`/alunos/${student.id}`} passHref>
-                    <Button variant="outline" size="sm">
-                      Ver Notas
+                    <Button>
+                      <FileCheck2 />
+                      Notas
                     </Button>
                   </Link>
                 </TableCell>
@@ -134,7 +135,7 @@ export function TabelaAlunos() {
         </TableBody>
       </Table>
       <div className="flex justify-between items-center mt-4">
-        <div className="text-xs text-gray-600 md:text-nowrap">
+        <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
           {(pagination.page - 1) * pagination.pageSize + 1} -{' '}
           {Math.min(pagination.page * pagination.pageSize, pagination.total)} de {pagination.total} resultados
         </div>
@@ -157,10 +158,11 @@ export function TabelaAlunos() {
               </PaginationItem>
             ))}
             <PaginationItem>
-              <PaginationNext
-                onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
-
-              />
+              {pagination.page >= totalPages ? null : (
+                <PaginationNext
+                  onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
+                />
+              )}
             </PaginationItem>
           </PaginationContent>
         </Pagination>

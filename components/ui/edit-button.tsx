@@ -13,9 +13,8 @@ export function EditButton({ onClick}: EditButtonProps) {
             <TooltipTrigger asChild>
                 <Button
                     size="icon"
-                    className="z-50 hover:cursor-pointer"
+                    className="hover:cursor-pointer"
                     onClick={onClick}
-                    variant="outline"
                 >
                     <Pencil />
                 </Button>

@@ -124,7 +124,7 @@ export function FormularioAvaliacoa() {
   return (
     <Dialog open={isOpen} onOpenChange={() => setIsOpen(open => !open)}>
       <DialogTrigger asChild>
-        <Button>
+        <Button variant="secondary">
           <Plus />
           Nova Avaliação
         </Button>
