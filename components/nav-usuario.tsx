@@ -35,7 +35,7 @@ export function NavUsuario() {
                         <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight ">
-                        <span className="truncate font-semibold">Danieley Guedes</span>
+                        <span className="truncate font-semibold">Daniely Guedes</span>
                         <span className="truncate text-xs text-muted-foreground">Professor(a)</span>
                     </div>
                     <ChevronDown className="ml-auto size-4" />

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { Logo } from "./ui/logo"
-import { Users } from "lucide-react"
+import { Lightbulb, Users } from "lucide-react"
 import { NavUsuario } from "./nav-usuario"
 
 export function AppSidebar() {
@@ -30,7 +30,7 @@ export function AppSidebar() {
         </SidebarMenuButton>
         <SidebarMenuButton asChild className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5 ">
           <Link href="/mentorias " className="flex gap-2 items-center">
-            <Users />
+            <Lightbulb />
             Mentorias
           </Link>
         </SidebarMenuButton>
