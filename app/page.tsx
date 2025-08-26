@@ -1,21 +1,26 @@
 import { TabelaAlunos } from '@/components/tabela-alunos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 
 export default function Home() {
   return (
-    <div className="w-full p-5">
-      <main className="flex flex-col gap-4">
-        <h1 className=" text-xl font-bold">Alunos</h1>
-        <div className="flex items-center max-w-md relative">
-          <Input type="text" placeholder="Buscar por nome..." className="bg-card/70" />
-          <Button className='absolute right-0 top-0 bg-background border rounded-bl-none rounded-tl-none' variant='ghost'>
-            <Search />
-          </Button>
+    <div className="w-full">
+      <div className='flex justify-between items-center h-14 p-5 mt-3'>
+        <div>
+          <h1 className=" text-xl font-bold">Alunos</h1>
+          <p className="text-xs text-muted-foreground">Lista de alunos cadastrados</p>
         </div>
+        <Button variant="secondary">
+          <Plus />
+          Adicionar Tema
+        </Button>
+      </div>
+
+      <main className="flex flex-col gap-4 p-5">
         <TabelaAlunos />
       </main>
     </div>
   );
 }
+

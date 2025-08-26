@@ -20,6 +20,8 @@ import {
   PaginationNext,
 } from '@/components/ui/pagination';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Input } from './ui/input';
+import { Search } from 'lucide-react';
 
 interface Student {
   id: string;
@@ -78,8 +80,14 @@ export function TabelaAlunos() {
   const totalPages = Math.ceil(pagination.total / pagination.pageSize);
 
   return (
-    <div>
-      <Table className='bg-card rounded-lg shadow-sm'>
+    <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
+      <div className="flex items-center max-w-md relative">
+        <Input type="text" placeholder="Buscar por nome..." className="bg-card/70" />
+        <Button className='absolute right-0 top-0 text-primary border rounded-bl-none rounded-tl-none' variant='ghost'>
+          <Search />
+        </Button>
+      </div>
+      <Table >
         <TableHeader>
           <TableRow >
             <TableHead className='pl-4'>Aluno</TableHead>
