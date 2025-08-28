@@ -10,6 +10,7 @@ import { EditButton } from "@/components/ui/edit-button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import { CalendarIcon, Plus } from "lucide-react"
+import { AgendarMentoriaModal } from "@/components/agendar-mentoria-modal"
 
 interface Mentoria {
     id: string
@@ -54,12 +55,9 @@ export default function MentoriasPage() {
                     <h1 className=" text-xl font-bold">Mentorias</h1>
                     <p className="text-xs text-muted-foreground">Lista de mentorias agendadas</p>
                 </div>
-                <Button variant="secondary">
-                    <Plus />
-                    Novo Mentoria
-                </Button>
+                <AgendarMentoriaModal />
             </div>
-            <main className="flex flex-col p-5 gap-4">
+            <main className="flex flex-col p-5 gap-5">
                 <div className="max-w-sm">
                     <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger asChild>
@@ -97,7 +95,7 @@ export default function MentoriasPage() {
                         </Card>
                     ) : (
                         mentoriasFiltradas.map((mentoria) => (
-                            <Card key={mentoria.id} className="h-36">
+                            <Card key={mentoria.id} className="h-36 gap-4 py-4">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0">
                                     <CardTitle className="font-bold">
                                         {mentoria.titulo}
@@ -117,25 +115,36 @@ export default function MentoriasPage() {
                                 <CardContent>
                                     <div className="grid gap-2">
                                         <div className="flex items-center gap-4">
-                                            <Avatar className="size-12">
+                                            <Avatar className="size-14">
                                                 <AvatarImage src="https://github.com/shadcn.png" />
                                                 <AvatarFallback>CN</AvatarFallback>
                                             </Avatar>
                                             <div className="flex items-center justify-between w-full">
                                                 <div>
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-muted-foreground font-semibold text-sm">Aluno:</span>
+                                                        <span className="text-muted-foreground font-semibold text-sm">Aluno(a):</span>
                                                         <span className="text-sm">{mentoria.aluno}</span>
                                                     </div>
 
                                                     <div className="flex items-center gap-2">
+                                                        <span className="text-muted-foreground font-semibold text-sm">Data:</span>
+                                                        <div className="text-sm">
+                                                            {mentoria.data.toLocaleDateString('pt-BR', {
+                                                                day: '2-digit',
+                                                                month: '2-digit',
+                                                                year: 'numeric'
+                                                            })}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2">
                                                         <span className="text-muted-foreground font-semibold text-sm">Horário:</span>
-                                                        <span className="text-sm">
+                                                        <div className="text-sm">
                                                             {mentoria.data.toLocaleTimeString('pt-BR', {
                                                                 hour: '2-digit',
                                                                 minute: '2-digit'
                                                             })}
-                                                        </span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-2">
