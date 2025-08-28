@@ -1,3 +1,4 @@
+import { FormularioTema } from '@/components/formulario-tema';
 import { TabelaAlunos } from '@/components/tabela-alunos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,10 +12,7 @@ export default function Home() {
           <h1 className=" text-xl font-bold">Alunos</h1>
           <p className="text-xs text-muted-foreground">Lista de alunos cadastrados</p>
         </div>
-        <Button variant="secondary">
-          <Plus />
-          Novo Tema
-        </Button>
+        <FormularioTema/>
       </div>
 
       <main className="flex flex-col p-5">
