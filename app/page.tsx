@@ -1,8 +1,5 @@
 import { FormularioTema } from '@/components/formulario-tema';
 import { TabelaAlunos } from '@/components/tabela-alunos';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Plus, Search } from 'lucide-react';
 
 export default function Home() {
   return (

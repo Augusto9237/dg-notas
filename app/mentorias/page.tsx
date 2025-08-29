@@ -95,12 +95,10 @@ export default function MentoriasPage() {
                         </Card>
                     ) : (
                         mentoriasFiltradas.map((mentoria) => (
-                            <Card key={mentoria.id} className="h-36 gap-4 py-4">
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                                    <CardTitle className="font-bold">
-                                        {mentoria.titulo}
-                                    </CardTitle>
+                            <Card key={mentoria.id} className="h-2 gap-4 py-4">
+                                <CardContent className="relative">
                                     <Badge
+                                    className="absolute top-0 right-5"
                                         variant={
                                             mentoria.status === "agendada" ? 'outline' :
                                                 mentoria.status === "concluida" ? 'secondary' :
@@ -111,8 +109,6 @@ export default function MentoriasPage() {
                                             mentoria.status === "concluida" ? "Concluída" :
                                                 "Cancelada"}
                                     </Badge>
-                                </CardHeader>
-                                <CardContent>
                                     <div className="grid gap-2">
                                         <div className="flex items-center gap-4">
                                             <Avatar className="size-14">
@@ -147,7 +143,7 @@ export default function MentoriasPage() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-2">
+                                                <div className="flex gap-2 mt-7">
                                                     <EditButton onClick={() => alert(`Editar mentoria ${mentoria.id}`)} />
                                                     <DeleteButton onClick={() => alert(`Cancelar mentoria ${mentoria.id}`)} />
                                                 </div>

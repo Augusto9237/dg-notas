@@ -1,5 +1,4 @@
 'use client'
-
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -24,15 +23,20 @@ import { Calendar } from "./ui/calendar"
 import { Plus } from "lucide-react"
 import { useState } from "react"
 import { ptBR } from "date-fns/locale"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import Image from "next/image"
+import { Student } from "@/lib/data"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+
 
 const formSchema = z.object({
     aluno: z.string().min(1, "Nome do aluno é obrigatório"),
-    titulo: z.string().min(1, "Título é obrigatório"),
     data: z.date().min(new Date(), {
         message: "Data é obrigatória",
     }),
-    horario: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Horário inválido"),
+    horario: z.string(),
 })
+
 
 export function AgendarMentoriaModal() {
     const [open, setOpen] = useState(false)
@@ -41,11 +45,15 @@ export function AgendarMentoriaModal() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             aluno: "",
-            titulo: "",
             horario: "",
             data: new Date(),
         },
     })
+
+    const dummyStudents: any[] = Array.from({ length: 10 }, (_, i) => ({
+        id: `student-${i + 1}`,
+        name: `Aluno ${i + 1}`,
+    }));
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
@@ -80,27 +88,30 @@ export function AgendarMentoriaModal() {
                                 <FormItem>
                                     <FormLabel>Aluno</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Digite o nome do aluno" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                        <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Daniely Guedes" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {dummyStudents.map((aluno) => (
+                                                    <SelectItem key={aluno.id} value={String(aluno.id)}>
+                                                        <div className="flex items-center gap-4">
+                                                            <Avatar>
+                                                                <AvatarImage src="https://github.com/shadcn.png" />
+                                                                <AvatarFallback>CN</AvatarFallback>
+                                                            </Avatar>
+                                                            {aluno.name}
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
 
-                        <FormField
-                            control={form.control}
-                            name="titulo"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Título</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Ex: Revisão de Redação" {...field} />
+                                            </SelectContent>
+                                        </Select>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        
 
                         <FormField
                             control={form.control}
