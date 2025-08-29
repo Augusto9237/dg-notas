@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Delete, Edit, Search } from 'lucide-react';
 import { DeleteButton } from '@/components/ui/delete-button';
 import { EditButton } from '@/components/ui/edit-button';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 export default function AlunoDetalhesPage() {
   const params = useParams();
@@ -42,9 +43,11 @@ export default function AlunoDetalhesPage() {
 
   return (
     <div className="w-full">
-      <div className='flex justify-between items-center h-14 p-5 mt-3'>
-        <div>
-          <h1 className=" text-xl font-bold">{student.name}</h1>
+      <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
+        <SidebarTrigger className='md:hidden absolute' />
+        <div className='max-md:ml-10'>
+          <h1 className=" text-xl font-bold">
+            {student.name}</h1>
           <p className="text-xs text-muted-foreground">email.test@test.com.br - 00.000.000-00</p>
         </div>
         <FormularioAvaliacoa />
