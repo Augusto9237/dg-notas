@@ -124,7 +124,16 @@ export function AgendarMentoriaModal() {
                                         selected={field.value}
                                         onSelect={field.onChange}
                                         locale={ptBR}
-                                        disabled={(date) => date < new Date()}
+                                        disabled={(date) => {
+                                            // Disable dates in the past
+                                            if (date < new Date()) return true
+
+                                            // Get day of week (0 = Sunday, 1 = Monday, etc)
+                                            const dayOfWeek = date.getDay()
+
+                                            // Only enable Tuesdays (2) and Thursdays (4)
+                                            return dayOfWeek !== 2 && dayOfWeek !== 4
+                                        }}
                                         className="rounded-md border w-full"
                                     />
                                     <FormMessage />
@@ -139,37 +148,51 @@ export function AgendarMentoriaModal() {
                                 <FormItem>
                                     <FormLabel>Horário</FormLabel>
                                     <FormControl>
-                                        <Input
-                                            type="time"
-                                            {...field}
-                                        />
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Selecione um horário" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {Array.from({ length: 15 }, (_, i) => {
+                                                    const hour = 14 + Math.floor(i / 3)
+                                                    const minutes = (i % 3) * 20
+                                                    const time = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+                                                    return (
+                                                        <SelectItem key={time} value={time}>
+                                                            {time}
+                                                        </SelectItem>
+                                                    )
+                                                })}
+                                            </SelectContent>
+                                        </Select>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
-                            )}
-                        />
+                                )}
+                            />
 
-                        <div className="flex justify-center gap-4">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => {
-                                    form.reset()
-                                    setOpen(false)
-                                }}
-                            >
-                                Cancelar
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={form.formState.isSubmitting}
-                            >
-                                {form.formState.isSubmitting ? 'Agendando...' : 'Agendar'}
-                            </Button>
-                        </div>
-                    </form>
-                </Form>
-            </DialogContent>
-        </Dialog>
+
+                    <div className="flex justify-center gap-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                                form.reset()
+                                setOpen(false)
+                            }}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={form.formState.isSubmitting}
+                        >
+                            {form.formState.isSubmitting ? 'Agendando...' : 'Agendar'}
+                        </Button>
+                    </div>
+                </form>
+            </Form>
+        </DialogContent>
+        </Dialog >
     )
 }

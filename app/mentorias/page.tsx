@@ -95,10 +95,10 @@ export default function MentoriasPage() {
                         </Card>
                     ) : (
                         mentoriasFiltradas.map((mentoria) => (
-                            <Card key={mentoria.id} className="h-2 gap-4 py-4">
-                                <CardContent className="relative">
+                            <Card key={mentoria.id} className="h-27 gap-4 py-4">
+                                <CardContent className="relative px-4">
                                     <Badge
-                                    className="absolute top-0 right-5"
+                                        className="absolute top-0 right-4"
                                         variant={
                                             mentoria.status === "agendada" ? 'outline' :
                                                 mentoria.status === "concluida" ? 'secondary' :
@@ -109,13 +109,13 @@ export default function MentoriasPage() {
                                             mentoria.status === "concluida" ? "Concluída" :
                                                 "Cancelada"}
                                     </Badge>
-                                    <div className="grid gap-2">
-                                        <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-2 w-full">
                                             <Avatar className="size-14">
                                                 <AvatarImage src="https://github.com/shadcn.png" />
                                                 <AvatarFallback>CN</AvatarFallback>
                                             </Avatar>
-                                            <div className="flex items-center justify-between w-full">
+                                            <div >
                                                 <div>
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-muted-foreground font-semibold text-sm">Aluno(a):</span>
@@ -143,11 +143,11 @@ export default function MentoriasPage() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-2 mt-7">
-                                                    <EditButton onClick={() => alert(`Editar mentoria ${mentoria.id}`)} />
-                                                    <DeleteButton onClick={() => alert(`Cancelar mentoria ${mentoria.id}`)} />
-                                                </div>
                                             </div>
+                                        </div>
+                                        <div className="flex gap-2 mt-8">
+                                            <EditButton onClick={() => alert(`Editar mentoria ${mentoria.id}`)} />
+                                            <DeleteButton onClick={() => alert(`Cancelar mentoria ${mentoria.id}`)} />
                                         </div>
                                     </div>
                                 </CardContent>
