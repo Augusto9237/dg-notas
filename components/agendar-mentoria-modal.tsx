@@ -34,9 +34,20 @@ const formSchema = z.object({
     data: z.date().min(new Date(), {
         message: "Data é obrigatória",
     }),
-    horario: z.string(),
+    horario: z.string().min(1, "Horário é obrigatório"),
 })
 
+
+function generateTimeSlots(): string[] {
+    const slots: string[] = [];
+    for (let i = 0; i < 15; i++) {
+        const hour = 14 + Math.floor(i / 3);
+        const minutes = (i % 3) * 20;
+        const time = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        slots.push(time);
+    }
+    return slots;
+}
 
 export function AgendarMentoriaModal() {
     const [open, setOpen] = useState(false)
@@ -148,21 +159,16 @@ export function AgendarMentoriaModal() {
                                 <FormItem>
                                     <FormLabel>Horário</FormLabel>
                                     <FormControl>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value ?? ""}>
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Selecione um horário" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {Array.from({ length: 15 }, (_, i) => {
-                                                    const hour = 14 + Math.floor(i / 3)
-                                                    const minutes = (i % 3) * 20
-                                                    const time = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
-                                                    return (
-                                                        <SelectItem key={time} value={time}>
-                                                            {time}
-                                                        </SelectItem>
-                                                    )
-                                                })}
+                                                {generateTimeSlots().map((time) => (
+                                                    <SelectItem key={time} value={time}>
+                                                        {time}
+                                                    </SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                     </FormControl>
@@ -170,7 +176,6 @@ export function AgendarMentoriaModal() {
                                 </FormItem>
                                 )}
                             />
-
 
                     <div className="flex justify-center gap-4">
                         <Button
