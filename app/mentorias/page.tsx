@@ -81,12 +81,22 @@ export default function MentoriasPage() {
                                 selected={dataSelecionada}
                                 onSelect={setDataSelecionada}
                                 locale={ptBR}
+                                disabled={(date) => {
+                                    // Disable dates in the past
+                                    if (date < new Date()) return true
+
+                                    // Get day of week (0 = Sunday, 1 = Monday, etc)
+                                    const dayOfWeek = date.getDay()
+
+                                    // Only enable Tuesdays (2) and Thursdays (4)
+                                    return dayOfWeek !== 2 && dayOfWeek !== 4
+                                }}
                                 className="rounded-md border w-sm"
                             />
                         </PopoverContent>
                     </Popover>
                 </div>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4">
                     {mentoriasFiltradas.length === 0 ? (
                         <Card>
                             <CardContent className="p-6 text-center text-muted-foreground">
