@@ -3,7 +3,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ptBR } from 'date-fns/locale'
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DeleteButton } from "@/components/ui/delete-button"
 import { EditButton } from "@/components/ui/edit-button"
@@ -42,11 +42,17 @@ export default function MentoriasPage() {
     const [dataSelecionada, setDataSelecionada] = useState<Date | undefined>(new Date())
     const [mentorias] = useState<Mentoria[]>(mentoriasIniciais)
 
-    const mentoriasFiltradas = dataSelecionada
-        ? mentorias.filter(mentoria =>
-            mentoria.data.toDateString() === dataSelecionada.toDateString()
-        )
-        : mentorias
+    const [mentoriasFiltradas, setMentoriasFiltradas] = useState<Mentoria[]>(mentorias)
+
+    useEffect(() => {
+        const filteredMentorias = dataSelecionada
+            ? mentorias.filter(mentoria =>
+                mentoria.data.toDateString() === dataSelecionada.toDateString()
+            )
+            : []
+
+        setMentoriasFiltradas(filteredMentorias)
+    }, [dataSelecionada, mentorias])
 
     return (
         <div className="w-full">

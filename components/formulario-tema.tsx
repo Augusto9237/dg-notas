@@ -43,7 +43,7 @@ export function FormularioTema() {
     try {
       // Adicione aqui a lógica para salvar o tema
       console.log('Novo tema:', values)
-      
+
       form.reset()
       setOpen(false)
     } catch (error) {
@@ -55,7 +55,7 @@ export function FormularioTema() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="secondary">
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus />
           Novo Tema
         </Button>
       </DialogTrigger>
@@ -72,9 +72,9 @@ export function FormularioTema() {
                 <FormItem>
                   <FormLabel>Tema</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Digite o novo tema" 
-                      {...field} 
+                    <Input
+                      placeholder="Digite o novo tema"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
