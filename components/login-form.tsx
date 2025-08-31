@@ -43,7 +43,7 @@ export function TabsDemo() {
                 Acesse sua conta de aluno
               </CardDescription>
             </CardHeader>
-            <CardContent className="px-5">
+            <CardContent className="px-5 pt-5">
               <Button variant="secondary" className="w-full">
                 <FcGoogle />
                 Login com Google
