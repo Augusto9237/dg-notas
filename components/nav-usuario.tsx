@@ -36,10 +36,10 @@ export function NavUsuario() {
                         <AvatarImage src={session?.user? session.user.image! : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
                         <AvatarFallback>DG</AvatarFallback>
                     </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight ">
+                    {/* <div className="grid flex-1 text-left text-sm leading-tight ">
                         <span className="truncate font-semibold">{session?.user.name}</span>
                         <span className="truncate text-xs text-muted-foreground">Professor(a)</span>
-                    </div>
+                    </div> */}
                     <ChevronDown className="ml-auto size-4" />
                 </div>
             </DropdownMenuTrigger>

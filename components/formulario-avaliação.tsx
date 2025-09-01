@@ -54,8 +54,6 @@ const temas = [
 
 export function FormularioAvaliacoa() {
   const [isOpen, setIsOpen] = useState(false) // Add this state for dialog control
-  const [studentName, setStudentName] = useState("")
-  const [assignmentTitle, setAssignmentTitle] = useState("")
   const [criteria, setCriteria] = useState<GradingCriteria[]>(
     [
       {

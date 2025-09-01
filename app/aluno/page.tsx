@@ -11,14 +11,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { FormularioAvaliacoa } from '@/components/formulario-avaliação';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Delete, Edit, Search } from 'lucide-react';
-import { DeleteButton } from '@/components/ui/delete-button';
-import { EditButton } from '@/components/ui/edit-button';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import { NavUsuario } from '@/components/nav-usuario';
+import { ModalAvaliacao } from '@/components/modal-avaliação';
 
 export default function AlunoDetalhesPage() {
   const params = useParams();
@@ -50,14 +47,14 @@ export default function AlunoDetalhesPage() {
             Olá! {' '}
             {student.name}
           </h1>
-      
+
         </div>
         <NavUsuario />
       </div>
       <main className="flex flex-col gap-4 p-5">
         <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
           <div className="flex items-center w-full max-w-md relative">
-            <Input type="text" placeholder="Buscar por Tema" className="bg-card/70" />
+            <Input type="text" placeholder="Buscar por Tema" className="bg-card/70 placeholder:text-xs" />
             <Button className='absolute right-0 top-0 bg-background border rounded-bl-none rounded-tl-none' variant='ghost'>
               <Search />
             </Button>
@@ -78,21 +75,7 @@ export default function AlunoDetalhesPage() {
             </TableHeader>
             <TableBody>
               {student.essays.map((essay) => (
-                <TableRow key={essay.id}>
-                  <TableCell className='pl-4'>
-                    {essay.title}
-                  </TableCell>
-                  <TableCell>
-                    {new Date().toLocaleDateString('pt-BR')}
-                  </TableCell>
-                  {essay.competencies.map((score, index) => (
-                    <TableCell key={index}>{score}
-                    </TableCell>
-                  ))}
-                  <TableCell className="font-bold text-center">
-                    {calculateTotalScore(essay.competencies)}
-                  </TableCell>
-                </TableRow>
+                <ModalAvaliacao key={essay.id} essay={essay} />
               ))}
             </TableBody>
           </Table>
