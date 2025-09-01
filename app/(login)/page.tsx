@@ -8,13 +8,13 @@ export default function LoginPage() {
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4  bg-primary">
         <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-md flex flex-col items-center gap-4">
+          <div className="w-full max-w-md flex flex-col items-center gap-10">
             <Image
-              src="/Sublogo4.svg"
+              src="/Logo4.svg"
               alt="Logo"
               width={488}
               height={400}
-              className="h-[80px] w-[288px] object-cover"
+              className="h-[110px] max-sm:h-[88px] w-[360px] max-sm:w-[280px] object-cover"
             />
             {/* <LoginForm /> */}
             <TabsDemo/>

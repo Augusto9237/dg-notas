@@ -17,15 +17,17 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { Button } from "./ui/button"
 import { useRouter } from "next/navigation"
+import { authClient } from "@/lib/auth-client"
 export function NavUsuario() {
-    // const { data: session } = authClient.useSession();
+    const { data: session } = authClient.useSession();
     const router = useRouter()
 
-    // async function sair() {
-    //     await authClient.signOut();
-    //     router.push("/")
+    async function sair() {
+        await authClient.signOut();
+        router.push("/")
+    }
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -35,7 +37,7 @@ export function NavUsuario() {
                         <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight ">
-                        <span className="truncate font-semibold">Daniely Guedes</span>
+                        <span className="truncate font-semibold">{session?.user.name}</span>
                         <span className="truncate text-xs text-muted-foreground">Professor(a)</span>
                     </div>
                     <ChevronDown className="ml-auto size-4" />
@@ -50,25 +52,16 @@ export function NavUsuario() {
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                         <div className="grid flex-1 text-left text-sm leading-tight px-1">
                             <span className="truncate font-semibold">
-                                {/* {session?.user.name} */}
-                                Danieley Guedes
+                                {session?.user.name}
                             </span>
                             <span className="truncate text-xs">
-                                {/* {session?.user.email} */}
-                                email.teste@email.com
+                                {session?.user.email}
                             </span>
                         </div>
                     </div>
                 </DropdownMenuLabel>
-                {/* <DropdownMenuSeparator />
-                <Link href="/aluno/assinatura">
-                    <DropdownMenuItem>
-                        <CreditCard />
-                        Assinatura
-                    </DropdownMenuItem>
-                </Link> */}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem >
+                <DropdownMenuItem onClick={sair} >
                     <LogOut />
                     Sair
                 </DropdownMenuItem>

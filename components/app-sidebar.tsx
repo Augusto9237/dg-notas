@@ -12,13 +12,15 @@ import { Lightbulb, Users } from "lucide-react"
 import { NavUsuario } from "./nav-usuario"
 import { usePathname } from "next/navigation"
 
+import { GiTeamIdea } from "react-icons/gi";
+
 export function AppSidebar() {
   const path = usePathname()
 
   return (
     <Sidebar className="bg-primary">
       <SidebarHeader>
-        <Link href="/" className="w-full">
+        <Link href="/" className="w-full pt-1">
           <Logo />
         </Link>
       </SidebarHeader>
@@ -26,9 +28,9 @@ export function AppSidebar() {
         <SidebarMenuButton
           asChild
           className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
-          isActive={path === '/' ? true : false}
+          isActive={path === '/professor/alunos' ? true : false}
         >
-          <Link href="/" className="flex gap-2 items-center">
+          <Link href="/professor/alunos" className="flex gap-2 items-center">
             <Users />
             Alunos
           </Link>
@@ -36,10 +38,10 @@ export function AppSidebar() {
         <SidebarMenuButton
           asChild
           className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
-          isActive={path === '/mentorias' ? true : false}
+          isActive={path === '/professor/mentorias' ? true : false}
         >
-          <Link href="/mentorias " className="flex gap-2 items-center">
-            <Lightbulb />
+          <Link href="/professor/mentorias " className="flex gap-2 items-center">
+            <GiTeamIdea />
             Mentorias
           </Link>
         </SidebarMenuButton>

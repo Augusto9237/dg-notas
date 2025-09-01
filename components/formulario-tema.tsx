@@ -56,7 +56,8 @@ export function FormularioTema() {
       <DialogTrigger asChild>
         <Button variant="secondary">
           <Plus />
-          Novo Tema
+          <span className="max-sm:hidden">Novo</span>
+          Tema
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

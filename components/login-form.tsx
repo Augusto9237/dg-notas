@@ -20,8 +20,17 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { authClient } from "@/lib/auth-client"
 
 export function TabsDemo() {
+  async function entrarComGoogle() {
+    await authClient.signIn.social({
+      provider: 'google',
+      callbackURL: '/professor/alunos'
+    },
+    )
+  };
+
   return (
     <div className="flex w-full  flex-col gap-6">
       <Tabs defaultValue="aluno">
@@ -35,34 +44,42 @@ export function TabsDemo() {
             Professor(a)
           </TabsTrigger>
         </TabsList>
+
+        {/* Login aluno */}
         <TabsContent value="aluno">
           <Card className="h-[346px] bg-primary border-none shadow-none">
             <CardHeader className="justify-center text-center">
               <CardTitle className="text-background">Aluno(a)</CardTitle>
-              <CardDescription>
+              <CardDescription className="text-background/50">
                 Acesse sua conta de aluno
               </CardDescription>
             </CardHeader>
             <CardContent className="px-5 pt-5">
-              <Button variant="secondary" className="w-full">
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={entrarComGoogle}
+              >
                 <FcGoogle />
                 Login com Google
               </Button>
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Login professor */}
         <TabsContent value="professor">
           <Card className="h-[346px] bg-primary border-none shadow-none">
             <CardHeader className="justify-center text-center">
               <CardTitle className="text-background">Professor(a)</CardTitle>
-              <CardDescription>
+              <CardDescription className="text-background/50">
                 Entre na sua conta de professor
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6">
               <div className="grid gap-3 text-background">
                 <Label htmlFor="email">E-mail</Label>
-                <Input id="email" type="email" placeholder="m@example.com" required className="bg-background" />
+                <Input id="email" type="email" placeholder="professor@email.com" required className="bg-background" />
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center text-background">
@@ -80,8 +97,12 @@ export function TabsDemo() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full" variant="secondary">
-                Login
+              <Button
+                type="submit"
+                className="w-full"
+                variant="secondary"
+              >
+                Entrar
               </Button>
             </CardFooter>
           </Card>

@@ -10,9 +10,9 @@ import {
 import { AppSidebar } from "@/components/app-sidebar";
 
 const poppins = Poppins({
-    weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
-    subsets: ['latin'],
-    display: 'swap', // Or 'fallback' or 'optional'
+  weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
+  subsets: ['latin'],
+  display: 'swap', // Or 'fallback' or 'optional'
 });
 
 
@@ -34,8 +34,10 @@ export default function RootLayout({
         <SidebarProvider>
           <AppSidebar />
           <SidebarInset>
-            {/* <Header /> */}
-            {children}
+            <div className="realtive">
+              <SidebarTrigger className="absolute top-5 left-4.5 size-9 md:hidden"/>
+              {children}
+            </div>
           </SidebarInset>
         </SidebarProvider>
       </body>
