@@ -28,9 +28,9 @@ export function AppSidebar() {
         <SidebarMenuButton
           asChild
           className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
-          isActive={path === '/professor/alunos' ? true : false}
+          isActive={path === '/professor' ? true : false}
         >
-          <Link href="/professor/alunos" className="flex gap-2 items-center">
+          <Link href="/professor" className="flex gap-2 items-center">
             <Users />
             Alunos
           </Link>

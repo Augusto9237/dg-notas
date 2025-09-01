@@ -22,6 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from './ui/input';
 import { FileCheck2, Search } from 'lucide-react';
+import { Skeleton } from './ui/skeleton';
 
 interface Student {
   id: string;
@@ -98,17 +99,21 @@ export function TabelaAlunos() {
         </TableHeader>
         <TableBody>
           {loading ? (
-            <TableRow>
-              <TableCell colSpan={2} className="text-center">
-                Carregando...
-              </TableCell>
-            </TableRow>
+            Array.from({ length: 12 }, (_, i) => (
+              <TableRow key={i}>
+                <TableCell colSpan={4}>
+                  <Skeleton className="h-9 w-full" />
+                </TableCell>
+              </TableRow>
+            ))
           ) : students.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={2} className="text-center">
-                Nenhum aluno encontrado.
-              </TableCell>
-            </TableRow>
+            Array.from({ length: 4 }, (_, i) => (
+              <TableRow key={i}>
+                <TableCell colSpan={12}>
+                  <Skeleton className="h-9 w-full" />
+                </TableCell>
+              </TableRow>
+            ))
           ) : (
             students.map((student) => (
               <TableRow key={student.id}>
@@ -122,7 +127,7 @@ export function TabelaAlunos() {
                 <TableCell>Email.test@teste.com</TableCell>
                 <TableCell>00.000.000-00</TableCell>
                 <TableCell className="text-right">
-                  <Link href={`/alunos/${student.id}`} passHref>
+                  <Link href={`/professor/aluno/${student.id}`} passHref>
                     <Button>
                       <FileCheck2 />
                       Notas
