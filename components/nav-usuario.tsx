@@ -33,8 +33,8 @@ export function NavUsuario() {
             <DropdownMenuTrigger asChild>
                 <div className="flex items-center gap-2 cursor-pointer text-muted">
                     <Avatar className="border-2 border-secondary">
-                        <AvatarImage src="https://github.com/shadcn.png" />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarImage src={session?.user? session.user.image! : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
+                        <AvatarFallback>DG</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight ">
                         <span className="truncate font-semibold">{session?.user.name}</span>
