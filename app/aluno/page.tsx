@@ -17,7 +17,7 @@ import { Delete, Edit, Search } from 'lucide-react';
 import { NavUsuario } from '@/components/nav-usuario';
 import { ModalAvaliacao } from '@/components/modal-avaliação';
 
-export default function AlunoDetalhesPage() {
+export default function Page() {
   const params = useParams();
   const studentId = params.id as string;
 
@@ -34,10 +34,6 @@ export default function AlunoDetalhesPage() {
       </div>
     );
   }
-
-  // Function to calculate total score
-  const calculateTotalScore = (competencies: number[]) =>
-    competencies.reduce((sum, score) => sum + score, 0);
 
   return (
     <div className="w-full">

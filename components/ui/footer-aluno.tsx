@@ -37,8 +37,8 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
                             key={route.href}
                             href={route.href}
                             className={cn(
-                                "flex flex-col items-center text-xs font-medium transition-colors hover:text-primary",
-                                route.active ? "text-secondary" : "text-background"
+                                "flex flex-col items-center text-xs font-medium transition-colors hover:text-background/50",
+                                route.active ? "text-secondary hover:text-secondary/50" : "text-background"
                             )}
                         >
                             <div className="mb-1">{route.icon}</div>

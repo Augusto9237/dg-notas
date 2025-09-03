@@ -96,10 +96,14 @@ export function ModalAvaliacao({ essay }: ModalAvaliacaoProps) {
           </TableCell>
         </TableRow>
       </DialogTrigger>
-      <DialogContent style={{ maxWidth: "600px" }}>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-center">Detalhes da Avaliação</DialogTitle>
         </DialogHeader>
+        <div>
+          <Label>Tema</Label>
+          <p className="text-xs text-muted-foreground">{essay.title}</p>
+        </div>
         {criteria.map((criterion, index) => (
           <div key={index} className="flex justify-between items-center">
             <div>
