@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, BookOpen } from "lucide-react";
 import Image from "next/image";
+import { Card } from "./card";
 
 interface FooterAlunoProps {
     className?: string;
@@ -16,7 +17,7 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
         {
             icon: <Home className="h-5 w-5" />,
             href: "/aluno",
-            label: "Notas",
+            label: "Avaliações",
             active: pathname === "/aluno",
         },
         {
@@ -28,25 +29,25 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
     ];
 
     return (
-        <footer className={cn("fixed inset-x-0 bottom-0 z-50", className)}>
-            <div className="bg-primary shadow-md">
-                <nav className="flex justify-between w-full py-2 px-12 relative">
-                    <Image src="/Símbolo4.svg" alt="logo" width={100} height={100} className="absolute -top-4 left-1/2 transform -translate-x-1/2 object-cover w-16 h-16 bg-primary rounded-full p-2"/>
+        <footer className={cn("fixed inset-x-0 bottom-0 z-50 px-2 pb-2", className)}>
+            <Card className="backdrop-blur-lg p-0 border-none bg-card/70">
+                <nav className="flex justify-between w-full px-5 relative">
+                    <Image src="/Símbolo4.svg" alt="logo" width={100} height={100} className="absolute top-0 left-1/2 transform -translate-x-1/2 object-cover w-14 h-14 bg-primary rounded-full p-2 border border-secondary" />
                     {routes.map((route) => (
                         <Link
                             key={route.href}
                             href={route.href}
                             className={cn(
-                                "flex flex-col items-center text-xs font-medium transition-colors hover:text-background/50",
-                                route.active ? "text-secondary hover:text-secondary/50" : "text-background"
+                                "flex flex-col p-2 items-center text-xs text-primary font-medium transition-colors border-b-3",
+                                route.active ? "border-primary " : "border-card/0"
                             )}
                         >
-                            <div className="mb-1">{route.icon}</div>
+                            <div className="mt-[1px]">{route.icon}</div>
                             {route.label}
                         </Link>
                     ))}
                 </nav>
-            </div>
+            </Card>
         </footer>
     );
 };

@@ -13,95 +13,51 @@ import Link from "next/link";
 import { Button } from "./button";
 import { Logo } from "./logo";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import { Card, CardDescription, CardTitle } from "./card";
 
 export default function Header() {
   return (
-    <header className="flex  justify-center p-4 top-0 right-0 left-0 absolute h-[72px] max-md:max-h-[56px] bg-card shadow-md">
-      <div className="flex items-center gap-4 w-full max-w-screen-2xl mx-auto px-4">
-        <nav className="flex gap-5 items-center">
-          <Link href="/" className="w-44 h-10">
-            <Logo />
-          </Link>
-
-          <Link href="/">
-            <Button variant="link" className="text-base">
-              Alunos
-            </Button>
-          </Link>
-
-          <Link href="/mentorias">
-            <Button variant="link" className="text-base">
-              Mentorias
-            </Button>
-          </Link>
-        </nav>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="md:hidden">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle navigation menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left">
-            <nav className="grid gap-6 text-lg font-medium">
-              <Link
-                href="#"
-                className="flex items-center gap-2 text-lg font-semibold"
-              >
-                Notas
-              </Link>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Orders
-              </Link>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Products
-              </Link>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Customers
-              </Link>
-              <Link href="#" className="hover:text-foreground">
-                Settings
-              </Link>
-            </nav>
-          </SheetContent>
-        </Sheet>
-        <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-          <div className="ml-auto flex-1 md:grow-0"></div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full">
-                <Avatar>
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <div
+      className="bg-primary text-card px-5 py-4"
+    >
+      <div className="flex items-center gap-3 mb-4">
+        <Avatar className="h-12 w-12 border-2 border-secondary">
+          <AvatarImage src="/api/placeholder/48/48" />
+          <AvatarFallback className="bg-background text-primary font-medium">
+            MR
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <h1 className="text-lg">Olá, Maria!</h1>
+          <p className="text-sm opacity-90">
+            Bons estudos hoje 📚
+          </p>
         </div>
       </div>
-    </header>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4">
+        <Card className="text-center bg-card/10 rounded-lg backdrop-blur-sm border-none gap-1 p-2">
+          <CardTitle className="text-lg font-bold text-secondary">
+            8.5
+          </CardTitle>
+          <CardDescription className="text-xs opacity-90 text-card">Média Geral</CardDescription>
+        </Card>
+
+        <Card className="text-center bg-card/10 rounded-lg backdrop-blur-sm border-none gap-1 p-2">
+          <CardTitle className="text-lg font-bold text-secondary">
+            12
+          </CardTitle>
+          <CardDescription className="text-xs opacity-90 text-card">Redações</CardDescription>
+        </Card>
+
+        <Card className="text-center bg-card/10 rounded-lg backdrop-blur-sm border-none gap-1 p-2">
+          <CardTitle className="text-lg font-bold text-secondary">
+            10
+          </CardTitle>
+          <CardDescription className="text-xs opacity-90 text-card">Mentorias</CardDescription>
+        </Card>
+      </div>
+    </div>
   );
 }

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Plus } from "lucide-react"
+import { ChevronRight, Plus } from "lucide-react"
 import { useState } from "react"
 import { Separator } from "@radix-ui/react-dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
@@ -80,30 +80,15 @@ export function ModalAvaliacao({ essay }: ModalAvaliacaoProps) {
   return (
     <Dialog open={isOpen} onOpenChange={() => setIsOpen(open => !open)}>
       <DialogTrigger asChild>
-        <TableRow>
-          <TableCell className='pl-4'>
-            {essay.title}
-          </TableCell>
-          <TableCell>
-            {new Date().toLocaleDateString('pt-BR')}
-          </TableCell>
-          {essay.competencies.map((score, index) => (
-            <TableCell key={index}>{score}
-            </TableCell>
-          ))}
-          <TableCell className="font-bold text-center">
-            {calculateTotalScore(essay.competencies)}
-          </TableCell>
-        </TableRow>
+        <Button className="w-full relative" size="sm">
+          Avaliação Completa
+          <ChevronRight className="absolute right-3 top-2" />
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-center">Detalhes da Avaliação</DialogTitle>
+          <DialogTitle className="text-center text-base">{essay.title}</DialogTitle>
         </DialogHeader>
-        <div>
-          <Label>Tema</Label>
-          <p className="text-xs text-muted-foreground">{essay.title}</p>
-        </div>
         {criteria.map((criterion, index) => (
           <div key={index} className="flex justify-between items-center">
             <div>
@@ -123,18 +108,6 @@ export function ModalAvaliacao({ essay }: ModalAvaliacaoProps) {
           <div className="flex justify-between font-semibold w-full">
             <span>Nota Final:</span>
             <span>{calculateTotalScore(essay.competencies)}/1000</span>
-          </div>
-          <div className="flex justify-center gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setIsOpen(false)
-              }}
-              className="min-w-[100px]"
-            >
-              Ok
-            </Button>
           </div>
         </div>
       </DialogContent>

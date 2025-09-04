@@ -16,6 +16,8 @@ import { Button } from '@/components/ui/button';
 import { Delete, Edit, Search } from 'lucide-react';
 import { NavUsuario } from '@/components/nav-usuario';
 import { ModalAvaliacao } from '@/components/modal-avaliação';
+import Header from '@/components/ui/header';
+import { CardAvaliacao } from '@/components/card-avaliacao';
 
 export default function Page() {
   const params = useParams();
@@ -37,18 +39,27 @@ export default function Page() {
 
   return (
     <div className="w-full">
-      <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
-        <div>
-          <h1 className="text-lg font-bold">
-            Olá! {' '}
-            {student.name}
-          </h1>
-
+      <main className="flex flex-col gap-4 p-5 pb-20">
+        <div className="flex items-center justify-between">
+          <h2 className="text-primary font-semibold">Suas Redações</h2>
+        
         </div>
-        <NavUsuario />
-      </div>
-      <main className="flex flex-col gap-4 p-5">
-        <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
+        {student.essays.map((essay) => (
+          <CardAvaliacao key={essay.id} essay={essay} />
+        ))}
+        {student.essays.map((essay) => (
+          <CardAvaliacao key={essay.id} essay={essay} />
+        ))}
+        {student.essays.map((essay) => (
+          <CardAvaliacao key={essay.id} essay={essay} />
+        ))}
+        {student.essays.map((essay) => (
+          <CardAvaliacao key={essay.id} essay={essay} />
+        ))}
+
+
+
+        {/* <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
           <div className="flex items-center w-full max-w-md relative">
             <Input type="text" placeholder="Buscar por Tema" className="bg-card/70 placeholder:text-xs" />
             <Button className='absolute right-0 top-0 bg-background border rounded-bl-none rounded-tl-none' variant='ghost'>
@@ -75,7 +86,7 @@ export default function Page() {
               ))}
             </TableBody>
           </Table>
-        </div>
+        </div> */}
       </main>
     </div>
   );

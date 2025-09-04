@@ -4,6 +4,7 @@ import { Poppins } from 'next/font/google';
 
 import "../globals.css";
 import { FooterAluno } from '@/components/ui/footer-aluno';
+import Header from '@/components/ui/header';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <body
                 className={`${poppins.className} antialiased`}
             >
+                <Header />
                 <main>{children}</main>
                 <FooterAluno />
             </body>
