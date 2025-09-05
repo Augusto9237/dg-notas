@@ -4,6 +4,7 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ModalAvaliacao } from "./modal-avaliação";
+import { Progress } from "./ui/progress";
 
 interface CardAvaliacaoProps {
     essay: Essay;
@@ -14,9 +15,9 @@ const calculateTotalScore = (competencies: number[]) =>
 
 const getGradeColor = (grade: number, maxGrade: number) => {
     const percentage = (grade / maxGrade) * 100;
-    if (percentage >= 90) return "bg-yellow-500";
-    if (percentage >= 80) return "bg-blue-500";
-    if (percentage >= 70) return "bg-yellow-400";
+    if (percentage >= 90) return "bg-secondary";
+    if (percentage >= 80) return "bg-secondary-foreground";
+    if (percentage >= 70) return "bg-primary";
     return "bg-red-500";
 };
 
@@ -52,17 +53,11 @@ export function CardAvaliacao({ essay }: CardAvaliacaoProps) {
                     <div className="text-right">
                         <Badge
                             className="mb-2"
+                            variant={getGradeBadgeVariant(calculateTotalScore(essay.competencies), 1000)}
                         >
                             {calculateTotalScore(essay.competencies)}/1000
                         </Badge>
-                        <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
-                            <div
-                                className={`h-full ${getGradeColor(calculateTotalScore(essay.competencies), 1000)} transition-all`}
-                                style={{
-                                    width: `${(calculateTotalScore(essay.competencies) / 1000) * 100}%`,
-                                }}
-                            />
-                        </div>
+                        <Progress value={(calculateTotalScore(essay.competencies) / 1000) * 100} indicatorClassName={getGradeColor(calculateTotalScore(essay.competencies), 1000)} />
                     </div>
                 </div>
             </CardContent>

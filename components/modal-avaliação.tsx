@@ -7,14 +7,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { ChevronRight, Plus } from "lucide-react"
 import { useState } from "react"
 import { Separator } from "@radix-ui/react-dropdown-menu"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { TableCell, TableRow } from "./ui/table"
 import { Essay, Student } from "@/lib/data"
+import { Badge } from "./ui/badge"
+import { Progress } from "./ui/progress"
 
 interface GradingCriteria {
   name: string
@@ -66,13 +64,24 @@ export function ModalAvaliacao({ essay }: ModalAvaliacaoProps) {
 
   )
 
-  const totalScore = criteria.reduce((sum, item) => sum + item.score, 0)
+  const getGradeColor = (grade: number, maxGrade: number) => {
+    const percentage = (grade / maxGrade) * 100;
+    if (percentage >= 90) return "bg-secondary";
+    if (percentage >= 80) return "bg-primary-foreground";
+    if (percentage >= 70) return "bg-primary";
+    return "bg-red-500";
+};
 
-  const handleScoreChange = (index: number, value: string) => {
-    const newCriteria = [...criteria]
-    newCriteria[index].score = Number(value)
-    setCriteria(newCriteria)
-  }
+const getGradeBadgeVariant = (
+    grade: number,
+    maxGrade: number,
+) => {
+    const percentage = (grade / maxGrade) * 100;
+    if (percentage >= 90) return "secondary";
+    if (percentage >= 80) return "default";
+    if (percentage >= 70) return "outline";
+    return "destructive";
+};
 
   const calculateTotalScore = (competencies: number[]) =>
     competencies.reduce((sum, score) => sum + score, 0);
@@ -90,22 +99,27 @@ export function ModalAvaliacao({ essay }: ModalAvaliacaoProps) {
           <DialogTitle className="text-center text-base">{essay.title}</DialogTitle>
         </DialogHeader>
         {criteria.map((criterion, index) => (
-          <div key={index} className="flex justify-between items-center">
-            <div>
-              <Label>{criterion.name}</Label>
-              <p className="text-xs text-muted-foreground">{criterion.description}</p>
+          <div key={index} className="space-y-1">
+            <div className="flex justify-between items-center">
+              <p className="text-sm font-medium">
+                {criterion.name}
+              </p>
+              <Badge
+                className="text-xs"
+                variant={getGradeBadgeVariant(essay.competencies[index], criterion.maxScore)}
+              >
+                {essay.competencies[index]}/{criterion.maxScore}
+              </Badge>
             </div>
-            <div className="flex items-center gap-1">
-              <span className="text-sm font-semibold">{essay.competencies[index]}</span>
-              <span className="text-xs text-muted-foreground">/{criterion.maxScore}</span>
-            </div>
+            <Progress value={(essay.competencies[index]/ criterion.maxScore) * 100} indicatorClassName={getGradeColor(essay.competencies[index], criterion.maxScore)} />
+            <p className="text-xs text-muted-foreground">{criterion.description}</p>
           </div>
         ))}
 
         <Separator />
 
         <div className="flex flex-col justify-between items-center pt-4 gap-4 border-t">
-          <div className="flex justify-between font-semibold w-full">
+          <div className="flex justify-between font-semibold w-full text-primary">
             <span>Nota Final:</span>
             <span>{calculateTotalScore(essay.competencies)}/1000</span>
           </div>
