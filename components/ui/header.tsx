@@ -43,7 +43,7 @@ export default function Header() {
       <div className="grid grid-cols-3 gap-4">
         <Card className="text-center bg-card/10 rounded-lg backdrop-blur-sm border-none gap-1 p-2">
           <CardTitle className="text-lg font-bold text-secondary">
-            8.5
+            926
           </CardTitle>
           <CardDescription className="text-xs opacity-90 text-card">Média Geral</CardDescription>
         </Card>

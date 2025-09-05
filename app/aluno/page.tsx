@@ -56,37 +56,6 @@ export default function Page() {
         {student.essays.map((essay) => (
           <CardAvaliacao key={essay.id} essay={essay} />
         ))}
-
-
-
-        {/* <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
-          <div className="flex items-center w-full max-w-md relative">
-            <Input type="text" placeholder="Buscar por Tema" className="bg-card/70 placeholder:text-xs" />
-            <Button className='absolute right-0 top-0 bg-background border rounded-bl-none rounded-tl-none' variant='ghost'>
-              <Search />
-            </Button>
-          </div>
-
-          <Table>
-            <TableHeader>
-              <TableRow >
-                <TableHead className='pl-4'>Tema</TableHead>
-                <TableHead >Data</TableHead>
-                <TableHead>Competência 1</TableHead>
-                <TableHead>Competência 2</TableHead>
-                <TableHead>Competência 3</TableHead>
-                <TableHead>Competência 4</TableHead>
-                <TableHead>Competência 5</TableHead>
-                <TableHead>Nota Total</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {student.essays.map((essay) => (
-                <ModalAvaliacao key={essay.id} essay={essay} />
-              ))}
-            </TableBody>
-          </Table>
-        </div> */}
       </main>
     </div>
   );

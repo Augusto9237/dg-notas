@@ -66,9 +66,9 @@ export function ModalAvaliacao({ essay }: ModalAvaliacaoProps) {
 
   const getGradeColor = (grade: number, maxGrade: number) => {
     const percentage = (grade / maxGrade) * 100;
-    if (percentage >= 90) return "bg-secondary";
-    if (percentage >= 80) return "bg-primary-foreground";
-    if (percentage >= 70) return "bg-primary";
+    if (percentage >= 90) return "bg-primary";
+    if (percentage >= 80) return "bg-secondary";
+    if (percentage >= 70) return "bg-secondary-foreground";
     return "bg-red-500";
 };
 
@@ -77,8 +77,8 @@ const getGradeBadgeVariant = (
     maxGrade: number,
 ) => {
     const percentage = (grade / maxGrade) * 100;
-    if (percentage >= 90) return "secondary";
-    if (percentage >= 80) return "default";
+    if (percentage >= 90) return "default";
+    if (percentage >= 80) return "secondary";
     if (percentage >= 70) return "outline";
     return "destructive";
 };
