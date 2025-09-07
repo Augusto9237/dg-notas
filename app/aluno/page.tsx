@@ -42,7 +42,6 @@ export default function Page() {
       <main className="flex flex-col gap-4 p-5 pb-20">
         <div className="flex items-center justify-between">
           <h2 className="text-primary font-semibold">Suas Redações</h2>
-        
         </div>
         {student.essays.map((essay) => (
           <CardAvaliacao key={essay.id} essay={essay} />

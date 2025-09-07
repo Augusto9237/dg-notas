@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Calendar } from "./ui/calendar"
-import { Plus } from "lucide-react"
+import { CalendarPlus, Plus } from "lucide-react"
 import { useState } from "react"
 import { ptBR } from "date-fns/locale"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
@@ -37,14 +37,11 @@ const formSchema = z.object({
 
 
 function generateTimeSlots(): string[] {
-    const slots: string[] = [];
-    for (let i = 0; i < 15; i++) {
-        const hour = 14 + Math.floor(i / 3);
+    return Array.from({ length: 7 }, (_, i) => {
+        const hour = 15 + Math.floor(i / 3);
         const minutes = (i % 3) * 20;
-        const time = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-        slots.push(time);
-    }
-    return slots;
+        return `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    });
 }
 
 export function AgendarMentoriaAluno() {
@@ -79,13 +76,14 @@ export function AgendarMentoriaAluno() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="secondary" size="icon">
-                    <Plus />
+                <Button>
+                    <CalendarPlus />
+                    Agendar Mentoria
                 </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle className="text-center">Nova Mentoria</DialogTitle>
+                    <DialogTitle className="text-center">Agendar Mentoria</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -108,7 +106,7 @@ export function AgendarMentoriaAluno() {
                                             const dayOfWeek = date.getDay()
 
                                             // Only enable Tuesdays (2) and Thursdays (4)
-                                            return dayOfWeek !== 2 && dayOfWeek !== 4
+                                            return dayOfWeek !== 1 && dayOfWeek !== 3
                                         }}
                                         className="rounded-md border w-full"
                                     />
@@ -157,7 +155,7 @@ export function AgendarMentoriaAluno() {
                             type="submit"
                             disabled={form.formState.isSubmitting}
                         >
-                            {form.formState.isSubmitting ? 'Agendando...' : 'Agendar'}
+                            {form.formState.isSubmitting ? 'Salvando...' : 'Salvar'}
                         </Button>
                     </div>
                 </form>

@@ -57,14 +57,13 @@ export default function MentoriasPage() {
 
     return (
         <div className="w-full">
-            <div className='flex justify-between items-center h-14 p-5 mt-3'>
-                <div>
-                    <h1 className="text-lg font-bold">Mentorias</h1>
-                    <p className="text-xs text-muted-foreground">Suas mentorias agendadas</p>
+            <main className="flex flex-col gap-4 p-5 pb-20">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-primary font-semibold">Suas Mentorias</h2>
+                    
                 </div>
+
                 <AgendarMentoriaAluno />
-            </div>
-            <main className="flex flex-col p-5 gap-5">
 
                 <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4">
                     {mentoriasIniciais.length === 0 ? (

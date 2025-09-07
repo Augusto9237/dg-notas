@@ -89,7 +89,7 @@ const getGradeBadgeVariant = (
   return (
     <Dialog open={isOpen} onOpenChange={() => setIsOpen(open => !open)}>
       <DialogTrigger asChild>
-        <Button className="w-full relative" size="sm">
+        <Button className="w-full relative bg-primary/10" size="sm" variant="outline">
           Avaliação Completa
           <ChevronRight className="absolute right-3 top-2" />
         </Button>

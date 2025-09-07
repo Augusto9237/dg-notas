@@ -29,8 +29,8 @@ export default function Header() {
         </Avatar>
         <div>
           <h1 className="text-lg">Olá, {session?.user.name}!</h1>
-          <p className="text-sm opacity-90">
-            Bons estudos hoje
+          <p className="text-xs opacity-90">
+            {session?.user.email}
           </p>
         </div>
       </div>
