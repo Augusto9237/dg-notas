@@ -1,7 +1,8 @@
-import { PrismaClient } from '@/app/generated/prisma';
+
 import {
     betterAuth
 } from 'better-auth';
+import { admin } from 'better-auth/plugins';
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from './prisma';
 
@@ -22,7 +23,8 @@ export const auth = betterAuth({
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!
         }
     },
-
-    /** if no database is provided, the user data will be stored in memory.
-     * Make sure to provide a database to persist user data **/
-});
+    plugins: [
+        admin() 
+    ]
+}
+);

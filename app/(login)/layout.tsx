@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Poppins } from 'next/font/google';
 
 import "../globals.css";
+import Image from 'next/image';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -25,8 +26,28 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <body
                 className={`${poppins.className} antialiased`}
             >
-                <main>{children}</main>
+                <div className="grid min-h-svh lg:grid-cols-2">
+                    <div className="flex items-center justify-center bg-primary">
+                        <div className="w-full max-w-md flex flex-col items-center">
+                            <Image
+                                src="/sublogo4.svg"
+                                alt="Logo"
+                                width={488}
+                                height={400}
+                                className="h-[80px] max-sm:h-[88px] w-[360px] max-sm:w-[280px] object-cover"
+                            />
+                            {children}
+                            </div>
+                        </div>
+                        <div className="bg-muted relative hidden lg:block">
+                            <img
+                                src="/foto-1.jpeg"
+                                alt="Image"
+                                className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                            />
+                        </div>
+                    </div>
             </body>
-        </html>
+        </html >
     )
 }
