@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { CalendarIcon, Plus } from "lucide-react"
 import { AgendarMentoriaModal } from "@/components/agendar-mentoria-modal"
 import { AgendarMentoriaAluno } from "@/components/agendar-mentoria-aluno"
+import { CardMentoria } from "@/components/card-mentoria"
 
 interface Mentoria {
     id: string
@@ -60,7 +61,7 @@ export default function MentoriasPage() {
             <main className="flex flex-col gap-4 p-5 pb-20">
                 <div className="flex items-center justify-between">
                     <h2 className="text-primary font-semibold">Suas Mentorias</h2>
-                    
+
                 </div>
 
                 <AgendarMentoriaAluno />
@@ -74,63 +75,7 @@ export default function MentoriasPage() {
                         </Card>
                     ) : (
                         mentoriasIniciais.map((mentoria) => (
-                            <Card key={mentoria.id} className="h-26 gap-4 py-4">
-                                <CardContent className="relative px-3">
-                                    <Badge
-                                        className="absolute top-0 right-4"
-                                        variant={
-                                            mentoria.status === "agendada" ? 'outline' :
-                                                mentoria.status === "concluida" ? 'secondary' :
-                                                    "destructive"
-                                        }
-                                    >
-                                        {mentoria.status === "agendada" ? "Agendada" :
-                                            mentoria.status === "concluida" ? "Concluída" :
-                                                "Cancelada"}
-                                    </Badge>
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex items-center gap-2 w-full">
-                                            <Avatar className="size-14">
-                                                <AvatarImage src="https://github.com/shadcn.png" />
-                                                <AvatarFallback>CN</AvatarFallback>
-                                            </Avatar>
-                                            <div >
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-muted-foreground font-semibold text-sm">Profª:</span>
-                                                        <span className="text-sm">{mentoria.professor}</span>
-                                                    </div>
-
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-muted-foreground font-semibold text-sm">Data:</span>
-                                                        <div className="text-sm">
-                                                            {mentoria.data.toLocaleDateString('pt-BR', {
-                                                                day: '2-digit',
-                                                                month: '2-digit',
-                                                                year: 'numeric'
-                                                            })}
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-muted-foreground font-semibold text-sm">Horário:</span>
-                                                        <div className="text-sm">
-                                                            {mentoria.data.toLocaleTimeString('pt-BR', {
-                                                                hour: '2-digit',
-                                                                minute: '2-digit'
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2 mt-8">
-                                            <EditButton onClick={() => alert(`Editar mentoria ${mentoria.id}`)} />
-                                            <DeleteButton onClick={() => alert(`Cancelar mentoria ${mentoria.id}`)} />
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <CardMentoria key={mentoria.id} mentoria={mentoria} />
                         ))
                     )}
                 </div>

@@ -144,6 +144,7 @@ export function AgendarMentoriaAluno() {
                         <Button
                             type="button"
                             variant="outline"
+                            className="w-[100px]"
                             onClick={() => {
                                 form.reset()
                                 setOpen(false)
@@ -154,6 +155,7 @@ export function AgendarMentoriaAluno() {
                         <Button
                             type="submit"
                             disabled={form.formState.isSubmitting}
+                            className="w-[100px]"
                         >
                             {form.formState.isSubmitting ? 'Salvando...' : 'Salvar'}
                         </Button>
