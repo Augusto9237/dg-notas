@@ -21,8 +21,9 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { authClient } from "@/lib/auth-client"
+import Link from "next/link"
 
-export function TabsDemo() {
+export function FormularioEntrar() {
   async function entrarComGoogle() {
     await authClient.signIn.social({
       provider: 'google',
@@ -69,19 +70,19 @@ export function TabsDemo() {
 
         {/* Login professor */}
         <TabsContent value="professor">
-          <Card className="h-[346px] bg-primary border-none shadow-none">
+          <Card className="h-[346px] bg-primary border-none shadow-none gap-5">
             <CardHeader className="justify-center text-center">
               <CardTitle className="text-background">Professor(a)</CardTitle>
               <CardDescription className="text-background/50">
                 Entre na sua conta de professor
               </CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-6">
-              <div className="grid gap-3 text-background">
+            <CardContent className="grid gap-5">
+              <div className="grid gap-2 text-background">
                 <Label htmlFor="email">E-mail</Label>
                 <Input id="email" type="email" placeholder="professor@email.com" required className="bg-background" />
               </div>
-              <div className="grid gap-3">
+              <div className="grid gap-2">
                 <div className="flex items-center text-background">
                   <Label htmlFor="password">Senha</Label>
                 </div>
@@ -96,7 +97,7 @@ export function TabsDemo() {
 
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex flex-col gap-4">
               <Button
                 type="submit"
                 className="w-full"
@@ -104,6 +105,7 @@ export function TabsDemo() {
               >
                 Entrar
               </Button>
+              <span className="text-card text-sm">Ainda não possui conta? <Link href="/inscricao" className="underline underline-offset-4 text-secondary ml-1"> Criar conta</Link></span>
             </CardFooter>
           </Card>
         </TabsContent>

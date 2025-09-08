@@ -28,7 +28,7 @@ import { signUp } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
-export function SignUpForm() {
+export function FormularioInscricao() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -85,7 +85,7 @@ export function SignUpForm() {
   }
 
   return (
-    <Card className="h-[346px] bg-primary border-none shadow-none">
+    <Card className="bg-primary border-none shadow-none">
       <CardHeader className="justify-center text-center">
         <CardTitle className="text-background">Criar Conta</CardTitle>
         <CardDescription className="text-background/50">
@@ -101,12 +101,14 @@ export function SignUpForm() {
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome</FormLabel>
+                     <FormLabel className="text-background">Nome</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="João"
                         {...field}
                         disabled={form.formState.isSubmitting}
+                        className="bg-background"
+                        required
                       />
                     </FormControl>
                     <FormMessage />
@@ -118,12 +120,15 @@ export function SignUpForm() {
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sobrenome</FormLabel>
+                    <FormLabel className="text-background">Sobrebome</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Silva"
                         {...field}
                         disabled={form.formState.isSubmitting}
+                        className="bg-background"
+                        required
+                        autoFocus
                       />
                     </FormControl>
                     <FormMessage />
@@ -137,13 +142,16 @@ export function SignUpForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-background">E-mail</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
                       placeholder="joao@exemplo.com"
                       {...field}
                       disabled={form.formState.isSubmitting}
+                      className="bg-background"
+                      required
+                      autoFocus
                     />
                   </FormControl>
                   <FormMessage />
@@ -156,7 +164,7 @@ export function SignUpForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Senha</FormLabel>
+                  <FormLabel className="text-background">Senha</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -164,6 +172,9 @@ export function SignUpForm() {
                         placeholder="Digite sua senha"
                         {...field}
                         disabled={form.formState.isSubmitting}
+                        className="bg-background"
+                        required
+                        autoFocus
                       />
                       <Button
                         type="button"
@@ -191,7 +202,7 @@ export function SignUpForm() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirmar Senha</FormLabel>
+                  <FormLabel className="text-background">Confirmar Senha</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -199,6 +210,9 @@ export function SignUpForm() {
                         placeholder="Confirme sua senha"
                         {...field}
                         disabled={form.formState.isSubmitting}
+                        className="bg-background"
+                        required
+                        autoFocus
                       />
                       <Button
                         type="button"
@@ -226,7 +240,7 @@ export function SignUpForm() {
               name="image"
               render={({ field: { onChange, value, ...field } }) => (
                 <FormItem>
-                  <FormLabel>Foto de Perfil (opcional)</FormLabel>
+                  <FormLabel className="text-background">Foto de Perfil (opcional)</FormLabel>
                   <FormControl>
                     <div className="flex items-end gap-4">
                       {imagePreview && (
@@ -248,7 +262,7 @@ export function SignUpForm() {
                             onChange(file)
                             handleImageChange(file)
                           }}
-                          className="w-full"
+                          className="w-full bg-background"
                           disabled={form.formState.isSubmitting}
                         />
                         {imagePreview && (
@@ -275,8 +289,9 @@ export function SignUpForm() {
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full mt-5"
               disabled={form.formState.isSubmitting}
+              variant="secondary"
             >
               {form.formState.isSubmitting ? (
                 <>
@@ -290,8 +305,6 @@ export function SignUpForm() {
           </form>
         </Form>
       </CardContent>
-      <CardFooter>
-      </CardFooter>
     </Card>
   )
 }

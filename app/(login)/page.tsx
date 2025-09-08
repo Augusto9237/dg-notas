@@ -1,10 +1,7 @@
-import { GalleryVerticalEnd } from "lucide-react"
-
-import { LoginForm, TabsDemo } from "@/components/login-form"
-import Image from "next/image"
+import { FormularioEntrar } from "@/components/formulario-entrar";
 
 export default function LoginPage() {
   return (
-    <TabsDemo />
+    <FormularioEntrar />
   )
 }

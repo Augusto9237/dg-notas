@@ -1,8 +1,7 @@
-import { SignUpForm } from "@/components/signup-form"
-import Image from "next/image"
+import { FormularioInscricao } from "@/components/formulario-inscricao";
 
 export default function Page() {
   return (
-    <SignUpForm />
+    <FormularioInscricao />
   )
 }
