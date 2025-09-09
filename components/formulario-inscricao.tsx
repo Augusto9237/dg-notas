@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Loader2, X, Eye, EyeOff } from "lucide-react"
-import Image from "next/image"
 import { signUp } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -75,7 +74,6 @@ export function FormularioInscricao() {
           onSuccess: async () => {
             toast.success("Conta criada com sucesso! Aguarde a liberação do seu acesso a area do professor")
 
-            // Atraso de 5 segundos (5000 ms)
             setTimeout(() => {
               router.push("/")
             }, 2000)
@@ -88,7 +86,7 @@ export function FormularioInscricao() {
   }
 
   return (
-    <Card className="bg-primary border-none shadow-none">
+    <Card className="bg-primary border-none shadow-none w-full">
       <CardHeader className="justify-center text-center">
         <CardTitle className="text-background">Criar Conta</CardTitle>
         <CardDescription className="text-background/50">
