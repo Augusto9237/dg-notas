@@ -4,7 +4,6 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { CalendarSync, CalendarX } from "lucide-react";
-import { Separator } from "./ui/separator";
 
 interface Mentoria {
     id: string
