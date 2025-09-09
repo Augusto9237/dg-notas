@@ -1,16 +1,11 @@
 import { z } from "zod"
 
 export const signUpSchema = z.object({
-  firstName: z
+  name: z
     .string()
     .min(2, "Nome deve ter pelo menos 2 caracteres")
     .max(50, "Nome deve ter no máximo 50 caracteres")
     .regex(/^[a-zA-ZÀ-ÿ\s]+$/, "Nome deve conter apenas letras"),
-  lastName: z
-    .string()
-    .min(2, "Sobrenome deve ter pelo menos 2 caracteres")
-    .max(50, "Sobrenome deve ter no máximo 50 caracteres")
-    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, "Sobrenome deve conter apenas letras"),
   email: z
     .string()
     .min(1, "Email é obrigatório")

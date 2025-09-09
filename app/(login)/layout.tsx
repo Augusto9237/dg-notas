@@ -4,6 +4,7 @@ import { Poppins } from 'next/font/google';
 
 import "../globals.css";
 import Image from 'next/image';
+import { Toaster } from 'sonner';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                         />
                     </div>
                 </div>
+                <Toaster />
             </body>
         </html >
     )

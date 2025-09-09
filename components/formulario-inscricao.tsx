@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -27,6 +26,7 @@ import Image from "next/image"
 import { signUp } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 
 export function FormularioInscricao() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -37,8 +37,7 @@ export function FormularioInscricao() {
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -62,9 +61,9 @@ export function FormularioInscricao() {
       await signUp.email({
         email: data.email,
         password: data.password,
-        name: `${data.firstName} ${data.lastName}`,
+        name: data.name,
         image: data.image ? await convertImageToBase64(data.image) : "",
-        callbackURL: "/dashboard",
+        callbackURL: "/",
         fetchOptions: {
           onResponse: () => {
             form.setValue("password", "")
@@ -74,9 +73,13 @@ export function FormularioInscricao() {
             toast.error(ctx.error.message)
           },
           onSuccess: async () => {
-            toast.success("Conta criada com sucesso!")
-            router.push("/dashboard")
-          },
+            toast.success("Conta criada com sucesso! Aguarde a liberação do seu acesso a area do professor")
+
+            // Atraso de 5 segundos (5000 ms)
+            setTimeout(() => {
+              router.push("/")
+            }, 2000)
+          }
         },
       })
     } catch (error) {
@@ -95,47 +98,25 @@ export function FormularioInscricao() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                     <FormLabel className="text-background">Nome</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="João"
-                        {...field}
-                        disabled={form.formState.isSubmitting}
-                        className="bg-background"
-                        required
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-background">Sobrebome</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Silva"
-                        {...field}
-                        disabled={form.formState.isSubmitting}
-                        className="bg-background"
-                        required
-                        autoFocus
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-background">Nome</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="João"
+                      {...field}
+                      disabled={form.formState.isSubmitting}
+                      className="bg-background"
+                      required
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -242,16 +223,17 @@ export function FormularioInscricao() {
                 <FormItem>
                   <FormLabel className="text-background">Foto de Perfil (opcional)</FormLabel>
                   <FormControl>
-                    <div className="flex items-end gap-4">
+                    <div className="flex items-center gap-2">
                       {imagePreview && (
-                        <div className="relative w-16 h-16 rounded-sm overflow-hidden">
-                          <Image
+                        <Avatar className="h-12 w-12 border-2 border-secondary">
+                          <AvatarImage
                             src={imagePreview}
-                            alt="Preview da foto"
-                            fill
-                            className="object-cover"
+                            style={{ objectFit: "cover" }}
                           />
-                        </div>
+                          <AvatarFallback className="bg-background text-primary font-medium">
+                            DG
+                          </AvatarFallback>
+                        </Avatar>
                       )}
                       <div className="flex items-center gap-2 w-full">
                         <Input

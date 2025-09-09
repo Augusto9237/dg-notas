@@ -27,7 +27,7 @@ export function FormularioEntrar() {
   async function entrarComGoogle() {
     await authClient.signIn.social({
       provider: 'google',
-      callbackURL: '/professor/alunos'
+      callbackURL: '/aluno'
     },
     )
   };
