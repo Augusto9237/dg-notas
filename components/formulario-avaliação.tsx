@@ -17,6 +17,7 @@ import * as z from "zod"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Separator } from "@radix-ui/react-dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Progress } from "./ui/progress"
 
 interface GradingCriteria {
   name: string
@@ -90,6 +91,14 @@ export function FormularioAvaliacoa() {
 
   )
 
+  const getGradeColor = (grade: number, maxGrade: number) => {
+    const percentage = (grade / maxGrade) * 100;
+    if (percentage >= 90) return "bg-primary";
+    if (percentage >= 80) return "bg-secondary";
+    if (percentage >= 70) return "bg-secondary-foreground";
+    return "bg-red-500";
+  };
+
   const totalScore = criteria.reduce((sum, item) => sum + item.score, 0)
 
   const handleScoreChange = (index: number, value: string) => {
@@ -110,7 +119,7 @@ export function FormularioAvaliacoa() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       console.log(values)
-      
+
       // Reset form and close dialog on success
       form.reset()
       setIsOpen(false)
@@ -166,7 +175,7 @@ export function FormularioAvaliacoa() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex justify-between items-center">
-                      <div>
+                      <div className="space-y-1">
                         <FormLabel>{criterion.name}</FormLabel>
                         <FormDescription className="text-xs">{criterion.description}</FormDescription>
                       </div>
@@ -184,9 +193,13 @@ export function FormularioAvaliacoa() {
                             max={criterion.maxScore}
                           />
                         </FormControl>
-                        <span className="text-sm text-gray-500">/{criterion.maxScore}</span>
                       </div>
                     </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground">0</span>
+                      <span className="text-xs text-muted-foreground">{criterion.maxScore}</span>
+                    </div>
+                    <Progress value={(form.getValues().criterios[index].score / criterion.maxScore) * 100} indicatorClassName={getGradeColor(form.getValues().criterios[index].score, criterion.maxScore)} />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -201,19 +214,19 @@ export function FormularioAvaliacoa() {
                 <span>{totalScore}/1000</span>
               </div>
               <div className="flex justify-center gap-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => {
                     form.reset()
                     setIsOpen(false)
-                  }} 
+                  }}
                   className="min-w-[100px]"
                 >
                   Cancelar
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="min-w-[100px]"
                   disabled={form.formState.isSubmitting}
                 >
