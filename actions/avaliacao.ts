@@ -32,6 +32,24 @@ export async function AdicionarTema(nome: string): Promise<Tema> {
     }
 }
 
+export async function EditarTema(id: number, novoNome: string): Promise<Tema> {
+    try {
+        const temaEditado = await prisma.tema.update({
+            where: {
+                id,
+            },
+            data: {
+                nome: novoNome,
+            },
+        });
+        revalidatePath('/professor')
+        return temaEditado;
+    } catch (error) {
+        console.error("Erro ao editar tema:", error);
+        throw error;
+    }
+}
+
 export async function ListarTemas(): Promise<Tema[]> {
     try {
         const temas = await prisma.tema.findMany({
@@ -55,7 +73,7 @@ export async function ListarCriterios(): Promise<Criterio[]> {
         console.error("Erro ao listar criterios:", error);
         throw error;
     }
-    
+
 }
 
 

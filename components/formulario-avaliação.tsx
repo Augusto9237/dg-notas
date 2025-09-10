@@ -131,7 +131,8 @@ export function FormularioAvaliacao({ temas, criterios }: FormularioAvaliacaoPro
       <DialogTrigger asChild>
         <Button variant="secondary">
           <Plus />
-          Nova Avaliação
+          <span className="max-sm:hidden">Nova</span>
+          Avaliação
         </Button>
       </DialogTrigger>
       <DialogContent style={{ maxWidth: "600px" }}>

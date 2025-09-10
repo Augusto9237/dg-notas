@@ -62,7 +62,7 @@ export function FormularioTema() {
           Tema
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent >
         <DialogHeader>
           <DialogTitle className="text-center">Adicionar Novo Tema</DialogTitle>
         </DialogHeader>

@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Pencil } from "lucide-react";
 
 interface EditButtonProps {
-    onClick: () => void;
+    onClick?: () => void;
 }
 
 export function EditButton({ onClick}: EditButtonProps) {
