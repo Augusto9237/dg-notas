@@ -22,9 +22,11 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { AdicionarTema } from "@/actions/avaliacao"
+import { toast } from "sonner"
 
 const formSchema = z.object({
-  tema: z.string().min(3, "O tema deve ter pelo menos 3 caracteres"),
+  nome: z.string().min(3, "O tnomedeve ter pelo menos 3 caracteres"),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -35,18 +37,18 @@ export function FormularioTema() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      tema: "",
+      nome: "",
     },
   })
 
   async function onSubmit(values: FormValues) {
     try {
-      // Adicione aqui a lógica para salvar o tema
-      console.log('Novo tema:', values)
-
+      const tema = await AdicionarTema(values.nome)
+      toast.success(`O tema ${tema.nome} foi adicionado com sucesso`)
       form.reset()
       setOpen(false)
     } catch (error) {
+      toast.error('Algo deu errado, tente novamente!')
       console.error('Erro ao criar tema:', error)
     }
   }
@@ -68,7 +70,7 @@ export function FormularioTema() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="tema"
+              name='nome'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tema</FormLabel>

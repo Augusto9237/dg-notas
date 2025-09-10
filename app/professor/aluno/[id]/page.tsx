@@ -1,6 +1,3 @@
-'use client';
-
-import { useParams } from 'next/navigation';
 import { students } from '@/lib/data';
 
 import {
@@ -11,19 +8,24 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { FormularioAvaliacoa } from '@/components/formulario-avaliação';
+import { FormularioAvaliacao } from '@/components/formulario-avaliação';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Delete, Edit, Search } from 'lucide-react';
 import { DeleteButton } from '@/components/ui/delete-button';
 import { EditButton } from '@/components/ui/edit-button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { ListarTemas } from '@/actions/avaliacao';
 
-export default function AlunoDetalhesPage() {
-  const params = useParams();
-  const studentId = params.id as string;
-
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const studentId = (await params).id
   const student = students.find((s) => s.id === studentId);
+
+  const temas = await ListarTemas()
 
   if (!student) {
     return (
@@ -50,15 +52,15 @@ export default function AlunoDetalhesPage() {
             {student.name}</h1>
           <p className="text-xs text-muted-foreground">email.test@test.com.br - 00.000.000-00</p>
         </div>
-        <FormularioAvaliacoa />
+        <FormularioAvaliacao temas={temas} />
       </div>
       <main className="flex flex-col gap-4 p-5">
         <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
           <div className="flex items-center w-full max-w-md relative">
             <Input type="text" placeholder="Buscar por Tema" className="bg-card/70" />
-            <Button className='absolute right-0 top-0 bg-background border rounded-bl-none rounded-tl-none' variant='ghost'>
+            {/* <Button className='absolute right-0 top-0 bg-background border rounded-bl-none rounded-tl-none' variant='ghost'>
               <Search />
-            </Button>
+            </Button> */}
           </div>
 
           <Table>
@@ -93,8 +95,8 @@ export default function AlunoDetalhesPage() {
                   </TableCell>
                   <TableCell className="w-[100px] pr-4">
                     <div className='flex justify-center gap-4'>
-                      <EditButton onClick={() => alert(`Editar avaliação ${essay.id}`)} />
-                      <DeleteButton onClick={() => alert(`Excluir avaliação ${essay.id}`)} />
+                      {/* <EditButton onClick={() => alert(`Editar avaliação ${essay.id}`)} />
+                      <DeleteButton onClick={() => alert(`Excluir avaliação ${essay.id}`)} /> */}
                     </div>
                   </TableCell>
                 </TableRow>

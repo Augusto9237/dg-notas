@@ -19,6 +19,40 @@ model Tema {
   nome      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  Avaliacao Avaliacao[]
+}
+
+model Avaliacao {
+  id         Int        @id @default(autoincrement())
+  alunoId    String
+  aluno      User       @relation(fields: [alunoId], references: [id])
+  temaId     Int
+  tema       Tema       @relation(fields: [temaId], references: [id])
+  criterios  CriterioAvaliacao[]
+  notaFinal  Int
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model CriterioAvaliacao {
+  id           Int        @id @default(autoincrement())
+  avaliacaoId  Int
+  avaliacao    Avaliacao  @relation(fields: [avaliacaoId], references: [id])
+  criterioId   Int
+  criterio     Criterio   @relation(fields: [criterioId], references: [id])
+  pontuacao    Int
+}
+
+model Criterio {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  descricao String
+  pontuacao Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  CriterioAvaliacao CriterioAvaliacao[]
 }
 
 model User {
@@ -33,9 +67,10 @@ model User {
   accounts      Account[]
 
   role       String?
-  banned     Boolean?  @default(false)
+  banned     Boolean?    @default(false)
   banReason  String?
   banExpires DateTime?
+  Avaliacao  Avaliacao[]
 
   @@unique([email])
   @@map("user")

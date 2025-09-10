@@ -10,6 +10,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { redirect, unauthorized } from "next/navigation";
+import { Toaster } from "sonner";
 
 const poppins = Poppins({
   weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -56,6 +57,7 @@ export default async function RootLayout({
             </div>
           </SidebarInset>
         </SidebarProvider>
+        <Toaster/>
       </body>
     </html>
   );
