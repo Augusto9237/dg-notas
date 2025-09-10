@@ -176,7 +176,7 @@ export function FormularioAvaliacao({ temas, criterios }: FormularioAvaliacaoPro
                     <FormItem className="border-b-1 pb-2">
                       <div className="flex justify-between items-center">
                         <div className="space-y-1">
-                          <FormLabel>{criterion.nome}</FormLabel>
+                          <FormLabel>{criterion.id} - {criterion.nome}</FormLabel>
                           <FormDescription className="text-xs">{criterion.descricao}</FormDescription>
                         </div>
                         <div className="flex items-center gap-2">
