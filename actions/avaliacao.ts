@@ -1,6 +1,6 @@
 'use server'
 import { revalidatePath } from "next/cache";
-import { PrismaClient, Tema } from "../app/generated/prisma";
+import { Criterio, PrismaClient, Tema } from "../app/generated/prisma";
 import { Avaliacao } from "../app/generated/prisma";
 
 interface CriterioAvaliacaoInput {
@@ -44,6 +44,18 @@ export async function ListarTemas(): Promise<Tema[]> {
         console.error("Erro ao listar temas:", error);
         throw error;
     }
+}
+
+export async function ListarCriterios(): Promise<Criterio[]> {
+    try {
+        const criterios = await prisma.criterio.findMany({})
+
+        return criterios;
+    } catch (error) {
+        console.error("Erro ao listar criterios:", error);
+        throw error;
+    }
+    
 }
 
 

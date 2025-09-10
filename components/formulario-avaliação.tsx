@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Plus } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -18,83 +18,41 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Separator } from "@radix-ui/react-dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Progress } from "./ui/progress"
-import { Tema } from "@/app/generated/prisma"
-
-interface CriteriosProps {
-  nome: string
-  descricao: string
-  pontuacaoMaxima: number
-  pontuacao: number
-}
+import { Criterio, Tema } from "@/app/generated/prisma"
+import { AdicionarAvaliacao } from "@/actions/avaliacao"
+import { toast } from "sonner"
 
 type FormValues = z.infer<typeof formSchema>
 
 const formSchema = z.object({
   tema: z.string().min(1, "Tema é obrigatório"),
-  criterios: z.array(
-    z.object({
-      nome: z.string(),
-      descricao: z.string(),
-      pontuacaoMaxima: z.number(),
-      pontuacao: z.number().min(0).max(200)
-    })
-  )
+  criterios: z.record(z.string(), z.object({
+    pontuacao: z.number().min(0).max(200)
+  }))
 })
 
-const temas = [
-  { tema: "Cidadania e Direitos Humanos" },
-  { tema: "Educação" },
-  { tema: "Saúde Pública" },
-  { tema: "Meio Ambiente" },
-  { tema: "Tecnologia e Sociedade" },
-  { tema: "Cultura e Diversidade" },
-  { tema: "Segurança Pública" },
-  { tema: "Questões Sociais" },
-  { tema: "Trabalho e Economia" },
-  { tema: "Inclusão Social" }
-]
 
 interface FormularioAvaliacaoProps {
   temas: Tema[]
+  criterios: Criterio[]
 }
 
-export function FormularioAvaliacao({ temas }: FormularioAvaliacaoProps) {
+export function FormularioAvaliacao({ temas, criterios }: FormularioAvaliacaoProps) {
   const [isOpen, setIsOpen] = useState(false) // Add this state for dialog control
-  const [criteria, setCriteria] = useState<CriteriosProps[]>(
-    [
-      {
-        nome: "Gramática e norma culta",
-        descricao: "Uso correto da norma culta: ortografia, pontuação e gramática.",
-        pontuacaoMaxima: 200,
-        pontuacao: 0
-      },
-      {
-        nome: "Foco no tema e repertório sociocultural",
-        descricao: "Manter-se no tema e usar repertório sociocultural relevante.",
-        pontuacaoMaxima: 200,
-        pontuacao: 0
-      },
-      {
-        nome: "Argumentação consistente",
-        descricao: "Defender o ponto de vista com argumentos claros e organizados.",
-        pontuacaoMaxima: 200,
-        pontuacao: 0
-      },
-      {
-        nome: "Coesão e organização textual",
-        descricao: "Usar conectivos e recursos linguísticos para dar fluidez ao texto.",
-        pontuacaoMaxima: 200,
-        pontuacao: 0
-      },
-      {
-        nome: "Proposta de intervenção detalhada",
-        descricao: "Apresentar solução viável e detalhada para o problema discutido.",
-        pontuacaoMaxima: 200,
-        pontuacao: 0
-      }
-    ]
+  const [criteria, setCriteria] = useState<Criterio[]>([])
 
-  )
+
+  useEffect(() => {
+    if (isOpen) {
+      // Inicializa os critérios com pontuação 0
+      const criteriosIniciais = criterios.map(criterio => ({
+        ...criterio,
+        pontuacao: 0,
+        pontuacaoMaxima: 200 // Defina o valor máximo conforme necessário
+      }));
+      setCriteria(criteriosIniciais);
+    }
+  }, [isOpen, criterios]);
 
   const getGradeColor = (grade: number, maxGrade: number) => {
     const percentage = (grade / maxGrade) * 100;
@@ -104,33 +62,68 @@ export function FormularioAvaliacao({ temas }: FormularioAvaliacaoProps) {
     return "bg-red-500";
   };
 
-  const totalScore = criteria.reduce((sum, item) => sum + item.pontuacao, 0)
+  const calcularNotaFinal = (criterios: Record<string, { pontuacao: number }>) => {
+    return Object.values(criterios || {})
+      .reduce((acc: number, curr: any) => acc + (curr?.pontuacao || 0), 0);
+  };
 
-  const handleScoreChange = (index: number, value: string) => {
-    const newCriteria = [...criteria]
-    newCriteria[index].pontuacao = Number(value)
-    setCriteria(newCriteria)
-  }
+
 
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       tema: "",
-      criterios: criteria
+      criterios: {}
     }
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values)
+      // Validação de entrada - verifica se os dados necessários estão presentes
+      if (!values.tema || !values.criterios) {
+        throw new Error('Tema e critérios são obrigatórios');
+      }
 
-      // Reset form and close dialog on success
+      // Transformação dos critérios para o formato esperado pela API
+      const criteriosFormatados = transformarCriterios(values.criterios);
+
+      // Cálculo da nota final baseada nos critérios
+      const notaFinal = calcularNotaFinal(values.criterios);
+
+      // Preparação dos dados para envio
+      const dadosAvaliacao = {
+        alunoId: 'cSdMhVS7NKrkwx6D6ogDtEakwomeS02t', // TODO: Implementar lógica para obter o ID do aluno
+        temaId: Number(values.tema),
+        criterios: criteriosFormatados,
+        notaFinal
+      };
+
+      // Envio da avaliação para a API
+      const avaliacao = await AdicionarAvaliacao(dadosAvaliacao);
+
+      // Sucesso - limpa o formulário e fecha o modal
+      toast.success('Avaliação adicionada com sucessor')
       form.reset()
-      setIsOpen(false)
+
     } catch (error) {
-      console.error('Error submitting form:', error)
+      toast.error('Erro ao adicionar a avaliação, tente novamente!')
+      console.error('Erro ao enviar avaliação:', error);
+      // TODO: Implementar notificação de erro para o usuário
+      throw error; // Re-throw para permitir tratamento em nível superior se necessário
     }
+  }
+
+  // Função auxiliar para transformar critérios
+  function transformarCriterios(criterios: Record<string, unknown>) {
+    return Object.entries(criterios).map(([criterioId, data]) => {
+      const criterioData = data as { pontuacao: number };
+
+      return {
+        criterioId: Number(criterioId),
+        pontuacao: criterioData.pontuacao
+      };
+    });
   }
 
   return (
@@ -172,49 +165,56 @@ export function FormularioAvaliacao({ temas }: FormularioAvaliacaoProps) {
 
             <Separator />
 
-            {criteria.map((criterion, index) => (
+            {criteria.map((criterion) => (
               <FormField
-                key={criterion.nome}
+                key={criterion.id}
                 control={form.control}
-                name={`criterios.${index}.pontuacao`}
-                render={({ field }) => (
-                  <FormItem className="border-b-1 pb-2">
-                    <div className="flex justify-between items-center">
-                      <div className="space-y-1">
-                        <FormLabel>{criterion.nome}</FormLabel>
-                        <FormDescription className="text-xs">{criterion.descricao}</FormDescription>
+                name={`criterios.${criterion.id}.pontuacao`}
+                render={({ field }) => {
+                  const currentValue = field.value || 0
+                  return (
+                    <FormItem className="border-b-1 pb-2">
+                      <div className="flex justify-between items-center">
+                        <div className="space-y-1">
+                          <FormLabel>{criterion.nome}</FormLabel>
+                          <FormDescription className="text-xs">{criterion.descricao}</FormDescription>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FormControl>
+                            <Input
+                              type="number"
+                              className="w-16.5"
+                              value={currentValue}
+                              onChange={(e) => {
+                                field.onChange(Number(e.target.value) || 0)
+                              }}
+                              min={0}
+                              max={200}
+                            />
+                          </FormControl>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <FormControl>
-                          <Input
-                            type="number"
-                            className="w-16.5"
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(Number(e.target.value))
-                              handleScoreChange(index, e.target.value)
-                            }}
-                            min={0}
-                            max={criterion.pontuacaoMaxima}
-                          />
-                        </FormControl>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-muted-foreground">0</span>
+                        <span className="text-xs text-muted-foreground">200</span>
                       </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-muted-foreground">0</span>
-                      <span className="text-xs text-muted-foreground">{criterion.pontuacaoMaxima}</span>
-                    </div>
-                    <Progress value={(form.getValues().criterios[index].pontuacao / criterion.pontuacaoMaxima) * 100} indicatorClassName={getGradeColor(form.getValues().criterios[index].pontuacao, criterion.pontuacaoMaxima)} />
-                    <FormMessage />
-                  </FormItem>
-                )}
+                      <Progress
+                        value={(currentValue / 200) * 100}
+                        indicatorClassName={getGradeColor(currentValue, 200)}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }}
               />
             ))}
 
             <div className="flex flex-col justify-between items-center pt-4 gap-4">
               <div className="flex justify-between text-lg font-semibold w-full">
                 <span>Nota Final:</span>
-                <span>{totalScore}/1000</span>
+                <span>
+                  {calcularNotaFinal(form.watch('criterios'))}/1000
+                </span>
               </div>
               <div className="flex justify-center gap-4">
                 <Button

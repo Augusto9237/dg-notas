@@ -15,7 +15,7 @@ import { Delete, Edit, Search } from 'lucide-react';
 import { DeleteButton } from '@/components/ui/delete-button';
 import { EditButton } from '@/components/ui/edit-button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { ListarTemas } from '@/actions/avaliacao';
+import { ListarCriterios, ListarTemas } from '@/actions/avaliacao';
 
 export default async function Page({
   params,
@@ -26,6 +26,7 @@ export default async function Page({
   const student = students.find((s) => s.id === studentId);
 
   const temas = await ListarTemas()
+  const criterios = await ListarCriterios()
 
   if (!student) {
     return (
@@ -52,7 +53,7 @@ export default async function Page({
             {student.name}</h1>
           <p className="text-xs text-muted-foreground">email.test@test.com.br - 00.000.000-00</p>
         </div>
-        <FormularioAvaliacao temas={temas} />
+        <FormularioAvaliacao temas={temas} criterios={criterios} />
       </div>
       <main className="flex flex-col gap-4 p-5">
         <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>

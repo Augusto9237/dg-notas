@@ -48,7 +48,6 @@ model Criterio {
   id        Int      @id @default(autoincrement())
   nome      String
   descricao String
-  pontuacao Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
