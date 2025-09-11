@@ -1,7 +1,8 @@
 'use server'
 import { revalidatePath } from "next/cache";
-import { Criterio, PrismaClient, Tema } from "../app/generated/prisma";
+import { Criterio, Tema } from "../app/generated/prisma";
 import { Avaliacao } from "../app/generated/prisma";
+import { prisma } from "@/lib/prisma";
 
 interface CriterioAvaliacaoInput {
     criterioId: number;
@@ -15,7 +16,6 @@ interface AdicionarAvaliacaoInput {
     notaFinal: number;
 }
 
-const prisma = new PrismaClient();
 
 export async function AdicionarTema(nome: string): Promise<Tema> {
     try {
@@ -164,6 +164,25 @@ export async function EditarAvaliacao(
         return transaction[1]; 
     } catch (error) {
         console.error("Erro ao editar avaliação:", error);
+        throw error;
+    }
+}
+
+export async function ListarAvaliacoesAlunoId(alunoId: string) {
+    try {
+        const avaliacoes = await prisma.avaliacao.findMany({
+            where: {
+                alunoId: alunoId,
+            },
+            include: {
+                tema: true,
+                aluno: true,
+                criterios: true,
+            },
+        });
+        return avaliacoes;
+    } catch (error) {
+        console.error("Erro ao listar avaliações do aluno:", error);
         throw error;
     }
 }
