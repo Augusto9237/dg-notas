@@ -5,8 +5,6 @@ import { prisma } from "@/lib/prisma";
 // Função para listar alunos que fizeram login apenas com o Google
 export async function ListarAlunosGoogle() {
     try {
-        // Considerando que o model User tem um campo 'provider' ou similar para identificar o login via Google
-        // Caso utilize outro campo, ajuste conforme necessário
         const alunos = await prisma.user.findMany({
             where: {
                 accounts: {
@@ -19,6 +17,26 @@ export async function ListarAlunosGoogle() {
         return alunos;
     } catch (error) {
         console.error("Erro ao listar alunos do Google:", error);
+        throw error;
+    }
+}
+
+// Função para buscar um aluno pelo id, que tenha apenas providerId 'google'
+export async function BuscarAlunoGooglePorId(id: string) {
+    try {
+        const aluno = await prisma.user.findFirst({
+            where: {
+                id: id,
+                accounts: {
+                    every: {
+                        providerId: 'google'
+                    }
+                }
+            }
+        });
+        return aluno;
+    } catch (error) {
+        console.error("Erro ao buscar aluno do Google por ID:", error);
         throw error;
     }
 }

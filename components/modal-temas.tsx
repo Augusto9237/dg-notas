@@ -53,7 +53,7 @@ export function ModalTemas({ temas }: ModalTemasProps) {
           Temas
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent style={{maxWidth: '600px'}}>
         <DialogHeader>
           <DialogTitle className="text-center">Temas</DialogTitle>
         </DialogHeader>

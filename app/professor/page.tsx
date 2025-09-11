@@ -7,6 +7,7 @@ import { TabelaAlunos } from '@/components/tabela-alunos';
 export default async function Home() {
    const temas = await ListarTemas()
    const alunos = await ListarAlunosGoogle()
+   
   return (
     <div className="w-full">
       <div className='flex justify-between items-center h-14 p-5 mt-3'>
