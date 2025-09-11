@@ -16,15 +16,26 @@ import { DeleteButton } from '@/components/ui/delete-button';
 import { EditButton } from '@/components/ui/edit-button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ListarCriterios, ListarTemas } from '@/actions/avaliacao';
+import { Prisma } from '@/app/generated/prisma';
 
 export default async function Page({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
-  const studentId = (await params).id
+  const studentId = "cSdMhVS7NKrkwx6D6ogDtEakwomeS02t"
   const student = students.find((s) => s.id === studentId);
 
+  const avaliacoesAlunoId = await Prisma.avaliacao.findMany({
+    where: {
+      alunoId: studentId,
+    },
+    include: {
+      tema: true,
+      criterios: true,
+    },
+  });
+  
   const temas = await ListarTemas()
   const criterios = await ListarCriterios()
 
@@ -53,7 +64,7 @@ export default async function Page({
             {student.name}</h1>
           <p className="text-xs text-muted-foreground">email.test@test.com.br - 00.000.000-00</p>
         </div>
-        <FormularioAvaliacao temas={temas} criterios={criterios} />
+        <FormularioAvaliacao alunoId={studentId} temas={temas} criterios={criterios} />
       </div>
       <main className="flex flex-col gap-4 p-5">
         <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
@@ -96,6 +107,7 @@ export default async function Page({
                   </TableCell>
                   <TableCell className="w-[100px] pr-4">
                     <div className='flex justify-center gap-4'>
+                      {/* <FormularioAvaliacao alunoId={studentId} temas={temas} criterios={criterios} avaliacao={}/> */}
                       {/* <EditButton onClick={() => alert(`Editar avaliação ${essay.id}`)} />
                       <DeleteButton onClick={() => alert(`Excluir avaliação ${essay.id}`)} /> */}
                     </div>

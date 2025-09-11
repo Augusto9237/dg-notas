@@ -8,7 +8,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Plus } from "lucide-react"
 import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -18,11 +17,11 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Separator } from "@radix-ui/react-dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Progress } from "./ui/progress"
-import { Criterio, Tema } from "@/app/generated/prisma"
-import { AdicionarAvaliacao } from "@/actions/avaliacao"
-import { toast } from "sonner"
 
-type FormValues = z.infer<typeof formSchema>
+import { AdicionarAvaliacao, EditarAvaliacao } from "@/actions/avaliacao"
+import { toast } from "sonner"
+import { Avaliacao, Criterio, CriterioAvaliacao, Tema } from "@/app/generated/prisma"
+import { EditButton } from "./ui/edit-button"
 
 const formSchema = z.object({
   tema: z.string().min(1, "Tema é obrigatório"),
@@ -31,28 +30,41 @@ const formSchema = z.object({
   }))
 })
 
+type FormValues = z.infer<typeof formSchema>
 
 interface FormularioAvaliacaoProps {
-  temas: Tema[]
-  criterios: Criterio[]
+  temas: Tema[];
+  criterios: Criterio[];
+  alunoId: string;
+  avaliacao?: Avaliacao & { criterios: CriterioAvaliacao[] };
 }
 
-export function FormularioAvaliacao({ temas, criterios }: FormularioAvaliacaoProps) {
-  const [isOpen, setIsOpen] = useState(false) // Add this state for dialog control
-  const [criteria, setCriteria] = useState<Criterio[]>([])
+export function FormularioAvaliacao({ temas, criterios, alunoId, avaliacao }: FormularioAvaliacaoProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const isEditMode = !!avaliacao
 
+  const defaultValues = isEditMode && avaliacao ? {
+    tema: String(avaliacao.temaId),
+    criterios: avaliacao.criterios.reduce((acc, crit) => {
+      acc[crit.criterioId] = { pontuacao: crit.pontuacao };
+      return acc;
+    }, {} as Record<string, { pontuacao: number }>)
+  } : {
+    tema: "",
+    criterios: {}
+  };
 
-  useEffect(() => {
-    if (isOpen) {
-      // Inicializa os critérios com pontuação 0
-      const criteriosIniciais = criterios.map(criterio => ({
-        ...criterio,
-        pontuacao: 0,
-        pontuacaoMaxima: 200 // Defina o valor máximo conforme necessário
-      }));
-      setCriteria(criteriosIniciais);
-    }
-  }, [isOpen, criterios]);
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues
+  })
+
+  // useEffect(() => {
+  //   if (isOpen && (JSON.stringify(form.getValues()) !== JSON.stringify(defaultValues))) {
+  //     form.reset(defaultValues);
+  //   }
+  // }, [isOpen, form, defaultValues]);
+
 
   const getGradeColor = (grade: number, maxGrade: number) => {
     const percentage = (grade / maxGrade) * 100;
@@ -63,62 +75,12 @@ export function FormularioAvaliacao({ temas, criterios }: FormularioAvaliacaoPro
   };
 
   const calcularNotaFinal = (criterios: Record<string, { pontuacao: number }>) => {
-    return Object.values(criterios || {})
-      .reduce((acc: number, curr: any) => acc + (curr?.pontuacao || 0), 0);
+    return Object.values(criterios || {}).reduce((acc: number, curr: any) => acc + (curr?.pontuacao || 0), 0);
   };
 
-
-
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      tema: "",
-      criterios: {}
-    }
-  })
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      // Validação de entrada - verifica se os dados necessários estão presentes
-      if (!values.tema || !values.criterios) {
-        throw new Error('Tema e critérios são obrigatórios');
-      }
-
-      // Transformação dos critérios para o formato esperado pela API
-      const criteriosFormatados = transformarCriterios(values.criterios);
-
-      // Cálculo da nota final baseada nos critérios
-      const notaFinal = calcularNotaFinal(values.criterios);
-
-      // Preparação dos dados para envio
-      const dadosAvaliacao = {
-        alunoId: 'cSdMhVS7NKrkwx6D6ogDtEakwomeS02t', // TODO: Implementar lógica para obter o ID do aluno
-        temaId: Number(values.tema),
-        criterios: criteriosFormatados,
-        notaFinal
-      };
-
-      // Envio da avaliação para a API
-      const avaliacao = await AdicionarAvaliacao(dadosAvaliacao);
-
-      // Sucesso - limpa o formulário e fecha o modal
-      toast.success('Avaliação adicionada com sucessor')
-      form.reset()
-
-    } catch (error) {
-      toast.error('Erro ao adicionar a avaliação, tente novamente!')
-      console.error('Erro ao enviar avaliação:', error);
-      // TODO: Implementar notificação de erro para o usuário
-      throw error; // Re-throw para permitir tratamento em nível superior se necessário
-    }
-  }
-
-  // Função auxiliar para transformar critérios
   function transformarCriterios(criterios: Record<string, unknown>) {
     return Object.entries(criterios).map(([criterioId, data]) => {
       const criterioData = data as { pontuacao: number };
-
       return {
         criterioId: Number(criterioId),
         pontuacao: criterioData.pontuacao
@@ -126,18 +88,54 @@ export function FormularioAvaliacao({ temas, criterios }: FormularioAvaliacaoPro
     });
   }
 
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      if (!values.tema || !values.criterios) {
+        throw new Error('Tema e critérios são obrigatórios');
+      }
+
+      const criteriosFormatados = transformarCriterios(values.criterios);
+      const notaFinal = calcularNotaFinal(values.criterios);
+
+      const dadosAvaliacao = {
+        alunoId,
+        temaId: Number(values.tema),
+        criterios: criteriosFormatados,
+        notaFinal
+      };
+
+      if (isEditMode && avaliacao) {
+        await EditarAvaliacao(avaliacao.id, dadosAvaliacao);
+        toast.success('Avaliação atualizada com sucesso');
+      } else {
+        await AdicionarAvaliacao(dadosAvaliacao);
+        toast.success('Avaliação adicionada com sucesso');
+      }
+
+      setIsOpen(false);
+      form.reset();
+
+    } catch (error) {
+      toast.error('Erro ao salvar a avaliação, tente novamente!')
+      console.error('Erro ao enviar avaliação:', error);
+    }
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={() => setIsOpen(open => !open)}>
       <DialogTrigger asChild>
-        <Button variant="secondary">
-          <Plus />
-          <span className="max-sm:hidden">Nova</span>
-          Avaliação
-        </Button>
+        {isEditMode ?
+          <EditButton /> :
+          <Button variant="secondary">
+            <Plus />
+            <span className="max-sm:hidden">Nova</span>
+            Avaliação
+          </Button>
+        }
       </DialogTrigger>
       <DialogContent style={{ maxWidth: "600px" }}>
         <DialogHeader>
-          <DialogTitle className="text-center">Adicionar Avaliação</DialogTitle>
+          <DialogTitle className="text-center">{isEditMode ? "Editar Avaliação" : "Adicionar Avaliação"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -148,13 +146,13 @@ export function FormularioAvaliacao({ temas, criterios }: FormularioAvaliacaoPro
                 <FormItem>
                   <FormLabel>Tema</FormLabel>
                   <FormControl>
-                    <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                    <Select onValueChange={field.onChange} value={String(field.value)}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder='Selecione um tema' />
                       </SelectTrigger>
                       <SelectContent>
-                        {temas.map((tema, index) => (
-                          <SelectItem key={index} value={String(tema.id)}>{tema.nome}</SelectItem>
+                        {temas.map((tema) => (
+                          <SelectItem key={tema.id} value={String(tema.id)}>{tema.nome}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -166,13 +164,13 @@ export function FormularioAvaliacao({ temas, criterios }: FormularioAvaliacaoPro
 
             <Separator />
 
-            {criteria.map((criterion) => (
+            {criterios.map((criterion) => (
               <FormField
                 key={criterion.id}
                 control={form.control}
                 name={`criterios.${criterion.id}.pontuacao`}
                 render={({ field }) => {
-                  const currentValue = field.value || 0
+                  const currentValue = field.value || 0;
                   return (
                     <FormItem className="border-b-1 pb-2">
                       <div className="flex justify-between items-center">
@@ -186,9 +184,7 @@ export function FormularioAvaliacao({ temas, criterios }: FormularioAvaliacaoPro
                               type="number"
                               className="w-16.5"
                               value={currentValue}
-                              onChange={(e) => {
-                                field.onChange(Number(e.target.value) || 0)
-                              }}
+                              onChange={(e) => field.onChange(Number(e.target.value) || 0)}
                               min={0}
                               max={200}
                             />
@@ -205,7 +201,7 @@ export function FormularioAvaliacao({ temas, criterios }: FormularioAvaliacaoPro
                       />
                       <FormMessage />
                     </FormItem>
-                  )
+                  );
                 }}
               />
             ))}
@@ -221,10 +217,7 @@ export function FormularioAvaliacao({ temas, criterios }: FormularioAvaliacaoPro
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    form.reset()
-                    setIsOpen(false)
-                  }}
+                  onClick={() => setIsOpen(false)}
                   className="min-w-[100px]"
                 >
                   Cancelar

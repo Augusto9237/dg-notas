@@ -19,8 +19,9 @@ import {
 
 import { useRouter } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
+import { Skeleton } from "./ui/skeleton"
 export function NavUsuario() {
-    const { data: session } = authClient.useSession();
+    const { data: session, isPending } = authClient.useSession();
     const router = useRouter()
 
     async function sair() {
@@ -32,15 +33,28 @@ export function NavUsuario() {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <div className="flex items-center gap-2 cursor-pointer text-muted">
-                    <Avatar className="border-2 border-secondary">
-                        <AvatarImage src={session?.user? session.user.image! : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
-                        <AvatarFallback>DG</AvatarFallback>
-                    </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight ">
-                        <span className="truncate font-semibold">{session?.user.name}</span>
-                        <span className="truncate text-xs text-muted-foreground">Professor(a)</span>
-                    </div>
-                    <ChevronDown className="ml-auto size-4" />
+                    {isPending === true ?
+                        <>
+                            <Skeleton className="size-8 rounded-full" />
+                            <div className="grid flex-1 text-left text-sm gap-y-1">
+                                <Skeleton className="w-full h-[1rem]" />
+                                <Skeleton className="w-full h-[0.75rem]" />
+                            </div>
+                        </>
+                        :
+                        <>
+                            <Avatar className="border-2 border-secondary">
+                                <AvatarImage src={session?.user ? session.user.image! : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
+                                <AvatarFallback>DG</AvatarFallback>
+                            </Avatar>
+
+                            <div className="grid flex-1 text-left text-sm leading-tight">
+                                <span className="truncate font-semibold">{session?.user.name}</span>
+                                <span className="truncate text-xs text-muted-foreground">Professor(a)</span>
+                            </div>
+                        </>
+                    }
+                    {!isPending && <ChevronDown className="ml-auto size-4" />}
                 </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent

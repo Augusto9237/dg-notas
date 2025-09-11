@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { FilePenLine, Plus } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,9 @@ import { Tema } from "@/app/generated/prisma"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { format } from "date-fns"
 import { DeleteButton } from "./ui/delete-button"
-import { EditButton } from "./ui/edit-button"
+import { FormularioTema } from "./formulario-tema"
+import { DeletarTema } from "@/actions/avaliacao"
+import { toast } from "sonner"
 
 interface ModalTemasProps {
   temas: Tema[];
@@ -25,9 +27,26 @@ interface ModalTemasProps {
 
 export function ModalTemas({ temas }: ModalTemasProps) {
   const [open, setOpen] = useState(false)
+  const [modalTemas, setModalTemas] = useState<Tema[]>([])
+
+  useEffect(() => {
+    if (open) {
+      setModalTemas(temas)
+    }
+  }, [open, temas])
+
+
+  async function ExcluirTema(id: number) {
+    try {
+      await DeletarTema(id)
+      toast.success(`O tema foi excluído com sucesso`)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={() => setOpen(open => !open)}>
       <DialogTrigger asChild>
         <Button variant="outline">
           <FilePenLine />
@@ -50,15 +69,15 @@ export function ModalTemas({ temas }: ModalTemasProps) {
           </TableHeader>
 
           <TableBody>
-            {temas.map((tema) => (
+            {modalTemas.map((tema) => (
               <TableRow key={tema.id}>
                 <TableCell>{tema.id}</TableCell>
                 <TableCell>{tema.nome}</TableCell>
                 <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
                 <TableCell className="max-w-[54px]">
                   <div className="flex items-center justify-center gap-4">
-                    <EditButton />
-                    <DeleteButton />
+                    <FormularioTema tema={tema} />
+                    <DeleteButton onClick={() => ExcluirTema(tema.id)} />
                   </div>
                 </TableCell>
               </TableRow>

@@ -3,8 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Plus } from "lucide-react"
-import { useState } from "react"
+import { Plus, Pencil } from "lucide-react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -22,61 +22,87 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { AdicionarTema } from "@/actions/avaliacao"
+import { AdicionarTema, EditarTema } from "@/actions/avaliacao"
 import { toast } from "sonner"
+import { Tema } from "@/app/generated/prisma"
+import { EditButton } from "./ui/edit-button"
+
 
 const formSchema = z.object({
-  nome: z.string().min(3, "O tnomedeve ter pelo menos 3 caracteres"),
+  nome: z.string().min(3, "O nome do tema deve ter pelo menos 3 caracteres"),
 })
 
 type FormValues = z.infer<typeof formSchema>
 
-export function FormularioTema() {
+interface FormularioTemaProps {
+  tema?: Tema
+}
+
+export function FormularioTema({ tema }: FormularioTemaProps) {
   const [open, setOpen] = useState(false)
+  const isEditMode = !!tema
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nome: "",
+      nome: tema?.nome || "",
     },
   })
 
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        nome: tema?.nome || "",
+      })
+    }
+  }, [open, tema, form])
+
   async function onSubmit(values: FormValues) {
     try {
-      const tema = await AdicionarTema(values.nome)
-      toast.success(`O tema ${tema.nome} foi adicionado com sucesso`)
+      if (isEditMode) {
+        const updatedTema = await EditarTema(tema.id, values.nome)
+        toast.success(`O tema ${updatedTema.nome} foi atualizado com sucesso`)
+      } else {
+        const newTema = await AdicionarTema(values.nome)
+        toast.success(`O tema ${newTema.nome} foi adicionado com sucesso`)
+      }
       form.reset()
       setOpen(false)
     } catch (error) {
-      toast.error('Algo deu errado, tente novamente!')
-      console.error('Erro ao criar tema:', error)
+      toast.error("Algo deu errado, tente novamente!")
+      console.error("Erro ao salvar tema:", error)
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary">
-          <Plus />
-          <span className="max-sm:hidden">Novo</span>
-          Tema
-        </Button>
+        {isEditMode ?
+          <EditButton /> :
+          <Button variant="secondary">
+            <Plus />
+            <span className="max-sm:hidden">Novo</span>
+            Tema
+          </Button>
+        }
       </DialogTrigger>
-      <DialogContent >
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-center">Adicionar Novo Tema</DialogTitle>
+          <DialogTitle className="text-center">
+            {isEditMode ? "Editar Tema" : "Adicionar Novo Tema"}
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name='nome'
+              name="nome"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tema</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Digite o novo tema"
+                      placeholder={isEditMode ? "Edite o tema" : "Digite o novo tema"}
                       {...field}
                     />
                   </FormControl>
@@ -102,7 +128,7 @@ export function FormularioTema() {
                 className="min-w-[100px]"
                 disabled={form.formState.isSubmitting}
               >
-                {form.formState.isSubmitting ? 'Salvando...' : 'Salvar'}
+                {form.formState.isSubmitting ? "Salvando..." : "Salvar"}
               </Button>
             </div>
           </form>

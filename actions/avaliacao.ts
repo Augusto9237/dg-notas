@@ -32,6 +32,20 @@ export async function AdicionarTema(nome: string): Promise<Tema> {
     }
 }
 
+export async function ListarTemas(): Promise<Tema[]> {
+    try {
+        const temas = await prisma.tema.findMany({
+            orderBy: {
+                nome: 'asc',
+            },
+        });
+        return temas;
+    } catch (error) {
+        console.error("Erro ao listar temas:", error);
+        throw error;
+    }
+}
+
 export async function EditarTema(id: number, novoNome: string): Promise<Tema> {
     try {
         const temaEditado = await prisma.tema.update({
@@ -50,19 +64,25 @@ export async function EditarTema(id: number, novoNome: string): Promise<Tema> {
     }
 }
 
-export async function ListarTemas(): Promise<Tema[]> {
+export async function DeletarTema(id: number) {
     try {
-        const temas = await prisma.tema.findMany({
-            orderBy: {
-                nome: 'asc',
+        await prisma.avaliacao.deleteMany({
+            where: {
+                temaId: id,
             },
         });
-        return temas;
+        await prisma.tema.delete({
+            where: {
+                id,
+            },
+        });
+        revalidatePath('/professor')
     } catch (error) {
-        console.error("Erro ao listar temas:", error);
+        console.error("Erro ao deletar tema:", error);
         throw error;
     }
 }
+
 
 export async function ListarCriterios(): Promise<Criterio[]> {
     try {
@@ -106,6 +126,58 @@ export async function AdicionarAvaliacao({
         return avaliacao;
     } catch (error) {
         console.error("Erro ao adicionar avaliação:", error);
+        throw error;
+    }
+}
+
+export async function EditarAvaliacao(
+    id: number,
+    data: AdicionarAvaliacaoInput
+): Promise<Avaliacao> {
+    try {
+        const transaction = await prisma.$transaction([
+            prisma.criterioAvaliacao.deleteMany({
+                where: { avaliacaoId: id },
+            }),
+            prisma.avaliacao.update({
+                where: { id },
+                data: {
+                    alunoId: data.alunoId,
+                    temaId: data.temaId,
+                    notaFinal: data.notaFinal,
+                    criterios: {
+                        create: data.criterios.map((criterio) => ({
+                            criterioId: criterio.criterioId,
+                            pontuacao: criterio.pontuacao,
+                        })),
+                    },
+                },
+                include: {
+                    criterios: true,
+                    tema: true,
+                    aluno: true,
+                },
+            }),
+        ]);
+
+        revalidatePath('/professor');
+        return transaction[1]; 
+    } catch (error) {
+        console.error("Erro ao editar avaliação:", error);
+        throw error;
+    }
+}
+
+export async function DeletarAvaliacao(id: number) {
+    try {
+        await prisma.avaliacao.delete({
+            where: {
+                id,
+            },
+        });
+        revalidatePath('/professor');
+    } catch (error) {
+        console.error("Erro ao deletar avaliação:", error);
         throw error;
     }
 }
