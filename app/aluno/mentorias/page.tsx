@@ -40,7 +40,6 @@ const mentoriasIniciais: Mentoria[] = [
 ]
 
 export default function MentoriasPage() {
-    const [open, setOpen] = useState(false)
     const [dataSelecionada, setDataSelecionada] = useState<Date | undefined>(new Date())
     const [mentorias] = useState<Mentoria[]>(mentoriasIniciais)
 

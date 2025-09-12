@@ -24,10 +24,26 @@ import { Plus } from "lucide-react"
 import { useState } from "react"
 import { ptBR } from "date-fns/locale"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import Image from "next/image"
-import { Student } from "@/lib/data"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { generateTimeSlots } from "./agendar-mentoria-aluno"
 
+interface Aluno {
+    email: string;
+    name: string;
+    image: string | null;
+    id: string;
+    role: string | null;
+    emailVerified: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    banned: boolean | null;
+    banReason: string | null;
+    banExpires: Date | null;
+}
+
+interface AgendarMentoriasProps {
+    alunos: Aluno[];
+}
 
 const formSchema = z.object({
     aluno: z.string().min(1, "Nome do aluno é obrigatório"),
@@ -38,16 +54,6 @@ const formSchema = z.object({
 })
 
 
-function generateTimeSlots(): string[] {
-    const slots: string[] = [];
-    for (let i = 0; i < 15; i++) {
-        const hour = 14 + Math.floor(i / 3);
-        const minutes = (i % 3) * 20;
-        const time = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-        slots.push(time);
-    }
-    return slots;
-}
 
 export function AgendarMentoriaModal() {
     const [open, setOpen] = useState(false)
@@ -83,7 +89,10 @@ export function AgendarMentoriaModal() {
             <DialogTrigger asChild>
                 <Button variant="secondary">
                     <Plus />
-                    Nova Mentoria
+                    <span className="max-md:hidden">
+                        Nova
+                    </span>
+                    Mentoria
                 </Button>
             </DialogTrigger>
             <DialogContent>
@@ -174,30 +183,30 @@ export function AgendarMentoriaModal() {
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
-                                )}
-                            />
+                            )}
+                        />
 
-                    <div className="flex justify-center gap-4">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                                form.reset()
-                                setOpen(false)
-                            }}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={form.formState.isSubmitting}
-                        >
-                            {form.formState.isSubmitting ? 'Agendando...' : 'Agendar'}
-                        </Button>
-                    </div>
-                </form>
-            </Form>
-        </DialogContent>
+                        <div className="flex justify-center gap-4">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    form.reset()
+                                    setOpen(false)
+                                }}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={form.formState.isSubmitting}
+                            >
+                                {form.formState.isSubmitting ? 'Agendando...' : 'Agendar'}
+                            </Button>
+                        </div>
+                    </form>
+                </Form>
+            </DialogContent>
         </Dialog >
     )
 }

@@ -36,7 +36,7 @@ const formSchema = z.object({
 })
 
 
-function generateTimeSlots(): string[] {
+export function generateTimeSlots(): string[] {
     return Array.from({ length: 7 }, (_, i) => {
         const hour = 15 + Math.floor(i / 3);
         const minutes = (i % 3) * 20;

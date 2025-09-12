@@ -15,9 +15,11 @@ interface Mentoria {
 
 interface CardMentoriaProps {
     mentoria: Mentoria;
+    professor?: boolean | null;
+    aluno?: string | null;
 }
 
-export function CardMentoria({ mentoria }: CardMentoriaProps) {
+export function CardMentoria({ mentoria, professor = false, aluno }: CardMentoriaProps) {
     return (
         <Card className="p-0 gap-2">
             <CardContent className="p-4">
@@ -29,7 +31,9 @@ export function CardMentoria({ mentoria }: CardMentoriaProps) {
                                 <AvatarFallback>DG</AvatarFallback>
                             </Avatar>
                             <div className="space-y-1">
-                                <h3 className="font-medium text-sm">Profª {mentoria.professor}</h3>
+                                <h3 className="font-medium text-sm">
+                                    {professor ? aluno : mentoria.professor}
+                                </h3>
                                 <p className="text-xs text-muted-foreground">
                                     04/09/2025 às 14:00
                                 </p>
@@ -43,10 +47,10 @@ export function CardMentoria({ mentoria }: CardMentoriaProps) {
                         {mentoria.status}
                     </Badge>
                 </div>
-            
+
             </CardContent>
 
-            
+
 
             <CardFooter className="p-4 pt-0 gap-5 overflow-hidden grid grid-cols-2">
                 <Button size="sm" variant={mentoria.status === 'concluida' ? 'ghost' : "outline"} className="w-full">
