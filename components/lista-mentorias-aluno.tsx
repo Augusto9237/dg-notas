@@ -2,13 +2,19 @@
 import { useEffect, useState } from "react"
 import { CardMentoria } from "./card-mentoria"
 import { Card, CardContent } from "./ui/card"
-import { Mentoria } from "@/app/generated/prisma"
+import { Prisma } from "@/app/generated/prisma"
 
-interface ListMentoriasAlunosProps{
+type Mentoria = Prisma.MentoriaGetPayload<{
+    include: {
+        horario: true;
+    };
+}>;
+
+interface ListMentoriasAlunosProps {
     mentoriasIniciais: Mentoria[]
 }
 
-export function ListMentoriasAlunos({mentoriasIniciais}: ListMentoriasAlunosProps) {
+export function ListMentoriasAlunos({ mentoriasIniciais }: ListMentoriasAlunosProps) {
     const [dataSelecionada, setDataSelecionada] = useState<Date | undefined>(new Date())
     const [mentorias, setMentorias] = useState<Mentoria[]>(mentoriasIniciais)
     const [mentoriasFiltradas, setMentoriasFiltradas] = useState<Mentoria[]>(mentoriasIniciais)

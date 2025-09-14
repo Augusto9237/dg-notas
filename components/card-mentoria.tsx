@@ -4,9 +4,13 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { CalendarSync, CalendarX } from "lucide-react";
-import { Mentoria } from "@/app/generated/prisma";
+import { Prisma } from "@/app/generated/prisma";
 
-
+type Mentoria = Prisma.MentoriaGetPayload<{
+    include: {
+      horario: true;
+    };
+  }>;
 
 interface CardMentoriaProps {
     mentoria: Mentoria;
@@ -30,7 +34,7 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
                                     {professor ? aluno : "Profª Daniely Guedes"}
                                 </h3>
                                 <p className="text-xs text-muted-foreground">
-                                {new Date(mentoria.createdAt).toLocaleDateString('pt-BR')}
+                                {new Date(mentoria.horario.data).toLocaleDateString('pt-BR')}
                                 </p>
                             </div>
                         </div>
