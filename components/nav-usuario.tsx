@@ -44,7 +44,7 @@ export function NavUsuario() {
                         :
                         <>
                             <Avatar className="border-2 border-secondary">
-                                <AvatarImage src={session?.user ? session.user.image! : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
+                                <AvatarImage src={session?.user ? session.user.image! : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"}  className="object-cover"/>
                                 <AvatarFallback>DG</AvatarFallback>
                             </Avatar>
 

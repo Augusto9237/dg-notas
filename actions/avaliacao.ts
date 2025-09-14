@@ -189,11 +189,20 @@ export async function ListarAvaliacoesAlunoId(alunoId: string) {
 
 export async function DeletarAvaliacao(id: number) {
     try {
+        // Primeiro, deleta todos os critérios associados à avaliação
+        await prisma.criterioAvaliacao.deleteMany({
+            where: {
+                avaliacaoId: id,
+            },
+        });
+
+        // Depois, deleta a avaliação
         await prisma.avaliacao.delete({
             where: {
                 id,
             },
         });
+
         revalidatePath('/professor');
     } catch (error) {
         console.error("Erro ao deletar avaliação:", error);

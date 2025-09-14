@@ -24,24 +24,24 @@ model Tema {
 }
 
 model Avaliacao {
-  id         Int        @id @default(autoincrement())
-  alunoId    String
-  aluno      User       @relation(fields: [alunoId], references: [id])
-  temaId     Int
-  tema       Tema       @relation(fields: [temaId], references: [id])
-  criterios  CriterioAvaliacao[]
-  notaFinal  Int
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id        Int                 @id @default(autoincrement())
+  alunoId   String
+  aluno     User                @relation(fields: [alunoId], references: [id])
+  temaId    Int
+  tema      Tema                @relation(fields: [temaId], references: [id])
+  criterios CriterioAvaliacao[]
+  notaFinal Int
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
 }
 
 model CriterioAvaliacao {
-  id           Int        @id @default(autoincrement())
-  avaliacaoId  Int
-  avaliacao    Avaliacao  @relation(fields: [avaliacaoId], references: [id])
-  criterioId   Int
-  criterio     Criterio   @relation(fields: [criterioId], references: [id])
-  pontuacao    Int
+  id          Int       @id @default(autoincrement())
+  avaliacaoId Int
+  avaliacao   Avaliacao @relation(fields: [avaliacaoId], references: [id])
+  criterioId  Int
+  criterio    Criterio  @relation(fields: [criterioId], references: [id])
+  pontuacao   Int
 }
 
 model Criterio {
@@ -52,6 +52,55 @@ model Criterio {
   updatedAt DateTime @updatedAt
 
   CriterioAvaliacao CriterioAvaliacao[]
+}
+
+// Enum para status da mentoria
+enum StatusMentoria {
+  AGENDADA
+  REALIZADA
+}
+
+// Enum para slots de horário (15h às 17h, intervalos de 20min)
+enum SlotHorario {
+  SLOT_15_00 // 15:00 - 15:20
+  SLOT_15_20 // 15:20 - 15:40
+  SLOT_15_40 // 15:40 - 16:00
+  SLOT_16_00 // 16:00 - 16:20
+  SLOT_16_20 // 16:20 - 16:40
+  SLOT_16_40 // 16:40 - 17:00
+}
+
+enum StatusHorario {
+  OCUPADO
+  LIVRE
+}
+
+model Horario {
+  id     Int         @id @default(autoincrement())
+  data   DateTime    @db.Date // Apenas data, sem horário
+  slot   SlotHorario
+  status StatusHorario @default(LIVRE)
+
+  mentorias Mentoria[]
+
+  // Permite até 4 mentorias por horário (data + slot)
+  @@unique([data, slot, id])
+}
+
+model Mentoria {
+  id        Int             @id @default(autoincrement())
+  alunoId   String
+  aluno     User            @relation(fields: [alunoId], references: [id])
+  horarioId Int
+  horario   Horario         @relation(fields: [horarioId], references: [id])
+  status    StatusMentoria  @default(AGENDADA)
+  duracao   Int             @default(20) // Duração em minutos
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  // Garante que um aluno só possa ter uma mentoria por horário
+  @@unique([alunoId, horarioId])
+  @@index([status])
 }
 
 model User {
@@ -65,11 +114,12 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  role       String?
-  banned     Boolean?    @default(false)
-  banReason  String?
-  banExpires DateTime?
-  Avaliacao  Avaliacao[]
+  role          String?
+  banned        Boolean?        @default(false)
+  banReason     String?
+  banExpires    DateTime?
+  Avaliacao Avaliacao[]
+  Mentorias Mentoria[]
 
   @@unique([email])
   @@map("user")

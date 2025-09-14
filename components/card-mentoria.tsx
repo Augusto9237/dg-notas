@@ -4,14 +4,9 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { CalendarSync, CalendarX } from "lucide-react";
+import { Mentoria } from "@/app/generated/prisma";
 
-interface Mentoria {
-    id: string
-    titulo: string
-    data: Date
-    professor: string
-    status: "agendada" | "concluida" | "cancelada"
-}
+
 
 interface CardMentoriaProps {
     mentoria: Mentoria;
@@ -32,17 +27,17 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
                             </Avatar>
                             <div className="space-y-1">
                                 <h3 className="font-medium text-sm">
-                                    {professor ? aluno : mentoria.professor}
+                                    {professor ? aluno : "Profª Daniely Guedes"}
                                 </h3>
                                 <p className="text-xs text-muted-foreground">
-                                    04/09/2025 às 14:00
+                                {new Date(mentoria.createdAt).toLocaleDateString('pt-BR')}
                                 </p>
                             </div>
                         </div>
 
                     </div>
                     <Badge
-                        variant={mentoria.status === "concluida" ? 'default' : 'secondary'}
+                        variant={mentoria.status ===  "REALIZADA" ? 'default' : 'secondary'}
                     >
                         {mentoria.status}
                     </Badge>
@@ -53,11 +48,11 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
 
 
             <CardFooter className="p-4 pt-0 gap-5 overflow-hidden grid grid-cols-2">
-                <Button size="sm" variant={mentoria.status === 'concluida' ? 'ghost' : "outline"} className="w-full">
+                <Button size="sm" variant={mentoria.status === 'REALIZADA' ? 'ghost' : "outline"} className="w-full">
                     <CalendarSync />
                     Reagendar
                 </Button>
-                <Button size="sm" variant={mentoria.status === 'concluida' ? 'ghost' : "destructive"} className="w-full">
+                <Button size="sm" variant={mentoria.status === 'REALIZADA' ? 'ghost' : "destructive"} className="w-full">
                     <CalendarX />
                     Cancelar
                 </Button>

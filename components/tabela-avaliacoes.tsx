@@ -21,6 +21,9 @@ import {
   PaginationNext,
 } from '@/components/ui/pagination';
 import { Criterio, CriterioAvaliacao, Tema, Avaliacao } from '@/app/generated/prisma';
+import { DeletarAvaliacao } from '@/actions/avaliacao';
+import { toast } from 'sonner';
+import { DeleteButton } from './ui/delete-button';
 
 interface Aluno {
   name: string;
@@ -81,6 +84,15 @@ export function TabelaAvaliacoes({ aluno, temas, criterios, avaliacoes }: Tabela
     }
   };
 
+  async function excluirAvaliacao(id: number) {
+    try {
+      await DeletarAvaliacao(id)
+      toast.success("Avaliaçao excluída com sucesso")
+    } catch (error) {
+      console.log(error)
+      toast.error('Algo deu errado, tente novamente!')
+    }
+  }
 
 
   return (
@@ -88,7 +100,7 @@ export function TabelaAvaliacoes({ aluno, temas, criterios, avaliacoes }: Tabela
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className='pl-4'>Tema</TableHead>
+            <TableHead className='pl-4 md:min-w-[360px]'>Tema</TableHead>
             <TableHead>Data</TableHead>
             <TableHead>Competência 1</TableHead>
             <TableHead>Competência 2</TableHead>
@@ -131,6 +143,7 @@ export function TabelaAvaliacoes({ aluno, temas, criterios, avaliacoes }: Tabela
                       criterios={criterios}
                       avaliacao={avaliacao}
                     />
+                    <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id)} />
                   </div>
                 </TableCell>
               </TableRow>
