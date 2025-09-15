@@ -167,7 +167,7 @@ export async function adicionarMentoria(
 
   } catch (error) {
     console.error('Erro ao adicionar mentoria:', error);
-    
+
     // Tratamento de erros específicos do Prisma
     if (error instanceof Error) {
       if (error.message.includes('Unique constraint')) {
@@ -230,31 +230,33 @@ export async function verificarDisponibilidadeHorario(
 
 
 export async function listarMentoriasHorario(
-  data: Date,
-  slot: SlotHorario
+  data?: Date,    // Tornando 'data' opcional
+  slot?: SlotHorario  // Tornando 'slot' opcional
 ) {
   try {
-    const dataNormalizada = new Date(data);
-    dataNormalizada.setHours(0, 0, 0, 0);
+    // Inicializando os filtros
+    const filtros: any = {};
 
-    const horario = await prisma.horario.findFirst({
-      where: {
-        data: dataNormalizada,
-        slot: slot
-      },
+    // Se a data for fornecida, normaliza e adiciona ao filtro
+    if (data) {
+      const dataNormalizada = new Date(data);
+      dataNormalizada.setHours(0, 0, 0, 0);
+      filtros.data = dataNormalizada;
+    }
+
+    // Se o slot for fornecido, adiciona ao filtro
+    if (slot) {
+      filtros.slot = slot;
+    }
+
+    // Realiza a consulta com os filtros condicionais
+    const horarios = await prisma.horario.findMany({
+      where: filtros,
       include: {
         mentorias: {
-          where: {
-            status: StatusMentoria.AGENDADA
-          },
           include: {
-            aluno: {
-              select: {
-                id: true,
-                name: true,
-                email: true
-              }
-            }
+            horario: true,
+            aluno: true
           },
           orderBy: {
             createdAt: 'asc'
@@ -263,12 +265,14 @@ export async function listarMentoriasHorario(
       }
     });
 
-    return horario?.mentorias || [];
+    // Retorna todas as mentorias encontradas
+    return horarios.flatMap(horario => horario.mentorias) || [];
   } catch (error) {
     console.error('Erro ao listar mentorias:', error);
     return [];
   }
 }
+
 
 /**
  * Função para listar todas as mentorias de um aluno a partir do ID

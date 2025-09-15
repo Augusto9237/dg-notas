@@ -4,53 +4,35 @@ import { Button } from "@/components/ui/button"
 import { ptBR } from 'date-fns/locale'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-interface Mentoria {
-    id: string
-    titulo: string
-    data: Date
-    professor: string
-    status: "agendada" | "concluida" | "cancelada"
-}
-
-const mentoriasIniciais: Mentoria[] = [
-    {
-        id: "1",
-        titulo: "Revisão de Redação",
-        data: new Date(),
-        professor: "Daniely Guedes",
-        status: "agendada"
-    },
-    {
-        id: "2",
-        titulo: "Correção Dissertação",
-        data: new Date(2025, 4, 3, 15, 0),
-        professor: "Daniely Guedes",
-        status: 'concluida'
-    }
-]
-
 import { useEffect, useState } from "react"
 import { AgendarMentoriaModal } from "./agendar-mentoria-modal"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "./ui/calendar"
 import { CardMentoria } from "./card-mentoria"
+import { Prisma } from "@/app/generated/prisma"
 
-export function ListaMentorias() {
+type Mentoria = Prisma.MentoriaGetPayload<{
+    include: {
+        horario: true;
+        aluno: true;
+    };
+}>;
+
+
+interface ListaMentoriasProps {
+    mentoriasIniciais: Mentoria[]
+}
+
+export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
     const [open, setOpen] = useState(false)
     const [dataSelecionada, setDataSelecionada] = useState<Date | undefined>(new Date())
-    const [mentorias] = useState<Mentoria[]>(mentoriasIniciais)
+    const [mentorias, setMentorias] = useState<Mentoria[]>([])
 
     const [mentoriasFiltradas, setMentoriasFiltradas] = useState<Mentoria[]>(mentorias)
 
     useEffect(() => {
-        const filteredMentorias = dataSelecionada
-            ? mentorias.filter(mentoria =>
-                mentoria.data.toDateString() === dataSelecionada.toDateString()
-            )
-            : []
-
-        setMentoriasFiltradas(filteredMentorias)
-    }, [dataSelecionada, mentorias])
+        setMentorias(mentoriasIniciais)
+    }, [mentoriasIniciais])
 
     return (
 
@@ -94,15 +76,15 @@ export function ListaMentorias() {
                 </Popover>
             </div>
             <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4">
-                {mentoriasFiltradas.length === 0 ? (
+                {mentorias.length === 0 ? (
                     <Card>
                         <CardContent className="p-6 text-center text-muted-foreground">
                             Nenhuma mentoria agendada para esta data
                         </CardContent>
                     </Card>
                 ) : (
-                    mentoriasFiltradas.map((mentoria) => (
-                        <CardMentoria key={mentoria.id} mentoria={mentoria} professor={true} aluno={'Aluno teste'} />
+                    mentorias.map((mentoria) => (
+                        <CardMentoria key={mentoria.id} mentoria={mentoria} professor={true} aluno={mentoria.aluno} />
                     ))
                 )}
             </div>

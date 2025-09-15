@@ -1,10 +1,19 @@
 import { ListarAlunosGoogle } from "@/actions/alunos";
+import { listarMentoriasHorario } from "@/actions/mentoria";
 import { AgendarMentoriaModal } from "@/components/agendar-mentoria-modal";
 import { ListaMentorias } from "@/components/lista-mentorias";
 
+enum SlotHorario {
+    SLOT_15_00 = "SLOT_15_00",
+    SLOT_15_20 = "SLOT_15_20",
+    SLOT_15_40 = "SLOT_15_40",
+    SLOT_16_00 = "SLOT_16_00",
+    SLOT_16_20 = "SLOT_16_20",
+    SLOT_16_40 = "SLOT_16_40"
+}
 
 export default async function Page() {
-     const alunos = await ListarAlunosGoogle()
+     const mentorias  = await listarMentoriasHorario()
      
     return (
         <div className="w-full">
@@ -15,7 +24,7 @@ export default async function Page() {
                 </div>
                 <AgendarMentoriaModal />
             </div>
-            <ListaMentorias />
+            <ListaMentorias mentoriasIniciais={mentorias} />
         </div>
     )
 }
