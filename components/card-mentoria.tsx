@@ -27,7 +27,7 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <Avatar className="border-2 border-primary size-10">
-                                <AvatarImage src={professor ? aluno?.name : '/foto-1.jpeg'} style={{objectFit: 'cover'}}/>
+                                <AvatarImage src={professor ? aluno?.image! : '/foto-1.jpeg'} style={{objectFit: 'cover'}}/>
                                 <AvatarFallback>DG</AvatarFallback>
                             </Avatar>
                             <div className="space-y-1">
