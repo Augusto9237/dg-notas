@@ -43,15 +43,14 @@ export function FormularioAvaliacao({ temas, criterios, alunoId, avaliacao }: Fo
   const [isOpen, setIsOpen] = useState(false)
   const isEditMode = !!avaliacao
 
-  const defaultValues = isEditMode && avaliacao ? {
+  const defaultValues = isEditMode ? {
     tema: String(avaliacao.temaId),
     criterios: avaliacao.criterios.reduce((acc, crit) => {
       acc[crit.criterioId] = { pontuacao: crit.pontuacao };
       return acc;
     }, {} as Record<string, { pontuacao: number }>)
   } : {
-    tema: "",
-    criterios: {}
+    tema: "", criterios: {}
   };
 
   const form = useForm<FormValues>({
@@ -59,11 +58,10 @@ export function FormularioAvaliacao({ temas, criterios, alunoId, avaliacao }: Fo
     defaultValues
   })
 
-  // useEffect(() => {
-  //   if (isOpen && (JSON.stringify(form.getValues()) !== JSON.stringify(defaultValues))) {
-  //     form.reset(defaultValues);
-  //   }
-  // }, [isOpen, form, defaultValues]);
+  useEffect(() => {
+    // Reset the form whenever the `avaliacao` prop changes
+    form.reset(defaultValues);
+  }, [avaliacao, form]); // Depend on `avaliacao`
 
 
   const getGradeColor = (grade: number, maxGrade: number) => {
