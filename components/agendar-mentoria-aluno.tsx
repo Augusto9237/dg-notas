@@ -87,10 +87,7 @@ export function AgendarMentoriaAluno() {
         },
     })
 
-    const dummyStudents: any[] = Array.from({ length: 10 }, (_, i) => ({
-        id: `student-${i + 1}`,
-        name: `Aluno ${i + 1}`,
-    }));
+  
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {

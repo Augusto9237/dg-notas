@@ -4,18 +4,19 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { CalendarSync, CalendarX } from "lucide-react";
-import { Prisma } from "@/app/generated/prisma";
+import { Prisma, User } from "@/app/generated/prisma";
+import { generateTimeSlots } from "./agendar-mentoria-aluno";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
-      horario: true;
+        horario: true;
     };
-  }>;
+}>;
 
 interface CardMentoriaProps {
     mentoria: Mentoria;
     professor?: boolean | null;
-    aluno?: string | null;
+    aluno?: User | null;
 }
 
 export function CardMentoria({ mentoria, professor = false, aluno }: CardMentoriaProps) {
@@ -26,24 +27,29 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <Avatar className="border-2 border-primary size-10">
-                                <AvatarImage src={"https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
+                                <AvatarImage src={professor ? aluno?.name : '/foto-1.jpeg'} style={{objectFit: 'cover'}}/>
                                 <AvatarFallback>DG</AvatarFallback>
                             </Avatar>
                             <div className="space-y-1">
                                 <h3 className="font-medium text-sm">
-                                    {professor ? aluno : "Profª Daniely Guedes"}
+                                    {professor ? aluno?.name : "Profª Daniely Guedes"}
                                 </h3>
                                 <p className="text-xs text-muted-foreground">
-                                {new Date(mentoria.horario.data).toLocaleDateString('pt-BR')}
+                                    {new Date(mentoria.horario.data).toLocaleDateString('pt-BR')} - {
+                                        (() => {
+                                            const slot = generateTimeSlots().find((horario) => horario.slot === mentoria.horario.slot);
+                                            return slot ? slot.display : mentoria.horario.slot;
+                                        })()
+                                    }
                                 </p>
                             </div>
                         </div>
 
                     </div>
                     <Badge
-                        variant={mentoria.status ===  "REALIZADA" ? 'default' : 'secondary'}
+                        variant={mentoria.status === "REALIZADA" ? 'default' : 'secondary'}
                     >
-                        {mentoria.status}
+                        {mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}
                     </Badge>
                 </div>
 

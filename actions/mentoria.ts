@@ -228,12 +228,7 @@ export async function verificarDisponibilidadeHorario(
   }
 }
 
-/**
- * Função para listar mentorias de um horário específico
- * @param data - Data do horário
- * @param slot - Slot de horário
- * @returns Lista de mentorias agendadas
- */
+
 export async function listarMentoriasHorario(
   data: Date,
   slot: SlotHorario
@@ -290,7 +285,7 @@ export async function listarMentoriasAluno(alunoId: string) {
         horario: true
       },
       orderBy: {
-        createdAt: 'desc'
+        createdAt: 'asc'
       }
     });
     return mentorias;

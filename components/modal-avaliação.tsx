@@ -13,75 +13,50 @@ import { Separator } from "@radix-ui/react-dropdown-menu"
 import { Essay, Student } from "@/lib/data"
 import { Badge } from "./ui/badge"
 import { Progress } from "./ui/progress"
+import { Avaliacao, Criterio, CriterioAvaliacao, Prisma } from "@/app/generated/prisma"
 
-interface GradingCriteria {
-  name: string
-  description: string
-  maxScore: number
-  score: number
-}
 
+type AvaliacaoProp = Prisma.AvaliacaoGetPayload<{
+  include: {
+    tema: true
+  };
+}>;
 
 interface ModalAvaliacaoProps {
-  essay: Essay;
+  avaliacao: AvaliacaoProp & { criterios: CriterioAvaliacao[] };
+  criterios: Criterio[]
 }
 
-export function ModalAvaliacao({ essay }: ModalAvaliacaoProps) {
+export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
   const [isOpen, setIsOpen] = useState(false) // Add this state for dialog control
-  const [criteria, setCriteria] = useState<GradingCriteria[]>(
-    [
-      {
-        name: "Gramática e norma culta",
-        description: "Uso correto da norma culta: ortografia, pontuação e gramática.",
-        maxScore: 200,
-        score: 0
-      },
-      {
-        name: "Foco no tema e repertório sociocultural",
-        description: "Manter-se no tema e usar repertório sociocultural relevante.",
-        maxScore: 200,
-        score: 0
-      },
-      {
-        name: "Argumentação consistente",
-        description: "Defender o ponto de vista com argumentos claros e organizados.",
-        maxScore: 200,
-        score: 0
-      },
-      {
-        name: "Coesão e organização textual",
-        description: "Usar conectivos e recursos linguísticos para dar fluidez ao texto.",
-        maxScore: 200,
-        score: 0
-      },
-      {
-        name: "Proposta de intervenção detalhada",
-        description: "Apresentar solução viável e detalhada para o problema discutido.",
-        maxScore: 200,
-        score: 0
-      }
-    ]
 
-  )
+  // Verificação de segurança
+  if (!avaliacao || !avaliacao.tema) {
+    return (
+      <Button className="w-full relative bg-primary/10" size="sm" variant="outline" disabled>
+        Avaliação Incompleta
+      </Button>
+    );
+  }
 
   const getGradeColor = (grade: number, maxGrade: number) => {
     const percentage = (grade / maxGrade) * 100;
-    if (percentage >= 90) return "bg-primary";
-    if (percentage >= 80) return "bg-secondary";
-    if (percentage >= 70) return "bg-secondary-foreground";
+    if (percentage >= 75) return "bg-primary";
+    if (percentage >= 50) return "bg-secondary";
+    if (percentage >= 25) return "bg-secondary-foreground";
     return "bg-red-500";
-};
+  };
 
-const getGradeBadgeVariant = (
+  const getGradeBadgeVariant = (
     grade: number,
     maxGrade: number,
-) => {
+  ) => {
     const percentage = (grade / maxGrade) * 100;
-    if (percentage >= 90) return "default";
-    if (percentage >= 80) return "secondary";
-    if (percentage >= 70) return "outline";
+    if (percentage >= 75) return "default";
+    if (percentage >= 50) return "secondary";
+    if (percentage >= 25) return "outline";
     return "destructive";
-};
+  };
 
   const calculateTotalScore = (competencies: number[]) =>
     competencies.reduce((sum, score) => sum + score, 0);
@@ -96,32 +71,37 @@ const getGradeBadgeVariant = (
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-center text-base">{essay.title}</DialogTitle>
+          <DialogTitle className="text-center text-base">{avaliacao.tema.nome}</DialogTitle>
         </DialogHeader>
-        {criteria.map((criterion, index) => (
-          <div key={index} className="space-y-1">
-            <div className="flex justify-between items-center">
-              <p className="text-sm font-medium">
-                {criterion.name}
-              </p>
-              <Badge
-                className="text-xs"
-                variant={getGradeBadgeVariant(essay.competencies[index], criterion.maxScore)}
-              >
-                {essay.competencies[index]}/{criterion.maxScore}
-              </Badge>
-            </div>
-            <Progress value={(essay.competencies[index]/ criterion.maxScore) * 100} indicatorClassName={getGradeColor(essay.competencies[index], criterion.maxScore)} />
-            <p className="text-xs text-muted-foreground">{criterion.description}</p>
-          </div>
-        ))}
+        {avaliacao.criterios.map((criterio) => {
+          const criterioInfo = criterios.find(c => c.id === criterio.criterioId);
+          if (!criterioInfo) return null;
 
+          return (
+            <div key={criterio.id} className="space-y-1">
+              <div className="flex justify-between items-center">
+                <p className="text-sm font-medium">
+                  {criterioInfo.nome}
+                </p>
+                <Badge
+                  className="text-xs"
+                  variant={getGradeBadgeVariant(criterio.pontuacao, 200)}
+                >
+                  {criterio.pontuacao}/200
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">{criterioInfo.descricao}</p>
+              <Progress value={criterio.pontuacao / 200 * 100} indicatorClassName={getGradeColor(criterio.pontuacao, 200)} />
+
+            </div>
+          );
+        })}
         <Separator />
 
         <div className="flex flex-col justify-between items-center pt-4 gap-4 border-t">
           <div className="flex justify-between font-semibold w-full text-primary">
             <span>Nota Final:</span>
-            <span>{calculateTotalScore(essay.competencies)}/1000</span>
+            <span>{avaliacao.notaFinal}/1000</span>
           </div>
         </div>
       </DialogContent>
