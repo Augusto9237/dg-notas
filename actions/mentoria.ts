@@ -231,8 +231,8 @@ export async function verificarDisponibilidadeHorario(
 
 export async function listarMentoriasHorario(
   data?: Date,    // Tornando 'data' opcional
-  slot?: SlotHorario  // Tornando 'slot' opcional
 ) {
+  console.log('data recebida', data)
   try {
     // Inicializando os filtros
     const filtros: any = {};
@@ -242,11 +242,6 @@ export async function listarMentoriasHorario(
       const dataNormalizada = new Date(data);
       dataNormalizada.setHours(0, 0, 0, 0);
       filtros.data = dataNormalizada;
-    }
-
-    // Se o slot for fornecido, adiciona ao filtro
-    if (slot) {
-      filtros.slot = slot;
     }
 
     // Realiza a consulta com os filtros condicionais
