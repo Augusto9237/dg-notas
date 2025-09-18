@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { CalendarSync, CalendarX } from "lucide-react";
 import { Prisma, User } from "@/app/generated/prisma";
 import { generateTimeSlots } from "./agendar-mentoria-aluno";
+import { excluirMentoriaECascata } from "@/actions/mentoria";
+import { toast } from "sonner";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -20,6 +22,15 @@ interface CardMentoriaProps {
 }
 
 export function CardMentoria({ mentoria, professor = false, aluno }: CardMentoriaProps) {
+
+    async function excluirMentoria(id: number) {
+        try {
+            await excluirMentoriaECascata(id)
+            toast.success('Mentoria excluída com sucesso')
+        } catch (error) {
+
+        }
+    }
     return (
         <Card className="p-0 gap-2">
             <CardContent className="p-4">
@@ -27,7 +38,7 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <Avatar className="border-2 border-primary size-10">
-                                <AvatarImage src={professor ? aluno?.image! : '/foto-1.jpeg'} style={{objectFit: 'cover'}}/>
+                                <AvatarImage src={professor ? aluno?.image! : '/foto-1.jpeg'} style={{ objectFit: 'cover' }} />
                                 <AvatarFallback>DG</AvatarFallback>
                             </Avatar>
                             <div className="space-y-1">
@@ -62,7 +73,12 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
                     <CalendarSync />
                     Reagendar
                 </Button>
-                <Button size="sm" variant={mentoria.status === 'REALIZADA' ? 'ghost' : "destructive"} className="w-full">
+                <Button
+                    size="sm"
+                    variant={mentoria.status === 'REALIZADA' ? 'ghost' : "destructive"}
+                    className="w-full"
+                    onClick={() => excluirMentoria(mentoria.id)}
+                >
                     <CalendarX />
                     Cancelar
                 </Button>

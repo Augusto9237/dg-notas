@@ -29,7 +29,6 @@ export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
     const [dataSelecionada, setDataSelecionada] = useState<Date | undefined>(new Date())
     const [mentorias, setMentorias] = useState<Mentoria[]>([]);
 
-    console.log(dataSelecionada)
 
     useEffect(() => {
         setMentorias(mentoriasIniciais)
