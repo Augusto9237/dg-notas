@@ -231,8 +231,8 @@ export async function verificarDisponibilidadeHorario(
 
 export async function listarMentoriasHorario(
   data?: Date,    // Tornando 'data' opcional
-  slot?: SlotHorario  // Tornando 'slot' opcional
 ) {
+  console.log('data recebida', data)
   try {
     // Inicializando os filtros
     const filtros: any = {};
@@ -242,11 +242,6 @@ export async function listarMentoriasHorario(
       const dataNormalizada = new Date(data);
       dataNormalizada.setHours(0, 0, 0, 0);
       filtros.data = dataNormalizada;
-    }
-
-    // Se o slot for fornecido, adiciona ao filtro
-    if (slot) {
-      filtros.slot = slot;
     }
 
     // Realiza a consulta com os filtros condicionais
@@ -298,3 +293,39 @@ export async function listarMentoriasAluno(alunoId: string) {
     return [];
   }
 }
+
+/**
+ * Função para excluir uma mentoria e seu horário associado (efeito cascata)
+ * @param mentoriaId - ID da mentoria a ser excluída
+ * @returns true se excluído com sucesso, false caso contrário
+ */
+export async function excluirMentoriaECascata(mentoriaId: number) {
+  try {
+    // Busca a mentoria para obter o horarioId
+    const mentoria = await prisma.mentoria.findUnique({
+      where: { id: mentoriaId },
+      select: { horarioId: true }
+    });
+
+    if (!mentoria) {
+      console.error('Mentoria não encontrada para exclusão.');
+      return false;
+    }
+
+    // Exclui a mentoria
+    await prisma.mentoria.delete({
+      where: { id: mentoriaId }
+    });
+
+    // Exclui o horário associado
+    await prisma.horario.delete({
+      where: { id: mentoria.horarioId }
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Erro ao excluir mentoria e horário em cascata:', error);
+    return false;
+  }
+}
+
