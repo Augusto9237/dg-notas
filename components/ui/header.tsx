@@ -18,24 +18,21 @@ export default function Header() {
   const [totalRedacoes, setTotalRedacoes] = useState(0)
   const [totalMentorias, setTotalMentorias] = useState(0)
 
-  // Garantir que o componente só renderize no cliente
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   useEffect(() => {
     const fetchAvaliacoes = async () => {
-      if (session?.user.id) {
         setIsLoading(false);
-        const avaliacoes = await ListarAvaliacoesAlunoId(session?.user.id)
+        const avaliacoes = await ListarAvaliacoesAlunoId(session?.user.id!)
         const somaNotas = avaliacoes.reduce((acc, avaliacao) => acc + avaliacao.notaFinal, 0);
         const media = avaliacoes.length > 0 ? somaNotas / avaliacoes.length : 0;
-        const mentorias = await listarMentoriasAluno(session?.user.id)
+        const mentorias = await listarMentoriasAluno(session?.user.id!)
 
         setMediaGeral(media);
         setTotalRedacoes(avaliacoes.length);
         setTotalMentorias(mentorias.length)
-      }
     }
     fetchAvaliacoes();
 
@@ -114,7 +111,7 @@ export default function Header() {
 
         <Card className="text-center bg-card/10 rounded-lg backdrop-blur-sm border-none gap-0 p-2">
           <CardTitle className="text-lg font-bold text-secondary">
-            {men}
+            {totalMentorias}
           </CardTitle>
           <CardDescription className="text-xs opacity-90 text-card">Mentorias</CardDescription>
         </Card>

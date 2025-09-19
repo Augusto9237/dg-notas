@@ -5,9 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { CalendarSync, CalendarX } from "lucide-react";
 import { Prisma, User } from "@/app/generated/prisma";
-import { generateTimeSlots } from "./agendar-mentoria-aluno";
+import { AgendarMentoriaAluno, generateTimeSlots } from "./agendar-mentoria-aluno";
 import { excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -31,6 +33,18 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
 
         }
     }
+
+    function formartarData(data: Date) {
+        // Converter a data UTC para uma data local sem problemas de fuso horário
+        const dataUTC = new Date(data);
+        const dataLocal = new Date(
+            dataUTC.getUTCFullYear(),
+            dataUTC.getUTCMonth(),
+            dataUTC.getUTCDate()
+        );
+        return format(dataLocal, "dd/MM/yyyy", { locale: ptBR });
+    }
+
     return (
         <Card className="p-0 gap-2">
             <CardContent className="p-4">
@@ -46,11 +60,8 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
                                     {professor ? aluno?.name : "Profª Daniely Guedes"}
                                 </h3>
                                 <p className="text-xs text-muted-foreground">
-                                    {new Date(mentoria.horario.data).toLocaleDateString('pt-BR')} - {
-                                        (() => {
-                                            const slot = generateTimeSlots().find((horario) => horario.slot === mentoria.horario.slot);
-                                            return slot ? slot.display : mentoria.horario.slot;
-                                        })()
+                                    {formartarData(mentoria.horario.data)} - {
+                                        generateTimeSlots().find(slot => slot.slot === mentoria.horario.slot)?.display || mentoria.horario.slot
                                     }
                                 </p>
                             </div>
@@ -69,10 +80,8 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
 
 
             <CardFooter className="p-4 pt-0 gap-5 overflow-hidden grid grid-cols-2">
-                <Button size="sm" variant={mentoria.status === 'REALIZADA' ? 'ghost' : "outline"} className="w-full">
-                    <CalendarSync />
-                    Reagendar
-                </Button>
+                <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit"/>
+                
                 <Button
                     size="sm"
                     variant={mentoria.status === 'REALIZADA' ? 'ghost' : "destructive"}

@@ -2,6 +2,7 @@
 
 import { Mentoria } from "@/app/generated/prisma";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 // Tipos para os parâmetros da função
 interface AdicionarMentoriaParams {
@@ -50,9 +51,13 @@ export async function adicionarMentoria(
   const { alunoId, data, slot, duracao = 20 } = params;
 
   try {
-    // Normalizar a data para evitar problemas com horário
-    const dataNormalizada = new Date(data);
-    dataNormalizada.setHours(0, 0, 0, 0);
+    // Normalizar a data para evitar problemas com fuso horário
+    // Usar apenas ano, mês e dia para criar uma data UTC
+    const dataNormalizada = new Date(Date.UTC(
+      data.getFullYear(),
+      data.getMonth(),
+      data.getDate()
+    ));
 
     // Verificar se o aluno existe
     const alunoExiste = await prisma.user.findUnique({
@@ -159,6 +164,8 @@ export async function adicionarMentoria(
         data: { status: StatusHorario.OCUPADO }
       });
     }
+    revalidatePath('/aluno/mentorias')
+    revalidatePath('/professor/mentorias')
 
     return {
       success: true,
@@ -196,8 +203,12 @@ export async function verificarDisponibilidadeHorario(
   slot: SlotHorario
 ): Promise<number> {
   try {
-    const dataNormalizada = new Date(data);
-    dataNormalizada.setHours(0, 0, 0, 0);
+    // Normalizar a data para evitar problemas com fuso horário
+    const dataNormalizada = new Date(Date.UTC(
+      data.getFullYear(),
+      data.getMonth(),
+      data.getDate()
+    ));
 
     const horario = await prisma.horario.findFirst({
       where: {
@@ -239,8 +250,12 @@ export async function listarMentoriasHorario(
 
     // Se a data for fornecida, normaliza e adiciona ao filtro
     if (data) {
-      const dataNormalizada = new Date(data);
-      dataNormalizada.setHours(0, 0, 0, 0);
+      // Normalizar a data para evitar problemas com fuso horário
+      const dataNormalizada = new Date(Date.UTC(
+        data.getFullYear(),
+        data.getMonth(),
+        data.getDate()
+      ));
       filtros.data = dataNormalizada;
     }
 
@@ -294,6 +309,188 @@ export async function listarMentoriasAluno(alunoId: string) {
   }
 }
 
+// Interface para editar mentoria
+interface EditarMentoriaParams {
+  mentoriaId: number;
+  data: Date;
+  slot: SlotHorario;
+  duracao?: number;
+}
+
+// Tipo de retorno da função de edição
+interface EditarMentoriaResult {
+  success: boolean;
+  mentoria?: Mentoria;
+  error?: string;
+}
+
+/**
+ * Edita uma mentoria existente
+ * @param params - Parâmetros necessários para editar a mentoria
+ * @returns Resultado da operação com a mentoria editada ou erro
+ */
+export async function editarMentoria(
+  params: EditarMentoriaParams
+): Promise<EditarMentoriaResult> {
+  const { mentoriaId, data, slot, duracao = 20 } = params;
+
+  try {
+    // Normalizar a data para evitar problemas com fuso horário
+    const dataNormalizada = new Date(Date.UTC(
+      data.getFullYear(),
+      data.getMonth(),
+      data.getDate()
+    ));
+
+    // Buscar a mentoria existente
+    const mentoriaExistente = await prisma.mentoria.findUnique({
+      where: { id: mentoriaId },
+      include: {
+        aluno: true,
+        horario: true
+      }
+    });
+
+    if (!mentoriaExistente) {
+      return {
+        success: false,
+        error: 'Mentoria não encontrada'
+      };
+    }
+
+    // Verificar se o novo horário já existe
+    let novoHorario = await prisma.horario.findFirst({
+      where: {
+        data: dataNormalizada,
+        slot: slot
+      },
+      include: {
+        mentorias: {
+          where: {
+            status: StatusMentoria.AGENDADA,
+            id: { not: mentoriaId } // Excluir a mentoria atual da contagem
+          }
+        }
+      }
+    });
+
+    // Se o horário não existe, criar um novo
+    if (!novoHorario) {
+      novoHorario = await prisma.horario.create({
+        data: {
+          data: dataNormalizada,
+          slot: slot,
+          status: StatusHorario.LIVRE
+        },
+        include: {
+          mentorias: {
+            where: {
+              status: StatusMentoria.AGENDADA
+            }
+          }
+        }
+      });
+    }
+
+    // Verificar se ainda há vagas disponíveis no novo horário
+    const mentoriasAtivas = novoHorario.mentorias.length;
+    if (mentoriasAtivas >= 4) {
+      return {
+        success: false,
+        error: 'Este horário já possui o máximo de 4 mentorias agendadas'
+      };
+    }
+
+    // Atualizar a mentoria
+    const mentoriaAtualizada = await prisma.mentoria.update({
+      where: { id: mentoriaId },
+      data: {
+        horarioId: novoHorario.id,
+        duracao: duracao
+      },
+      include: {
+        aluno: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        },
+        horario: {
+          select: {
+            id: true,
+            data: true,
+            slot: true,
+            status: true
+          }
+        }
+      }
+    });
+
+    // Atualizar status do horário antigo se necessário
+    const horarioAntigo = await prisma.horario.findUnique({
+      where: { id: mentoriaExistente.horarioId },
+      include: {
+        _count: {
+          select: {
+            mentorias: {
+              where: {
+                status: StatusMentoria.AGENDADA
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (horarioAntigo && horarioAntigo._count.mentorias === 0) {
+      // Se não há mais mentorias no horário antigo, excluir o horário
+      await prisma.horario.delete({
+        where: { id: horarioAntigo.id }
+      });
+    } else if (horarioAntigo && horarioAntigo._count.mentorias < 4) {
+      // Se há menos de 4 mentorias, marcar como livre
+      await prisma.horario.update({
+        where: { id: horarioAntigo.id },
+        data: { status: StatusHorario.LIVRE }
+      });
+    }
+
+    // Atualizar status do novo horário se necessário
+    if (mentoriasAtivas + 1 >= 4) {
+      await prisma.horario.update({
+        where: { id: novoHorario.id },
+        data: { status: StatusHorario.OCUPADO }
+      });
+    }
+
+    revalidatePath('/aluno/mentorias')
+    revalidatePath('/professor/mentorias')
+
+    return {
+      success: true,
+      mentoria: mentoriaAtualizada
+    };
+
+  } catch (error) {
+    console.error('Erro ao editar mentoria:', error);
+
+    if (error instanceof Error) {
+      if (error.message.includes('Unique constraint')) {
+        return {
+          success: false,
+          error: 'Já existe uma mentoria para este aluno neste horário'
+        };
+      }
+    }
+
+    return {
+      success: false,
+      error: 'Erro interno do servidor. Tente novamente.'
+    };
+  }
+}
+
 /**
  * Função para excluir uma mentoria e seu horário associado (efeito cascata)
  * @param mentoriaId - ID da mentoria a ser excluída
@@ -312,15 +509,22 @@ export async function excluirMentoriaECascata(mentoriaId: number) {
       return false;
     }
 
+    // Verifica quantas mentorias estão associadas a esse horarioId
+    const countMentorias = await prisma.mentoria.count({
+      where: { horarioId: mentoria.horarioId }
+    });
+
     // Exclui a mentoria
     await prisma.mentoria.delete({
       where: { id: mentoriaId }
     });
 
-    // Exclui o horário associado
-    await prisma.horario.delete({
-      where: { id: mentoria.horarioId }
-    });
+    // Se era a única mentoria associada ao horário, exclui o horário também
+    if (countMentorias === 1) {
+      await prisma.horario.delete({
+        where: { id: mentoria.horarioId }
+      });
+    }
 
     return true;
   } catch (error) {

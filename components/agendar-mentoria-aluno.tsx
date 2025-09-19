@@ -16,18 +16,18 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Calendar } from "./ui/calendar"
-import { CalendarPlus, Plus } from "lucide-react"
-import { useState } from "react"
+import { CalendarPlus, CalendarSync, Plus } from "lucide-react"
+import { useState, useEffect } from "react"
 import { ptBR } from "date-fns/locale"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { adicionarMentoria } from "@/actions/mentoria"
+import { adicionarMentoria, editarMentoria, verificarDisponibilidadeHorario } from "@/actions/mentoria"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
+import { Prisma } from "@/app/generated/prisma"
 
 
 const formSchema = z.object({
@@ -68,63 +68,141 @@ export function generateTimeSlots(): TimeSlot[] {
     ];
 }
 
-// Função para obter o slot baseado no horário selecionado
-export function getSlotFromTime(time: string): SlotHorario {
-    const slots = generateTimeSlots();
-    const foundSlot = slots.find(slot => slot.time === time);
-    return foundSlot?.slot || SlotHorario.SLOT_15_00;
+
+type Mentoria = Prisma.MentoriaGetPayload<{
+    include: {
+        horario: true;
+    };
+}>;
+
+
+// Props do componente
+interface AgendarMentoriaAlunoProps {
+    mode?: 'create' | 'edit';
+    mentoriaData?: Mentoria;
+    trigger?: React.ReactNode;
+    onSuccess?: () => void;
 }
 
-export function AgendarMentoriaAluno() {
+export function AgendarMentoriaAluno({
+    mode = 'create',
+    mentoriaData,
+    trigger,
+    onSuccess
+}: AgendarMentoriaAlunoProps) {
     const [open, setOpen] = useState(false)
+    const [vagasDisponiveis, setVagasDisponiveis] = useState<number>(4)
     const { data: session } = authClient.useSession();
+
+    // Função para obter o horário baseado no slot
+    const getTimeFromSlot = (slot: SlotHorario): string => {
+        const slots = generateTimeSlots();
+        const foundSlot = slots.find(s => s.slot === slot);
+        return foundSlot?.time || "15:00";
+    }
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            horario: "",
-            data: new Date(),
+            horario: mode === 'edit' && mentoriaData
+                ? generateTimeSlots().find(slot => slot.slot === mentoriaData.horario.slot)?.time
+                : "",
+            data: mode === 'edit' && mentoriaData ? mentoriaData.horario.data : new Date(),
         },
     })
 
-  
+    // Resetar formulário quando modo ou dados da mentoria mudarem
+    useEffect(() => {
+        if (mode === 'edit' && mentoriaData) {
+            form.reset({
+                horario: generateTimeSlots().find(slot => slot.slot === mentoriaData.horario.slot)?.time,
+                data: mentoriaData.horario.data
+            });
+        } else if (mode === 'create') {
+            form.reset({
+                horario: "",
+                data: new Date(),
+            });
+        }
+    }, [mode, mentoriaData, form]);
+
+    // Verificar disponibilidade quando data ou horário mudarem
+    useEffect(() => {
+        async function verificarVagas() {
+            const data = form.getValues('data')
+            const horario = form.getValues('horario')
+
+            if (data && horario) {
+                const slot = generateTimeSlots().find(slot => slot.time === horario)?.slot!
+                const vagas = await verificarDisponibilidadeHorario(data, slot)
+                setVagasDisponiveis(vagas)
+            }
+        }
+        verificarVagas()
+    }, [form.watch('data'), form.watch('horario')])
+
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            const slot = getSlotFromTime(values.horario);
+            const slot = generateTimeSlots().find(slot => slot.time === values.horario)?.slot!
 
-            const result = await adicionarMentoria({
-                alunoId: session?.user.id || "user_123",
-                data: values.data,
-                slot: slot,
-            });
+            let result;
+
+            if (mode === 'edit' && mentoriaData) {
+                result = await editarMentoria({
+                    mentoriaId: mentoriaData.id,
+                    data: values.data,
+                    slot: slot,
+                    duracao: mentoriaData.duracao,
+                });
+            } else {
+                result = await adicionarMentoria({
+                    alunoId: session?.user.id || "user_123",
+                    data: values.data,
+                    slot: slot,
+                });
+            }
 
             if (result.success) {
-                toast.success('Mentoria agendada com sucesso!')
-                form.reset()
-                setOpen(false)
+                const message = mode === 'edit' ? 'Mentoria editada com sucesso!' : 'Mentoria agendada com sucesso!';
+                toast.success(message);
+                form.reset();
+                setOpen(false);
+                onSuccess?.();
             } else {
-                toast.error(result.error || 'Erro ao agendar mentoria')
+                toast.error(result.error || `Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria`);
             }
         } catch (error) {
-            toast.error('Algo deu errado, tente novamente')
-            console.error('Erro ao agendar mentoria:', error)
+            toast.error('Algo deu errado, tente novamente');
+            console.error(`Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria:`, error);
         }
     }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>
-                    <CalendarPlus />
-                    Agendar Mentoria
-                </Button>
+                {mode === 'edit' ?
+                    <Button size="sm" variant={mentoriaData?.status === 'REALIZADA' ? 'ghost' : "outline"} className="w-full">
+                        <CalendarSync />
+                        Reagendar
+                    </Button>
+                    :
+                    <Button>
+                        <CalendarPlus />
+                        Agendar Mentoria
+                    </Button>
+                }
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle className="text-center text-sm">Agendar Mentoria</DialogTitle>
+                    <DialogTitle className="text-center text-sm">
+                        {mode === 'edit' ? 'Editar Mentoria' : 'Agendar Mentoria'}
+                    </DialogTitle>
                     <DialogDescription className="text-center text-xs">
-                        Selecione a data e horário para sua mentoria
+                        {mode === 'edit'
+                            ? 'Altere a data e horário da sua mentoria'
+                            : 'Selecione a data e horário para sua mentoria'
+                        }
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -170,7 +248,7 @@ export function AgendarMentoriaAluno() {
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {generateTimeSlots().map((timeSlot) => (
-                                                    <SelectItem key={timeSlot.slot} value={timeSlot.time}>
+                                                    <SelectItem key={timeSlot.slot} value={timeSlot.time} disabled={vagasDisponiveis === 0 ? true : false} className={vagasDisponiveis === 0 ? 'opacity-45' : ''}>
                                                         {timeSlot.display}
                                                     </SelectItem>
                                                 ))}
@@ -200,7 +278,10 @@ export function AgendarMentoriaAluno() {
                                 disabled={form.formState.isSubmitting}
                                 className="w-[100px]"
                             >
-                                {form.formState.isSubmitting ? 'Salvando...' : 'Salvar'}
+                                {form.formState.isSubmitting
+                                    ? (mode === 'edit' ? 'Editando...' : 'Salvando...')
+                                    : (mode === 'edit' ? 'Editar' : 'Salvar')
+                                }
                             </Button>
                         </div>
                     </form>

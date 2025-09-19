@@ -12,7 +12,6 @@ export default async function Page() {
   const avaliacoes = await ListarAvaliacoesAlunoId(session?.user.id!)
   const criterios = await ListarCriterios()
   
-
   return (
     <div className="w-full">
       <main className="flex flex-col gap-4 p-5 pb-20">

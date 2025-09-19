@@ -170,6 +170,7 @@ export async function EditarAvaliacao(
 
 export async function ListarAvaliacoesAlunoId(alunoId: string) {
     try {
+        // Busca todas as avaliações que possuem o alunoId informado
         const avaliacoes = await prisma.avaliacao.findMany({
             where: {
                 alunoId: alunoId,
@@ -180,7 +181,13 @@ export async function ListarAvaliacoesAlunoId(alunoId: string) {
                 criterios: true,
             },
         });
-        return avaliacoes;
+
+        // Se encontrar avaliações, retorna o array, senão retorna um array vazio
+        if (avaliacoes && avaliacoes.length > 0) {
+            return avaliacoes;
+        } else {
+            return [];
+        }
     } catch (error) {
         console.error("Erro ao listar avaliações do aluno:", error);
         throw error;
