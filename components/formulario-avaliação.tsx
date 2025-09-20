@@ -61,7 +61,7 @@ export function FormularioAvaliacao({ temas, criterios, alunoId, avaliacao }: Fo
   useEffect(() => {
     // Reset the form whenever the `avaliacao` prop changes
     form.reset(defaultValues);
-  }, [avaliacao, form]); // Depend on `avaliacao`
+  }, [avaliacao, form, defaultValues]); // Depend on `avaliacao` and `defaultValues`
 
 
   const getGradeColor = (grade: number, maxGrade: number) => {
@@ -73,7 +73,7 @@ export function FormularioAvaliacao({ temas, criterios, alunoId, avaliacao }: Fo
   };
 
   const calcularNotaFinal = (criterios: Record<string, { pontuacao: number }>) => {
-    return Object.values(criterios || {}).reduce((acc: number, curr: any) => acc + (curr?.pontuacao || 0), 0);
+    return Object.values(criterios || {}).reduce((acc: number, curr: { pontuacao: number }) => acc + (curr?.pontuacao || 0), 0);
   };
 
   function transformarCriterios(criterios: Record<string, unknown>) {
