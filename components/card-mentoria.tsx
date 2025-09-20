@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { CalendarSync, CalendarX } from "lucide-react";
+import { CalendarX } from "lucide-react";
 import { Prisma, User } from "@/app/generated/prisma";
 import { AgendarMentoriaAluno, generateTimeSlots } from "./agendar-mentoria-aluno";
 import { excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
@@ -29,8 +29,8 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
         try {
             await excluirMentoriaECascata(id)
             toast.success('Mentoria excluída com sucesso')
-        } catch (error) {
-
+        } catch {
+            toast.error('Erro ao excluir mentoria')
         }
     }
 
@@ -52,7 +52,7 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <Avatar className="border-2 border-primary size-10">
-                                <AvatarImage src={professor ? aluno?.image! : '/foto-1.jpeg'} style={{ objectFit: 'cover' }} />
+                                <AvatarImage src={professor ? (aluno?.image || '/foto-1.jpeg') : '/foto-1.jpeg'} style={{ objectFit: 'cover' }} />
                                 <AvatarFallback>DG</AvatarFallback>
                             </Avatar>
                             <div className="space-y-1">

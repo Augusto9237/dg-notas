@@ -15,7 +15,6 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -41,9 +40,6 @@ interface Aluno {
     banExpires: Date | null;
 }
 
-interface AgendarMentoriasProps {
-    alunos: Aluno[];
-}
 
 const formSchema = z.object({
     aluno: z.string().min(1, "Nome do aluno é obrigatório"),
@@ -67,7 +63,12 @@ export function AgendarMentoriaModal() {
         },
     })
 
-    const dummyStudents: any[] = Array.from({ length: 10 }, (_, i) => ({
+    interface DummyStudent {
+        id: string;
+        name: string;
+    }
+
+    const dummyStudents: DummyStudent[] = Array.from({ length: 10 }, (_, i) => ({
         id: `student-${i + 1}`,
         name: `Aluno ${i + 1}`,
     }));
