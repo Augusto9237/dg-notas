@@ -20,11 +20,13 @@ export default function Header() {
 
   useEffect(() => {
     const fetchAvaliacoes = async () => {
+      if (!session?.user.id) return;
+      
       setIsLoading(false);
-      const avaliacoes = await ListarAvaliacoesAlunoId(session?.user.id!)
+      const avaliacoes = await ListarAvaliacoesAlunoId(session.user.id)
       const somaNotas = avaliacoes.reduce((acc, avaliacao) => acc + avaliacao.notaFinal, 0);
       const media = avaliacoes.length > 0 ? somaNotas / avaliacoes.length : 0;
-      const mentorias = await listarMentoriasAluno(session?.user.id!)
+      const mentorias = await listarMentoriasAluno(session.user.id)
 
       setMediaGeral(media);
       setTotalRedacoes(avaliacoes.length);
@@ -32,7 +34,7 @@ export default function Header() {
     }
     fetchAvaliacoes();
 
-  }, []);
+  }, [session?.user.id]);
 
   async function sair() {
     await authClient.signOut();
@@ -71,7 +73,7 @@ export default function Header() {
         <div className="flex items-center gap-3 mb-4">
           <Avatar className="h-12 w-12 border-2 border-secondary">
             <AvatarImage
-              src={session? session.user.image! : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"}
+              src={session?.user.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"}
             />
             <AvatarFallback className="bg-background text-primary font-medium">
               DG
