@@ -174,8 +174,8 @@ export function AgendarMentoriaModal() {
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {generateTimeSlots().map((time) => (
-                                                    <SelectItem key={time} value={time}>
-                                                        {time}
+                                                    <SelectItem key={time.slot} value={time.time}>
+                                                        {time.display}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
