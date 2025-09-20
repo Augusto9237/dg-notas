@@ -12,7 +12,7 @@ export default async function Page() {
     })
 
     if (session?.user) {
-        const mentorias = await listarMentoriasAluno(session?.user.id!)
+        const mentorias = await listarMentoriasAluno(session.user.id)
 
         return (
             <div className="w-full">
