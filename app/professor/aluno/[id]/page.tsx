@@ -37,7 +37,7 @@ export default async function Page({
   return (
     <div className="w-full">
       <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
-        <SidebarTrigger className='md:hidden absolute' />
+        <SidebarTrigger className='md:hidden absolute' suppressHydrationWarning />
         <div className='max-md:ml-10'>
           <h1 className="text-xl font-bold">{aluno.name}</h1>
           <p className="text-xs text-muted-foreground">{aluno.email}</p>
