@@ -1,0 +1,11 @@
+# Arquivos gerados pelo Prisma
+app/generated/
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Arquivos de configuração
+*.config.js
+*.config.mjs
