@@ -127,11 +127,14 @@ export function TabelaAvaliacoes({ aluno, temas, criterios, avaliacoes }: Tabela
                 <TableCell>
                   {new Date(avaliacao.createdAt).toLocaleDateString('pt-BR')}
                 </TableCell>
-                {avaliacao.criterios.map((criterio) => (
-                  <TableCell key={criterio.id}>
-                    {criterio.pontuacao}
-                  </TableCell>
-                ))}
+                {Array.from({ length: 5 }, (_, index) => {
+                  const criterio = avaliacao.criterios[index];
+                  return (
+                    <TableCell key={criterio?.id || `empty-${index}`}>
+                      {criterio?.pontuacao || 0}
+                    </TableCell>
+                  );
+                })}
                 <TableCell className="font-bold">
                   {avaliacao.notaFinal}
                 </TableCell>

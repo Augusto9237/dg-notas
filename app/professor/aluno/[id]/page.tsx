@@ -1,21 +1,9 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { FormularioAvaliacao } from '@/components/formulario-avaliação';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Delete, Edit, Search } from 'lucide-react';
-import { DeleteButton } from '@/components/ui/delete-button';
-import { EditButton } from '@/components/ui/edit-button';
+import { Search } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ListarAvaliacoesAlunoId, ListarCriterios, ListarTemas } from '@/actions/avaliacao';
-import { Prisma } from '@/app/generated/prisma';
-import { prisma } from '@/lib/prisma';
 import { BuscarAlunoGooglePorId } from '@/actions/alunos';
 import { TabelaAvaliacoes } from '@/components/tabela-avaliacoes';
 
@@ -27,18 +15,32 @@ export default async function Page({
   const alunoId = (await params).id
   const aluno = await BuscarAlunoGooglePorId(alunoId)
 
+  // Verificar se o aluno existe
+  if (!aluno) {
+    return (
+      <div className="w-full">
+        <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
+          <SidebarTrigger className='md:hidden absolute' />
+          <div className='max-md:ml-10'>
+            <h1 className="text-xl font-bold">Aluno não encontrado</h1>
+            <p className="text-xs text-muted-foreground">O aluno solicitado não foi encontrado</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const temas = await ListarTemas()
   const criterios = await ListarCriterios()
   const avaliacoes = await ListarAvaliacoesAlunoId(alunoId)
-
 
   return (
     <div className="w-full">
       <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
         <SidebarTrigger className='md:hidden absolute' />
         <div className='max-md:ml-10'>
-          <h1 className=" text-xl font-bold">{aluno?.name}</h1>
-          <p className="text-xs text-muted-foreground">{aluno?.email}</p>
+          <h1 className="text-xl font-bold">{aluno.name}</h1>
+          <p className="text-xs text-muted-foreground">{aluno.email}</p>
         </div>
         <FormularioAvaliacao alunoId={alunoId} temas={temas} criterios={criterios} />
       </div>
@@ -50,7 +52,7 @@ export default async function Page({
               <Search />
             </Button>
           </div>
-          <TabelaAvaliacoes aluno={aluno!} avaliacoes={avaliacoes} criterios={criterios} temas={temas} />
+          <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoes} criterios={criterios} temas={temas} />
         </div>
       </main>
     </div>
