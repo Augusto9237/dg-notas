@@ -12,15 +12,11 @@ import { listarMentoriasAluno } from "@/actions/mentoria";
 export default function Header() {
   const { data: session } = authClient.useSession();
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [mediaGeral, setMediaGeral] = useState(0)
   const [totalRedacoes, setTotalRedacoes] = useState(0)
   const [totalMentorias, setTotalMentorias] = useState(0)
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   useEffect(() => {
     const fetchAvaliacoes = async () => {
@@ -45,7 +41,7 @@ export default function Header() {
 
 
   // Renderizar um placeholder durante a hidratação
-  if (!isClient) {
+  if (!isLoading && !session) {
     return (
       <div className="bg-primary text-card px-5 py-4">
         <div className="flex items-center gap-3 mb-4">
