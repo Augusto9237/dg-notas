@@ -9,9 +9,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { FormularioAvaliacao } from '@/components/formulario-avaliação';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
 import {
   Pagination,
   PaginationContent,
@@ -50,9 +47,14 @@ interface TabelaAvaliacoesProps {
 }
 
 export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, criterios, avaliacoes }: TabelaAvaliacoesProps) {
-  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
+
+  // Filtrar avaliações baseado no termo de busca
+  const filteredAvaliacoes = useMemo(() => {
+    if (!avaliacoes || !Array.isArray(avaliacoes)) return [];
+    return avaliacoes;
+  }, [avaliacoes]);
 
   // Verificar se os dados são válidos
   if (!avaliacoes || !Array.isArray(avaliacoes)) {
@@ -62,16 +64,6 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
       </div>
     );
   }
-
-
-  // Filtrar avaliações baseado no termo de busca
-  const filteredAvaliacoes = useMemo(() => {
-    if (!searchTerm.trim()) return avaliacoes;
-    const searchLower = searchTerm.toLowerCase();
-    return avaliacoes.filter(avaliacao =>
-      avaliacao.tema.nome.toLowerCase().includes(searchLower)
-    );
-  }, [avaliacoes, searchTerm]);
 
   // Calcular paginação
   const totalPages = Math.ceil(filteredAvaliacoes.length / pageSize);
