@@ -49,7 +49,9 @@ export default async function RootLayout({
         className={`${poppins.className} antialiased`}
       >
         <SidebarProvider>
-          <AppSidebar />
+          <div suppressHydrationWarning>
+            <AppSidebar />
+          </div>
           <SidebarInset>
             <div className="realtive">
               <SidebarTrigger className="absolute top-5 left-4.5 size-9 md:hidden" />
@@ -57,7 +59,7 @@ export default async function RootLayout({
             </div>
           </SidebarInset>
         </SidebarProvider>
-        <Toaster/>
+        <Toaster />
       </body>
     </html>
   );

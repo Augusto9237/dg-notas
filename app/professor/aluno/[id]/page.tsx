@@ -6,6 +6,8 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ListarAvaliacoesAlunoId, ListarCriterios, ListarTemas } from '@/actions/avaliacao';
 import { BuscarAlunoGooglePorId } from '@/actions/alunos';
 import { TabelaAvaliacoes } from '@/components/tabela-avaliacoes';
+import { Suspense } from 'react';
+import Loading from './loading';
 
 export default async function Page({
   params,
@@ -14,7 +16,6 @@ export default async function Page({
 }) {
   const alunoId = (await params).id
   const aluno = await BuscarAlunoGooglePorId(alunoId)
-  console.log(aluno)
 
   // Verificar se o aluno existe
   if (!aluno) {
@@ -38,31 +39,33 @@ export default async function Page({
   ])
 
   // Garantir que os dados são estáveis
-  const stableTemas = JSON.parse(JSON.stringify(temas))
-  const stableCriterios = JSON.parse(JSON.stringify(criterios))
-  const stableAvaliacoes = JSON.parse(JSON.stringify(avaliacoes))
+  const temasData = JSON.parse(JSON.stringify(temas))
+  const criteriosData = JSON.parse(JSON.stringify(criterios))
+  const avaliacoesData = JSON.parse(JSON.stringify(avaliacoes))
 
   return (
-    <div className="w-full">
-      <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
-        <SidebarTrigger className='md:hidden absolute' suppressHydrationWarning />
-        <div className='max-md:ml-10'>
-          <h1 className="text-xl font-bold">{aluno.name}</h1>
-          <p className="text-xs text-muted-foreground">{aluno.email}</p>
-        </div>
-        <FormularioAvaliacao alunoId={alunoId} temas={stableTemas} criterios={stableCriterios} />
-      </div>
-      <main className="flex flex-col gap-4 p-5">
-        <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
-          <div className="flex items-center w-full max-w-md relative">
-            <Input type="text" placeholder="Buscar por Tema" className="bg-card/70" />
-            <Button className='absolute right-0 top-0 bg-background border rounded-bl-none rounded-tl-none' variant='ghost'>
-              <Search />
-            </Button>
+    <Suspense fallback={<Loading />}>
+      <div className="w-full">
+        <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
+          <SidebarTrigger className='md:hidden absolute' suppressHydrationWarning />
+          <div className='max-md:ml-10'>
+            <h1 className="text-xl font-bold">{aluno.name}</h1>
+            <p className="text-xs text-muted-foreground">{aluno.email}</p>
           </div>
-          <TabelaAvaliacoes aluno={aluno} avaliacoes={stableAvaliacoes} criterios={stableCriterios} temas={stableTemas} />
+          <FormularioAvaliacao alunoId={alunoId} temas={temasData} criterios={criteriosData} />
         </div>
-      </main>
-    </div>
+        <main className="flex flex-col gap-4 p-5">
+          <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
+            <div className="flex items-center w-full max-w-md relative">
+              <Input type="text" placeholder="Buscar por Tema" className="bg-card/70" />
+              <Button className='absolute right-0 top-0 bg-background border rounded-bl-none rounded-tl-none' variant='ghost'>
+                <Search />
+              </Button>
+            </div>
+            <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoesData} criterios={criteriosData} temas={temasData} />
+          </div>
+        </main>
+      </div>
+    </Suspense>
   );
 }
