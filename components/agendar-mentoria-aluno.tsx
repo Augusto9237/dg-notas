@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Calendar } from "./ui/calendar"
-import { CalendarPlus, CalendarSync, Plus } from "lucide-react"
+import { CalendarPlus, CalendarSync } from "lucide-react"
 import { useState, useEffect } from "react"
 import { ptBR } from "date-fns/locale"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
@@ -80,26 +80,17 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 interface AgendarMentoriaAlunoProps {
     mode?: 'create' | 'edit';
     mentoriaData?: Mentoria;
-    trigger?: React.ReactNode;
     onSuccess?: () => void;
 }
 
 export function AgendarMentoriaAluno({
     mode = 'create',
     mentoriaData,
-    trigger,
     onSuccess
 }: AgendarMentoriaAlunoProps) {
     const [open, setOpen] = useState(false)
     const [vagasDisponiveis, setVagasDisponiveis] = useState<number>(4)
     const { data: session } = authClient.useSession();
-
-    // Função para obter o horário baseado no slot
-    const getTimeFromSlot = (slot: SlotHorario): string => {
-        const slots = generateTimeSlots();
-        const foundSlot = slots.find(s => s.slot === slot);
-        return foundSlot?.time || "15:00";
-    }
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -127,24 +118,34 @@ export function AgendarMentoriaAluno({
     }, [mode, mentoriaData, form]);
 
     // Verificar disponibilidade quando data ou horário mudarem
+    const watchedData = form.watch('data')
+    const watchedHorario = form.watch('horario')
+    
     useEffect(() => {
         async function verificarVagas() {
             const data = form.getValues('data')
             const horario = form.getValues('horario')
 
             if (data && horario) {
-                const slot = generateTimeSlots().find(slot => slot.time === horario)?.slot!
-                const vagas = await verificarDisponibilidadeHorario(data, slot)
-                setVagasDisponiveis(vagas)
+                const timeSlot = generateTimeSlots().find(slot => slot.time === horario)
+                if (timeSlot) {
+                    const vagas = await verificarDisponibilidadeHorario(data, timeSlot.slot)
+                    setVagasDisponiveis(vagas)
+                }
             }
         }
         verificarVagas()
-    }, [form.watch('data'), form.watch('horario')])
+    }, [watchedData, watchedHorario, form])
 
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            const slot = generateTimeSlots().find(slot => slot.time === values.horario)?.slot!
+            const timeSlot = generateTimeSlots().find(slot => slot.time === values.horario)
+            if (!timeSlot) {
+                toast.error('Horário inválido selecionado');
+                return;
+            }
+            const slot = timeSlot.slot;
 
             let result;
 
