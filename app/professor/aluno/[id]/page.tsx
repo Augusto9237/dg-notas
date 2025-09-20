@@ -14,6 +14,7 @@ export default async function Page({
 }) {
   const alunoId = (await params).id
   const aluno = await BuscarAlunoGooglePorId(alunoId)
+  console.log(aluno)
 
   // Verificar se o aluno existe
   if (!aluno) {
@@ -30,9 +31,16 @@ export default async function Page({
     );
   }
 
-  const temas = await ListarTemas()
-  const criterios = await ListarCriterios()
-  const avaliacoes = await ListarAvaliacoesAlunoId(alunoId)
+  const [temas, criterios, avaliacoes] = await Promise.all([
+    ListarTemas(),
+    ListarCriterios(),
+    ListarAvaliacoesAlunoId(alunoId)
+  ])
+
+  // Garantir que os dados são estáveis
+  const stableTemas = JSON.parse(JSON.stringify(temas))
+  const stableCriterios = JSON.parse(JSON.stringify(criterios))
+  const stableAvaliacoes = JSON.parse(JSON.stringify(avaliacoes))
 
   return (
     <div className="w-full">
@@ -42,7 +50,7 @@ export default async function Page({
           <h1 className="text-xl font-bold">{aluno.name}</h1>
           <p className="text-xs text-muted-foreground">{aluno.email}</p>
         </div>
-        <FormularioAvaliacao alunoId={alunoId} temas={temas} criterios={criterios} />
+        <FormularioAvaliacao alunoId={alunoId} temas={stableTemas} criterios={stableCriterios} />
       </div>
       <main className="flex flex-col gap-4 p-5">
         <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
@@ -52,7 +60,7 @@ export default async function Page({
               <Search />
             </Button>
           </div>
-          <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoes} criterios={criterios} temas={temas} />
+          <TabelaAvaliacoes aluno={aluno} avaliacoes={stableAvaliacoes} criterios={stableCriterios} temas={stableTemas} />
         </div>
       </main>
     </div>

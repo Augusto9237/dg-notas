@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import {
   Table,
   TableBody,
@@ -49,16 +49,27 @@ interface TabelaAvaliacoesProps {
   })[];
 }
 
-export function TabelaAvaliacoes({ aluno, temas, criterios, avaliacoes }: TabelaAvaliacoesProps) {
+export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, criterios, avaliacoes }: TabelaAvaliacoesProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
+  // Verificar se os dados são válidos
+  if (!avaliacoes || !Array.isArray(avaliacoes)) {
+    return (
+      <div className="text-center py-8">
+        <p>Carregando avaliações...</p>
+      </div>
+    );
+  }
+
+
   // Filtrar avaliações baseado no termo de busca
   const filteredAvaliacoes = useMemo(() => {
-    if (!searchTerm) return avaliacoes;
+    if (!searchTerm.trim()) return avaliacoes;
+    const searchLower = searchTerm.toLowerCase();
     return avaliacoes.filter(avaliacao =>
-      avaliacao.tema.nome.toLowerCase().includes(searchTerm.toLowerCase())
+      avaliacao.tema.nome.toLowerCase().includes(searchLower)
     );
   }, [avaliacoes, searchTerm]);
 
@@ -192,4 +203,4 @@ export function TabelaAvaliacoes({ aluno, temas, criterios, avaliacoes }: Tabela
       )}
     </>
   );
-}
+});

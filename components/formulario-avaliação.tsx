@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Plus } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo, memo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -39,19 +39,25 @@ interface FormularioAvaliacaoProps {
   avaliacao?: Avaliacao & { criterios: CriterioAvaliacao[] };
 }
 
-export function FormularioAvaliacao({ temas, criterios, alunoId, avaliacao }: FormularioAvaliacaoProps) {
+export const FormularioAvaliacao = memo(function FormularioAvaliacao({ temas, criterios, alunoId, avaliacao }: FormularioAvaliacaoProps) {
   const [isOpen, setIsOpen] = useState(false)
   const isEditMode = !!avaliacao
 
-  const defaultValues = isEditMode ? {
-    tema: String(avaliacao.temaId),
-    criterios: avaliacao.criterios.reduce((acc, crit) => {
-      acc[crit.criterioId] = { pontuacao: crit.pontuacao };
-      return acc;
-    }, {} as Record<string, { pontuacao: number }>)
-  } : {
-    tema: "", criterios: {}
-  };
+  const defaultValues = useMemo(() => {
+    if (isEditMode && avaliacao) {
+      return {
+        tema: String(avaliacao.temaId),
+        criterios: avaliacao.criterios.reduce((acc, crit) => {
+          acc[crit.criterioId] = { pontuacao: crit.pontuacao };
+          return acc;
+        }, {} as Record<string, { pontuacao: number }>)
+      };
+    }
+    return {
+      tema: "", 
+      criterios: {}
+    };
+  }, [isEditMode, avaliacao]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -61,7 +67,7 @@ export function FormularioAvaliacao({ temas, criterios, alunoId, avaliacao }: Fo
   useEffect(() => {
     // Reset the form whenever the `avaliacao` prop changes
     form.reset(defaultValues);
-  }, [avaliacao, form, defaultValues]); // Depend on `avaliacao` and `defaultValues`
+  }, [avaliacao, form]); // Removed defaultValues from dependencies
 
 
   const getGradeColor = (grade: number, maxGrade: number) => {
@@ -234,4 +240,4 @@ export function FormularioAvaliacao({ temas, criterios, alunoId, avaliacao }: Fo
       </DialogContent>
     </Dialog>
   )
-}
+});
