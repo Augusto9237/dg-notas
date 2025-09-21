@@ -35,14 +35,13 @@ export default async function RootLayout({
     headers: await headers() // you need to pass the headers object.
   })
 
-  // if (!session?.user) {
-  //   redirect('/')
-  // }
+  if (!session?.user) {
+    redirect('/')
+  }
 
-  // if (session.user.role !== 'professor') {
-  //   redirect('/')
-  // }
-
+  if (session.user.role !== 'professor') {
+    redirect('/')
+  }
 
   return (
     <html lang="pt-BR">

@@ -18,12 +18,12 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 }>;
 
 interface CardMentoriaProps {
+    modo: 'PROFESSOR' | 'ALUNO';
     mentoria: Mentoria;
-    professor?: boolean | null;
     aluno?: User | null;
 }
 
-export function CardMentoria({ mentoria, professor = false, aluno }: CardMentoriaProps) {
+export function CardMentoria({ mentoria, aluno, modo='ALUNO' }: CardMentoriaProps) {
 
     async function excluirMentoria(id: number) {
         try {
@@ -52,12 +52,12 @@ export function CardMentoria({ mentoria, professor = false, aluno }: CardMentori
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <Avatar className="border-2 border-primary size-10">
-                                <AvatarImage src={professor ? (aluno?.image || '/foto-1.jpeg') : '/foto-1.jpeg'} style={{ objectFit: 'cover' }} />
+                                <AvatarImage src={modo === 'PROFESSOR' ? (aluno?.image || '/foto-1.jpeg') : '/foto-1.jpeg'} style={{ objectFit: 'cover' }} />
                                 <AvatarFallback>DG</AvatarFallback>
                             </Avatar>
                             <div className="space-y-1">
                                 <h3 className="font-medium text-sm">
-                                    {professor ? aluno?.name : "Profª Daniely Guedes"}
+                                    {modo === 'PROFESSOR' ? aluno?.name : "Profª Daniely Guedes"}
                                 </h3>
                                 <p className="text-xs text-muted-foreground">
                                     {formartarData(mentoria.horario.data)} - {

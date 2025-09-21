@@ -197,7 +197,7 @@ export function AgendarMentoriaAluno({
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle className="text-center text-sm">
-                        {mode === 'edit' ? 'Editar Mentoria' : 'Agendar Mentoria'}
+                        {mode === 'edit' ? 'Reagendar Mentoria' : 'Agendar Mentoria'}
                     </DialogTitle>
                     <DialogDescription className="text-center text-xs">
                         {mode === 'edit'
@@ -280,8 +280,8 @@ export function AgendarMentoriaAluno({
                                 className="w-[100px]"
                             >
                                 {form.formState.isSubmitting
-                                    ? (mode === 'edit' ? 'Editando...' : 'Salvando...')
-                                    : (mode === 'edit' ? 'Editar' : 'Salvar')
+                                    ? (mode === 'edit' ? 'Reagendando...' : 'Agendando...')
+                                    : (mode === 'edit' ? 'Reagendar' : 'Agendar')
                                 }
                             </Button>
                         </div>
