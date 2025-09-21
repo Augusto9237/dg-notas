@@ -93,9 +93,9 @@ export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
 
     return (
         <main className="flex flex-col p-5 gap-5">
-            <div className="flex max-md:grid max-md:grid-cols-3 items-center gap-4 md:max-w-md">
+            <div className="grid grid-cols-4 items-center gap-4 w-full">
                 <Popover open={open} onOpenChange={setOpen}>
-                    <PopoverTrigger asChild className="md:max-w-sm">
+                    <PopoverTrigger asChild>
                         <Button
                             id="date-picker"
                             className="w-full"
@@ -153,7 +153,7 @@ export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
                     <Button 
                         variant='ghost'
                         onClick={limparFiltros}
-                        className="whitespace-nowrap"
+                        className="whitespace-nowrap justify-start"
                     >
                         Limpar Filtros
                     </Button>
