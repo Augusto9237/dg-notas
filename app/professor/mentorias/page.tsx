@@ -16,7 +16,7 @@ enum SlotHorario {
 
 export default async function Page() {
     const mentorias = await listarMentoriasHorario()
-
+    
     return (
         <Suspense fallback={<Loading />}>
             <div className="w-full">

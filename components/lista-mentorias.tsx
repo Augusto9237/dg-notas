@@ -93,9 +93,9 @@ export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
 
     return (
         <main className="flex flex-col p-5 gap-5">
-            <div className="flex items-center gap-4 max-w-md">
+            <div className="flex max-md:grid max-md:grid-cols-3 items-center gap-4 md:max-w-md">
                 <Popover open={open} onOpenChange={setOpen}>
-                    <PopoverTrigger asChild className="max-w-sm">
+                    <PopoverTrigger asChild className="md:max-w-sm">
                         <Button
                             id="date-picker"
                             className="w-full"
@@ -136,7 +136,7 @@ export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
                 </Popover>
 
                 <Select onValueChange={onChangeStatus} value={statusSelecionado}>
-                    <SelectTrigger className="w-full min-w-[180px]">
+                    <SelectTrigger className="w-full md:min-w-[180px]">
                         <SelectValue placeholder="Filtrar por Status" />
                     </SelectTrigger>
                     <SelectContent>
