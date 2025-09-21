@@ -268,11 +268,9 @@ export async function listarMentoriasHorario(
             horario: true,
             aluno: true
           },
-          orderBy: {
-            createdAt: 'asc'
-          }
         }
-      }
+      },
+      orderBy: { data: 'asc' }
     });
 
     // Retorna todas as mentorias encontradas
@@ -525,6 +523,9 @@ export async function excluirMentoriaECascata(mentoriaId: number) {
         where: { id: mentoria.horarioId }
       });
     }
+
+    revalidatePath('/aluno/mentorias')
+    revalidatePath('/professor/mentorias')
 
     return true;
   } catch (error) {

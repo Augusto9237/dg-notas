@@ -13,6 +13,7 @@ import { Prisma } from "@/app/generated/prisma"
 import { listarMentoriasHorario } from "@/actions/mentoria"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { format } from "date-fns"
+import { useRouter } from "next/navigation"
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -36,6 +37,7 @@ const statusData: { label: string, value: Status }[] = [
 ];
 
 export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
+    const router = useRouter() // Adicione o router
     const [open, setOpen] = useState(false)
     const [dataSelecionada, setDataSelecionada] = useState<Date | undefined>(undefined)
     
@@ -43,9 +45,6 @@ export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
     const [mentoriasOriginais, setMentoriasOriginais] = useState<Mentoria[]>([]);
     const [mentorias, setMentorias] = useState<Mentoria[]>([]);
     const [statusSelecionado, setStatusSelecionado] = useState<Status | string>('')
-
-    console.log(mentorias)
-    console.log(statusSelecionado)
 
     // Inicializar com os dados iniciais
     useEffect(() => {
