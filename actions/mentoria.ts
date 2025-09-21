@@ -241,9 +241,9 @@ export async function verificarDisponibilidadeHorario(
 
 
 export async function listarMentoriasHorario(
-  data?: Date,    // Tornando 'data' opcional
+  data?: Date
 ) {
-  console.log('data recebida', data)
+
   try {
     // Inicializando os filtros
     const filtros: any = {};

@@ -8,11 +8,10 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { Logo } from "./ui/logo"
-import { Lightbulb, Users } from "lucide-react"
+import { Users } from "lucide-react"
 import { NavUsuario } from "./nav-usuario"
 import { usePathname } from "next/navigation"
-
-import { GiTeamIdea } from "react-icons/gi";
+import { RiUserStarFill } from "react-icons/ri";
 
 export function AppSidebar() {
   const path = usePathname()
@@ -41,7 +40,7 @@ export function AppSidebar() {
           isActive={path === '/professor/mentorias' ? true : false}
         >
           <Link href="/professor/mentorias " className="flex gap-2 items-center">
-            <GiTeamIdea />
+          <RiUserStarFill />
             Mentorias
           </Link>
         </SidebarMenuButton>

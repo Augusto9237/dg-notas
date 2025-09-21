@@ -26,7 +26,7 @@ interface ListaMentoriasProps {
 
 export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
     const [open, setOpen] = useState(false)
-    const [dataSelecionada, setDataSelecionada] = useState<Date | undefined>(new Date())
+    const [dataSelecionada, setDataSelecionada] = useState<Date | undefined>(undefined)
     const [mentorias, setMentorias] = useState<Mentoria[]>([]);
 
 
@@ -37,7 +37,6 @@ export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
     useEffect(() => {
         async function FiltrarPorData() {
             const mentorias = await listarMentoriasHorario(dataSelecionada)
-            console.log('mentoria', mentorias)
             setMentorias(mentorias)
         }
         FiltrarPorData()
@@ -85,7 +84,7 @@ export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
             </div>
             <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4">
                 {mentorias.length === 0 ? (
-                    <Card>
+                    <Card className="col-span-4 bg-background border-none shadow-none">
                         <CardContent className="p-6 text-center text-muted-foreground">
                             Nenhuma mentoria agendada para esta data
                         </CardContent>
