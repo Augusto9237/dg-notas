@@ -97,7 +97,6 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
           <TableRow >
             <TableHead className='pl-4'>Aluno</TableHead>
             <TableHead >E-mail</TableHead>
-            <TableHead >CPF</TableHead>
             <TableHead className="text-right"></TableHead>
           </TableRow>
         </TableHeader>
@@ -113,13 +112,12 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
               <TableRow key={aluno.id}>
                 <TableCell className='pl-4 flex gap-4 items-center'>
                   <Avatar>
-                    <AvatarImage src={aluno.image || "https://github.com/shadcn.png"} />
+                    <AvatarImage src={aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
                     <AvatarFallback>{aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   {aluno.name}
                 </TableCell>
                 <TableCell>{aluno.email}</TableCell>
-                <TableCell>00.000.000-00</TableCell>
                 <TableCell className="text-right">
                   <Link href={`/professor/aluno/${aluno.id}`} passHref>
                     <Button>

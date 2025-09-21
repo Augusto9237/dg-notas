@@ -2,6 +2,8 @@ import { ListarAlunosGoogle } from "@/actions/alunos";
 import { listarMentoriasHorario } from "@/actions/mentoria";
 import { AgendarMentoriaModal } from "@/components/agendar-mentoria-modal";
 import { ListaMentorias } from "@/components/lista-mentorias";
+import { Suspense } from "react";
+import Loading from "./loading";
 
 enum SlotHorario {
     SLOT_15_00 = "SLOT_15_00",
@@ -13,18 +15,20 @@ enum SlotHorario {
 }
 
 export default async function Page() {
-     const mentorias  = await listarMentoriasHorario()
-     
+    const mentorias = await listarMentoriasHorario()
+
     return (
-        <div className="w-full">
-            <div className='flex justify-between items-center h-14 p-5 mt-3'>
-                <div className="max-md:pl-10">
-                    <h1 className=" text-xl font-bold">Mentorias</h1>
-                    <p className="text-xs text-muted-foreground">Lista de mentorias agendadas</p>
+        <Suspense fallback={<Loading />}>
+            <div className="w-full">
+                <div className='flex justify-between items-center h-14 p-5 mt-3'>
+                    <div className="max-md:pl-10">
+                        <h1 className=" text-xl font-bold">Mentorias</h1>
+                        <p className="text-xs text-muted-foreground">Lista de mentorias agendadas</p>
+                    </div>
+                    <AgendarMentoriaModal />
                 </div>
-                <AgendarMentoriaModal />
+                <ListaMentorias mentoriasIniciais={mentorias} />
             </div>
-            <ListaMentorias mentoriasIniciais={mentorias} />
-        </div>
+        </Suspense>
     )
 }
