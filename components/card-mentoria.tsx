@@ -3,13 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { CalendarX } from "lucide-react";
+import { CalendarX, ChevronDown, Loader2 } from "lucide-react";
 import { Prisma, User } from "@/app/generated/prisma";
 import { AgendarMentoriaAluno, generateTimeSlots } from "./agendar-mentoria-aluno";
-import { excluirMentoriaECascata } from "@/actions/mentoria";
+import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { ptBR, se } from "date-fns/locale";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { useState } from "react";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -23,7 +25,9 @@ interface CardMentoriaProps {
     aluno?: User | null;
 }
 
-export function CardMentoria({ mentoria, aluno, modo='ALUNO' }: CardMentoriaProps) {
+export function CardMentoria({ mentoria, aluno, modo = 'ALUNO' }: CardMentoriaProps) {
+    const [open, setOpen] = useState(false);
+    const [carregando, setCarregando] = useState(false);
 
     async function excluirMentoria(id: number) {
         try {
@@ -43,6 +47,19 @@ export function CardMentoria({ mentoria, aluno, modo='ALUNO' }: CardMentoriaProp
             dataUTC.getUTCDate()
         );
         return format(dataLocal, "dd/MM/yyyy", { locale: ptBR });
+    }
+
+    async function atualizarStatusDaMentoria(status: "AGENDADA" | "REALIZADA") {
+        setCarregando(true)
+        try {
+            await atualizarStatusMentoria(mentoria.id, status)
+            setOpen(false)
+            toast.success('Status atualizado com sucesso')
+            setCarregando(false)
+        } catch {
+            toast.error('Erro ao atualizar status')
+            setCarregando(false)
+        }
     }
 
     return (
@@ -68,11 +85,51 @@ export function CardMentoria({ mentoria, aluno, modo='ALUNO' }: CardMentoriaProp
                         </div>
 
                     </div>
-                    <Badge
-                        variant={mentoria.status === "REALIZADA" ? 'default' : 'secondary'}
-                    >
-                        {mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}
-                    </Badge>
+                    {modo === 'PROFESSOR' ? (
+                        <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild className="cursor-pointer">
+                                <div className="flex items-center gap-0.5">
+                                    <Badge
+                                        variant={mentoria.status === "REALIZADA" ? 'default' : 'secondary'}
+                                    >
+                                        {mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}
+                                    </Badge>
+                                    <ChevronDown size={16} className="text-muted-foreground" />
+                                </div>
+                            </PopoverTrigger>
+                            <PopoverContent
+                                className="overflow-hidden max-w-fit flex flex-col gap-3 p-2"
+                                align="center"
+                            >
+                                {carregando === true ?
+                                    (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <>
+                                            <Badge
+                                                onClick={() => atualizarStatusDaMentoria("REALIZADA")}
+                                                variant='default'
+                                            >
+                                                Realizada
+                                            </Badge>
+
+                                            <Badge
+                                                onClick={() => atualizarStatusDaMentoria("AGENDADA")}
+                                                variant='secondary'
+                                            >
+                                                Agendada
+                                            </Badge>
+                                        </>
+                                    )}
+                            </PopoverContent>
+                        </Popover>
+                    ) : (
+                        <Badge
+                            variant={mentoria.status === "REALIZADA" ? 'default' : 'secondary'}
+                        >
+                            {mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}
+                        </Badge>
+                    )}
                 </div>
 
             </CardContent>
@@ -80,8 +137,8 @@ export function CardMentoria({ mentoria, aluno, modo='ALUNO' }: CardMentoriaProp
 
 
             <CardFooter className="p-4 pt-0 gap-5 overflow-hidden grid grid-cols-2">
-                <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit"/>
-                
+                <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" />
+
                 <Button
                     size="sm"
                     variant={mentoria.status === 'REALIZADA' ? 'ghost' : "destructive"}
@@ -92,6 +149,6 @@ export function CardMentoria({ mentoria, aluno, modo='ALUNO' }: CardMentoriaProp
                     Cancelar
                 </Button>
             </CardFooter>
-        </Card>
+        </Card >
     );
 }

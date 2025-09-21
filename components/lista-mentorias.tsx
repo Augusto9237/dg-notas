@@ -92,7 +92,7 @@ export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
 
     return (
         <main className="flex flex-col p-5 gap-5">
-            <div className="grid grid-cols-4 items-center gap-4 w-full">
+            <div className="grid grid-cols-4 max-md:grid-cols-3 max-sm:grid-cols-1 items-center gap-4 w-full">
                 <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                         <Button
@@ -174,7 +174,7 @@ export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
                         <CardMentoria 
                             key={mentoria.id} 
                             mentoria={mentoria} 
-                            professor={true} 
+                            modo="PROFESSOR"
                             aluno={mentoria.aluno} 
                         />
                     ))

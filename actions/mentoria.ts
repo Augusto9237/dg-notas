@@ -489,6 +489,48 @@ export async function editarMentoria(
   }
 }
 
+interface AtualizarStatusMentoriaResult {
+  success: boolean;
+  error?: string;
+}
+
+export async function atualizarStatusMentoria(
+  mentoriaId: number,
+  status: 'AGENDADA' | 'REALIZADA'
+): Promise<AtualizarStatusMentoriaResult> {
+  try {
+    // Verify if mentoria exists
+    const mentoria = await prisma.mentoria.findUnique({
+      where: { id: mentoriaId }
+    });
+
+    if (!mentoria) {
+      return {
+        success: false,
+        error: 'Mentoria não encontrada'
+      };
+    }
+
+    // Update status
+    await prisma.mentoria.update({
+      where: { id: mentoriaId },
+      data: { status }
+    });
+
+    revalidatePath('/aluno/mentorias');
+    revalidatePath('/professor/mentorias');
+
+    return { success: true };
+
+  } catch (error) {
+    console.error('Erro ao atualizar status da mentoria:', error);
+    return {
+      success: false,
+      error: 'Erro ao atualizar status da mentoria'
+    };
+  }
+}
+
 /**
  * Função para excluir uma mentoria e seu horário associado (efeito cascata)
  * @param mentoriaId - ID da mentoria a ser excluída
