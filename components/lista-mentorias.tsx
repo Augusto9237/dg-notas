@@ -11,6 +11,8 @@ import { Calendar } from "./ui/calendar"
 import { CardMentoria } from "./card-mentoria"
 import { Prisma } from "@/app/generated/prisma"
 import { listarMentoriasHorario } from "@/actions/mentoria"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { format } from "date-fns"
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -19,41 +21,92 @@ type Mentoria = Prisma.MentoriaGetPayload<{
     };
 }>;
 
-
 interface ListaMentoriasProps {
     mentoriasIniciais: Mentoria[]
 }
 
+enum Status {
+    AGENDADA = "AGENDADA",
+    CONCLUIDA = "REALIZADA"
+}
+
+const statusData: { label: string, value: Status }[] = [
+    { label: "Agendada", value: Status.AGENDADA },
+    { label: "Realizada", value: Status.CONCLUIDA }
+];
+
 export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
     const [open, setOpen] = useState(false)
     const [dataSelecionada, setDataSelecionada] = useState<Date | undefined>(undefined)
+    
+    // Estados separados para dados originais e filtrados
+    const [mentoriasOriginais, setMentoriasOriginais] = useState<Mentoria[]>([]);
     const [mentorias, setMentorias] = useState<Mentoria[]>([]);
+    const [statusSelecionado, setStatusSelecionado] = useState<Status | string>('')
 
+    console.log(mentorias)
+    console.log(statusSelecionado)
 
+    // Inicializar com os dados iniciais
     useEffect(() => {
+        setMentoriasOriginais(mentoriasIniciais)
         setMentorias(mentoriasIniciais)
     }, [mentoriasIniciais])
 
+    // Buscar mentorias por data
     useEffect(() => {
         async function FiltrarPorData() {
-            const mentorias = await listarMentoriasHorario(dataSelecionada)
-            setMentorias(mentorias)
+            const mentoriasData = await listarMentoriasHorario(dataSelecionada)
+            setMentoriasOriginais(mentoriasData)
         }
-        FiltrarPorData()
-    }, [dataSelecionada])
+        
+        if (dataSelecionada) {
+            FiltrarPorData()
+        } else {
+            // Se não há data selecionada, volta para as mentorias iniciais
+            setMentoriasOriginais(mentoriasIniciais)
+        }
+    }, [dataSelecionada, mentoriasIniciais])
+
+    // Aplicar filtro de status sempre que mentoriasOriginais ou statusSelecionado mudar
+    useEffect(() => {
+        let mentoriasFiltradas = mentoriasOriginais;
+
+        if (statusSelecionado !== '') {
+            mentoriasFiltradas = mentoriasOriginais.filter(
+                (mentoria) => mentoria.status === statusSelecionado
+            );
+        }
+
+        setMentorias(mentoriasFiltradas);
+    }, [mentoriasOriginais, statusSelecionado]);
+
+    function onChangeStatus(value: Status | string) {
+        setStatusSelecionado(value);
+    }
+
+    // Função para limpar filtros
+    function limparFiltros() {
+        setDataSelecionada(undefined);
+        setStatusSelecionado('');
+    }
 
     return (
         <main className="flex flex-col p-5 gap-5">
-            <div className="max-w-sm max-md:max-w-full">
+            <div className="flex items-center gap-4 max-w-md">
                 <Popover open={open} onOpenChange={setOpen}>
-                    <PopoverTrigger asChild>
+                    <PopoverTrigger asChild className="max-w-sm">
                         <Button
                             id="date-picker"
-
                             className="w-full"
                         >
                             <CalendarIcon />
-                            <span >Selecionar Data</span>
+                            <span>
+                                {dataSelecionada !== undefined 
+                                    ? `${format(new Date(dataSelecionada), "dd/MM/yyyy")}` 
+                                    : 'Selecionar Data'
+                                }
+                            </span>
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent
@@ -81,17 +134,50 @@ export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
                         />
                     </PopoverContent>
                 </Popover>
+
+                <Select onValueChange={onChangeStatus} value={statusSelecionado}>
+                    <SelectTrigger className="w-full min-w-[180px]">
+                        <SelectValue placeholder="Filtrar por Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {statusData.map((status, i) => (
+                            <SelectItem key={i} value={status.value}>
+                                {status.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                {/* Botão para limpar filtros */}
+                {(dataSelecionada || statusSelecionado !== '') && (
+                    <Button 
+                        variant='ghost'
+                        onClick={limparFiltros}
+                        className="whitespace-nowrap"
+                    >
+                        Limpar Filtros
+                    </Button>
+                )}
             </div>
+            
             <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4">
                 {mentorias.length === 0 ? (
                     <Card className="col-span-4 bg-background border-none shadow-none">
                         <CardContent className="p-6 text-center text-muted-foreground">
-                            Nenhuma mentoria agendada para esta data
+                            {dataSelecionada || statusSelecionado !== '' 
+                                ? 'Nenhuma mentoria encontrada para os filtros aplicados'
+                                : 'Nenhuma mentoria agendada'
+                            }
                         </CardContent>
                     </Card>
                 ) : (
                     mentorias.map((mentoria) => (
-                        <CardMentoria key={mentoria.id} mentoria={mentoria} professor={true} aluno={mentoria.aluno} />
+                        <CardMentoria 
+                            key={mentoria.id} 
+                            mentoria={mentoria} 
+                            professor={true} 
+                            aluno={mentoria.aluno} 
+                        />
                     ))
                 )}
             </div>

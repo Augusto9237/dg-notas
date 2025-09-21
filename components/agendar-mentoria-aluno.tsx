@@ -120,7 +120,7 @@ export function AgendarMentoriaAluno({
     // Verificar disponibilidade quando data ou horário mudarem
     const watchedData = form.watch('data')
     const watchedHorario = form.watch('horario')
-    
+
     useEffect(() => {
         async function verificarVagas() {
             const data = form.getValues('data')
