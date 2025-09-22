@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Plus } from "lucide-react"
+import { Loader2, Plus } from "lucide-react"
 import { useEffect, useState, useMemo, memo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -23,6 +23,7 @@ import { toast } from "sonner"
 import { Avaliacao, Criterio, CriterioAvaliacao, Tema } from "@/app/generated/prisma"
 import { EditButton } from "./ui/edit-button"
 import { Card } from "./ui/card"
+import clsx from "clsx"
 
 const formSchema = z.object({
   tema: z.string().min(1, "Tema é obrigatório"),
@@ -226,16 +227,17 @@ export const FormularioAvaliacao = memo(function FormularioAvaliacao({ temas, cr
                   type="button"
                   variant="outline"
                   onClick={() => setIsOpen(false)}
-                  className="min-w-[100px]"
+                  className={clsx(form.formState.isSubmitting ? 'animate-fade-left animate-once hidden' : "min-w-[100px]")}
                 >
                   Cancelar
                 </Button>
                 <Button
                   type="submit"
-                  className="min-w-[100px]"
+                  className={clsx(form.formState.isSubmitting ? 'animate-width-transition animate-once w-[216px]' : "min-w-[100px]")}
                   disabled={form.formState.isSubmitting}
                 >
-                  {form.formState.isSubmitting ? 'Salvando...' : 'Salvar'}
+                  {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {form.formState.isSubmitting ? 'Salvando' : 'Salvar'}
                 </Button>
               </div>
             </div>

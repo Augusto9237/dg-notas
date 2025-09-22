@@ -59,7 +59,7 @@ export default async function RootLayout({
             </div>
           </SidebarInset>
         </SidebarProvider>
-        <Toaster />
+        <Toaster richColors theme="light"/>
       </body>
     </html>
   );
