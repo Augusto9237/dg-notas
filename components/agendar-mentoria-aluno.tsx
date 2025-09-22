@@ -86,7 +86,7 @@ interface AgendarMentoriaAlunoProps {
 export function AgendarMentoriaAluno({
     mode = 'create',
     mentoriaData,
-    onSuccess
+    onSuccess,
 }: AgendarMentoriaAlunoProps) {
     const [open, setOpen] = useState(false)
     const [vagasDisponiveis, setVagasDisponiveis] = useState<number>(4)
@@ -180,8 +180,8 @@ export function AgendarMentoriaAluno({
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
+        <Dialog open={open} onOpenChange={setOpen} >
+            <DialogTrigger asChild disabled={mentoriaData?.status === 'REALIZADA'} >
                 {mode === 'edit' ?
                     <Button size="sm" variant={mentoriaData?.status === 'REALIZADA' ? 'ghost' : "outline"} className="w-full">
                         <CalendarSync />

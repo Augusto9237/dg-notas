@@ -144,6 +144,7 @@ export function CardMentoria({ mentoria, aluno, modo = 'ALUNO' }: CardMentoriaPr
                     variant={mentoria.status === 'REALIZADA' ? 'ghost' : "destructive"}
                     className="w-full"
                     onClick={() => excluirMentoria(mentoria.id)}
+                    disabled={mentoria.status === 'REALIZADA'}  
                 >
                     <CalendarX />
                     Cancelar
