@@ -1,4 +1,4 @@
-import { ListarAlunosGoogle } from "@/actions/alunos";
+
 import { listarMentoriasHorario } from "@/actions/mentoria";
 import { AgendarMentoriaModal } from "@/components/agendar-mentoria-modal";
 import { ListaMentorias } from "@/components/lista-mentorias";
@@ -25,7 +25,7 @@ export default async function Page() {
                         <h1 className=" text-xl font-bold">Mentorias</h1>
                         <p className="text-xs text-muted-foreground">Lista de mentorias agendadas</p>
                     </div>
-                    <AgendarMentoriaModal />
+                    {/* <AgendarMentoriaModal /> */}
                 </div>
                 <ListaMentorias mentoriasIniciais={mentorias} />
             </div>
