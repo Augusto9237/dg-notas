@@ -70,9 +70,9 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
           <ChevronRight className="absolute right-3 top-2" />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="gap-2">
         <DialogHeader>
-          <DialogTitle className="text-center text-base">{avaliacao.tema.nome}</DialogTitle>
+          <DialogTitle className="text-center text-base mb-2">{avaliacao.tema.nome}</DialogTitle>
         </DialogHeader>
         {avaliacao.criterios.map((criterio) => {
           const criterioInfo = criterios.find(c => c.id === criterio.criterioId);
