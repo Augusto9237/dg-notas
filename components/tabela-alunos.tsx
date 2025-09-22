@@ -22,7 +22,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from './ui/input';
 import { FileCheck2, Search } from 'lucide-react';
-import { Skeleton } from './ui/skeleton';
 
 interface Aluno {
   name: string;
@@ -122,7 +121,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
                   <Link href={`/professor/aluno/${aluno.id}`} passHref>
                     <Button>
                       <FileCheck2 />
-                      Notas
+                      Avaliações
                     </Button>
                   </Link>
                 </TableCell>
