@@ -1,7 +1,4 @@
 import { FormularioAvaliacao } from '@/components/formulario-avaliação';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ListarAvaliacoesAlunoId, ListarCriterios, ListarTemas } from '@/actions/avaliacao';
 import { BuscarAlunoGooglePorId } from '@/actions/alunos';
