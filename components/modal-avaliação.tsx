@@ -14,6 +14,7 @@ import { Essay, Student } from "@/lib/data"
 import { Badge } from "./ui/badge"
 import { Progress } from "./ui/progress"
 import { Avaliacao, Criterio, CriterioAvaliacao, Prisma } from "@/app/generated/prisma"
+import { Card } from "./ui/card"
 
 
 type AvaliacaoProp = Prisma.AvaliacaoGetPayload<{
@@ -78,7 +79,7 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
           if (!criterioInfo) return null;
 
           return (
-            <div key={criterio.id} className="space-y-1">
+            <Card key={criterio.id} className="p-4 gap-2">
               <div className="flex justify-between items-center">
                 <p className="text-sm font-medium">
                   {criterioInfo.nome}
@@ -93,7 +94,7 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
               <p className="text-xs text-muted-foreground">{criterioInfo.descricao}</p>
               <Progress value={criterio.pontuacao / 200 * 100} indicatorClassName={getGradeColor(criterio.pontuacao, 200)} />
 
-            </div>
+            </Card>
           );
         })}
         <Separator />
