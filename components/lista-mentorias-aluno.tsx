@@ -34,7 +34,7 @@ export function ListMentoriasAlunos({ mentoriasIniciais }: ListMentoriasAlunosPr
                 </Card>
             ) : (
                 mentoriasFiltradas.map((mentoria) => (
-                    <CardMentoria key={mentoria.id} mentoria={mentoria} />
+                    <CardMentoria key={mentoria.id} modo='ALUNO' mentoria={mentoria} />
                 ))
             )}
         </div>
