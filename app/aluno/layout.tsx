@@ -49,7 +49,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 <Header />
                 <main>{children}</main>
                 <FooterAluno />
-                <Toaster richColors  />
+                <Toaster richColors theme="light" />
             </body>
         </html>
     )

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, memo } from 'react';
+import { useSearchParams } from 'next/navigation'
 import {
   Table,
   TableBody,
@@ -18,7 +19,7 @@ import {
   PaginationNext,
 } from '@/components/ui/pagination';
 import { Criterio, CriterioAvaliacao, Tema, Avaliacao } from '@/app/generated/prisma';
-import { DeletarAvaliacao } from '@/actions/avaliacao';
+import { DeletarAvaliacao, ListarAvaliacoesAlunoId } from '@/actions/avaliacao';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
 import { Skeleton } from './ui/skeleton';
@@ -51,15 +52,40 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
   const [currentPage, setCurrentPage] = useState(1);
   const [listaAvaliacoes, setListaAvaliacoes] = useState<TabelaAvaliacoesProps['avaliacoes']>(avaliacoes || []);
   const [carregando, setCarregando] = useState(false)
+
+  const searchParams = useSearchParams()
+  const busca = searchParams.get('busca')
+
   const pageSize = 10;
 
   useEffect(() => {
-    setCarregando(true)
     if (avaliacoes && Array.isArray(avaliacoes)) {
       setListaAvaliacoes(avaliacoes);
-      setCarregando(false)
     }
   }, [avaliacoes]);
+
+  useEffect(() => {
+    let isMounted = true; 
+
+    const buscarAvaliacoes = async () => {
+      if (busca && aluno.id) {
+        setCarregando(true);
+        const resultadoBusca = await ListarAvaliacoesAlunoId(aluno.id, busca)
+
+        if (isMounted) { 
+          setListaAvaliacoes(resultadoBusca as TabelaAvaliacoesProps['avaliacoes']);
+          setCarregando(false);
+        }
+      }
+    };
+
+    buscarAvaliacoes()
+
+    return () => {
+      isMounted = false;
+    };
+
+  }, [busca])
 
   // Verificar se os dados são válidos
   if (carregando || !listaAvaliacoes || !Array.isArray(listaAvaliacoes)) {

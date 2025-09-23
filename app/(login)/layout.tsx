@@ -51,7 +51,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                         </div>
                     </div>
                 </Suspense>
-                <Toaster />
+                <Toaster richColors theme="light" />
             </body>
         </html >
     )

@@ -159,7 +159,7 @@ export function ListaMentorias({ mentoriasIniciais }: ListaMentoriasProps) {
                 )}
             </div>
             
-            <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4">
+            <div className="grid grid-cols-4 max-sm:grid-cols-1 max-md:grid-cols-2 gap-4">
                 {mentorias.length === 0 ? (
                     <Card className="col-span-4 bg-background border-none shadow-none">
                         <CardContent className="p-6 text-center text-muted-foreground">

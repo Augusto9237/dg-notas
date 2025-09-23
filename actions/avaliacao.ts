@@ -161,19 +161,25 @@ export async function EditarAvaliacao(
         ]);
 
         revalidatePath('/professor');
-        return transaction[1]; 
+        return transaction[1];
     } catch (error) {
         console.error("Erro ao editar avaliação:", error);
         throw error;
     }
 }
 
-export async function ListarAvaliacoesAlunoId(alunoId: string) {
+export async function ListarAvaliacoesAlunoId(alunoId: string, busca: string = '') {
     try {
         // Busca todas as avaliações que possuem o alunoId informado
         const avaliacoes = await prisma.avaliacao.findMany({
             where: {
                 alunoId: alunoId,
+                tema: busca ? { // Condicional para aplicar o filtro de tema somente se a busca for fornecida
+                    nome: {
+                        contains: busca,
+                        mode: 'insensitive',
+                    },
+                } : undefined,
             },
             include: {
                 tema: true,

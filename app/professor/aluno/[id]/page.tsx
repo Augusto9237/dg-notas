@@ -1,13 +1,11 @@
 import { FormularioAvaliacao } from '@/components/formulario-avaliação';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ListarAvaliacoesAlunoId, ListarCriterios, ListarTemas } from '@/actions/avaliacao';
 import { BuscarAlunoGooglePorId } from '@/actions/alunos';
 import { TabelaAvaliacoes } from '@/components/tabela-avaliacoes';
 import { Suspense } from 'react';
 import Loading from './loading';
+import { InputBusca } from '@/components/input-busca';
 
 export default async function Page({
   params,
@@ -56,12 +54,7 @@ export default async function Page({
         </div>
         <main className="flex flex-col gap-4 p-5">
           <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
-            <div className="flex items-center w-full max-w-md relative">
-              <Input type="text" placeholder="Buscar por Tema" className="bg-card/70" />
-              <Button className='absolute right-0 top-0 bg-background border rounded-bl-none rounded-tl-none' variant='ghost'>
-                <Search />
-              </Button>
-            </div>
+            <InputBusca placeholder='Buscar por Tema'/>
             <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoesData} criterios={criteriosData} temas={temasData} />
           </div>
         </main>
