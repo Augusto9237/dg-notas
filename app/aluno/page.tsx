@@ -25,9 +25,7 @@ export default async function Page() {
               Nenhuma avaliação encontrada
             </div>
           ) : (
-            avaliacoes
-              .filter(avaliacao => avaliacao.tema && avaliacao.tema.nome) // Filtro adicional de segurança
-              .map((avaliacao) => (
+              avaliacoes.map((avaliacao) => (
                 <CardAvaliacao key={avaliacao.id} avaliacao={avaliacao} criterios={criterios} />
               ))
           )}

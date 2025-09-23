@@ -168,36 +168,38 @@ export async function EditarAvaliacao(
     }
 }
 
-export async function ListarAvaliacoesAlunoId(alunoId: string, busca: string = '') {
-    try {
-        // Busca todas as avaliações que possuem o alunoId informado
-        const avaliacoes = await prisma.avaliacao.findMany({
-            where: {
-                alunoId: alunoId,
-                tema: busca ? { // Condicional para aplicar o filtro de tema somente se a busca for fornecida
-                    nome: {
-                        contains: busca,
-                        mode: 'insensitive',
-                    },
-                } : undefined,
-            },
-            include: {
-                tema: true,
-                aluno: true,
-                criterios: true,
-            },
-        });
-
-        // Se encontrar avaliações, retorna o array, senão retorna um array vazio
-        if (avaliacoes && avaliacoes.length > 0) {
-            return avaliacoes;
-        } else {
-            return [];
-        }
-    } catch (error) {
-        console.error("Erro ao listar avaliações do aluno:", error);
-        throw error;
+export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string) {
+  try {
+    // Construir o where clause dinamicamente
+    const whereClause = {
+      alunoId: alunoId,
+      // Só aplica o filtro se busca for fornecida e não vazia
+      ...(busca && busca.trim() !== '' && {
+        tema: {
+          nome: {
+            contains: busca.trim(),
+            mode: 'insensitive' as const, // Case-insensitive
+          },
+        },
+      }),
     }
+
+    const avaliacoes = await prisma.avaliacao.findMany({
+      where: whereClause,
+      include: {
+        tema: true,      // Continua retornando todos os dados do tema
+        criterios: true, // Continua retornando todos os critérios
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return avaliacoes;
+  } catch (error) {
+    console.error('Erro ao listar avaliações:', error);
+    return [];
+  }
 }
 
 export async function DeletarAvaliacao(id: number) {
