@@ -33,6 +33,10 @@ export function InputBusca({ placeholder }: InputBuscaProps) {
         }
     };
 
+    function handleSearch() {
+        router.replace(`?busca=${termoBusca}`)
+    }
+
     return (
         <div className="flex items-center w-full max-w-md relative">
             <Input
@@ -43,7 +47,10 @@ export function InputBusca({ placeholder }: InputBuscaProps) {
                 onKeyDown={handleKeyPress}
                 className="bg-card/70"
             />
-            <Button className='absolute right-0 top-0 text-primary border rounded-bl-none rounded-tl-none' variant='ghost'>
+            <Button
+                className='absolute right-0 top-0 text-primary border rounded-bl-none rounded-tl-none' variant='ghost'
+                onClick={handleSearch}
+            >
                 <Search />
             </Button>
         </div >

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -22,6 +22,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from './ui/input';
 import { FileCheck2, Search } from 'lucide-react';
+import { InputBusca } from './input-busca';
+import { ListarAlunosGoogle } from '@/actions/alunos';
+import { useSearchParams } from 'next/navigation';
 
 interface Aluno {
   name: string;
@@ -42,24 +45,48 @@ interface TabelaAlunosProps {
 }
 
 export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [carregando, setCarregando] = useState(false)
+  const [listaAlunos, setListaAlunos] = useState<Aluno[]>([])
+  const searchParams = useSearchParams()
+  const busca = searchParams.get('busca')
+
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
 
-  // Filtrar alunos baseado no termo de busca
-  const filteredAlunos = useMemo(() => {
-    if (!searchTerm) return alunos;
-    return alunos.filter(aluno => 
-      aluno.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      aluno.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [alunos, searchTerm]);
+  useEffect(() => {
+    if (alunos.length > 0) {
+      setListaAlunos(alunos)
+    }
+  }, [alunos]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const buscarAvaliacoes = async () => {
+      if (busca) {
+        setCarregando(true);
+        const resultadoBusca = await ListarAlunosGoogle(busca)
+
+        if (isMounted) {
+          setListaAlunos(resultadoBusca);
+          setCarregando(false);
+        }
+      }
+    };
+
+    buscarAvaliacoes()
+
+    return () => {
+      isMounted = false;
+    };
+
+  }, [busca])
 
   // Calcular paginação
-  const totalPages = Math.ceil(filteredAlunos.length / pageSize);
+  const totalPages = Math.ceil(listaAlunos.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  const paginatedAlunos = filteredAlunos.slice(startIndex, endIndex);
+  const paginatedAlunos = listaAlunos.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -80,16 +107,9 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
   return (
     <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
       <div className="flex items-center max-w-md relative">
-        <Input 
-          type="text" 
-          placeholder="Buscar por Nome" 
-          className="bg-card/70" 
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+        <InputBusca
+          placeholder='Buscar por E-mail'
         />
-        <Button className='absolute right-0 top-0 text-primary border rounded-bl-none rounded-tl-none' variant='ghost'>
-          <Search />
-        </Button>
       </div>
       <Table >
         <TableHeader>
@@ -133,7 +153,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
       <div className="flex justify-between items-center mt-4">
         <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
           {startIndex + 1} -{' '}
-          {Math.min(endIndex, filteredAlunos.length)} de {filteredAlunos.length} resultados
+          {Math.min(endIndex, listaAlunos.length)} de {listaAlunos.length} resultados
         </div>
         <Pagination>
           <PaginationContent>

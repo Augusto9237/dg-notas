@@ -1,18 +1,25 @@
 'use server'
-
 import { prisma } from "@/lib/prisma";
 
 // Função para listar alunos que fizeram login apenas com o Google
-export async function ListarAlunosGoogle() {
+export async function ListarAlunosGoogle(busca?: string) {
     try {
-        const alunos = await prisma.user.findMany({
-            where: {
-                accounts: {
-                    every: {
-                        providerId: 'google'
-                    }
+        // Construir o where clause dinamicamente
+        const whereClause = {
+            accounts: {
+                every: {
+                    providerId: 'google'
                 }
-            }
+            },
+            ...(busca && busca.trim() !== '' && {
+                email: {
+                    contains: busca.trim(),
+                    mode: 'insensitive' as const, // Case-insensitive
+                },
+            }),
+        }
+        const alunos = await prisma.user.findMany({
+            where: whereClause
         });
         return alunos;
     } catch (error) {
