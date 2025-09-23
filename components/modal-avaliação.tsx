@@ -70,7 +70,7 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
           <ChevronRight className="absolute right-3 top-2" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="gap-2">
+      <DialogContent className="gap-2 overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-center text-base mb-2">{avaliacao.tema.nome}</DialogTitle>
         </DialogHeader>
