@@ -5,36 +5,13 @@ import { Card, CardDescription, CardTitle } from "./card";
 import { Button } from "./button";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { ListarAvaliacoesAlunoId } from "@/actions/avaliacao";
-import { listarMentoriasAluno } from "@/actions/mentoria";
+import { useContext } from "react";
+import { ContextoAluno } from "@/context/contexto-aluno";
 
 export default function Header() {
   const { data: session } = authClient.useSession();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [mediaGeral, setMediaGeral] = useState(0)
-  const [totalRedacoes, setTotalRedacoes] = useState(0)
-  const [totalMentorias, setTotalMentorias] = useState(0)
-
-
-  useEffect(() => {
-    const fetchAvaliacoes = async () => {
-      if (!session?.user.id) return;
-      
-      setIsLoading(false);
-      const avaliacoes = await ListarAvaliacoesAlunoId(session.user.id)
-      const somaNotas = avaliacoes.reduce((acc, avaliacao) => acc + avaliacao.notaFinal, 0);
-      const media = avaliacoes.length > 0 ? somaNotas / avaliacoes.length : 0;
-      const mentorias = await listarMentoriasAluno(session.user.id)
-
-      setMediaGeral(media);
-      setTotalRedacoes(avaliacoes.length);
-      setTotalMentorias(mentorias.length)
-    }
-    fetchAvaliacoes();
-
-  }, [session?.user.id]);
+  const { mediaGeral, totalRedacoes, totalMentorias, isLoading } = useContext(ContextoAluno);
 
   async function sair() {
     await authClient.signOut();
