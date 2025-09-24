@@ -3,6 +3,8 @@
 import { Avaliacao, Criterio, CriterioAvaliacao, Tema } from "@/app/generated/prisma";
 import { useEffect, useState } from "react";
 import { CardAvaliacao } from "./card-avaliacao";
+import { Card, CardContent } from "./ui/card";
+import { Skeleton } from "./ui/skeleton";
 
 interface ListaAvaliacoesProps {
     avaliacoesIniciais: (Avaliacao & {
@@ -23,7 +25,7 @@ export function ListaAvaliacoes({ avaliacoesIniciais, criteriosIniciais }: Lista
                 setCarregando(true);
                 // Simular um pequeno delay para evitar flickering na UI
                 await new Promise(resolve => setTimeout(resolve, 100));
-                
+
                 setAvaliacoes(avaliacoesIniciais);
                 setCriterios(criteriosIniciais);
             } catch (error) {
@@ -38,16 +40,22 @@ export function ListaAvaliacoes({ avaliacoesIniciais, criteriosIniciais }: Lista
 
     if (carregando) {
         return (
-            <div className="flex items-center justify-center py-8">
-                <div className="animate-pulse space-y-4">
-                    {[1, 2, 3].map((index) => (
-                        <div 
-                            key={index}
-                            className="h-[164px] w-full bg-muted rounded-lg"
-                            style={{ minWidth: '300px' }}
-                        />
-                    ))}
-                </div>
+            <div className="space-y-4">
+                {[1, 2, 3].map((index) => (
+                    <Card
+                        className="cursor-pointer hover:shadow-md transition-shadow p-0 min-h-[164px] h-full max-h-[164px] gap-0 relative"
+                        key={index}
+                    >
+                        <CardContent className="p-4 relative h-full">
+                            <div>
+                                <Skeleton className="w-full h-[0.875rem]" />
+                                <Skeleton className="w-full h-[0.875rem]" />
+                                <Skeleton className="w-full h-[0.875rem]" />
+                            </div>
+                        </CardContent>
+
+                    </Card>
+                ))}
             </div>
         );
     }
@@ -60,10 +68,10 @@ export function ListaAvaliacoes({ avaliacoesIniciais, criteriosIniciais }: Lista
                 </div>
             ) : (
                 avaliacoes.map((avaliacao) => (
-                    <CardAvaliacao 
-                        key={avaliacao.id} 
-                        avaliacao={avaliacao} 
-                        criterios={criterios} 
+                    <CardAvaliacao
+                        key={avaliacao.id}
+                        avaliacao={avaliacao}
+                        criterios={criterios}
                     />
                 ))
             )}
