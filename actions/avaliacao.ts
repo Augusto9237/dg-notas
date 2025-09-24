@@ -123,6 +123,7 @@ export async function AdicionarAvaliacao({
             },
         });
         revalidatePath('/professor');
+        revalidatePath('/aluno');
         return avaliacao;
     } catch (error) {
         console.error("Erro ao adicionar avaliação:", error);

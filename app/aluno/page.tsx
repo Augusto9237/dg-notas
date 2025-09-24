@@ -3,6 +3,7 @@ import { CardAvaliacao } from '@/components/card-avaliacao';
 import { ListarAvaliacoesAlunoId, ListarCriterios } from '@/actions/avaliacao';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
+import { ListaAvaliacoes } from '@/components/lista-avaliacoes';
 
 export default async function Page() {
   const session = await auth.api.getSession({
@@ -20,15 +21,7 @@ export default async function Page() {
           <div className="flex items-center justify-between">
             <h2 className="text-primary font-semibold">Suas Redações</h2>
           </div>
-          {avaliacoes.length === 0 ? (
-            <div className="text-center text-muted-foreground py-8">
-              Nenhuma avaliação encontrada
-            </div>
-          ) : (
-              avaliacoes.map((avaliacao) => (
-                <CardAvaliacao key={avaliacao.id} avaliacao={avaliacao} criterios={criterios} />
-              ))
-          )}
+          <ListaAvaliacoes avaliacoesIniciais={avaliacoes} criteriosIniciais={criterios} />
         </main>
       </div>
     );
