@@ -3,7 +3,7 @@
 import { Avaliacao, Criterio, CriterioAvaliacao, Tema } from "@/app/generated/prisma";
 import { useEffect, useState } from "react";
 import { CardAvaliacao } from "./card-avaliacao";
-import { Card, CardContent } from "./ui/card";
+import { Card, CardContent, CardFooter } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
 
 interface ListaAvaliacoesProps {
@@ -47,13 +47,15 @@ export function ListaAvaliacoes({ avaliacoesIniciais, criteriosIniciais }: Lista
                         key={index}
                     >
                         <CardContent className="p-4 relative h-full">
-                            <div>
-                                <Skeleton className="w-full h-[0.875rem]" />
-                                <Skeleton className="w-full h-[0.875rem]" />
-                                <Skeleton className="w-full h-[0.875rem]" />
+                            <div className="space-y-2.5">
+                                <Skeleton className="w-[75%] h-[0.875rem]" />
+                                <Skeleton className="w-[50%] h-[0.75rem]" />
+                                <Skeleton className="w-[25%] h-[0.75rem]" />
                             </div>
                         </CardContent>
-
+                        <CardFooter className="px-4 pb-4 absolute inset-x-0 bottom-0">
+                        <Skeleton className="w-full h-8" />
+                        </CardFooter>
                     </Card>
                 ))}
             </div>
