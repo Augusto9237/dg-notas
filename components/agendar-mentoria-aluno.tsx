@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Calendar } from "./ui/calendar"
-import { CalendarPlus, CalendarSync } from "lucide-react"
+import { CalendarPlus, CalendarSync, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { ptBR } from "date-fns/locale"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
@@ -28,6 +28,7 @@ import { adicionarMentoria, editarMentoria, verificarDisponibilidadeHorario } fr
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { Prisma } from "@/app/generated/prisma"
+import clsx from "clsx"
 
 
 const formSchema = z.object({
@@ -265,7 +266,7 @@ export function AgendarMentoriaAluno({
                             <Button
                                 type="button"
                                 variant="outline"
-                                className="w-[100px]"
+                                className={clsx(form.formState.isSubmitting ? 'animate-fade-left animate-once hidden' : "min-w-[100px]")}
                                 onClick={() => {
                                     form.reset()
                                     setOpen(false)
@@ -276,11 +277,12 @@ export function AgendarMentoriaAluno({
 
                             <Button
                                 type="submit"
+                                className={clsx(form.formState.isSubmitting ? 'animate-width-transition animate-once w-[216px]' : "min-w-[100px]")}
                                 disabled={form.formState.isSubmitting}
-                                className="w-[100px]"
                             >
+                                {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                                 {form.formState.isSubmitting
-                                    ? (mode === 'edit' ? 'Reagendando...' : 'Agendando...')
+                                    ? (mode === 'edit' ? 'Reagendando' : 'Agendando')
                                     : (mode === 'edit' ? 'Reagendar' : 'Agendar')
                                 }
                             </Button>
