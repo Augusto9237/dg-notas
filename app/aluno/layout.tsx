@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, Suspense } from 'react'
 import type { Metadata } from "next";
 import { Poppins } from 'next/font/google';
 
@@ -10,6 +10,7 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ProvedorAluno } from '@/context/provedor-aluno';
+import Loading from './loading';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -27,32 +28,34 @@ interface RootLayoutProps {
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-    const session = await auth.api.getSession({
-        headers: await headers() // you need to pass the headers object.
-    })
+    // const session = await auth.api.getSession({
+    //     headers: await headers() // you need to pass the headers object.
+    // })
 
-    if (!session?.user) {
-        redirect('/')
-    }
+    // if (!session?.user) {
+    //     redirect('/')
+    // }
 
-    if (session.user.role === 'professor') {
-        await auth.api.signOut({
-            headers: await headers()
-        })
-        redirect('/')
-    }
+    // if (session.user.role === 'professor') {
+    //     await auth.api.signOut({
+    //         headers: await headers()
+    //     })
+    //     redirect('/')
+    // }
 
     return (
         <html lang="pt-BR">
             <body
                 className={`${poppins.className} antialiased`}
             >
-                <ProvedorAluno>
-                    <Header />
-                    <main>{children}</main>
-                    <FooterAluno />
-                    <Toaster richColors theme="light" />
-                </ProvedorAluno>
+                <Suspense fallback={<Loading />}>
+                    <ProvedorAluno>
+                        <Header />
+                        <main>{children}</main>
+                        <FooterAluno />
+                        <Toaster richColors theme="light" />
+                    </ProvedorAluno>
+                </Suspense>
             </body>
         </html>
     )
