@@ -340,7 +340,7 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
         </div>
 
         <Select value={statusSelecionado} onValueChange={onChangeStatus}>
-          <SelectTrigger className="w-full md:min-w-fit max-w-[200px]">
+          <SelectTrigger className="w-full md:min-w-fit max-w-[200px] max-md:max-w-[120px]">
             <SelectValue placeholder="Filtrar por Status" />
           </SelectTrigger>
           <SelectContent>
@@ -355,7 +355,7 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
 
       <CardContent className="h-full flex-1 overflow-hidden p-0 pb-22">
         {/* Grade do calendário */}
-        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 border border-border rounded-t-lg pr-3.5 bg-background/30 ">
+        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 border border-border rounded-t-lg md:pr-3.5 bg-background/30 ">
           {/* Cabeçalho da coluna de horários */}
           <div className="border-r border-border p-4 px-2 text-center">
             <div className="text-sm max-md:text-xs font-medium text-muted-foreground">
