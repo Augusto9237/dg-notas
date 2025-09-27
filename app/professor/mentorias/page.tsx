@@ -4,6 +4,7 @@ import { AgendarMentoriaModal } from "@/components/agendar-mentoria-modal";
 import { ListaMentorias } from "@/components/lista-mentorias";
 import { Suspense } from "react";
 import Loading from "./loading";
+import { CalendarioGrande } from "@/components/calendario-grande";
 
 enum SlotHorario {
     SLOT_15_00 = "SLOT_15_00",
@@ -16,10 +17,10 @@ enum SlotHorario {
 
 export default async function Page() {
     const mentorias = await listarMentoriasHorario()
-    
+
     return (
         <Suspense fallback={<Loading />}>
-            <div className="w-full">
+            <div className="w-full flex flex-col flex-1 h-screen">
                 <div className='flex justify-between items-center h-14 p-5 mt-3'>
                     <div className="max-md:pl-10">
                         <h1 className=" text-xl font-bold">Mentorias</h1>
@@ -27,7 +28,10 @@ export default async function Page() {
                     </div>
                     {/* <AgendarMentoriaModal /> */}
                 </div>
-                <ListaMentorias mentoriasIniciais={mentorias} />
+                <main className="flex flex-col p-5 h-full flex-1 overflow-hidden max-h-[100vh - 3.5rem]">
+                    <CalendarioGrande mentorias={mentorias} />
+                </main>
+                {/* <ListaMentorias mentoriasIniciais={mentorias} /> */}
             </div>
         </Suspense>
     )
