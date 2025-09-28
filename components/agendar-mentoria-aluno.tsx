@@ -21,7 +21,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Calendar } from "./ui/calendar"
 import { CalendarPlus, CalendarSync, Loader2 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Dispatch, SetStateAction } from "react"
 import { ptBR } from "date-fns/locale"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { adicionarMentoria, editarMentoria, verificarDisponibilidadeHorario } from "@/actions/mentoria"
@@ -78,6 +78,7 @@ interface AgendarMentoriaAlunoProps {
     mode?: 'create' | 'edit';
     mentoriaData?: Mentoria;
     size?: "default" | "sm" | "lg" | "icon" | null | undefined
+    setIsOpen?: Dispatch<SetStateAction<boolean>>
 }
 
 // Função utilitária para converter data UTC em data local (apenas data, sem horário)
@@ -95,6 +96,7 @@ export function AgendarMentoriaAluno({
     mode = 'create',
     mentoriaData,
     size = "sm",
+    setIsOpen
 }: AgendarMentoriaAlunoProps) {
     const [open, setOpen] = useState(false)
     const [vagasDisponiveis, setVagasDisponiveis] = useState<number>(4)
@@ -186,6 +188,7 @@ export function AgendarMentoriaAluno({
                 toast.success(message);
                 form.reset();
                 setOpen(false);
+                setIsOpen && setIsOpen(false);
             } else {
                 toast.error(result.error || `Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria`);
             }

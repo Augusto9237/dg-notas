@@ -74,7 +74,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
 
     async function atualizarStatusDaMentoria(status: "AGENDADA" | "REALIZADA") {
         setCarregando(true)
-        setOpen(false) // Fecha o popover imediatamente
+        setOpen(false)
 
         try {
             const mentoriaData = await atualizarStatusMentoria(mentoria.id, status)
@@ -84,7 +84,6 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
         } catch {
             toast.error('Erro ao atualizar status')
         } finally {
-            setIsOpen(true) // Reabre o modal
             setCarregando(false)
         }
     }
@@ -110,7 +109,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog  open={isOpen} onOpenChange={() => setIsOpen((open) => !open)}>
             <DialogTrigger asChild>
                 <div
                     className={cn(
