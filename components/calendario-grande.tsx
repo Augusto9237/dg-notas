@@ -9,6 +9,7 @@ import { SlotHorario, StatusMentoria, StatusHorario } from "@/app/generated/pris
 import React from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { ModalMentoriaProfessor } from "./modal-mentoria-professor"
 
 type Mentoria = {
   id: number
@@ -59,14 +60,7 @@ const TIME_SLOTS: TimeSlot[] = [
   { slot: SlotHorario.SLOT_16_40, display: "16:40 - 17:00", time: "16:40", startMinutes: 16 * 60 + 40 }
 ]
 
-const STATUS_COLORS = {
-  AGENDADA: "bg-secondary",
-  REALIZADA: "bg-primary",
-  EM_ANDAMENTO: "bg-green-500",
-  CONCLUIDA: "bg-gray-500",
-  CANCELADA: "bg-red-500",
-  FALTOU: "bg-orange-500",
-} as const
+
 
 const STATUS_LABELS = {
   AGENDADA: "Agendada",
@@ -115,11 +109,6 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
   const [statusSelecionado, setStatusSelecionado] = useState<Status | string>('')
   const [currentWeek, setCurrentWeek] = useState(() => getCurrentWeekStart());
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
-
-  // Efeito para resetar para semana atual quando mentorias mudam
-  useEffect(() => {
-    setCurrentWeek(getCurrentWeekStart())
-  }, [mentorias])
 
   // Aplicar filtro de status sempre que mentoriasOriginais ou statusSelecionado mudar
   useEffect(() => {
@@ -222,48 +211,6 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
   }
 
 
-  const getInitials = (name: string): string => {
-    return name
-      .split(" ")
-      .map(word => word.charAt(0))
-      .join("")
-      .toUpperCase()
-      .slice(0, 2)
-  }
-
-  const MentoriaCard = ({ mentoria }: { mentoria: Mentoria }) => (
-    <div
-      className={cn(
-        "rounded-md p-4 max-md:p-2 text-card flex items-center w-full text-xs font-medium shadow-sm cursor-pointer hover:opacity-90 transition-opacity overflow-hidden",
-        STATUS_COLORS[mentoria.status as keyof typeof STATUS_COLORS],
-      )}
-      title={`${mentoria.aluno.name} - ${STATUS_LABELS[mentoria.status as keyof typeof STATUS_LABELS]}`}
-    >
-      <div className="flex items-center gap-2 w-full">
-        <Avatar className="w-10 max-md:w-8 h-10 max-md:h-8 flex-shrink-0">
-          <AvatarImage
-            src={mentoria.aluno.image || undefined}
-            alt={mentoria.aluno.name}
-            className="object-cover"
-          />
-          <AvatarFallback className="text-xs">
-            {getInitials(mentoria.aluno.name)}
-          </AvatarFallback>
-        </Avatar>
-        <div className="space-y-1 min-w-0 flex-1">
-          <span className="font-semibold truncate text-ellipsis text-sm block">
-            {mentoria.aluno.name}
-          </span>
-          <div>
-            <p className="truncate text-xs max-md:leading-none opacity-80">
-              {STATUS_LABELS[mentoria.status as keyof typeof STATUS_LABELS]}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
   const TimeSlotCell = ({
     targetDate,
     timeSlot,
@@ -280,8 +227,8 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
     return (
       <div
         className={cn(
-          "h-44 p-2 bg-background hover:bg-muted/20 transition-colors",
-          "grid grid-cols-2 grid-rows-2 max-md:grid-cols-2 gap-2",
+          "h-44 max-md:h-80 p-2 bg-background hover:bg-muted/20 transition-colors",
+          "grid grid-cols-2 grid-rows-2 max-md:grid-cols-1 max-md:grid-rows-4 gap-2",
           "overflow-hidden",
           isMonday && "border-r border-border",
           !isLast && "border-b"
@@ -293,7 +240,7 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
           </div>
         )}
         {mentorias.map((mentoria) => (
-          <MentoriaCard mentoria={mentoria} key={mentoria.id} />
+          <ModalMentoriaProfessor mentoria={mentoria} setListaMentorias={setListaMentorias} key={mentoria.id} />
         ))}
       </div>
     )

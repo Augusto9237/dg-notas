@@ -30,7 +30,6 @@ import { toast } from "sonner"
 import { Prisma } from "@/app/generated/prisma"
 import clsx from "clsx"
 
-
 const formSchema = z.object({
     data: z.date({
         message: "Data é obrigatória",
@@ -39,7 +38,6 @@ const formSchema = z.object({
     }),
     horario: z.string().min(1, "Horário é obrigatório"),
 })
-
 
 // Enum dos slots de horário (baseado no schema)
 enum SlotHorario {
@@ -69,29 +67,46 @@ export function generateTimeSlots(): TimeSlot[] {
     ];
 }
 
-
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
         horario: true;
     };
 }>;
 
-
 // Props do componente
 interface AgendarMentoriaAlunoProps {
     mode?: 'create' | 'edit';
     mentoriaData?: Mentoria;
-    onSuccess?: () => void;
+    size?: "default" | "sm" | "lg" | "icon" | null | undefined
+}
+
+// Função utilitária para converter data UTC em data local (apenas data, sem horário)
+function convertUTCToLocalDate(utcDate: Date): Date {
+    const utc = new Date(utcDate);
+    // Criar uma nova data usando os componentes UTC como se fossem locais
+    return new Date(
+        utc.getUTCFullYear(),
+        utc.getUTCMonth(),
+        utc.getUTCDate()
+    );
 }
 
 export function AgendarMentoriaAluno({
     mode = 'create',
     mentoriaData,
-    onSuccess,
+    size = "sm",
 }: AgendarMentoriaAlunoProps) {
     const [open, setOpen] = useState(false)
     const [vagasDisponiveis, setVagasDisponiveis] = useState<number>(4)
     const { data: session } = authClient.useSession();
+
+    // Determinar a data inicial corrigindo o fuso horário
+    const getInitialDate = () => {
+        if (mode === 'edit' && mentoriaData) {
+            return convertUTCToLocalDate(mentoriaData.horario.data);
+        }
+        return new Date();
+    };
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -99,16 +114,18 @@ export function AgendarMentoriaAluno({
             horario: mode === 'edit' && mentoriaData
                 ? generateTimeSlots().find(slot => slot.slot === mentoriaData.horario.slot)?.time
                 : "",
-            data: mode === 'edit' && mentoriaData ? mentoriaData.horario.data : new Date(),
+            data: getInitialDate(),
         },
     })
 
     // Resetar formulário quando modo ou dados da mentoria mudarem
     useEffect(() => {
         if (mode === 'edit' && mentoriaData) {
+            const dataCorrigida = convertUTCToLocalDate(mentoriaData.horario.data);
+            
             form.reset({
                 horario: generateTimeSlots().find(slot => slot.slot === mentoriaData.horario.slot)?.time,
-                data: mentoriaData.horario.data
+                data: dataCorrigida
             });
         } else if (mode === 'create') {
             form.reset({
@@ -137,7 +154,6 @@ export function AgendarMentoriaAluno({
         }
         verificarVagas()
     }, [watchedData, watchedHorario, form])
-
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
@@ -170,7 +186,6 @@ export function AgendarMentoriaAluno({
                 toast.success(message);
                 form.reset();
                 setOpen(false);
-                onSuccess?.();
             } else {
                 toast.error(result.error || `Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria`);
             }
@@ -184,7 +199,7 @@ export function AgendarMentoriaAluno({
         <Dialog open={open} onOpenChange={setOpen} >
             <DialogTrigger asChild disabled={mentoriaData?.status === 'REALIZADA'} >
                 {mode === 'edit' ?
-                    <Button size="sm" variant={mentoriaData?.status === 'REALIZADA' ? 'ghost' : "outline"} className="w-full">
+                    <Button size={size} variant={mentoriaData?.status === 'REALIZADA' ? 'ghost' : "outline"} className="w-full">
                         <CalendarSync />
                         Reagendar
                     </Button>
@@ -227,7 +242,7 @@ export function AgendarMentoriaAluno({
                                             // Get day of week (0 = Sunday, 1 = Monday, etc)
                                             const dayOfWeek = date.getDay()
 
-                                            // Only enable Tuesdays (2) and Thursdays (4)
+                                            // Only enable Mondays (1) and Wednesdays (3)
                                             return dayOfWeek !== 1 && dayOfWeek !== 3
                                         }}
                                         className="rounded-md border w-full"

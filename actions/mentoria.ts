@@ -497,7 +497,7 @@ interface AtualizarStatusMentoriaResult {
 export async function atualizarStatusMentoria(
   mentoriaId: number,
   status: 'AGENDADA' | 'REALIZADA'
-): Promise<AtualizarStatusMentoriaResult> {
+): Promise<AtualizarStatusMentoriaResult | Mentoria> {
   try {
     // Verify if mentoria exists
     const mentoria = await prisma.mentoria.findUnique({
@@ -512,15 +512,15 @@ export async function atualizarStatusMentoria(
     }
 
     // Update status
-    await prisma.mentoria.update({
+   const mentoriaAtualizada= await prisma.mentoria.update({
       where: { id: mentoriaId },
-      data: { status }
+      data: { status },
+      include: { aluno: true, horario: true }
     });
 
     revalidatePath('/aluno/mentorias');
-    revalidatePath('/professor/mentorias');
 
-    return { success: true };
+    return mentoriaAtualizada;
 
   } catch (error) {
     console.error('Erro ao atualizar status da mentoria:', error);
