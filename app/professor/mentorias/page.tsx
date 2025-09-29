@@ -26,12 +26,10 @@ export default async function Page() {
                         <h1 className=" text-xl font-bold">Mentorias</h1>
                         <p className="text-xs text-muted-foreground">Lista de mentorias agendadas</p>
                     </div>
-                    {/* <AgendarMentoriaModal /> */}
                 </div>
                 <main className="flex flex-col p-5 h-full flex-1 overflow-hidden max-h-[100vh - 3.5rem]">
                     <CalendarioGrande mentorias={mentorias} />
                 </main>
-                {/* <ListaMentorias mentoriasIniciais={mentorias} /> */}
             </div>
         </Suspense>
     )

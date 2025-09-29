@@ -7,9 +7,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { cn } from "@/lib/utils"
 import { SlotHorario, StatusMentoria, StatusHorario } from "@/app/generated/prisma"
 import React from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { ModalMentoriaProfessor } from "./modal-mentoria-professor"
+import { Skeleton } from "./ui/skeleton"
+import { CardMentoriaProfessor } from "./card-mentoria-professor"
 
 type Mentoria = {
   id: number
@@ -109,10 +109,12 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
   const [statusSelecionado, setStatusSelecionado] = useState<Status | string>('')
   const [currentWeek, setCurrentWeek] = useState(() => getCurrentWeekStart());
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
+  const [carregando, setCarregando] = useState(false);
 
   // Aplicar filtro de status sempre que mentoriasOriginais ou statusSelecionado mudar
   useEffect(() => {
     let mentoriasFiltradas = mentorias;
+    setCarregando(true);
 
     if (statusSelecionado !== '' && statusSelecionado !== Status.TODAS) {
       mentoriasFiltradas = mentorias.filter(
@@ -121,6 +123,7 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
     }
 
     setListaMentorias(mentoriasFiltradas);
+    setTimeout(() => setCarregando(false), 500); 
   }, [mentorias, statusSelecionado]);
 
   const getWeekDates = (date: Date) => {
@@ -210,7 +213,6 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
     })
   }
 
-
   const TimeSlotCell = ({
     targetDate,
     timeSlot,
@@ -227,21 +229,27 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
     return (
       <div
         className={cn(
-          "h-44 max-md:h-80 p-2 bg-background hover:bg-muted/20 transition-colors",
+          "h-44 max-md:h-80 p-2 bg-card hover:bg-muted/20 transition-colors",
           "grid grid-cols-2 grid-rows-2 max-md:grid-cols-1 max-md:grid-rows-4 gap-2",
           "overflow-hidden",
           isMonday && "border-r border-border",
           !isLast && "border-b"
         )}
       >
-        {mentorias.length === 0 && (
-          <div className="col-span-full flex items-center justify-center text-muted-foreground text-xs">
-            Livre
-          </div>
-        )}
-        {mentorias.map((mentoria) => (
-          <ModalMentoriaProfessor mentoria={mentoria} setListaMentorias={setListaMentorias} key={mentoria.id} />
-        ))}
+        {carregando ? (
+          <Skeleton className="w-full h-full col-span-full row-span-full bg-background"/>
+        ) :
+          <>
+            {mentorias.length === 0 && (
+              <div className="col-span-full flex items-center justify-center text-muted-foreground text-xs">
+                Livre
+              </div>
+            )}
+            {mentorias.map((mentoria) => (
+              <CardMentoriaProfessor mentoria={mentoria} setListaMentorias={setListaMentorias} key={mentoria.id} />
+            ))}
+          </>
+        }
       </div>
     )
   }

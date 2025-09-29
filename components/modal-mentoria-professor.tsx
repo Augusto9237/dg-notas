@@ -16,7 +16,6 @@ import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { set } from "zod";
 
 type Mentoria = {
     id: number
@@ -52,10 +51,7 @@ interface ModalMentoriaProfessorProps {
     setListaMentorias: React.Dispatch<React.SetStateAction<Mentoria[]>>
 }
 
-const STATUS_COLORS = {
-    AGENDADA: "bg-secondary",
-    REALIZADA: "bg-primary",
-} as const
+
 
 const getInitials = (name: string): string => {
     return name
@@ -109,38 +105,11 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
     }
 
     return (
-        <Dialog  open={isOpen} onOpenChange={() => setIsOpen((open) => !open)}>
+        <Dialog open={isOpen} onOpenChange={() => setIsOpen((open) => !open)}>
             <DialogTrigger asChild>
-                <div
-                    className={cn(
-                        "rounded-md p-4 max-md:p-2 text-card flex items-center justify-between w-full text-xs font-medium shadow-sm cursor-pointer hover:opacity-90 transition-opacity overflow-hidden",
-                        STATUS_COLORS[mentoria.status as keyof typeof STATUS_COLORS],
-                    )}
-                >
-                    <div className="flex items-center gap-2 w-full">
-                        <Avatar className="w-10 max-md:w-8 h-10 max-md:h-8 flex-shrink-0">
-                            <AvatarImage
-                                src={mentoria.aluno.image || undefined}
-                                alt={mentoria.aluno.name}
-                                className="object-cover"
-                            />
-                            <AvatarFallback className="text-xs">
-                                {getInitials(mentoria.aluno.name)}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="space-y-1 min-w-0 flex-1">
-                            <span className="font-semibold truncate text-ellipsis text-sm block">
-                                {mentoria.aluno.name}
-                            </span>
-                            <div>
-                                <p className="truncate text-xs max-md:leading-none opacity-80">
-                                    {mentoria.status === 'REALIZADA' ? 'Realizada' : 'Agendada'}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                <Button size='icon' variant='ghost' className="bg-transparent hover:bg-accent-foreground/20 hover:text-card hover:cursor-pointer">
                     <ChevronRight />
-                </div>
+                </Button>
             </DialogTrigger>
 
             <DialogContent className="flex flex-col overflow-hidden">
