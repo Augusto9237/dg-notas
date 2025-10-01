@@ -280,11 +280,11 @@ export function AgendarMentoriaAluno({
                             )}
                         />
 
-                        <div className="flex justify-center gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <Button
                                 type="button"
                                 variant="outline"
-                                className={clsx(form.formState.isSubmitting ? 'animate-fade-left animate-once hidden' : "min-w-[100px]")}
+                                className={clsx(form.formState.isSubmitting ? 'animate-fade-left animate-once hidden' : "w-full")}
                                 onClick={() => {
                                     form.reset()
                                     setOpen(false)
@@ -295,8 +295,9 @@ export function AgendarMentoriaAluno({
 
                             <Button
                                 type="submit"
-                                className={clsx(form.formState.isSubmitting ? 'animate-width-transition animate-once w-[216px]' : "min-w-[100px]")}
+                                className={clsx(form.formState.isSubmitting ? 'animate-width-transition animate-once w-full col-span-2' : "w-full")}
                                 disabled={form.formState.isSubmitting}
+                               
                             >
                                 {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                                 {form.formState.isSubmitting
