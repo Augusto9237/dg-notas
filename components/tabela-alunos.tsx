@@ -141,7 +141,9 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
                   <Link href={`/professor/aluno/${aluno.id}`} passHref>
                     <Button>
                       <FileCheck2 />
-                      Avaliações
+                      <span className='max-md:hidden'>
+                        Avaliações
+                      </span>
                     </Button>
                   </Link>
                 </TableCell>

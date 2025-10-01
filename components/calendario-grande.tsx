@@ -264,7 +264,7 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
         <Button
           variant='outline'
           onClick={goToCurrentWeek}
-          className="text-xs"
+          className="text-xs max-sm:hidden"
           disabled={isCurrentWeek}
         >
           Semana Atual
@@ -280,7 +280,7 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
-          <CardTitle className="capitalize text-lg">
+          <CardTitle className="capitalize text-lg max-md:text-base max-sm:text-sm">
             {formatMonthYear(monday)}
           </CardTitle>
 
@@ -310,7 +310,7 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
 
       <CardContent className="h-full flex-1 overflow-hidden p-0 pb-22">
         {/* Grade do calendário */}
-        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 border border-border rounded-t-lg md:pr-3.5 bg-background/30 ">
+        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 border border-border rounded-t-lg md:pr-3.5 max-sm:overflow-x-auto w-full  bg-background/30 ">
           {/* Cabeçalho da coluna de horários */}
           <div className="border-r border-border p-4 px-2 text-center">
             <div className="text-sm max-md:text-xs font-medium text-muted-foreground">
@@ -324,7 +324,7 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
             <div className="text-sm max-md:text-xs font-medium text-muted-foreground">
               Segunda-feira
             </div>
-            <div className="text-xl max-md:text-lg font-bold">
+            <div className="text-xl max-md:text-lg max-sm:text-base font-bold">
               {formatDate(monday)}
             </div>
           </div>
@@ -333,13 +333,13 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
             <div className="text-sm max-md:text-xs font-medium text-muted-foreground">
               Quarta-feira
             </div>
-            <div className="text-xl max-md:text-lg font-bold">
+            <div className="text-xl max-md:text-lg max-sm:text-base font-bold">
               {formatDate(wednesday)}
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 border border-border border-t-0 rounded-b-lg overflow-x-hidden overflow-y-scroll h-full flex-1">
+        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 border border-border border-t-0 rounded-b-lg overflow-x-hidden max-sm:overflow-x-auto h-full flex-1">
 
           {/* Slots de tempo e eventos */}
           {TIME_SLOTS.map((timeSlot, index) => {
