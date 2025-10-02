@@ -1,16 +1,34 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
-import { SlotHorario, StatusMentoria, StatusHorario } from "@/app/generated/prisma"
-import React from "react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select"
 import { Skeleton } from "./ui/skeleton"
 import { CardMentoriaProfessor } from "./card-mentoria-professor"
+import { cn } from "@/lib/utils"
+import {
+  SlotHorario,
+  StatusMentoria,
+  StatusHorario,
+} from "@/app/generated/prisma"
+import React from "react"
 
+// Tipos e Constantes
 type Mentoria = {
   id: number
   status: StatusMentoria
@@ -51,180 +69,118 @@ interface TimeSlot {
   startMinutes: number
 }
 
-const TIME_SLOTS: TimeSlot[] = [
-  { slot: SlotHorario.SLOT_15_00, display: "15:00 - 15:20", time: "15:00", startMinutes: 15 * 60 },
-  { slot: SlotHorario.SLOT_15_20, display: "15:20 - 15:40", time: "15:20", startMinutes: 15 * 60 + 20 },
-  { slot: SlotHorario.SLOT_15_40, display: "15:40 - 16:00", time: "15:40", startMinutes: 15 * 60 + 40 },
-  { slot: SlotHorario.SLOT_16_00, display: "16:00 - 16:20", time: "16:00", startMinutes: 16 * 60 },
-  { slot: SlotHorario.SLOT_16_20, display: "16:20 - 16:40", time: "16:20", startMinutes: 16 * 60 + 20 },
-  { slot: SlotHorario.SLOT_16_40, display: "16:40 - 17:00", time: "16:40", startMinutes: 16 * 60 + 40 }
+const HORARIOS: TimeSlot[] = [
+  {
+    slot: SlotHorario.SLOT_15_00,
+    display: "15:00 - 15:20",
+    time: "15:00",
+    startMinutes: 15 * 60,
+  },
+  {
+    slot: SlotHorario.SLOT_15_20,
+    display: "15:20 - 15:40",
+    time: "15:20",
+    startMinutes: 15 * 60 + 20,
+  },
+  {
+    slot: SlotHorario.SLOT_15_40,
+    display: "15:40 - 16:00",
+    time: "15:40",
+    startMinutes: 15 * 60 + 40,
+  },
+  {
+    slot: SlotHorario.SLOT_16_00,
+    display: "16:00 - 16:20",
+    time: "16:00",
+    startMinutes: 16 * 60,
+  },
+  {
+    slot: SlotHorario.SLOT_16_20,
+    display: "16:20 - 16:40",
+    time: "16:20",
+    startMinutes: 16 * 60 + 20,
+  },
+  {
+    slot: SlotHorario.SLOT_16_40,
+    display: "16:40 - 17:00",
+    time: "16:40",
+    startMinutes: 16 * 60 + 40,
+  },
 ]
 
-
-
-const STATUS_LABELS = {
-  AGENDADA: "Agendada",
-  REALIZADA: "Realizada",
-  EM_ANDAMENTO: "Em Andamento",
-  CONCLUIDA: "Concluída",
-  CANCELADA: "Cancelada",
-  FALTOU: "Faltou",
-} as const
-
-enum Status {
+enum StatusFiltro {
   AGENDADA = "AGENDADA",
   CONCLUIDA = "REALIZADA",
-  TODAS = 'TODAS'
+  TODAS = "TODAS",
 }
 
-const statusData: { label: string, value: Status }[] = [
-  { label: "Agendada", value: Status.AGENDADA },
-  { label: "Realizada", value: Status.CONCLUIDA },
-  { label: "Todas", value: Status.TODAS },
-];
+const DADOS_STATUS = [
+  { label: "Agendada", value: StatusFiltro.AGENDADA },
+  { label: "Realizada", value: StatusFiltro.CONCLUIDA },
+  { label: "Todas", value: StatusFiltro.TODAS },
+]
 
-// Função utilitária para obter a semana atual (começando no domingo)
-const getCurrentWeekStart = () => {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-
-  const day = today.getDay()
-
-  let mondayOffset: number
-  if (day === 0) {
-    mondayOffset = 1 // Domingo: segunda é amanhã
-  } else {
-    mondayOffset = -(day - 1) // Volta para a segunda desta semana
-  }
-
-  const monday = new Date(today)
-  monday.setDate(today.getDate() + mondayOffset)
-  monday.setHours(0, 0, 0, 0)
-
-  return monday
+// Funções Utilitárias
+const obterInicioSemanaAtual = () => {
+  const hoje = new Date()
+  hoje.setHours(0, 0, 0, 0)
+  const diaSemana = hoje.getDay()
+  const offsetSegunda = diaSemana === 0 ? 1 : -(diaSemana - 1)
+  const segunda = new Date(hoje)
+  segunda.setDate(hoje.getDate() + offsetSegunda)
+  return segunda
 }
 
-export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
-  // Inicializa sempre com a semana atual
-  const [statusSelecionado, setStatusSelecionado] = useState<Status | string>('')
-  const [currentWeek, setCurrentWeek] = useState(() => getCurrentWeekStart());
-  const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
-  const [carregando, setCarregando] = useState(false);
+const formatarData = (data: Date) => {
+  return data.toLocaleDateString("pt-BR", { day: "2-digit" })
+}
 
-  // Aplicar filtro de status sempre que mentoriasOriginais ou statusSelecionado mudar
-  useEffect(() => {
-    let mentoriasFiltradas = mentorias;
-    setCarregando(true);
+const formatarMesAno = (data: Date) => {
+  return data.toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
+  })
+}
 
-    if (statusSelecionado !== '' && statusSelecionado !== Status.TODAS) {
-      mentoriasFiltradas = mentorias.filter(
-        (mentoria) => mentoria.status === statusSelecionado
-      );
-    }
+const saoMesmaDataUTC = (dataUTC: Date, dataLocal: Date): boolean => {
+  const dataConvertida = new Date(dataUTC)
+  return (
+    dataConvertida.getUTCFullYear() === dataLocal.getFullYear() &&
+    dataConvertida.getUTCMonth() === dataLocal.getMonth() &&
+    dataConvertida.getUTCDate() === dataLocal.getDate()
+  )
+}
 
-    setListaMentorias(mentoriasFiltradas);
-    setTimeout(() => setCarregando(false), 500); 
-  }, [mentorias, statusSelecionado]);
+// Componente da Célula de Horário
+interface CelulaHorarioProps {
+  data: Date
+  horario: TimeSlot
+  eUltimo: boolean
+  eSegunda: boolean
+  mentorias: Mentoria[]
+  carregando: boolean
+  setListaMentorias: React.Dispatch<React.SetStateAction<Mentoria[]>>
+}
 
-  const getWeekDates = (date: Date) => {
-    const week = new Date(date)
-    const day = week.getDay()
-
-    // Para semana começando no domingo, calcular segunda-feira
-    let mondayOffset: number
-    if (day === 0) {
-      mondayOffset = 1 // Domingo: segunda é amanhã
-    } else {
-      mondayOffset = -(day - 1) // Volta para segunda desta semana
-    }
-
-    const monday = new Date(week)
-    monday.setDate(week.getDate() + mondayOffset)
-
-    const wednesday = new Date(monday)
-    wednesday.setDate(monday.getDate() + 2)
-
-    return { monday, wednesday }
-  }
-
-  const { monday, wednesday } = getWeekDates(currentWeek)
-
-  const navigateWeek = (direction: "prev" | "next") => {
-    const newDate = new Date(currentWeek)
-    const offset = direction === "next" ? 7 : -7
-    newDate.setDate(currentWeek.getDate() + offset)
-    setCurrentWeek(newDate)
-  }
-
-  // Função para voltar à semana atual
-  const goToCurrentWeek = () => {
-    setCurrentWeek(getCurrentWeekStart())
-  }
-
-  // Verifica se está na semana "atual" (mais relevante para hoje)
-  const isCurrentWeek = useMemo(() => {
-    const relevantWeekStart = getCurrentWeekStart()
-    return currentWeek.getTime() === relevantWeekStart.getTime()
-  }, [currentWeek])
-
-  // Função para comparar datas UTC ignorando o horário e fuso horário
-  const isSameDateUTC = (utcDateString: Date, targetDate: Date): boolean => {
-    const utcDate = new Date(utcDateString)
-    const utcYear = utcDate.getUTCFullYear()
-    const utcMonth = utcDate.getUTCMonth()
-    const utcDay = utcDate.getUTCDate()
-
-    const targetYear = targetDate.getFullYear()
-    const targetMonth = targetDate.getMonth()
-    const targetDay = targetDate.getDate()
-
-    return utcYear === targetYear && utcMonth === targetMonth && utcDay === targetDay
-  }
-
-  const getWeekMentorias = useMemo(() => {
-    const filtered = listaMentorias.filter(mentoria => {
-      return isSameDateUTC(mentoria.horario.data, monday) ||
-        isSameDateUTC(mentoria.horario.data, wednesday)
-    })
-
-    return filtered
-  }, [listaMentorias, monday, wednesday])
-
-  const getMentoriasForDayAndSlot = (targetDate: Date, slot: SlotHorario): Mentoria[] => {
-    return getWeekMentorias.filter(mentoria => {
-      return isSameDateUTC(mentoria.horario.data, targetDate) && mentoria.horario.slot === slot
-    })
-  }
-
-  function onChangeStatus(value: Status | string) {
-    setStatusSelecionado(value);
-  }
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-    })
-  }
-
-  const formatMonthYear = (date: Date) => {
-    return date.toLocaleDateString("pt-BR", {
-      month: "long",
-      year: "numeric"
-    })
-  }
-
-  const TimeSlotCell = ({
-    targetDate,
-    timeSlot,
-    isLast,
-    isMonday
-  }: {
-    targetDate: Date
-    timeSlot: TimeSlot
-    isLast: boolean
-    isMonday: boolean
-  }) => {
-    const mentorias = getMentoriasForDayAndSlot(targetDate, timeSlot.slot)
+const CelulaHorario = React.memo(
+  ({
+    data,
+    horario,
+    eUltimo,
+    eSegunda,
+    mentorias,
+    carregando,
+    setListaMentorias,
+  }: CelulaHorarioProps) => {
+    const mentoriasDoSlot = useMemo(
+      () =>
+        mentorias.filter(
+          (m) =>
+            saoMesmaDataUTC(m.horario.data, data) &&
+            m.horario.slot === horario.slot
+        ),
+      [mentorias, data, horario.slot]
+    )
 
     return (
       <div
@@ -232,40 +188,98 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
           "h-44 max-md:h-80 p-2 bg-card hover:bg-muted/20 transition-colors",
           "grid grid-cols-2 grid-rows-2 max-md:grid-cols-1 max-md:grid-rows-4 gap-2",
           "overflow-hidden",
-          isMonday && "border-r border-border",
-          !isLast && "border-b"
+          eSegunda && "border-r border-border",
+          !eUltimo && "border-b"
         )}
       >
         {carregando ? (
-          <Skeleton className="w-full h-full col-span-full row-span-full bg-background"/>
-        ) :
+          <Skeleton className="w-full h-full col-span-full row-span-full bg-background" />
+        ) : (
           <>
-            {mentorias.length === 0 && (
+            {mentoriasDoSlot.length === 0 && (
               <div className="col-span-full flex items-center justify-center text-muted-foreground text-xs">
                 Livre
               </div>
             )}
-            {mentorias.map((mentoria) => (
-              <CardMentoriaProfessor mentoria={mentoria} setListaMentorias={setListaMentorias} key={mentoria.id} />
+            {mentoriasDoSlot.map((mentoria) => (
+              <CardMentoriaProfessor
+                mentoria={mentoria}
+                setListaMentorias={setListaMentorias}
+                key={mentoria.id}
+              />
             ))}
           </>
-        }
+        )}
       </div>
     )
   }
+)
+CelulaHorario.displayName = "CelulaHorario"
 
-  const hasEvents = getWeekMentorias.length > 0
+// Componente Principal
+export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
+  const [statusSelecionado, setStatusSelecionado] =
+    useState<StatusFiltro | string>(StatusFiltro.TODAS)
+  const [semanaAtual, setSemanaAtual] = useState(obterInicioSemanaAtual)
+  const [listaMentorias, setListaMentorias] = useState<Mentoria[]>(mentorias)
+  const [carregando, setCarregando] = useState(false)
+
+  useEffect(() => {
+    setCarregando(true)
+    const mentoriasFiltradas =
+      statusSelecionado === StatusFiltro.TODAS
+        ? mentorias
+        : mentorias.filter((m) => m.status === statusSelecionado)
+    setListaMentorias(mentoriasFiltradas)
+    const timer = setTimeout(() => setCarregando(false), 300)
+    return () => clearTimeout(timer)
+  }, [mentorias, statusSelecionado])
+
+  const { segunda, quarta } = useMemo(() => {
+    const inicioSemana = new Date(semanaAtual)
+    const segundaFeira = new Date(inicioSemana)
+    const quartaFeira = new Date(inicioSemana)
+    quartaFeira.setDate(inicioSemana.getDate() + 2)
+    return { segunda: segundaFeira, quarta: quartaFeira }
+  }, [semanaAtual])
+
+  const navegarSemana = useCallback((direcao: "prev" | "next") => {
+    setSemanaAtual((semanaAnterior) => {
+      const novaData = new Date(semanaAnterior)
+      const offset = direcao === "next" ? 7 : -7
+      novaData.setDate(semanaAnterior.getDate() + offset)
+      return novaData
+    })
+  }, [])
+
+  const irParaSemanaAtual = useCallback(() => {
+    setSemanaAtual(obterInicioSemanaAtual())
+  }, [])
+
+  const eSemanaAtual = useMemo(() => {
+    return semanaAtual.getTime() === obterInicioSemanaAtual().getTime()
+  }, [semanaAtual])
+
+  const mentoriasDaSemana = useMemo(() => {
+    return listaMentorias.filter(
+      (m) =>
+        saoMesmaDataUTC(m.horario.data, segunda) ||
+        saoMesmaDataUTC(m.horario.data, quarta)
+    )
+  }, [listaMentorias, segunda, quarta])
+
+  const alterarStatus = (valor: StatusFiltro | string) => {
+    setStatusSelecionado(valor)
+  }
 
   return (
     <Card className="flex flex-col p-5 gap-4 h-full flex-1">
-      <CardHeader className="flex items-center justify-between space-y-0 p-0">
-        {/* Botão para voltar à semana atual */}
-
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
         <Button
-          variant='outline'
-          onClick={goToCurrentWeek}
+          variant="outline"
+          onClick={irParaSemanaAtual}
           className="text-xs max-sm:hidden"
-          disabled={isCurrentWeek}
+          disabled={eSemanaAtual}
         >
           Semana Atual
         </Button>
@@ -274,33 +288,31 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigateWeek("prev")}
+            onClick={() => navegarSemana("prev")}
             aria-label="Semana anterior"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-
           <CardTitle className="capitalize text-lg max-md:text-base max-sm:text-sm">
-            {formatMonthYear(monday)}
+            {formatarMesAno(segunda)}
           </CardTitle>
-
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigateWeek("next")}
+            onClick={() => navegarSemana("next")}
             aria-label="Próxima semana"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
 
-        <Select value={statusSelecionado} onValueChange={onChangeStatus}>
+        <Select value={statusSelecionado} onValueChange={alterarStatus}>
           <SelectTrigger className="w-full md:min-w-fit max-w-[200px] max-md:max-w-[120px]">
             <SelectValue placeholder="Filtrar por Status" />
           </SelectTrigger>
           <SelectContent>
-            {statusData.map((status, i) => (
-              <SelectItem key={i} value={status.value}>
+            {DADOS_STATUS.map((status) => (
+              <SelectItem key={status.value} value={status.value}>
                 {status.label}
               </SelectItem>
             ))}
@@ -308,67 +320,59 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
         </Select>
       </CardHeader>
 
-      <CardContent className="h-full flex-1 overflow-hidden p-0 pb-22">
-        {/* Grade do calendário */}
-        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 border border-border rounded-t-lg md:pr-3.5 max-sm:overflow-x-auto w-full  bg-background/30 ">
-          {/* Cabeçalho da coluna de horários */}
-          <div className="border-r border-border p-4 px-2 text-center">
-            <div className="text-sm max-md:text-xs font-medium text-muted-foreground">
-              Horário
-            </div>
+      <CardContent className="h-full flex-1 overflow-hidden p-0">
+        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 border border-border rounded-t-lg bg-background/30">
+          <div className="border-r border-border p-4 px-2 text-center text-sm max-md:text-xs font-medium text-muted-foreground">
+            Horário
           </div>
-
-
-          {/* Cabeçalhos dos dias */}
           <div className="border-r border-border p-4 text-center">
             <div className="text-sm max-md:text-xs font-medium text-muted-foreground">
               Segunda-feira
             </div>
             <div className="text-xl max-md:text-lg max-sm:text-base font-bold">
-              {formatDate(monday)}
+              {formatarData(segunda)}
             </div>
           </div>
-
           <div className="p-4 text-center">
             <div className="text-sm max-md:text-xs font-medium text-muted-foreground">
               Quarta-feira
             </div>
             <div className="text-xl max-md:text-lg max-sm:text-base font-bold">
-              {formatDate(wednesday)}
+              {formatarData(quarta)}
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 border border-border border-t-0 rounded-b-lg overflow-x-hidden max-sm:overflow-x-auto h-full flex-1">
-
-          {/* Slots de tempo e eventos */}
-          {TIME_SLOTS.map((timeSlot, index) => {
-            const isLast = index === TIME_SLOTS.length - 1
-
+        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 border border-border border-t-0 rounded-b-lg overflow-auto h-full flex-1">
+          {HORARIOS.map((horario, index) => {
+            const eUltimo = index === HORARIOS.length - 1
             return (
-              <React.Fragment key={timeSlot.slot}>
-                {/* Label do horário */}
+              <React.Fragment key={horario.slot}>
                 <div
                   className={cn(
                     "border-r border-border p-2 text-sm max-md:text-xs text-muted-foreground bg-background/10 text-center flex flex-col justify-center",
-                    !isLast && "border-b"
+                    !eUltimo && "border-b"
                   )}
                 >
-                  <div className="font-medium">{timeSlot.time}</div>
+                  <div className="font-medium">{horario.time}</div>
                 </div>
-
-                {/* Células dos dias */}
-                <TimeSlotCell
-                  targetDate={monday}
-                  timeSlot={timeSlot}
-                  isLast={isLast}
-                  isMonday={true}
+                <CelulaHorario
+                  data={segunda}
+                  horario={horario}
+                  eUltimo={eUltimo}
+                  eSegunda={true}
+                  mentorias={mentoriasDaSemana}
+                  carregando={carregando}
+                  setListaMentorias={setListaMentorias}
                 />
-                <TimeSlotCell
-                  targetDate={wednesday}
-                  timeSlot={timeSlot}
-                  isLast={isLast}
-                  isMonday={false}
+                <CelulaHorario
+                  data={quarta}
+                  horario={horario}
+                  eUltimo={eUltimo}
+                  eSegunda={false}
+                  mentorias={mentoriasDaSemana}
+                  carregando={carregando}
+                  setListaMentorias={setListaMentorias}
                 />
               </React.Fragment>
             )
@@ -376,15 +380,15 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
         </div>
       </CardContent>
 
-      <CardFooter >
+      <CardFooter>
         <CardDescription className="text-center w-full">
-          {getWeekMentorias.length > 0 ? (
-            `${getWeekMentorias.length} mentoria${getWeekMentorias.length !== 1 ? 's' : ''} esta semana`
-          ) : (
-            'Nenhuma mentoria esta semana'
-          )}
+          {mentoriasDaSemana.length > 0
+            ? `${mentoriasDaSemana.length} mentoria${
+                mentoriasDaSemana.length !== 1 ? "s" : ""
+              } esta semana`
+            : "Nenhuma mentoria esta semana"}
         </CardDescription>
       </CardFooter>
-    </Card >
+    </Card>
   )
 }

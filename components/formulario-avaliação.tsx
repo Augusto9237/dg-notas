@@ -139,9 +139,9 @@ export const FormularioAvaliacao = memo(function FormularioAvaliacao({ temas, cr
           </Button>
         }
       </DialogTrigger>
-      <DialogContent style={{ maxWidth: "600px" }}>
+      <DialogContent className="max-sm:max-h-[94vh] max-sm:overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-center">{isEditMode ? "Editar Avaliação" : "Adicionar Avaliação"}</DialogTitle>
+          <DialogTitle className="text-center max-sm:text-base">{isEditMode ? "Editar Avaliação" : "Adicionar Avaliação"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
@@ -182,7 +182,7 @@ export const FormularioAvaliacao = memo(function FormularioAvaliacao({ temas, cr
                         <Card className="gap-2 p-4">
                           <div className="flex justify-between items-center">
                             <div className="space-y-1">
-                              <FormLabel>{criterion.id} - {criterion.nome}</FormLabel>
+                              <FormLabel className="max-sm:text-sm">{criterion.id} - {criterion.nome}</FormLabel>
                               <FormDescription className="text-xs">{criterion.descricao}</FormDescription>
                             </div>
                             <div className="flex items-center gap-2">

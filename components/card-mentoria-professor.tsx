@@ -45,13 +45,13 @@ const STATUS_COLORS = {
 export function CardMentoriaProfessor({ mentoria, setListaMentorias }: CardMentoriaAlunoProps) {
 
     const getInitials = (name: string): string => {
-    return name
-        .split(" ")
-        .map(word => word.charAt(0))
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-}
+        return name
+            .split(" ")
+            .map(word => word.charAt(0))
+            .join("")
+            .toUpperCase()
+            .slice(0, 2)
+    }
 
     return (
         <div
@@ -61,7 +61,7 @@ export function CardMentoriaProfessor({ mentoria, setListaMentorias }: CardMento
             )}
         >
             <div className="flex items-center gap-2 w-full">
-                <Avatar className="w-10 max-md:w-8 h-10 max-md:h-8 flex-shrink-0">
+                <Avatar className="size-10 max-sm:size-12 flex-shrink-0">
                     <AvatarImage
                         src={mentoria.aluno.image || undefined}
                         alt={mentoria.aluno.name}
@@ -71,7 +71,7 @@ export function CardMentoriaProfessor({ mentoria, setListaMentorias }: CardMento
                         {getInitials(mentoria.aluno.name)}
                     </AvatarFallback>
                 </Avatar>
-                <div className="space-y-1 min-w-0 flex-1">
+                <div className="space-y-1 min-w-0 flex-1 max-sm:hidden">
                     <span className="font-semibold truncate text-ellipsis text-sm block">
                         {mentoria.aluno.name}
                     </span>

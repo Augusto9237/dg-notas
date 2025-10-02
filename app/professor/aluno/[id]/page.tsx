@@ -44,11 +44,11 @@ export default async function Page({
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full">
-        <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
+        <div className='flex justify-between items-center h-14 p-5 mt-3 gap-2 relative'>
           <SidebarTrigger className='md:hidden absolute' suppressHydrationWarning />
-          <div className='max-md:ml-10'>
-            <h1 className="text-xl font-bold">{aluno.name}</h1>
-            <p className="text-xs text-muted-foreground">{aluno.email}</p>
+          <div className='max-md:ml-10 overflow-hidden'>
+            <h1 className="text-xl max-sm:text-lg font-bold">{aluno.name}</h1>
+            <p className="text-xs text-muted-foreground truncate">{aluno.email}</p>
           </div>
           <FormularioAvaliacao alunoId={alunoId} temas={temasData} criterios={criteriosData} />
         </div>

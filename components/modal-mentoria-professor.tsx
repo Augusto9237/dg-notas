@@ -120,8 +120,8 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
                     </div>
                 ) : (
                     <>
-                        <div className="flex gap-4 items-center relative w-full">
-                            <Avatar className="size-20 flex-shrink-0">
+                        <div className="flex gap-4 max-sm:gap-2 items-center relative w-full">
+                            <Avatar className="size-20 max-sm:size-16 flex-shrink-0">
                                 <AvatarImage
                                     src={mentoria.aluno.image || ''}
                                     alt={mentoria.aluno.name}
@@ -133,18 +133,18 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
                             </Avatar>
 
                             <div>
-                                <DialogTitle>
+                                <DialogTitle className="max-sm:text-sm">
                                     {mentoria.aluno.name}
                                 </DialogTitle>
-                                <DialogDescription>
+                                <DialogDescription className="max-sm:text-xs">
                                     {mentoria.aluno.email}
                                 </DialogDescription>
-                                <DialogDescription>
+                                <DialogDescription className="max-sm:text-xs">
                                     {formartarData(mentoria.horario.data)} {generateTimeSlots().find(slot => slot.slot === mentoria.horario.slot)?.display}
                                 </DialogDescription>
                             </div>
 
-                            <div className="absolute top-4 -right-2">
+                            <div className="absolute top-2 -right-2">
                                 <Popover open={open} onOpenChange={setOpen}>
                                     <PopoverTrigger asChild className="cursor-pointer">
                                         <div className="flex items-center gap-0.5">
