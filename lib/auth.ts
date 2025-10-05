@@ -11,11 +11,25 @@ export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql", // or "mysql", "postgresql", ...etc
     }),
+    emailVerification: {
+        sendVerificationEmail: async ({ user, url, token }, request) => {
+            await sendEmail({
+                to: user.email,
+                subject: "Reset your password",
+                text: `Click the link to reset your password: ${url}`,
+            });
+        },
+    },
     emailAndPassword: {
         enabled: true,
-        async sendResetPassword(data, request) {
-            // Send an email to the user with a link to reset their password
-        },
+        requireEmailVerification: true
+        // sendResetPassword: async ({user, url, token}, request) => {
+        //     await sendEmail({
+        //         to: user.email,
+        //         subject: "Reset your password",
+        //         text: `Click the link to reset your password: ${url}`,
+        //     });
+        // },
     },
     socialProviders: {
         google: {
@@ -24,7 +38,7 @@ export const auth = betterAuth({
         }
     },
     plugins: [
-        admin() 
+        admin()
     ]
 }
 );
