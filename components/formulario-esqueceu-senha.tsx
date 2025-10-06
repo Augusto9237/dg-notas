@@ -21,11 +21,10 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Loader2, X, Eye, EyeOff } from "lucide-react"
-import { authClient, signUp } from "@/lib/auth-client"
+import { Loader2} from "lucide-react"
+import { authClient} from "@/lib/auth-client"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import z from "zod"
 
 export const forgotPasswordSchema = z.object({
@@ -63,7 +62,7 @@ export function FormularioEsqueceuSenha() {
   return (
     <Card className="bg-primary border-none shadow-none w-full">
       <CardHeader className="justify-center text-center">
-        <CardTitle className="text-background">Esqueceu a senha?</CardTitle>
+        <CardTitle className="text-background">Esqueceu a senha</CardTitle>
         <CardDescription className="text-background/50">
           Digite seu e-mail
         </CardDescription>
@@ -105,7 +104,7 @@ export function FormularioEsqueceuSenha() {
                   Enviando
                 </>
               ) : (
-                "Enviar e-mail"
+                "Enviar"
               )}
             </Button>
           </form>
@@ -113,13 +112,4 @@ export function FormularioEsqueceuSenha() {
       </CardContent>
     </Card>
   )
-}
-
-async function convertImageToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onloadend = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
 }
