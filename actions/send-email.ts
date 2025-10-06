@@ -9,7 +9,7 @@ export async function sendEmail(url: string, user: Session) {
         from: 'onboarding@resend.dev',
         to: 'augusto.souza8330@gmail.com',
         subject: 'Verifique seu e-mail',
-        react: VerificationEmailTemplate({})
+        react: 
     })
 
 }

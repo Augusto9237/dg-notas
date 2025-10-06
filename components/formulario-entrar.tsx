@@ -158,7 +158,11 @@ export function FormularioEntrar() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-background">Senha</FormLabel>
+                      <div className="flex items-center justify-between">
+                        <FormLabel className="text-background">Senha</FormLabel>
+
+                        <Link href='/esqueceu-senha' className="text-background/70 text-xs">Esqueci a senha</Link>
+                      </div>
                       <FormControl>
                         <div className="relative">
                           <Input
