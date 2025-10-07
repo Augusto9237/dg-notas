@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Plataforma de Mentoria
 
-## Getting Started
+## Visão Geral
 
-First, run the development server:
+Uma plataforma web projetada para conectar alunos e professores para sessões de mentoria. O sistema permite que os alunos agendem horários com os professores disponíveis e fornece ferramentas para que os professores gerenciem seus horários, avaliem os alunos e acompanhem seu progresso.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Funcionalidades
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Para Alunos:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Autenticação Segura:** Cadastro e login de usuários.
+- **Visualização de Horários:** Acesso aos horários de mentoria disponíveis.
+- **Agendamento:** Agendamento de novas sessões de mentoria.
+- **Gerenciamento:** Visualização e gerenciamento de suas mentorias agendadas e passadas.
+- **Feedback:** Recebimento de avaliações dos professores.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Para Professores:
 
-## Learn More
+- **Autenticação Segura:** Cadastro e login de usuários.
+- **Dashboard:** Painel para visualização de todos os alunos e suas informações.
+- **Gerenciamento de Agenda:** Controle de disponibilidade e horários de mentoria.
+- **Avaliações:** Criação, visualização e gerenciamento de avaliações de alunos com base em critérios específicos.
+- **Detalhes do Aluno:** Acesso a informações detalhadas de cada aluno.
 
-To learn more about Next.js, take a look at the following resources:
+### Gerais:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Controle de Acesso Baseado em Função:** Distinção entre Aluno e Professor.
+- **Design Responsivo:** Interface adaptável para desktops e dispositivos móveis.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Tecnologias Utilizadas
 
-## Deploy on Vercel
+- **Framework:** [Next.js](https://nextjs.org/) (com App Router)
+- **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
+- **ORM de Banco de Dados:** [Prisma](https://www.prisma.io/)
+- **Autenticação:** [BetterAuth](https://www.better-auth.com/)
+- **UI:** [React](https://reactjs.org/)
+- **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
+- **Componentes de UI:** [shadcn/ui](https://ui.shadcn.com/)
+- **Linting:** [ESLint](https://eslint.org/)
+- **Server Actions:** Para mutações de dados e lógica do lado do servidor.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Começando
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Siga os passos abaixo para configurar e executar o projeto localmente.
+
+1. **Clone o repositório:**
+   ```bash
+   git clone <URL_DO_REPOSITORIO>
+   ```
+
+2. **Instale as dependências:**
+   ```bash
+   npm install
+   ```
+
+3. **Configure as variáveis de ambiente:**
+   - Crie um arquivo `.env` na raiz do projeto.
+   - Adicione a string de conexão do banco de dados e outros segredos necessários.
+     ```
+     DATABASE_URL="sua_string_de_conexao"
+     NEXTAUTH_URL="http://localhost:3000"
+     NEXTAUTH_SECRET="seu_segredo_aqui"
+     ```
+
+4. **Execute as migrações do banco de dados:**
+   ```bash
+   npx prisma migrate dev
+   ```
+
+5. **Inicie o servidor de desenvolvimento:**
+   ```bash
+   npm run dev
+   ```
+
+6. Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
+
+## Estrutura do Projeto
+
+- **/app**: Diretório principal da aplicação usando o App Router do Next.js.
+  - `/(login)`: Rotas relacionadas à autenticação.
+  - `/aluno`: Rotas e funcionalidades para a função de aluno.
+  - `/professor`: Rotas e funcionalidades para a função de professor.
+- **/actions**: Server Actions para manipulação de formulários e mutações de dados.
+- **/components**: Componentes React reutilizáveis.
+  - `/ui`: Componentes da biblioteca `shadcn/ui`.
+- **/lib**: Funções utilitárias, configuração de autenticação e instância do cliente Prisma.
+- **/prisma**: Schema do banco de dados (`schema.prisma`) e arquivos de migração.
