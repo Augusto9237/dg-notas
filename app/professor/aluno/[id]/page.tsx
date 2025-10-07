@@ -1,5 +1,4 @@
 import { FormularioAvaliacao } from '@/components/formulario-avaliação';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ListarAvaliacoesAlunoId, ListarCriterios, ListarTemas } from '@/actions/avaliacao';
 import { BuscarAlunoGooglePorId } from '@/actions/alunos';
 import { TabelaAvaliacoes } from '@/components/tabela-avaliacoes';
@@ -20,8 +19,7 @@ export default async function Page({
     return (
       <div className="w-full">
         <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
-          <SidebarTrigger className='md:hidden absolute' />
-          <div className='max-md:ml-10'>
+          <div className='max-[1025px]:ml-10'>
             <h1 className="text-xl font-bold">Aluno não encontrado</h1>
             <p className="text-xs text-muted-foreground">O aluno solicitado não foi encontrado</p>
           </div>
@@ -45,8 +43,7 @@ export default async function Page({
     <Suspense fallback={<Loading />}>
       <div className="w-full">
         <div className='flex justify-between items-center h-14 p-5 mt-3 gap-2 relative'>
-          <SidebarTrigger className='md:hidden absolute' suppressHydrationWarning />
-          <div className='max-md:ml-10 overflow-hidden'>
+          <div className='max-[1025px]:ml-10 overflow-hidden'>
             <h1 className="text-xl max-sm:text-lg font-bold">{aluno.name}</h1>
             <p className="text-xs text-muted-foreground truncate">{aluno.email}</p>
           </div>

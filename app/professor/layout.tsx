@@ -57,7 +57,7 @@ export default async function RootLayout({
           </div>
           <SidebarInset>
             <div className="realtive">
-              <SidebarTrigger className="absolute top-5 left-4.5 size-9 md:hidden" />
+              <SidebarTrigger className="absolute top-5 left-4.5 size-9" />
               {children}
             </div>
           </SidebarInset>
