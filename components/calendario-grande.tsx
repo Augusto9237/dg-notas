@@ -321,7 +321,7 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
       </CardHeader>
 
       <CardContent className="h-full flex-1 overflow-hidden p-0">
-        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 border border-border rounded-t-lg bg-background/30">
+        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 lg:pr-3.5 border border-border rounded-t-lg bg-background/30">
           <div className="border-r border-border p-4 px-2 text-center text-sm max-md:text-xs font-medium text-muted-foreground">
             Horário
           </div>

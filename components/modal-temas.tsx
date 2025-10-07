@@ -1,9 +1,5 @@
 'use client'
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { FilePenLine, Plus } from "lucide-react"
 import { useEffect, useState } from "react"
 import {
   Dialog,
@@ -19,6 +15,7 @@ import { format } from "date-fns"
 import { DeleteButton } from "./ui/delete-button"
 import { FormularioTema } from "./formulario-tema"
 import { DeletarTema } from "@/actions/avaliacao"
+import { FaFileContract } from "react-icons/fa";
 import { toast } from "sonner"
 
 interface ModalTemasProps {
@@ -49,11 +46,11 @@ export function ModalTemas({ temas }: ModalTemasProps) {
     <Dialog open={open} onOpenChange={() => setOpen(open => !open)}>
       <DialogTrigger asChild>
         <Button variant="outline">
-          <FilePenLine />
+          <FaFileContract />
           Temas
         </Button>
       </DialogTrigger>
-      <DialogContent style={{maxWidth: '600px'}}>
+      <DialogContent style={{maxWidth: '664px'}}>
         <DialogHeader>
           <DialogTitle className="text-center">Temas</DialogTitle>
         </DialogHeader>

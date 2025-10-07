@@ -5,6 +5,7 @@ import { ListaMentorias } from "@/components/lista-mentorias";
 import { Suspense } from "react";
 import Loading from "./loading";
 import { CalendarioGrande } from "@/components/calendario-grande";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 enum SlotHorario {
     SLOT_15_00 = "SLOT_15_00",
@@ -21,8 +22,9 @@ export default async function Page() {
     return (
         <Suspense fallback={<Loading />}>
             <div className="w-full flex flex-col flex-1 h-screen">
-                <div className='flex justify-between items-center h-14 p-5 mt-3'>
-                    <div className="max-md:pl-10">
+                <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
+                    <SidebarTrigger className='absolute'/>
+                    <div className="max-[1025px]:pl-10">
                         <h1 className=" text-xl font-bold">Mentorias</h1>
                         <p className="text-xs text-muted-foreground">Lista de mentorias agendadas</p>
                     </div>

@@ -5,6 +5,7 @@ import { TabelaAvaliacoes } from '@/components/tabela-avaliacoes';
 import { Suspense } from 'react';
 import Loading from './loading';
 import { InputBusca } from '@/components/input-busca';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 export default async function Page({
   params,
@@ -43,6 +44,7 @@ export default async function Page({
     <Suspense fallback={<Loading />}>
       <div className="w-full">
         <div className='flex justify-between items-center h-14 p-5 mt-3 gap-2 relative'>
+          <SidebarTrigger className='absolute'/>
           <div className='max-[1025px]:ml-10 overflow-hidden'>
             <h1 className="text-xl max-sm:text-lg font-bold">{aluno.name}</h1>
             <p className="text-xs text-muted-foreground truncate">{aluno.email}</p>
