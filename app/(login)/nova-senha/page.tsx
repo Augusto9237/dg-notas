@@ -1,8 +1,7 @@
-import { FormularioEsqueceuSenha } from "@/components/formulario-esqueceu-senha";
-import { FormularioInscricao } from "@/components/formulario-inscricao";
+import { FormularioNovaSenha } from "@/components/formulario-nova-senha";
 
 export default function Page() {
     return (
-        <FormularioEsqueceuSenha />
+        <FormularioNovaSenha/>
     )
 }
