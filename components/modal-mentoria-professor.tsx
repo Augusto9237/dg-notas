@@ -2,11 +2,9 @@
 
 import { SlotHorario, StatusHorario, StatusMentoria } from "@/app/generated/prisma";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTrigger } from "./ui/dialog";
-import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { CalendarX, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
+import { CalendarX, ChevronDown, ChevronDownIcon, ChevronRight, Loader2 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
@@ -16,6 +14,16 @@ import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+
+import { ButtonGroup } from "@/components/ui/button-group"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 type Mentoria = {
     id: number
@@ -133,7 +141,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
                 ) : (
                     <>
                         <div className="flex gap-4 max-sm:gap-2 items-center relative w-full">
-                            <Avatar className="size-20 flex-shrink-0">
+                            <Avatar className="size-32 flex-shrink-0">
                                 <AvatarImage
                                     src={mentoria.aluno.image || ''}
                                     alt={mentoria.aluno.name}
@@ -144,7 +152,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
                                 </AvatarFallback>
                             </Avatar>
 
-                            <div>
+                            <div className="w-full flex flex-col px-2 overflow-hidden relative">
                                 <DialogTitle className="max-sm:text-sm">
                                     {mentoria.aluno.name}
                                 </DialogTitle>
@@ -152,40 +160,35 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
                                     {mentoria.aluno.email}
                                 </DialogDescription>
                                 <DialogDescription className="max-sm:text-xs">
-                                    {formartarData(mentoria.horario.data)} {generateTimeSlots().find(slot => slot.slot === mentoria.horario.slot)?.display}
+                                    {formartarData(mentoria.horario.data)} - {generateTimeSlots().find(slot => slot.slot === mentoria.horario.slot)?.display.replace(' - ', ' às ')}
                                 </DialogDescription>
-                                <Popover open={open} onOpenChange={setOpen}>
-                                    <PopoverTrigger asChild className="cursor-pointer">
-                                        <div className="flex items-center gap-0.5">
-                                            <Badge
-                                                variant={mentoria.status === "REALIZADA" ? 'default' : 'secondary'}
-                                            >
-                                                {mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}
-                                            </Badge>
-                                            <ChevronDown size={16} className="text-muted-foreground" />
-                                        </div>
-                                    </PopoverTrigger>
-                                    <PopoverContent
-                                        className="overflow-hidden max-w-fit flex flex-col gap-3 p-2"
-                                        align="center"
-                                    >
-                                        <Badge
-                                            onClick={() => atualizarStatusDaMentoria("REALIZADA")}
-                                            variant='default'
-                                            className="cursor-pointer"
-                                        >
-                                            Realizada
-                                        </Badge>
 
-                                        <Badge
-                                            onClick={() => atualizarStatusDaMentoria("AGENDADA")}
-                                            variant='secondary'
-                                            className="cursor-pointer"
-                                        >
-                                            Agendada
-                                        </Badge>
-                                    </PopoverContent>
-                                </Popover>
+                                <ButtonGroup className="flex-1 mt-4 max-w-[200px] max-sm:max-w-[100px]">
+                                    <Button variant={mentoria.status === 'REALIZADA' ? 'default' : 'secondary'} className="w-full">{mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}</Button>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant={mentoria.status === 'REALIZADA' ? 'default' : 'secondary'} className="!pl-2">
+                                                <ChevronDownIcon />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align='end' className="space-y-2 max-w-[180px] max-sm:max-w-[90px]">
+                                            <Button
+                                                variant='secondary'
+                                                onClick={() => atualizarStatusDaMentoria("AGENDADA")}
+                                                className="w-full"
+                                            >
+                                                Agendada
+                                            </Button>
+
+                                            <Button
+                                                onClick={() => atualizarStatusDaMentoria("REALIZADA")}
+                                                className="w-full"
+                                            >
+                                                Realizada
+                                            </Button>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </ButtonGroup>
                             </div>
 
                             {/* <div className="absolute top-2 -right-2 ">
