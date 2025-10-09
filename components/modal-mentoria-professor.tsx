@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { CalendarX, ChevronDown, ChevronDownIcon, ChevronRight, Loader2 } from "lucide-react";
-import { Badge } from "./ui/badge";
 import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -24,6 +23,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { cn } from "@/lib/utils";
 
 type Mentoria = {
     id: number
@@ -132,16 +132,16 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="flex flex-col overflow-hidden">
+            <DialogContent className="flex flex-col overflow-hidden w-full sm:max-w-sm" style={{ maxWidth: '384px' }}>
                 {carregando === true ? (
-                    <div className="min-h-[152px] h-full z-50 flex items-center justify-center">
+                    <div className="min-h-[360px] h-full z-50 flex items-center justify-center">
                         <DialogTitle />
                         <Loader2 className="animate-spin text-primary" size={32} />
                     </div>
                 ) : (
                     <>
-                        <div className="flex gap-4 max-sm:gap-2 items-center relative w-full">
-                            <Avatar className="size-32 flex-shrink-0">
+                        <div className="flex flex-col gap-5 max-sm:gap-2 items-center relative w-full">
+                            <Avatar className={cn('size-44 border-2', { 'border-primary': mentoria.status === 'REALIZADA', 'border-secondary': mentoria.status === 'AGENDADA' })}>
                                 <AvatarImage
                                     src={mentoria.aluno.image || ''}
                                     alt={mentoria.aluno.name}
@@ -152,26 +152,30 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
                                 </AvatarFallback>
                             </Avatar>
 
-                            <div className="w-full flex flex-col px-2 overflow-hidden relative">
-                                <DialogTitle className="max-sm:text-sm">
+                            <div className="w-full flex flex-col overflow-hidden relative">
+                                <DialogTitle>
                                     {mentoria.aluno.name}
                                 </DialogTitle>
-                                <DialogDescription className="max-sm:text-xs">
+                                <DialogDescription>
                                     {mentoria.aluno.email}
                                 </DialogDescription>
-                                <DialogDescription className="max-sm:text-xs">
+                                <DialogDescription>
                                     {formartarData(mentoria.horario.data)} - {generateTimeSlots().find(slot => slot.slot === mentoria.horario.slot)?.display.replace(' - ', ' às ')}
                                 </DialogDescription>
 
-                                <ButtonGroup className="flex-1 mt-4 max-w-[200px] max-sm:max-w-[100px]">
-                                    <Button variant={mentoria.status === 'REALIZADA' ? 'default' : 'secondary'} className="w-full">{mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}</Button>
+                                <ButtonGroup className="w-full max-w-[298px] mt-5">
+                                    <Button variant={mentoria.status === 'REALIZADA' ? 'default' : 'secondary'} className="w-full">
+                                        <p className="pl-4">
+                                            {mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}
+                                        </p>
+                                    </Button>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant={mentoria.status === 'REALIZADA' ? 'default' : 'secondary'} className="!pl-2">
                                                 <ChevronDownIcon />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align='end' className="space-y-2 max-w-[180px] max-sm:max-w-[90px]">
+                                        <DropdownMenuContent align='end' className="space-y-4 min-w-[330px] max-w-[330px] p-2" sideOffset={0} style={{ width: "100%" }}>
                                             <Button
                                                 variant='secondary'
                                                 onClick={() => atualizarStatusDaMentoria("AGENDADA")}
@@ -190,43 +194,8 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
                                     </DropdownMenu>
                                 </ButtonGroup>
                             </div>
-
-                            {/* <div className="absolute top-2 -right-2 ">
-                                <Popover open={open} onOpenChange={setOpen}>
-                                    <PopoverTrigger asChild className="cursor-pointer">
-                                        <div className="flex items-center gap-0.5">
-                                            <Badge
-                                                variant={mentoria.status === "REALIZADA" ? 'default' : 'secondary'}
-                                            >
-                                                {mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}
-                                            </Badge>
-                                            <ChevronDown size={16} className="text-muted-foreground" />
-                                        </div>
-                                    </PopoverTrigger>
-                                    <PopoverContent
-                                        className="overflow-hidden max-w-fit flex flex-col gap-3 p-2"
-                                        align="center"
-                                    >
-                                        <Badge
-                                            onClick={() => atualizarStatusDaMentoria("REALIZADA")}
-                                            variant='default'
-                                            className="cursor-pointer"
-                                        >
-                                            Realizada
-                                        </Badge>
-
-                                        <Badge
-                                            onClick={() => atualizarStatusDaMentoria("AGENDADA")}
-                                            variant='secondary'
-                                            className="cursor-pointer"
-                                        >
-                                            Agendada
-                                        </Badge>
-                                    </PopoverContent>
-                                </Popover>
-                            </div> */}
                         </div>
-                        <Separator className="max-sm:mt-5" />
+                        <Separator />
                         <DialogFooter className="grid grid-cols-2 gap-4">
                             <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" size='default' />
                             <Button

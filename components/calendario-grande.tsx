@@ -185,8 +185,8 @@ const CelulaHorario = React.memo(
     return (
       <div
         className={cn(
-          "h-44 max-md:h-80 p-2 bg-card hover:bg-muted/20 transition-colors",
-          "grid grid-cols-2 grid-rows-2 max-md:grid-cols-1 max-md:grid-rows-4 gap-2",
+          "h-44 max-[1025px]:h-80 max-sm:h-32 p-2 bg-card hover:bg-muted/20 transition-colors",
+          "grid grid-cols-2 max-[1025px]:grid-cols-1 grid-rows-2 max-[1025px]:grid-rows-4 gap-2",
           "overflow-hidden",
           eSegunda && "border-r border-border",
           !eUltimo && "border-b"

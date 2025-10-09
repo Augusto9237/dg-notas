@@ -71,7 +71,7 @@ export function CardMentoriaProfessor({ mentoria, setListaMentorias }: CardMento
                         {getInitials(mentoria.aluno.name)}
                     </AvatarFallback>
                 </Avatar>
-                <div className="space-y-1 min-w-0 min-[1025px]:hidden">
+                <div className="space-y-1 min-w-0 min-[800px]:hidden">
                     <span className="font-semibold truncate text-ellipsis text-sm block">
                         {mentoria.aluno.name.split(" ")[0]}
                     </span>
@@ -81,7 +81,7 @@ export function CardMentoriaProfessor({ mentoria, setListaMentorias }: CardMento
                         </p>
                     </div>
                 </div>
-                <div className="space-y-1 min-w-0 max-[1025px]:hidden">
+                <div className="space-y-1 min-w-0 max-[820px]:hidden">
                     <span className="font-semibold truncate text-ellipsis text-sm block">
                         {mentoria.aluno.name}
                     </span>
