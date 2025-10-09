@@ -56,12 +56,12 @@ export function CardMentoriaProfessor({ mentoria, setListaMentorias }: CardMento
     return (
         <div
             className={cn(
-                "rounded-md p-4 max-md:p-2 text-card flex items-center justify-between w-full text-xs font-medium shadow-sm  hover:opacity-90 transition-opacity overflow-hidden",
+                "relative rounded-md max-sm:rounded-full max-sm:h-12 p-4 max-md:p-2 max-sm:p-1 text-card flex items-center justify-between max-sm:justify-center w-full max-sm:w-fit text-xs font-medium shadow-sm  hover:opacity-90 transition-opacity overflow-hidden",
                 STATUS_COLORS[mentoria.status as keyof typeof STATUS_COLORS],
             )}
         >
-            <div className="flex items-center gap-2 w-full">
-                <Avatar className="size-10 max-sm:size-12 flex-shrink-0">
+            <div className="flex items-center gap-2 w-full max-sm:hidden">
+                <Avatar className="size-10 flex-shrink-0">
                     <AvatarImage
                         src={mentoria.aluno.image || undefined}
                         alt={mentoria.aluno.name}
@@ -71,7 +71,17 @@ export function CardMentoriaProfessor({ mentoria, setListaMentorias }: CardMento
                         {getInitials(mentoria.aluno.name)}
                     </AvatarFallback>
                 </Avatar>
-                <div className="space-y-1 min-w-0 flex-1 max-sm:hidden">
+                <div className="space-y-1 min-w-0 min-[1025px]:hidden">
+                    <span className="font-semibold truncate text-ellipsis text-sm block">
+                        {mentoria.aluno.name.split(" ")[0]}
+                    </span>
+                    <div>
+                        <p className="truncate text-xs max-md:leading-none opacity-80">
+                            {mentoria.status === 'REALIZADA' ? 'Realizada' : 'Agendada'}
+                        </p>
+                    </div>
+                </div>
+                <div className="space-y-1 min-w-0 max-[1025px]:hidden">
                     <span className="font-semibold truncate text-ellipsis text-sm block">
                         {mentoria.aluno.name}
                     </span>

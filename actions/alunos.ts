@@ -28,6 +28,7 @@ export async function ListarAlunosGoogle(busca?: string) {
     }
 }
 
+
 // Função para buscar um aluno pelo id, que tenha apenas providerId 'google'
 export async function BuscarAlunoGooglePorId(id: string) {
     try {

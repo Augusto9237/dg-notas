@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import Loading from "./loading";
 import { CalendarioGrande } from "@/components/calendario-grande";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { prisma } from "@/lib/prisma";
 
 enum SlotHorario {
     SLOT_15_00 = "SLOT_15_00",
@@ -18,6 +19,7 @@ enum SlotHorario {
 
 export default async function Page() {
     const mentorias = await listarMentoriasHorario()
+    const alunos = await prisma.user.findMany({})
 
     return (
         <Suspense fallback={<Loading />}>

@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input"
 import { Loader2, X, Eye, EyeOff } from "lucide-react"
 import { authClient, signUp } from "@/lib/auth-client"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import z from "zod"
 
 export const resetPasswordSchema = z.object({
@@ -37,6 +37,9 @@ export const resetPasswordSchema = z.object({
   confirmPassword: z
     .string()
     .min(1, "Confirmação de senha é obrigatória"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Senhas não coincidem",
+  path: ["confirmPassword"],
 })
 
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>
@@ -45,8 +48,10 @@ export function FormularioNovaSenha() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") as string
 
-  const form = useForm <ResetPasswordFormData>({
+  const form = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       password: "",
@@ -57,11 +62,18 @@ export function FormularioNovaSenha() {
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     try {
-      // await authClient.forgetPassword({
-      //   email: data.email,
-      //   redirectTo: "/nova-senha"
-      // })
-      toast.success("Redefinição de senha foi enviada para o seu e-mail")
+      if (data.password !== data.confirmPassword) {
+        toast.error("AS senhas não coincidem")
+        return
+      }
+
+      await authClient.resetPassword({
+        newPassword: data.password,
+        token: token
+      })
+
+      toast.success("Sua senha foi redefinida com sucesso! Faça login novamente")
+      router.push('/')
     } catch (error) {
       toast.error("Erro! Tente novamente.")
     }
