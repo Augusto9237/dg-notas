@@ -9,10 +9,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { EditButton } from "./ui/edit-button"
 import { Criterio } from "@/app/generated/prisma"
 import { Card } from "./ui/card"
 import { ListChecks } from "lucide-react"
+import { FormularioCriterio } from "./formulario-criterio"
 
 
 interface ModalCompetenciasProps {
@@ -32,7 +32,9 @@ export function ModalCompetencias({ criterios }: ModalCompetenciasProps) {
       <DialogTrigger asChild>
         <Button variant="outline">
           <ListChecks />
-          Competências
+          <span className="max-sm:hidden">
+            Competências
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -45,10 +47,12 @@ export function ModalCompetencias({ criterios }: ModalCompetenciasProps) {
           {listaCriterios.map((criterio, i) => (
             <Card className="gap-2 p-4" key={criterio.id}>
               <div className="flex justify-between items-center">
-                <div className="space-y-1 flex flex-col">
+                <div className="h-full  w-full space-y-1">
                   <span className="max-sm:text-sm">{i + 1} - {criterio.nome}</span>
                   <p className="text-xs text-muted-foreground ">{criterio.descricao}</p>
+                  <p className="text-xs text-muted-foreground ">Pont. Máxima: {criterio.pontuacaoMax}</p>
                 </div>
+                <FormularioCriterio criterio={criterio}/>
               </div>
             </Card>
           ))}

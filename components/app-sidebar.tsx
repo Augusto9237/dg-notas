@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { Logo } from "./ui/logo"
-import { Users } from "lucide-react"
+import { FileType, Users } from "lucide-react"
 import { NavUsuario } from "./nav-usuario"
 import { usePathname } from "next/navigation"
 import { RiUserStarFill } from "react-icons/ri";
@@ -35,14 +35,14 @@ export function AppSidebar() {
             Alunos
           </Link>
         </SidebarMenuButton>
-        
+
         <SidebarMenuButton
           asChild
           className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
           isActive={path === '/professor/temas' ? true : false}
         >
           <Link href="/professor/temas" className="flex gap-2 items-center">
-            <Users />
+            <FileType />
             Temas
           </Link>
         </SidebarMenuButton>

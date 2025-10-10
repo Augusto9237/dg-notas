@@ -86,14 +86,32 @@ export async function DeletarTema(id: number) {
 
 export async function ListarCriterios(): Promise<Criterio[]> {
     try {
-        const criterios = await prisma.criterio.findMany({})
-
+        const criterios = await prisma.criterio.findMany({
+            orderBy: {
+                id: 'asc',
+            },
+        })
         return criterios;
     } catch (error) {
         console.error("Erro ao listar criterios:", error);
         throw error;
     }
 
+}
+
+export async function EditarCriterio(id: number, nome: string, descricao: string, pontuacaoMax: number ): Promise<Criterio> {
+   const resposta = await prisma.criterio.update({
+        where: {
+            id,
+        },
+        data: {
+            nome,
+            descricao,
+            pontuacaoMax,
+        },
+    });
+    revalidatePath('/professor/temas')
+    return resposta; 
 }
 
 

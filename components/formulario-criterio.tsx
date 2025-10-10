@@ -22,49 +22,59 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { AdicionarTema, EditarTema } from "@/actions/avaliacao"
+import { AdicionarTema, EditarCriterio, EditarTema } from "@/actions/avaliacao"
 import { toast } from "sonner"
-import { Tema } from "@/app/generated/prisma"
+import { Criterio, Tema } from "@/app/generated/prisma"
 import { EditButton } from "./ui/edit-button"
 
 
 const formSchema = z.object({
-  nome: z.string().min(3, "O nome do tema deve ter pelo menos 3 caracteres"),
+  nome: z.string().min(3, "O nome da competência deve ter pelo menos 3 caracteres"),
+  descricao: z.string().min(3, "A descrição da competência deve ter pelo menos 3 caracteres"),
+  pontuacaoMax: z.number().min(1, "A pontuação máxima deve ser maior que 0"),
 })
 
 type FormValues = z.infer<typeof formSchema>
 
-interface FormularioTemaProps {
-  tema?: Tema
+interface FormularioCriterioProps {
+  criterio?: Criterio
 }
 
-export function FormularioTema({ tema }: FormularioTemaProps) {
+export function FormularioCriterio({ criterio }: FormularioCriterioProps) {
   const [open, setOpen] = useState(false)
-  const isEditMode = !!tema
+  const isEditMode = !!criterio
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nome: tema?.nome || "",
+      nome: criterio?.nome || "",
+      descricao: criterio?.descricao || "",
+      pontuacaoMax: criterio?.pontuacaoMax || 0,
     },
   })
 
   useEffect(() => {
     if (open) {
       form.reset({
-        nome: tema?.nome || "",
+        nome: criterio?.nome || "",
+        descricao: criterio?.descricao || "",
+        pontuacaoMax: criterio?.pontuacaoMax || 0,
       })
     }
-  }, [open, tema, form])
+  }, [open, criterio, form])
 
   async function onSubmit(values: FormValues) {
     try {
       if (isEditMode) {
-        const updatedTema = await EditarTema(tema.id, values.nome)
-        toast.success(`O tema ${updatedTema.nome} foi atualizado com sucesso`)
-      } else {
-        const newTema = await AdicionarTema(values.nome)
-        toast.success(`O tema ${newTema.nome} foi adicionado com sucesso`)
+
+        const update = await EditarCriterio(
+          criterio!.id,
+          values.nome,
+          values.descricao,
+          values.pontuacaoMax,
+        )
+
+        toast.success(`O tema ${update.nome} foi atualizado com sucesso`)
       }
       form.reset()
       setOpen(false)
@@ -89,7 +99,7 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-center">
-            {isEditMode ? "Editar Tema" : "Adicionar Tema"}
+            {isEditMode ? "Editar Competencia" : "Adicionar Novo Tema"}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -99,10 +109,45 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
               name="nome"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tema</FormLabel>
+                  <FormLabel>Nome</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={isEditMode ? "Edite o tema" : "Digite o novo tema"}
+                      placeholder="Digite o nome da competência"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="descricao"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descrição</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Digite a descrição da competência"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="pontuacaoMax"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Pontuação máxima</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Digite a pontuação máxima da competência"
                       {...field}
                     />
                   </FormControl>
