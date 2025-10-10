@@ -24,6 +24,7 @@ export function AppSidebar() {
         </Link>
       </SidebarHeader>
       <SidebarContent className="p-4 gap-4">
+
         <SidebarMenuButton
           asChild
           className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
@@ -34,13 +35,25 @@ export function AppSidebar() {
             Alunos
           </Link>
         </SidebarMenuButton>
+        
+        <SidebarMenuButton
+          asChild
+          className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
+          isActive={path === '/professor/temas' ? true : false}
+        >
+          <Link href="/professor/temas" className="flex gap-2 items-center">
+            <Users />
+            Temas
+          </Link>
+        </SidebarMenuButton>
+
         <SidebarMenuButton
           asChild
           className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
           isActive={path === '/professor/mentorias' ? true : false}
         >
           <Link href="/professor/mentorias " className="flex gap-2 items-center">
-          <RiUserStarFill />
+            <RiUserStarFill />
             Mentorias
           </Link>
         </SidebarMenuButton>

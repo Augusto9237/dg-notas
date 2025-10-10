@@ -1,7 +1,5 @@
 import { ListarAlunosGoogle } from '@/actions/alunos';
 import { ListarTemas } from '@/actions/avaliacao';
-import { FormularioTema } from '@/components/formulario-tema';
-import { ModalTemas } from '@/components/modal-temas';
 import { TabelaAlunos } from '@/components/tabela-alunos';
 import Loading from './loading';
 import { Suspense } from 'react';
@@ -19,10 +17,6 @@ export default async function Home() {
           <div className="max-[1025px]:pl-10">
             <h1 className=" text-xl font-bold">Alunos</h1>
             <p className="text-xs text-muted-foreground">Lista de alunos cadastrados</p>
-          </div>
-          <div className='flex items-center gap-4'>
-            <ModalTemas temas={temas} />
-            <FormularioTema />
           </div>
         </div>
 
