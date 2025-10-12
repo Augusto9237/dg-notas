@@ -6,6 +6,9 @@ import "../globals.css";
 import Image from 'next/image';
 import { Toaster } from 'sonner';
 import Loading from './loading';
+import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -22,7 +25,20 @@ interface RootLayoutProps {
     children: ReactNode
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+    const session = await auth.api.getSession({
+        headers: await headers() // you need to pass the headers object.
+    })
+
+    if (session?.user) {
+        if (session.user.role === 'professor') {
+            redirect('/professor')
+        } else {
+            redirect('/aluno')
+        }
+    }
+
+
     return (
         <html lang="pt-BR">
             <body

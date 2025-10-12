@@ -32,13 +32,26 @@ export async function AdicionarTema(nome: string): Promise<Tema> {
     }
 }
 
-export async function ListarTemas(): Promise<Tema[]> {
+export async function ListarTemas(busca?: string): Promise<Tema[]> {
     try {
+        // Construir o where clause dinamicamente
+        const whereClause = {
+            // Só aplica o filtro se busca for fornecida e não vazia
+            ...(busca && busca.trim() !== '' && {
+                nome: {
+                    contains: busca.trim(),
+                    mode: 'insensitive' as const, // Case-insensitive
+                },
+            }),
+        };
+
         const temas = await prisma.tema.findMany({
+            where: whereClause,
             orderBy: {
                 nome: 'asc',
             },
         });
+        
         return temas;
     } catch (error) {
         console.error("Erro ao listar temas:", error);

@@ -6,10 +6,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { format } from "date-fns"
 import { DeleteButton } from "./ui/delete-button"
 import { FormularioTema } from "./formulario-tema"
-import { DeletarTema } from "@/actions/avaliacao"
+import { DeletarTema, ListarTemas } from "@/actions/avaliacao"
 import { FaFileContract } from "react-icons/fa";
 import { toast } from "sonner"
 import { InputBusca } from "./input-busca"
+import { useSearchParams } from "next/navigation"
 
 interface ModalTemasProps {
   temas: Tema[];
@@ -18,9 +19,33 @@ interface ModalTemasProps {
 export function TabelaTemas({ temas }: ModalTemasProps) {
   const [listaTemas, setListTemas] = useState<Tema[]>([])
 
+  const searchParams = useSearchParams()
+  const busca = searchParams.get('busca')
+
   useEffect(() => {
     setListTemas(temas)
   }, [temas])
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const buscarAvaliacoes = async () => {
+      if (busca) {
+        const resultadoBusca = await ListarTemas(busca)
+
+        if (isMounted) {
+          setListTemas(resultadoBusca)
+        }
+      }
+    };
+
+    buscarAvaliacoes()
+
+    return () => {
+      isMounted = false;
+    };
+
+  }, [busca])
 
 
   async function ExcluirTema(id: number) {

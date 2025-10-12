@@ -81,8 +81,10 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
           <EditButton /> :
           <Button variant="secondary">
             <Plus />
-            <span className="max-sm:hidden">Novo</span>
-            Tema
+            <div className="max-sm:hidden">
+              <span className="max-sm:hidden">Novo</span>
+              Tema
+            </div>
           </Button>
         }
       </DialogTrigger>
