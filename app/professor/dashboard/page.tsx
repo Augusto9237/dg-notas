@@ -27,12 +27,12 @@ export default async function Page() {
 
     const mediaGeral = calcularMediaGeral(avaliacoes)
     return (
-        <main className="flex flex-col p-5">
-            <header className="grid grid-cols-4 gap-5">
-                <Card className="@container/card">
+        <main className="flex flex-col p-5 overflow-x-hidden w-full max-w-screen">
+            <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
+                <Card className="">
                     <CardHeader>
                         <CardDescription>Média Geral</CardDescription>
-                        <CardTitle className="text-2xl flex gap-2 items-center font-semibold tabular-nums @[250px]/card:text-3xl">
+                        <CardTitle className="text-2xl flex gap-2 items-center font-semibold  @[250px]/card:text-3xl">
                             <FaChartLine size={26} />
                             {mediaGeral}
                         </CardTitle>
@@ -45,10 +45,10 @@ export default async function Page() {
                     </CardFooter>
                 </Card>
 
-                <Card className="@container/card">
+                <Card className="">
                     <CardHeader>
                         <CardDescription>Total de Alunos</CardDescription>
-                        <CardTitle className="text-2xl flex gap-2 items-center font-semibold tabular-nums @[250px]/card:text-3xl">
+                        <CardTitle className="text-2xl flex gap-2 items-center font-semibold  @[250px]/card:text-3xl">
                             <Users size={26} />
                             {alunos.length}
                         </CardTitle>
@@ -61,10 +61,10 @@ export default async function Page() {
                     </CardFooter>
                 </Card>
 
-                <Card className="@container/card">
+                <Card className="">
                     <CardHeader>
                         <CardDescription>Total de Temas</CardDescription>
-                        <CardTitle className="text-2xl flex gap-2 items-center font-semibold tabular-nums @[250px]/card:text-3xl">
+                        <CardTitle className="text-2xl flex gap-2 items-center font-semibold  @[250px]/card:text-3xl">
                             <FileType size={26} />
                             {temas.length}
                         </CardTitle>
@@ -77,10 +77,10 @@ export default async function Page() {
                     </CardFooter>
                 </Card>
 
-                <Card className="@container/card">
+                <Card className="">
                     <CardHeader>
                         <CardDescription>Total de Mentorias</CardDescription>
-                        <CardTitle className="text-2xl flex gap-2 items-center font-semibold tabular-nums @[250px]/card:text-3xl">
+                        <CardTitle className="text-2xl flex gap-2 items-center font-semibold  @[250px]/card:text-3xl">
                             <RiUserStarLine size={26} />
                             {mentorias.length}
                         </CardTitle>
@@ -92,7 +92,7 @@ export default async function Page() {
                         </div>
                     </CardFooter>
                 </Card>
-            </header>
+            </div>
             <footer>
 
             </footer>

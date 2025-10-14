@@ -11,7 +11,8 @@ import { Logo } from "./ui/logo"
 import { FileType, Users } from "lucide-react"
 import { NavUsuario } from "./nav-usuario"
 import { usePathname } from "next/navigation"
-import { RiUserStarFill, RiUserStarLine } from "react-icons/ri";
+import { RiUserStarLine } from "react-icons/ri";
+import { MdOutlineDashboardCustomize } from "react-icons/md";
 
 export function AppSidebar() {
   const path = usePathname()
@@ -24,12 +25,24 @@ export function AppSidebar() {
         </Link>
       </SidebarHeader>
       <SidebarContent className="p-4 gap-4">
+        <SidebarMenuButton
+          asChild
+          className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
+          isActive={path === '/professor/dashoard' ? true : false}
+        >
+
+          <Link href="/professor/dashboard" className="flex gap-2 items-center">
+            <MdOutlineDashboardCustomize />
+            Inicio
+          </Link>
+        </SidebarMenuButton>
 
         <SidebarMenuButton
           asChild
           className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
           isActive={path === '/professor' ? true : false}
         >
+
           <Link href="/professor" className="flex gap-2 items-center">
             <Users />
             Alunos
