@@ -51,7 +51,7 @@ export async function ListarTemas(busca?: string): Promise<Tema[]> {
                 nome: 'asc',
             },
         });
-        
+
         return temas;
     } catch (error) {
         console.error("Erro ao listar temas:", error);
@@ -112,8 +112,8 @@ export async function ListarCriterios(): Promise<Criterio[]> {
 
 }
 
-export async function EditarCriterio(id: number, nome: string, descricao: string, pontuacaoMax: number ): Promise<Criterio> {
-   const resposta = await prisma.criterio.update({
+export async function EditarCriterio(id: number, nome: string, descricao: string, pontuacaoMax: number): Promise<Criterio> {
+    const resposta = await prisma.criterio.update({
         where: {
             id,
         },
@@ -124,7 +124,7 @@ export async function EditarCriterio(id: number, nome: string, descricao: string
         },
     });
     revalidatePath('/professor/temas')
-    return resposta; 
+    return resposta;
 }
 
 
@@ -201,37 +201,37 @@ export async function EditarAvaliacao(
 }
 
 export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string) {
-  try {
-    // Construir o where clause dinamicamente
-    const whereClause = {
-      alunoId: alunoId,
-      // Só aplica o filtro se busca for fornecida e não vazia
-      ...(busca && busca.trim() !== '' && {
-        tema: {
-          nome: {
-            contains: busca.trim(),
-            mode: 'insensitive' as const, // Case-insensitive
-          },
-        },
-      }),
+    try {
+        // Construir o where clause dinamicamente
+        const whereClause = {
+            alunoId: alunoId,
+            // Só aplica o filtro se busca for fornecida e não vazia
+            ...(busca && busca.trim() !== '' && {
+                tema: {
+                    nome: {
+                        contains: busca.trim(),
+                        mode: 'insensitive' as const, // Case-insensitive
+                    },
+                },
+            }),
+        }
+
+        const avaliacoes = await prisma.avaliacao.findMany({
+            where: whereClause,
+            include: {
+                tema: true,      // Continua retornando todos os dados do tema
+                criterios: true, // Continua retornando todos os critérios
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
+        return avaliacoes;
+    } catch (error) {
+        console.error('Erro ao listar avaliações:', error);
+        return [];
     }
-
-    const avaliacoes = await prisma.avaliacao.findMany({
-      where: whereClause,
-      include: {
-        tema: true,      // Continua retornando todos os dados do tema
-        criterios: true, // Continua retornando todos os critérios
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-
-    return avaliacoes;
-  } catch (error) {
-    console.error('Erro ao listar avaliações:', error);
-    return [];
-  }
 }
 
 export async function DeletarAvaliacao(id: number) {
@@ -257,8 +257,13 @@ export async function DeletarAvaliacao(id: number) {
     }
 }
 
-export async function ListarAvaliacoes(): Promise<Avaliacao[]>{
-      const avaliacoes = await prisma.avaliacao.findMany({});
-        
-        return avaliacoes;
+export async function ListarAvaliacoes(): Promise<Avaliacao[]> {
+    const avaliacoes = await prisma.avaliacao.findMany({
+        include: {
+            aluno: true,
+            criterios: true
+        }
+    });
+
+    return avaliacoes;
 }

@@ -19,7 +19,10 @@ export async function ListarAlunosGoogle(busca?: string) {
             }),
         }
         const alunos = await prisma.user.findMany({
-            where: whereClause
+            where: whereClause,
+            include: {
+                Avaliacao: true
+            }
         });
         return alunos;
     } catch (error) {
