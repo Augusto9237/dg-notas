@@ -9,6 +9,8 @@ import { FaChartLine } from "react-icons/fa";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { CardDashboard } from "@/components/card-dashboard";
+import { TabelaTopAlunos } from "@/components/tabela-top-alunos";
 
 interface Aluno {
     id: string;
@@ -43,9 +45,6 @@ export default async function Page() {
     const temas = await ListarTemas();
     const mentorias = await listarMentoriasHorario();
     const avaliacoes = await ListarAvaliacoes();
-
-    console.log('alunos', alunos)
-
 
     function calcularMediaGeral(avaliacoes: Avaliacao[]): number {
         if (avaliacoes.length === 0) {
@@ -119,78 +118,36 @@ export default async function Page() {
             </div>
             <main className="flex flex-col gap-4 p-5">
                 <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
-                    <Card className="">
-                        <CardHeader>
-                            <CardDescription>Média Geral</CardDescription>
-                            <CardTitle className="text-2xl flex gap-2 items-center font-semibold  @[250px]/card:text-3xl">
-                                <FaChartLine size={26} />
-                                {mediaGeral}
-                            </CardTitle>
+                    <CardDashboard
+                        description="Média Geral"
+                        value={mediaGeral}
+                        icon={<FaChartLine size={26} />}
+                        footerText="Média geral de todos os alunos"
+                    />
 
-                        </CardHeader>
-                        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                            <div className="line-clamp-1 flex gap-2 font-medium">
-                                Média geral de todos os alunos
-                            </div>
-                        </CardFooter>
-                    </Card>
+                    <CardDashboard
+                        description="Total de Alunos"
+                        value={alunos.length}
+                        icon={<Users size={26} />}
+                        footerText="Alunos cadastrados"
+                    />
 
-                    <Card className="">
-                        <CardHeader>
-                            <CardDescription>Total de Alunos</CardDescription>
-                            <CardTitle className="text-2xl flex gap-2 items-center font-semibold  @[250px]/card:text-3xl">
-                                <Users size={26} />
-                                {alunos.length}
-                            </CardTitle>
+                    <CardDashboard
+                        description="Total de Temas"
+                        value={temas.length}
+                        icon={<FileType size={26} />}
+                        footerText="Temas cadastrados"
+                    />
 
-                        </CardHeader>
-                        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                            <div className="line-clamp-1 flex gap-2 font-medium">
-                                Alunos cadastrados
-                            </div>
-                        </CardFooter>
-                    </Card>
-
-                    <Card className="">
-                        <CardHeader>
-                            <CardDescription>Total de Temas</CardDescription>
-                            <CardTitle className="text-2xl flex gap-2 items-center font-semibold  @[250px]/card:text-3xl">
-                                <FileType size={26} />
-                                {temas.length}
-                            </CardTitle>
-
-                        </CardHeader>
-                        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                            <div className="line-clamp-1 flex gap-2 font-medium">
-                                Temas cadastrados
-                            </div>
-                        </CardFooter>
-                    </Card>
-
-                    <Card className="">
-                        <CardHeader>
-                            <CardDescription>Total de Mentorias</CardDescription>
-                            <CardTitle className="text-2xl flex gap-2 items-center font-semibold  @[250px]/card:text-3xl">
-                                <RiUserStarLine size={26} />
-                                {mentorias.length}
-                            </CardTitle>
-
-                        </CardHeader>
-                        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                            <div className="line-clamp-1 flex gap-2 font-medium">
-                                Mentorias cadastrados
-                            </div>
-                        </CardFooter>
-                    </Card>
+                    <CardDashboard
+                        description="Total de Mentorias"
+                        value={mentorias.length}
+                        icon={<RiUserStarLine size={26} />}
+                        footerText="Mentorias cadastradas"
+                    />
                 </div>
-                <div>
-                    {top10.map((top) => (
-                        <div key={top.id}>
-                            {top.name}
-                            {top.posicao}
-                        </div>
-                    ))}
-                </div>
+
+                <TabelaTopAlunos alunos={top10} />
                 <footer>
 
                 </footer>

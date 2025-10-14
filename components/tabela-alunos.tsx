@@ -20,7 +20,6 @@ import {
   PaginationNext,
 } from '@/components/ui/pagination';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Input } from './ui/input';
 import { FileCheck2, Search } from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { ListarAlunosGoogle } from '@/actions/alunos';
@@ -105,7 +104,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
   };
 
   return (
-    <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
+    <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4'>
       <div className="flex items-center max-w-md relative">
         <InputBusca
           placeholder='Buscar por E-mail'
@@ -114,7 +113,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
       <Table >
         <TableHeader>
           <TableRow >
-            <TableHead className='pl-4'>Aluno</TableHead>
+            <TableHead className=''>Aluno</TableHead>
             <TableHead >E-mail</TableHead>
             <TableHead className="text-right"></TableHead>
           </TableRow>
@@ -129,7 +128,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
           ) : (
             paginatedAlunos.map((aluno) => (
               <TableRow key={aluno.id}>
-                <TableCell className='pl-4 flex gap-4 items-center'>
+                <TableCell className=' flex gap-4 items-center'>
                   <Avatar>
                     <AvatarImage src={aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
                     <AvatarFallback>{aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
