@@ -256,3 +256,9 @@ export async function DeletarAvaliacao(id: number) {
         throw error;
     }
 }
+
+export async function ListarAvaliacoes(): Promise<Avaliacao[]>{
+      const avaliacoes = await prisma.avaliacao.findMany({});
+        
+        return avaliacoes;
+}

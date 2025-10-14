@@ -134,8 +134,10 @@ export const FormularioAvaliacao = memo(function FormularioAvaliacao({ temas, cr
           <EditButton /> :
           <Button variant="secondary">
             <Plus />
-            <span className="max-sm:hidden">Nova</span>
-            Avaliação
+            <div className="max-sm:hidden">
+              <span className="max-sm:hidden">Nova</span>
+              Avaliação
+            </div>
           </Button>
         }
       </DialogTrigger>

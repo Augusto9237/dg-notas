@@ -1,13 +1,11 @@
 import { ListarAlunosGoogle } from '@/actions/alunos';
-import { ListarTemas } from '@/actions/avaliacao';
 import { TabelaAlunos } from '@/components/tabela-alunos';
 import Loading from './loading';
 import { Suspense } from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
 export default async function Home() {
-  const temas = await ListarTemas()
-  const alunos = await ListarAlunosGoogle()
+  const alunos = await ListarAlunosGoogle();
 
   return (
     <Suspense fallback={<Loading />}>

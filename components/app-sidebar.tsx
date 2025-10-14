@@ -11,7 +11,7 @@ import { Logo } from "./ui/logo"
 import { FileType, Users } from "lucide-react"
 import { NavUsuario } from "./nav-usuario"
 import { usePathname } from "next/navigation"
-import { RiUserStarFill } from "react-icons/ri";
+import { RiUserStarFill, RiUserStarLine } from "react-icons/ri";
 
 export function AppSidebar() {
   const path = usePathname()
@@ -53,7 +53,7 @@ export function AppSidebar() {
           isActive={path === '/professor/mentorias' ? true : false}
         >
           <Link href="/professor/mentorias " className="flex gap-2 items-center">
-            <RiUserStarFill />
+            <RiUserStarLine />
             Mentorias
           </Link>
         </SidebarMenuButton>
