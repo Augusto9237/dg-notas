@@ -137,7 +137,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
                 </TableCell>
                 <TableCell>{aluno.email}</TableCell>
                 <TableCell className="text-right">
-                  <Link href={`/professor/aluno/${aluno.id}`} passHref>
+                  <Link href={`/professor/alunos/${aluno.id}`} passHref>
                     <Button>
                       <FileCheck2 />
                       <span className='max-md:hidden'>

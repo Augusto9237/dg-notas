@@ -1,6 +1,5 @@
 import {
     Card,
-    CardContent,
     CardDescription,
     CardFooter,
     CardHeader,
@@ -17,15 +16,15 @@ interface CardDashboardProps {
 
 export function CardDashboard({ description, value, icon, footerText }: CardDashboardProps) {
     return (
-        <Card>
-            <CardHeader>
-                <CardDescription>{description}</CardDescription>
+        <Card className="max-sm:gap-3 max-sm:px-5">
+            <CardHeader className="max-sm:p-0">
+                <CardDescription className="max-sm:text-xs">{description}</CardDescription>
                 <CardTitle className="text-2xl flex gap-2 items-center font-semibold @[250px]/card:text-3xl">
                     {icon}
                     {value}
                 </CardTitle>
             </CardHeader>
-            <CardFooter className="flex-col items-start gap-1.5 text-sm">
+            <CardFooter className="flex-col items-start gap-1.5 text-sm max-sm:p-0">
                 <div className="line-clamp-1 flex gap-2 font-medium">
                     {footerText}
                 </div>

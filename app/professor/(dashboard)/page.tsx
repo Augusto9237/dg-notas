@@ -148,9 +148,6 @@ export default async function Page() {
                 </div>
 
                 <TabelaTopAlunos alunos={top10} />
-                <footer>
-
-                </footer>
             </main>
         </div>
     )

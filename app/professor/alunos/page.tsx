@@ -4,7 +4,7 @@ import Loading from './loading';
 import { Suspense } from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
-export default async function Home() {
+export default async function Page() {
   const alunos = await ListarAlunosGoogle();
 
   return (

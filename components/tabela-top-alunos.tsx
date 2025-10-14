@@ -62,8 +62,8 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
       <Table >
         <TableHeader>
           <TableRow >
-            <TableHead className=''>Ranking</TableHead>
-            <TableHead className=''>Aluno</TableHead>
+            <TableHead>Pos</TableHead>
+            <TableHead>Aluno</TableHead>
             <TableHead >E-mail</TableHead>
             <TableHead className="text-right">Média Geral</TableHead>
           </TableRow>

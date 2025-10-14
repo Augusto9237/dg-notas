@@ -20,7 +20,7 @@ export function AppSidebar() {
   return (
     <Sidebar className="bg-primary">
       <SidebarHeader>
-        <Link href="/" className="w-full pt-1">
+        <Link href="/professor" className="w-full pt-1">
           <Logo />
         </Link>
       </SidebarHeader>
@@ -28,22 +28,22 @@ export function AppSidebar() {
         <SidebarMenuButton
           asChild
           className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
-          isActive={path === '/professor/dashoard' ? true : false}
+          isActive={path === '/professor' ? true : false}
         >
 
-          <Link href="/professor/dashboard" className="flex gap-2 items-center">
+          <Link href="/professor" className="flex gap-2 items-center">
             <MdOutlineDashboardCustomize />
-            Inicio
+            Início
           </Link>
         </SidebarMenuButton>
 
         <SidebarMenuButton
           asChild
           className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
-          isActive={path === '/professor' ? true : false}
+          isActive={path === '/professor/alunos' ? true : false}
         >
 
-          <Link href="/professor" className="flex gap-2 items-center">
+          <Link href="/professor/alunos" className="flex gap-2 items-center">
             <Users />
             Alunos
           </Link>
