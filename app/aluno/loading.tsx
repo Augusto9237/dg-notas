@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function Loading() {
+export default function Loading2() {
 
     return (
         <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center bg-primary animate-fade animate-once animate-ease-linear">
