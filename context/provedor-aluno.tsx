@@ -5,6 +5,7 @@ import { ContextoAluno } from "./contexto-aluno";
 import { authClient } from "@/lib/auth-client";
 import { ListarAvaliacoesAlunoId } from "@/actions/avaliacao";
 import { listarMentoriasAluno } from "@/actions/mentoria";
+import Loading2 from "@/app/aluno/loading";
 
 interface AlunoProviderProps {
     children: ReactNode
@@ -20,7 +21,7 @@ export const ProvedorAluno = ({ children }: AlunoProviderProps) => {
     const fetchAvaliacoes = async () => {
         if (!session?.user.id) return;
 
-        setIsLoading(false);
+        setIsLoading(true);
         const avaliacoes = await ListarAvaliacoesAlunoId(session.user.id)
         const somaNotas = avaliacoes.reduce((acc, avaliacao) => acc + avaliacao.notaFinal, 0);
         const media = avaliacoes.length > 0 ? somaNotas / avaliacoes.length : 0;
@@ -33,19 +34,27 @@ export const ProvedorAluno = ({ children }: AlunoProviderProps) => {
 
     useEffect(() => {
         fetchAvaliacoes();
+        setIsLoading(false)
     }, [session?.user.id]);
 
-    return (
-        <ContextoAluno.Provider value={
-            {
-                isLoading,
-                mediaGeral,
-                totalRedacoes,
-                totalMentorias,
-                fetchAvaliacoes
-            }
-        }>
-            {children}
-        </ContextoAluno.Provider>
-    )
+    if (isLoading) {
+        return (
+            <Loading2 />
+        )
+    }
+    if (!isLoading) {
+        return (
+            <ContextoAluno.Provider value={
+                {
+                    isLoading,
+                    mediaGeral,
+                    totalRedacoes,
+                    totalMentorias,
+                    fetchAvaliacoes
+                }
+            }>
+                {children}
+            </ContextoAluno.Provider>
+        )
+    }
 }

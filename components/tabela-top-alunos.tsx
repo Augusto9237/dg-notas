@@ -55,7 +55,7 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
       <Table >
         <TableHeader>
           <TableRow >
-            <TableHead className='w-[50px]'>Pos</TableHead>
+            <TableHead>Pos</TableHead>
             <TableHead>Aluno</TableHead>
             <TableHead >E-mail</TableHead>
             <TableHead className="text-right">Média Geral</TableHead>
