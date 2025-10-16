@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Loader2, Plus } from "lucide-react"
+import { Loader2, Pencil, Plus } from "lucide-react"
 import { useEffect, useState, useMemo, memo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -131,7 +131,16 @@ export const FormularioAvaliacao = memo(function FormularioAvaliacao({ temas, cr
     <Dialog open={isOpen} onOpenChange={() => setIsOpen(open => !open)}>
       <DialogTrigger asChild>
         {isEditMode ?
-          <EditButton /> :
+          <div>
+            <Button className="max-md:hidden" onClick={() => setIsOpen(true)}>
+              <Pencil />
+              Editar
+            </Button>
+            <div className="md:hidden">
+              <EditButton onClick={() => setIsOpen(true)}/>
+            </div>
+          </div>
+          :
           <Button variant="secondary">
             <Plus />
             <div className="max-sm:hidden flex gap-2">

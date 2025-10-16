@@ -20,32 +20,42 @@ import {
   PaginationNext,
 } from '@/components/ui/pagination';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { FileCheck2, Search } from 'lucide-react';
+import { Ellipsis, FileCheck2, Search } from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { ListarAlunosGoogle } from '@/actions/alunos';
 import { useSearchParams } from 'next/navigation';
+import { Avaliacao } from '@/app/generated/prisma';
 
-interface Aluno {
-  name: string;
-  id: string;
-  email: string;
-  emailVerified: boolean;
-  image: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  role: string | null;
-  banned: boolean | null;
-  banReason: string | null;
-  banExpires: Date | null;
-}
+
 
 interface TabelaAlunosProps {
-  alunos: Aluno[]
+  alunos: ({
+    Avaliacao: {
+      id: number;
+      createdAt: Date;
+      updatedAt: Date;
+      alunoId: string;
+      temaId: number;
+      notaFinal: number;
+    }[];
+  } & {
+    name: string;
+    id: string;
+    email: string;
+    emailVerified: boolean;
+    image: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    role: string | null;
+    banned: boolean | null;
+    banReason: string | null;
+    banExpires: Date | null;
+  })[]
 }
 
 export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
   const [carregando, setCarregando] = useState(false)
-  const [listaAlunos, setListaAlunos] = useState<Aluno[]>([])
+  const [listaAlunos, setListaAlunos] = useState<TabelaAlunosProps['alunos']>([])
   const searchParams = useSearchParams()
   const busca = searchParams.get('busca')
 
@@ -53,9 +63,11 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
   const pageSize = 12;
 
   useEffect(() => {
+    setCarregando(true);
     if (alunos.length > 0) {
       setListaAlunos(alunos)
     }
+    setCarregando(false);
   }, [alunos]);
 
   useEffect(() => {
@@ -87,6 +99,12 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
   const endIndex = startIndex + pageSize;
   const paginatedAlunos = listaAlunos.slice(startIndex, endIndex);
 
+  function calcularMedia(avaliacoes: Avaliacao[]): number {
+    const somaNotas = avaliacoes.reduce((acc, avaliacao) => acc + avaliacao.notaFinal, 0);
+    const media = avaliacoes.length > 0 ? somaNotas / avaliacoes.length : 0;
+    return media;
+  };
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -113,30 +131,38 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
       <Table >
         <TableHeader>
           <TableRow >
-            <TableHead className=''>Aluno</TableHead>
-            <TableHead >E-mail</TableHead>
-            <TableHead className="text-right"></TableHead>
+            <TableHead className='min-w-sm'>Aluno</TableHead>
+            <TableHead className='w-full' >E-mail</TableHead>
+            <TableHead className='w-full max-w-[120px] min-w-[120px] font-semibold'>Média Geral</TableHead>
+            <TableHead className="text-center">
+              <div className='flex justify-center w-full'>
+                <Ellipsis />
+              </div>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {paginatedAlunos.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={4} className="text-center py-8">
+              <TableCell colSpan={5} className="text-center py-8">
                 Nenhum aluno encontrado
               </TableCell>
             </TableRow>
           ) : (
             paginatedAlunos.map((aluno) => (
               <TableRow key={aluno.id}>
-                <TableCell className=' flex gap-4 items-center'>
+                <TableCell className='flex gap-2 items-center min-w-sm'>
                   <Avatar>
                     <AvatarImage src={aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
                     <AvatarFallback>{aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
-                  {aluno.name}
+                  <span className='mt-1'>
+                    {aluno.name}
+                  </span>
                 </TableCell>
                 <TableCell>{aluno.email}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className='w-full max-w-[120px] min-w-[120px] text-center font-semibold'>{calcularMedia(aluno.Avaliacao)}</TableCell>
+                <TableCell className="text-center">
                   <Link href={`/professor/alunos/${aluno.id}`} passHref>
                     <Button>
                       <FileCheck2 />

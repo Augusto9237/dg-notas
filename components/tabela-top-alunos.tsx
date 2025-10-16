@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -10,18 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationPrevious,
-  PaginationLink,
-  PaginationNext,
-} from '@/components/ui/pagination';
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ChevronRight, FileCheck2, Search } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { ChevronRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from './ui/card';
 
 interface AlunoRankeado {
@@ -43,9 +34,11 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
   const [listaAlunos, setListaAlunos] = useState<AlunoRankeado[]>([])
 
   useEffect(() => {
+    setCarregando(true)
     if (alunos.length > 0) {
       setListaAlunos(alunos)
     }
+    setCarregando(false)
   }, [alunos]);
 
 
@@ -62,7 +55,7 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
       <Table >
         <TableHeader>
           <TableRow >
-            <TableHead>Pos</TableHead>
+            <TableHead className='w-[50px]'>Pos</TableHead>
             <TableHead>Aluno</TableHead>
             <TableHead >E-mail</TableHead>
             <TableHead className="text-right">Média Geral</TableHead>
@@ -78,7 +71,7 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
           ) : (
             listaAlunos.map((aluno) => (
               <TableRow key={aluno.id}>
-                <TableCell className=' font-semibold'>{aluno.posicao}º</TableCell>
+                <TableCell className=' font-semibold w-[50px] text-center'>{aluno.posicao}º</TableCell>
                 <TableCell className=' flex gap-4 items-center'>
                   <Avatar>
                     <AvatarImage src={aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
@@ -87,7 +80,7 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
                   {aluno.name}
                 </TableCell>
                 <TableCell>{aluno.email}</TableCell>
-                <TableCell className="text-right font-semibold">
+                <TableCell className="pr-5 font-semibold text-right">
                   {aluno.mediaNotas}
                 </TableCell>
               </TableRow>

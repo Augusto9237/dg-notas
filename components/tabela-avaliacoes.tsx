@@ -23,6 +23,8 @@ import { DeletarAvaliacao, ListarAvaliacoesAlunoId } from '@/actions/avaliacao';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
 import { Skeleton } from './ui/skeleton';
+import { Button } from './ui/button';
+import { Trash } from 'lucide-react';
 
 interface Aluno {
   name: string;
@@ -65,14 +67,14 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
   }, [avaliacoes]);
 
   useEffect(() => {
-    let isMounted = true; 
+    let isMounted = true;
 
     const buscarAvaliacoes = async () => {
       if (busca && aluno.id) {
         setCarregando(true);
         const resultadoBusca = await ListarAvaliacoesAlunoId(aluno.id, busca)
 
-        if (isMounted) { 
+        if (isMounted) {
           setListaAvaliacoes(resultadoBusca as TabelaAvaliacoesProps['avaliacoes']);
           setCarregando(false);
         }
@@ -185,12 +187,12 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
                 {Array.from({ length: 5 }, (_, index) => {
                   const criterio = avaliacao.criterios[index];
                   return (
-                    <TableCell key={criterio?.id || `empty-${index}`}>
+                    <TableCell key={criterio?.id || `empty-${index}`} className='text-center'>
                       {criterio?.pontuacao || 0}
                     </TableCell>
                   );
                 })}
-                <TableCell className="font-bold">
+                <TableCell className="font-bold text-center">
                   {avaliacao.notaFinal}
                 </TableCell>
                 <TableCell className="w-[100px] pr-4">
@@ -201,7 +203,16 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
                       criterios={criterios}
                       avaliacao={avaliacao}
                     />
-                    <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id)} />
+
+                    <>
+                      <Button variant='destructive' className='max-md:hidden' onClick={() => excluirAvaliacao(avaliacao.id)}>
+                        <Trash />
+                        Excluir
+                      </Button>
+                      <div className='md:hidden'>
+                        <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id)} />
+                      </div>
+                    </>
                   </div>
                 </TableCell>
               </TableRow>
