@@ -39,7 +39,7 @@ interface FormularioTemaProps {
 }
 
 export function FormularioTema({ tema }: FormularioTemaProps) {
-  const [open, setOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   const isEditMode = !!tema
 
   const form = useForm<FormValues>({
@@ -50,12 +50,12 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
   })
 
   useEffect(() => {
-    if (open) {
+    if (isOpen) {
       form.reset({
         nome: tema?.nome || "",
       })
     }
-  }, [open, tema, form])
+  }, [isOpen, tema, form])
 
   async function onSubmit(values: FormValues) {
     try {
@@ -67,7 +67,7 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
         toast.success(`O tema ${newTema.nome} foi adicionado com sucesso`)
       }
       form.reset()
-      setOpen(false)
+      setIsOpen(false)
     } catch (error) {
       toast.error("Algo deu errado, tente novamente!")
       console.error("Erro ao salvar tema:", error)
@@ -75,13 +75,23 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {isEditMode ?
-          <EditButton /> :
+          <div>
+            <Button className="max-md:hidden">
+              <Pencil />
+              Editar
+            </Button>
+            <div className="md:hidden">
+              <EditButton/>
+            </div>
+          </div>
+
+          :
           <Button variant="secondary">
             <Plus />
-            <div className="max-sm:hidden">
+            <div className="max-sm:hidden flex gap-2">
               <span className="max-sm:hidden">Novo</span>
               Tema
             </div>
@@ -119,7 +129,7 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
                 variant="outline"
                 onClick={() => {
                   form.reset()
-                  setOpen(false)
+                  setIsOpen(false)
                 }}
                 className="min-w-[100px]"
               >

@@ -128,16 +128,16 @@ export const FormularioAvaliacao = memo(function FormularioAvaliacao({ temas, cr
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => setIsOpen(open => !open)}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {isEditMode ?
           <div>
-            <Button className="max-md:hidden" onClick={() => setIsOpen(true)}>
+            <Button className="max-md:hidden">
               <Pencil />
               Editar
             </Button>
             <div className="md:hidden">
-              <EditButton onClick={() => setIsOpen(true)}/>
+              <EditButton />
             </div>
           </div>
           :

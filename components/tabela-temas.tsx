@@ -11,6 +11,8 @@ import { FaFileContract } from "react-icons/fa";
 import { toast } from "sonner"
 import { InputBusca } from "./input-busca"
 import { useSearchParams } from "next/navigation"
+import { Ellipsis, Trash } from "lucide-react"
+import { Button } from "./ui/button"
 
 interface ModalTemasProps {
   temas: Tema[];
@@ -70,7 +72,11 @@ export function TabelaTemas({ temas }: ModalTemasProps) {
             <TableHead >Id</TableHead>
             <TableHead >Titulo</TableHead>
             <TableHead >Data</TableHead>
-            <TableHead className="text-center max-w-[54px] ">•••</TableHead>
+            <TableHead className="text-center max-w-[54px] ">
+              <div className='flex justify-center w-full'>
+                <Ellipsis />
+              </div>
+            </TableHead>
           </TableRow>
         </TableHeader>
 
@@ -83,7 +89,16 @@ export function TabelaTemas({ temas }: ModalTemasProps) {
               <TableCell className="w-[54px]">
                 <div className="flex items-center justify-center gap-4">
                   <FormularioTema tema={tema} />
-                  <DeleteButton onClick={() => ExcluirTema(tema.id)} />
+
+                  <>
+                    <Button variant='destructive' className='max-md:hidden' onClick={() => ExcluirTema(tema.id)}>
+                      <Trash />
+                      Excluir
+                    </Button>
+                    <div className='md:hidden'>
+                      <DeleteButton onClick={() => ExcluirTema(tema.id)} />
+                    </div>
+                  </>
                 </div>
               </TableCell>
             </TableRow>

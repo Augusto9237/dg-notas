@@ -25,6 +25,7 @@ import { InputBusca } from './input-busca';
 import { ListarAlunosGoogle } from '@/actions/alunos';
 import { useSearchParams } from 'next/navigation';
 import { Avaliacao } from '@/app/generated/prisma';
+import { calcularMedia } from '@/lib/media-geral';
 
 
 
@@ -99,11 +100,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
   const endIndex = startIndex + pageSize;
   const paginatedAlunos = listaAlunos.slice(startIndex, endIndex);
 
-  function calcularMedia(avaliacoes: Avaliacao[]): number {
-    const somaNotas = avaliacoes.reduce((acc, avaliacao) => acc + avaliacao.notaFinal, 0);
-    const media = avaliacoes.length > 0 ? somaNotas / avaliacoes.length : 0;
-    return media;
-  };
+ 
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
