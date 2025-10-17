@@ -276,7 +276,7 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
     <Card className="flex flex-col p-5 gap-4 h-full flex-1">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
         <Button
-          variant="outline"
+          variant='ghost'
           onClick={irParaSemanaAtual}
           className="text-xs max-sm:hidden"
           disabled={eSemanaAtual}
