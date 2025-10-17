@@ -8,24 +8,24 @@ import { prisma } from './prisma';
 import { Resend } from 'resend';
 import ForgotPasswordEmail from '@/components/reset-password';
 
-// const resend = new Resend(process.env.RESEND_API_KEY as string)
+const resend = new Resend(process.env.RESEND_API_KEY as string)
 
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql", // or "mysql", "postgresql", ...etc
     }),
-    // emailAndPassword: {
-    //     enabled: true,
-    //     sendResetPassword: async ({user, url}) => {
-    //         resend.emails.send({
-    //             from: 'onboarding@resend.dev',
-    //             to: user.email,
-    //             subject: "Redefinição de senha",
-    //             react: ForgotPasswordEmail({userName: user.name, userEmail: user.email, resetUrl: url})
-    //         });
-    //     },
-    // },
+    emailAndPassword: {
+        enabled: true,
+        sendResetPassword: async ({user, url}) => {
+            resend.emails.send({
+                from: 'onboarding@resend.dev',
+                to: user.email,
+                subject: "Redefinição de senha",
+                react: ForgotPasswordEmail({userName: user.name, userEmail: user.email, resetUrl: url})
+            });
+        },
+    },
     socialProviders: {
         google: {
             clientId: process.env.GOOGLE_CLIENT_ID!,

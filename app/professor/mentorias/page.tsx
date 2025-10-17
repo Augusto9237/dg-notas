@@ -7,6 +7,7 @@ import Loading from "./loading";
 import { CalendarioGrande } from "@/components/calendario-grande";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { prisma } from "@/lib/prisma";
+import { AjustarAgenda } from "@/components/ajustar-agenda";
 
 enum SlotHorario {
     SLOT_15_00 = "SLOT_15_00",
@@ -30,6 +31,7 @@ export default async function Page() {
                         <h1 className=" text-xl font-bold">Mentorias</h1>
                         <p className="text-xs text-muted-foreground">Lista de mentorias agendadas</p>
                     </div>
+                    <AjustarAgenda />
                 </div>
                 <main className="flex flex-col p-5 h-full flex-1 overflow-hidden max-h-[100vh - 3.5rem]">
                     <CalendarioGrande mentorias={mentorias} />
