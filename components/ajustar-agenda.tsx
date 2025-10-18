@@ -26,6 +26,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from "sonner"
 import { Item, ItemActions, ItemContent, ItemHeader, ItemTitle } from "./ui/item"
 import clsx from "clsx"
+import { Label } from "./ui/label"
 
 // Schema de validação
 const agendaSchema = z.object({
@@ -128,86 +129,86 @@ export function AjustarAgenda() {
             {/* Seleção de Dias da Semana */}
             <div className="space-y-2">
               <div>
-                <FormLabel className="font-medium">
+                <FormLabel >
                   Dias da Semana
                 </FormLabel>
-                <FormDescription>
+                <FormDescription className="max-sm:text-xs">
                   Selecione 2 dias da semana.
                 </FormDescription>
               </div>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-5 max-sm:grid-cols-3 gap-2">
                 {diasSemana.map((dia) => (
-                  <div key={dia.value} className="flex flex-col items-center">
-                    <label
+                  <div key={dia.value} className="flex flex-col items-center gap-1">
+                    <Label
                       htmlFor={dia.value}
-                      className="text-xs font-medium text-nowrap leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className={clsx("text-xs font-medium text-nowrap leading-none ", diasSelecionados.includes(dia.value) && 'text-primary', !diasSelecionados.includes(dia.value) && 'text-muted-foreground')}
                     >
-                      {dia.label}     
-                    </label>
+                      {dia.label}
+                    </Label>
                     <div className="p-2">
-                    <Checkbox
-                      id={dia.value}
-                      checked={diasSelecionados.includes(dia.value)}
-                      onCheckedChange={(checked) =>
-                        handleDiaChange(dia.value, checked as boolean)
-                      }
-                    />
-                  </div>
+                      <Checkbox
+                        id={dia.value}
+                        checked={diasSelecionados.includes(dia.value)}
+                        onCheckedChange={(checked) =>
+                          handleDiaChange(dia.value, checked as boolean)
+                        }
+                      />
+                    </div>
                   </div>
                 ))}
+              </div>
             </div>
-          </div>
 
-          {/* Seleção de Horários */}
-          <div className="space-y-2">
-            <div>
-              <FormLabel className="font-medium flex items-center gap-2">
-                Horários Disponíveis
-              </FormLabel>
-              <FormDescription>
-                Selecione os horários de 15h às 17h (slots de 20min)
-              </FormDescription>
+            {/* Seleção de Horários */}
+            <div className="space-y-2">
+              <div>
+                <FormLabel className="flex items-center gap-2">
+                  Horários Disponíveis
+                </FormLabel>
+                <FormDescription className="max-sm:text-xs">
+                  Selecione os horários de 15h às 17h (slots de 20min)
+                </FormDescription>
+              </div>
+              <div className="grid grid-cols-3 gap-4 max-h-48 overflow-y-auto ">
+                {horariosDisponiveis.map((horario) => (
+                  <Item key={horario.value} variant='muted' className={clsx('max-sm:flex-col-reverse',horariosSelecionados.includes(horario.value) && 'bg-primary/5 border-primary text-primary')}>
+                    <ItemActions>
+                      <Checkbox
+                        id={horario.value}
+                        checked={horariosSelecionados.includes(horario.value)}
+                        onCheckedChange={(checked) =>
+                          handleHorarioChange(horario.value, checked as boolean)
+                        }
+                      />
+                    </ItemActions>
+                    <ItemContent>
+                      <ItemTitle>{horario.label}</ItemTitle>
+                    </ItemContent>
+                  </Item>
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto ">
-              {horariosDisponiveis.map((horario) => (
-                <Item key={horario.value} variant='muted' className={clsx(horariosSelecionados.includes(horario.value) && 'bg-primary/5 border-primary text-primary')}>
-                  <ItemActions>
-                    <Checkbox
-                      id={horario.value}
-                      checked={horariosSelecionados.includes(horario.value)}
-                      onCheckedChange={(checked) =>
-                        handleHorarioChange(horario.value, checked as boolean)
-                      }
-                    />
-                  </ItemActions>
-                  <ItemContent>
-                    <ItemTitle>{horario.label}</ItemTitle>
-                  </ItemContent>
-                </Item>
-              ))}
-            </div>
-          </div>
 
-          <div className="flex justify-center gap-4 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              className="min-w-[100px]"
-              onClick={handleCancel}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              className="min-w-[100px]"
-              disabled={diasSelecionados.length !== 2 || horariosSelecionados.length === 0}
-            >
-              Salvar
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </DialogContent>
+            <div className="flex justify-center gap-4 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="min-w-[100px]"
+                onClick={handleCancel}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                className="min-w-[100px]"
+                disabled={form.formState.isSubmitting}
+              >
+                Salvar
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
     </Dialog >
   )
 }
