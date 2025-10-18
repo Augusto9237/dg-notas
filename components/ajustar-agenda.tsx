@@ -171,7 +171,7 @@ export function AjustarAgenda() {
               </div>
               <div className="grid grid-cols-3 gap-4 max-h-48 overflow-y-auto ">
                 {horariosDisponiveis.map((horario) => (
-                  <Item key={horario.value} variant='muted' className={clsx('max-sm:flex-col-reverse',horariosSelecionados.includes(horario.value) && 'bg-primary/5 border-primary text-primary')}>
+                  <Item key={horario.value} variant='muted' size='sm' className={clsx('max-sm:flex-col-reverse',horariosSelecionados.includes(horario.value) && 'bg-primary/5 border-primary text-primary')}>
                     <ItemActions>
                       <Checkbox
                         id={horario.value}
