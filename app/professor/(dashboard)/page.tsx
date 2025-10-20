@@ -112,7 +112,7 @@ export default async function Page() {
             <div className='flex justify-between items-center h-14 p-5 mt-3 gap-2 relative'>
                 <SidebarTrigger className='absolute' />
                 <div className='max-[1025px]:ml-10 overflow-hidden'>
-                    <h1 className="text-xl max-sm:text-lg font-bold">Bem-vindo(a),  {session?.user.name}!</h1>
+                    <h1 className="text-xl max-sm:text-lg font-bold">Olá,  {session?.user.name}!</h1>
                     <p className="text-xs text-muted-foreground truncate"></p>
                 </div>
             </div>
