@@ -60,10 +60,6 @@ const OPCOES_STATUS = [
   { label: "Todas", value: StatusFiltro.TODAS },
 ] as const
 
-const DIAS_DA_SEMANA = {
-  SEGUNDA: 1,
-  QUARTA: 3,
-} as const
 
 const LOADING_DELAY = 300
 
@@ -183,7 +179,6 @@ export function CalendarioGrande({
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>(mentorias)
   const [carregando, setCarregando] = useState(false);
 
-  // Obter dias e slots ativos
   const diasSemanaAtivos = useMemo(() => 
     obterDiasSemanaAtivos(diasSemana), 
     [diasSemana]

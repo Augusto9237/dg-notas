@@ -66,7 +66,6 @@ export function AjustarAgenda({
   const [diasAtualizados, setDiasAtualizados] = useState<DiaSemana[]>(diasSemana)
   const [horariosAtualizados, setHorariosAtualizados] = useState<SlotHorario[]>(slotsHorario);
 
-
   const form = useForm<AgendaFormData>({
     resolver: zodResolver(agendaSchema),
     defaultValues: {

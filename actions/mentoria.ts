@@ -325,7 +325,11 @@ export async function listarMentoriasAluno(alunoId: string) {
         alunoId: alunoId
       },
       include: {
-        horario: true
+        horario: {
+          include: {
+            slot: true
+          }
+        }
       },
       orderBy: {
         createdAt: 'asc'

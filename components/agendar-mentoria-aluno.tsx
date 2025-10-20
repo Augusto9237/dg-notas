@@ -27,7 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { adicionarMentoria, editarMentoria, verificarDisponibilidadeHorario } from "@/actions/mentoria"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
-import { Prisma } from "@/app/generated/prisma"
+import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma"
 import clsx from "clsx"
 
 const formSchema = z.object({
@@ -36,45 +36,24 @@ const formSchema = z.object({
     }).min(new Date(), {
         message: "Data deve ser no futuro",
     }),
-    horario: z.string().min(1, "Horário é obrigatório"),
+    horario: z.number()
 })
 
-// Enum dos slots de horário (baseado no schema)
-enum SlotHorario {
-    SLOT_15_00 = "SLOT_15_00",
-    SLOT_15_20 = "SLOT_15_20",
-    SLOT_15_40 = "SLOT_15_40",
-    SLOT_16_00 = "SLOT_16_00",
-    SLOT_16_20 = "SLOT_16_20",
-    SLOT_16_40 = "SLOT_16_40"
-}
-
-// Interface para representar um slot de horário
-interface TimeSlot {
-    slot: SlotHorario;
-    display: string;
-    time: string;
-}
-
-export function generateTimeSlots(): TimeSlot[] {
-    return [
-        { slot: SlotHorario.SLOT_15_00, display: "15:00 - 15:20", time: "15:00" },
-        { slot: SlotHorario.SLOT_15_20, display: "15:20 - 15:40", time: "15:20" },
-        { slot: SlotHorario.SLOT_15_40, display: "15:40 - 16:00", time: "15:40" },
-        { slot: SlotHorario.SLOT_16_00, display: "16:00 - 16:20", time: "16:00" },
-        { slot: SlotHorario.SLOT_16_20, display: "16:20 - 16:40", time: "16:20" },
-        { slot: SlotHorario.SLOT_16_40, display: "16:40 - 17:00", time: "16:40" }
-    ];
-}
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
-        horario: true;
+        horario: {
+            include: {
+                slot: true
+            }
+        }
     };
 }>;
 
 // Props do componente
 interface AgendarMentoriaAlunoProps {
+    diasSemana: DiaSemana[]
+    slotsHorario: SlotHorario[]
     mode?: 'create' | 'edit';
     mentoriaData?: Mentoria;
     size?: "default" | "sm" | "lg" | "icon" | null | undefined
@@ -93,6 +72,8 @@ function convertUTCToLocalDate(utcDate: Date): Date {
 }
 
 export function AgendarMentoriaAluno({
+    diasSemana,
+    slotsHorario,
     mode = 'create',
     mentoriaData,
     size = "sm",
@@ -114,8 +95,8 @@ export function AgendarMentoriaAluno({
         resolver: zodResolver(formSchema),
         defaultValues: {
             horario: mode === 'edit' && mentoriaData
-                ? generateTimeSlots().find(slot => slot.slot === mentoriaData.horario.slot)?.time
-                : "",
+                ? mentoriaData.horario.slotId 
+                : 1,
             data: getInitialDate(),
         },
     })
@@ -126,12 +107,12 @@ export function AgendarMentoriaAluno({
             const dataCorrigida = convertUTCToLocalDate(mentoriaData.horario.data);
 
             form.reset({
-                horario: generateTimeSlots().find(slot => slot.slot === mentoriaData.horario.slot)?.time,
+                horario: mentoriaData.horario.slot.id,
                 data: dataCorrigida
             });
         } else if (mode === 'create') {
             form.reset({
-                horario: "",
+                horario: 1,
                 data: new Date(),
             });
         }
@@ -147,11 +128,9 @@ export function AgendarMentoriaAluno({
             const horario = form.getValues('horario')
 
             if (data && horario) {
-                const timeSlot = generateTimeSlots().find(slot => slot.time === horario)
-                if (timeSlot) {
-                    const vagas = await verificarDisponibilidadeHorario(data, timeSlot.slot)
+    
+                    const vagas = await verificarDisponibilidadeHorario(data, horario)
                     setVagasDisponiveis(vagas)
-                }
             }
         }
         verificarVagas()
@@ -159,39 +138,26 @@ export function AgendarMentoriaAluno({
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            const timeSlot = generateTimeSlots().find(slot => slot.time === values.horario)
-            if (!timeSlot) {
-                toast.error('Horário inválido selecionado');
-                return;
-            }
-            const slot = timeSlot.slot;
-
-            let result;
 
             if (mode === 'edit' && mentoriaData) {
-                result = await editarMentoria({
+                await editarMentoria({
                     mentoriaId: mentoriaData.id,
                     data: values.data,
-                    slot: slot,
+                    slotId: values.horario,
                     duracao: mentoriaData.duracao,
                 });
             } else {
-                result = await adicionarMentoria({
+                await adicionarMentoria({
                     alunoId: session?.user.id || "user_123",
                     data: values.data,
-                    slot: slot,
+                    slotId: values.horario,
                 });
             }
-
-            if (result.success) {
                 const message = mode === 'edit' ? 'Mentoria editada com sucesso!' : 'Mentoria agendada com sucesso!';
                 toast.success(message);
                 form.reset();
                 setOpen(false);
-                setIsOpen && setIsOpen(false);
-            } else {
-                toast.error(result.error || `Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria`);
-            }
+                setIsOpen && setIsOpen(false)
         } catch (error) {
             toast.error('Algo deu errado, tente novamente');
             console.error(`Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria:`, error);
@@ -246,7 +212,7 @@ export function AgendarMentoriaAluno({
                                             const dayOfWeek = date.getDay()
 
                                             // Only enable Mondays (1) and Wednesdays (3)
-                                            return dayOfWeek !== 1 && dayOfWeek !== 3
+                                            return dayOfWeek !== diasSemana[0].dia && dayOfWeek !== diasSemana[1].dia
                                         }}
                                         className="rounded-md border w-full"
                                     />
@@ -262,14 +228,14 @@ export function AgendarMentoriaAluno({
                                 <FormItem>
                                     <FormLabel>Horário</FormLabel>
                                     <FormControl>
-                                        <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                                        <Select onValueChange={field.onChange} value={String(field.value) ?? ""}>
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Selecione um horário" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {generateTimeSlots().map((timeSlot) => (
-                                                    <SelectItem key={timeSlot.slot} value={timeSlot.time} disabled={vagasDisponiveis === 0 ? true : false} className={vagasDisponiveis === 0 ? 'opacity-45' : ''}>
-                                                        {timeSlot.display}
+                                                {slotsHorario.map((horario) => (
+                                                    <SelectItem key={horario.id} value={String(horario.id)} disabled={vagasDisponiveis === 0 ? true : false} className={vagasDisponiveis === 0 ? 'opacity-45' : ''}>
+                                                        {horario.nome}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
