@@ -22,106 +22,53 @@ import { Skeleton } from "./ui/skeleton"
 import { CardMentoriaProfessor } from "./card-mentoria-professor"
 import { cn } from "@/lib/utils"
 import {
+  DiaSemana,
+  Prisma,
   SlotHorario,
-  StatusMentoria,
-  StatusHorario,
 } from "@/app/generated/prisma"
 import React from "react"
 
-// Tipos e Constantes
-type Mentoria = {
-  id: number
-  status: StatusMentoria
-  alunoId: string
-  horarioId: number
-  duracao: number
-  createdAt: Date
-  updatedAt: Date
-  horario: {
-    data: Date
-    slot: SlotHorario
-    id: number
-    status: StatusHorario
+// Types
+type Mentoria = Prisma.MentoriaGetPayload<{
+  include: {
+    aluno: true
+    horario: {
+      include: {
+        slot: true
+      }
+    }
   }
-  aluno: {
-    image: string | null
-    id: string
-    name: string
-    role: string | null
-    createdAt: Date
-    updatedAt: Date
-    email: string
-    emailVerified: boolean
-    banned: boolean | null
-    banReason: string | null
-    banExpires: Date | null
-  }
-}
+}>
 
 interface CalendarioGrandeProps {
   mentorias: Mentoria[]
+  diasSemana: DiaSemana[]
+  slotsHorario: SlotHorario[]
 }
 
-interface TimeSlot {
-  slot: SlotHorario
-  display: string
-  time: string
-  startMinutes: number
-}
 
-const HORARIOS: TimeSlot[] = [
-  {
-    slot: SlotHorario.SLOT_15_00,
-    display: "15:00 - 15:20",
-    time: "15:00",
-    startMinutes: 15 * 60,
-  },
-  {
-    slot: SlotHorario.SLOT_15_20,
-    display: "15:20 - 15:40",
-    time: "15:20",
-    startMinutes: 15 * 60 + 20,
-  },
-  {
-    slot: SlotHorario.SLOT_15_40,
-    display: "15:40 - 16:00",
-    time: "15:40",
-    startMinutes: 15 * 60 + 40,
-  },
-  {
-    slot: SlotHorario.SLOT_16_00,
-    display: "16:00 - 16:20",
-    time: "16:00",
-    startMinutes: 16 * 60,
-  },
-  {
-    slot: SlotHorario.SLOT_16_20,
-    display: "16:20 - 16:40",
-    time: "16:20",
-    startMinutes: 16 * 60 + 20,
-  },
-  {
-    slot: SlotHorario.SLOT_16_40,
-    display: "16:40 - 17:00",
-    time: "16:40",
-    startMinutes: 16 * 60 + 40,
-  },
-]
-
+// Enums e Constantes
 enum StatusFiltro {
   AGENDADA = "AGENDADA",
   CONCLUIDA = "REALIZADA",
   TODAS = "TODAS",
 }
 
-const DADOS_STATUS = [
+const OPCOES_STATUS = [
   { label: "Agendada", value: StatusFiltro.AGENDADA },
   { label: "Realizada", value: StatusFiltro.CONCLUIDA },
   { label: "Todas", value: StatusFiltro.TODAS },
-]
+] as const
+
+const DIAS_DA_SEMANA = {
+  SEGUNDA: 1,
+  QUARTA: 3,
+} as const
+
+const LOADING_DELAY = 300
 
 // Funções Utilitárias
-const obterInicioSemanaAtual = () => {
+const obterInicioSemanaAtual = (): Date => {
   const hoje = new Date()
   hoje.setHours(0, 0, 0, 0)
   const diaSemana = hoje.getDay()
@@ -131,11 +78,11 @@ const obterInicioSemanaAtual = () => {
   return segunda
 }
 
-const formatarData = (data: Date) => {
+const formatarData = (data: Date): string => {
   return data.toLocaleDateString("pt-BR", { day: "2-digit" })
 }
 
-const formatarMesAno = (data: Date) => {
+const formatarMesAno = (data: Date): string => {
   return data.toLocaleDateString("pt-BR", {
     month: "long",
     year: "numeric",
@@ -151,10 +98,18 @@ const saoMesmaDataUTC = (dataUTC: Date, dataLocal: Date): boolean => {
   )
 }
 
+const obterDiasSemanaAtivos = (diasSemana: DiaSemana[]): DiaSemana[] => {
+  return diasSemana.filter(dia => dia.status)
+}
+
+const obterSlotsHorarioAtivos = (slotsHorario: SlotHorario[]): SlotHorario[] => {
+  return slotsHorario.filter(slot => slot.status)
+}
+
 // Componente da Célula de Horário
 interface CelulaHorarioProps {
   data: Date
-  horario: TimeSlot
+  slotHorario: SlotHorario
   eUltimo: boolean
   eSegunda: boolean
   mentorias: Mentoria[]
@@ -165,7 +120,7 @@ interface CelulaHorarioProps {
 const CelulaHorario = React.memo(
   ({
     data,
-    horario,
+    slotHorario,
     eUltimo,
     eSegunda,
     mentorias,
@@ -177,9 +132,9 @@ const CelulaHorario = React.memo(
         mentorias.filter(
           (m) =>
             saoMesmaDataUTC(m.horario.data, data) &&
-            m.horario.slot === horario.slot
+            m.horario.slotId === slotHorario.id
         ),
-      [mentorias, data, horario.slot]
+      [mentorias, data, slotHorario.id]
     )
 
     return (
@@ -217,12 +172,27 @@ const CelulaHorario = React.memo(
 CelulaHorario.displayName = "CelulaHorario"
 
 // Componente Principal
-export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
+export function CalendarioGrande({ 
+  mentorias, 
+  diasSemana, 
+  slotsHorario 
+}: CalendarioGrandeProps) {
   const [statusSelecionado, setStatusSelecionado] =
     useState<StatusFiltro | string>(StatusFiltro.TODAS)
   const [semanaAtual, setSemanaAtual] = useState(obterInicioSemanaAtual)
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>(mentorias)
-  const [carregando, setCarregando] = useState(false)
+  const [carregando, setCarregando] = useState(false);
+
+  // Obter dias e slots ativos
+  const diasSemanaAtivos = useMemo(() => 
+    obterDiasSemanaAtivos(diasSemana), 
+    [diasSemana]
+  )
+  
+  const slotsHorarioAtivos = useMemo(() => 
+    obterSlotsHorarioAtivos(slotsHorario), 
+    [slotsHorario]
+  )
 
   useEffect(() => {
     setCarregando(true)
@@ -231,17 +201,23 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
         ? mentorias
         : mentorias.filter((m) => m.status === statusSelecionado)
     setListaMentorias(mentoriasFiltradas)
-    const timer = setTimeout(() => setCarregando(false), 300)
+    const timer = setTimeout(() => setCarregando(false), LOADING_DELAY)
     return () => clearTimeout(timer)
   }, [mentorias, statusSelecionado])
 
-  const { segunda, quarta } = useMemo(() => {
+  // Calcular dias da semana baseado nos dias ativos
+  const diasDaSemana = useMemo(() => {
     const inicioSemana = new Date(semanaAtual)
-    const segundaFeira = new Date(inicioSemana)
-    const quartaFeira = new Date(inicioSemana)
-    quartaFeira.setDate(inicioSemana.getDate() + 2)
-    return { segunda: segundaFeira, quarta: quartaFeira }
-  }, [semanaAtual])
+    const dias: { [key: string]: Date } = {}
+    
+    diasSemanaAtivos.forEach(dia => {
+      const dataDia = new Date(inicioSemana)
+      dataDia.setDate(inicioSemana.getDate() + (dia.dia - 1))
+      dias[dia.nome.toLowerCase()] = dataDia
+    })
+    
+    return dias
+  }, [semanaAtual, diasSemanaAtivos])
 
   const navegarSemana = useCallback((direcao: "prev" | "next") => {
     setSemanaAtual((semanaAnterior) => {
@@ -261,12 +237,12 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
   }, [semanaAtual])
 
   const mentoriasDaSemana = useMemo(() => {
-    return listaMentorias.filter(
-      (m) =>
-        saoMesmaDataUTC(m.horario.data, segunda) ||
-        saoMesmaDataUTC(m.horario.data, quarta)
+    return listaMentorias.filter((m) =>
+      Object.values(diasDaSemana).some(data =>
+        saoMesmaDataUTC(m.horario.data, data)
+      )
     )
-  }, [listaMentorias, segunda, quarta])
+  }, [listaMentorias, diasDaSemana])
 
   const alterarStatus = (valor: StatusFiltro | string) => {
     setStatusSelecionado(valor)
@@ -294,7 +270,7 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <CardTitle className="capitalize text-lg max-md:text-base max-sm:text-sm">
-            {formatarMesAno(segunda)}
+            {formatarMesAno(Object.values(diasDaSemana)[0] || semanaAtual)}
           </CardTitle>
           <Button
             variant="ghost"
@@ -311,7 +287,7 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
             <SelectValue placeholder="Filtrar por Status" />
           </SelectTrigger>
           <SelectContent>
-            {DADOS_STATUS.map((status) => (
+            {OPCOES_STATUS.map((status) => (
               <SelectItem key={status.value} value={status.value}>
                 {status.label}
               </SelectItem>
@@ -320,60 +296,53 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
         </Select>
       </CardHeader>
 
-      <CardContent className="h-full flex-1 overflow-hidden p-0">
-        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 lg:pr-3.5 border border-border rounded-t-lg bg-background/30">
+      <CardContent className="h-full flex-1 overflow-hidden p-0 pb-22">
+        <div className={`grid gap-0 lg:pr-3.5 border border-border rounded-t-lg bg-background/30`}
+             style={{ gridTemplateColumns: `80px ${'1fr '.repeat(diasSemanaAtivos.length)}`.trim() }}>
           <div className="border-r border-border p-4 px-2 text-center text-sm max-md:text-xs font-medium text-muted-foreground">
             Horário
           </div>
-          <div className="border-r border-border p-4 text-center">
-            <div className="text-sm max-md:text-xs font-medium text-muted-foreground">
-              Segunda-feira
+          {diasSemanaAtivos.map((dia, index) => (
+            <div 
+              key={dia.id}
+              className={`p-4 text-center ${index < diasSemanaAtivos.length - 1 ? 'border-r border-border' : ''}`}
+            >
+              <div className="text-sm max-md:text-xs font-medium text-muted-foreground">
+                {dia.nome}
+              </div>
+              <div className="text-xl max-md:text-lg max-sm:text-base font-bold">
+                {formatarData(diasDaSemana[dia.nome.toLowerCase()])}
+              </div>
             </div>
-            <div className="text-xl max-md:text-lg max-sm:text-base font-bold">
-              {formatarData(segunda)}
-            </div>
-          </div>
-          <div className="p-4 text-center">
-            <div className="text-sm max-md:text-xs font-medium text-muted-foreground">
-              Quarta-feira
-            </div>
-            <div className="text-xl max-md:text-lg max-sm:text-base font-bold">
-              {formatarData(quarta)}
-            </div>
-          </div>
+          ))}
         </div>
 
-        <div className="grid grid-cols-[80px_1fr_1fr] max-md:grid-cols-[60px_1fr_1fr] gap-0 border border-border border-t-0 rounded-b-lg overflow-auto h-full flex-1">
-          {HORARIOS.map((horario, index) => {
-            const eUltimo = index === HORARIOS.length - 1
+        <div className={`grid gap-0 border border-border border-t-0 rounded-b-lg overflow-auto h-full flex-1`}
+             style={{ gridTemplateColumns: `80px ${'1fr '.repeat(diasSemanaAtivos.length)}`.trim() }}>
+          {slotsHorarioAtivos.map((slot, index) => {
+            const eUltimo = index === slotsHorarioAtivos.length - 1
             return (
-              <React.Fragment key={horario.slot}>
+              <React.Fragment key={slot.id}>
                 <div
                   className={cn(
                     "border-r border-border p-2 text-sm max-md:text-xs text-muted-foreground bg-background/10 text-center flex flex-col justify-center",
                     !eUltimo && "border-b"
                   )}
                 >
-                  <div className="font-medium">{horario.time}</div>
+                  <div className="font-medium">{slot.nome.split(" ")[0]}</div>
                 </div>
-                <CelulaHorario
-                  data={segunda}
-                  horario={horario}
-                  eUltimo={eUltimo}
-                  eSegunda={true}
-                  mentorias={mentoriasDaSemana}
-                  carregando={carregando}
-                  setListaMentorias={setListaMentorias}
-                />
-                <CelulaHorario
-                  data={quarta}
-                  horario={horario}
-                  eUltimo={eUltimo}
-                  eSegunda={false}
-                  mentorias={mentoriasDaSemana}
-                  carregando={carregando}
-                  setListaMentorias={setListaMentorias}
-                />
+                {diasSemanaAtivos.map((dia, diaIndex) => (
+                  <CelulaHorario
+                    key={`${slot.id}-${dia.id}`}
+                    data={diasDaSemana[dia.nome.toLowerCase()]}
+                    slotHorario={slot}
+                    eUltimo={eUltimo}
+                    eSegunda={diaIndex === 0}
+                    mentorias={mentoriasDaSemana}
+                    carregando={carregando}
+                    setListaMentorias={setListaMentorias}
+                  />
+                ))}
               </React.Fragment>
             )
           })}
@@ -383,9 +352,8 @@ export function CalendarioGrande({ mentorias }: CalendarioGrandeProps) {
       <CardFooter>
         <CardDescription className="text-center w-full">
           {mentoriasDaSemana.length > 0
-            ? `${mentoriasDaSemana.length} mentoria${
-                mentoriasDaSemana.length !== 1 ? "s" : ""
-              } esta semana`
+            ? `${mentoriasDaSemana.length} mentoria${mentoriasDaSemana.length !== 1 ? "s" : ""
+            } esta semana`
             : "Nenhuma mentoria esta semana"}
         </CardDescription>
       </CardFooter>

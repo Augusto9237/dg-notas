@@ -15,7 +15,11 @@ import { useState } from "react";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
-        horario: true;
+        horario: {
+            include: {
+                slot: true
+            }
+        }
     };
 }>;
 
@@ -77,9 +81,7 @@ export function CardMentoria({ mentoria, aluno, modo = 'ALUNO' }: CardMentoriaPr
                                     {modo === 'PROFESSOR' ? aluno?.name : "Profª Daniely Guedes"}
                                 </h3>
                                 <p className="text-xs text-muted-foreground">
-                                    {formartarData(mentoria.horario.data)} - {
-                                        generateTimeSlots().find(slot => slot.slot === mentoria.horario.slot)?.display || mentoria.horario.slot
-                                    }
+                                    {formartarData(mentoria.horario.data)} - {mentoria.horario.slot.nome}
                                 </p>
                             </div>
                         </div>
@@ -144,7 +146,7 @@ export function CardMentoria({ mentoria, aluno, modo = 'ALUNO' }: CardMentoriaPr
                     variant={mentoria.status === 'REALIZADA' ? 'ghost' : "destructive"}
                     className="w-full"
                     onClick={() => excluirMentoria(mentoria.id)}
-                    disabled={mentoria.status === 'REALIZADA'}  
+                    disabled={mentoria.status === 'REALIZADA'}
                 >
                     <CalendarX />
                     Cancelar

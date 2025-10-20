@@ -8,7 +8,7 @@ import { revalidatePath } from "next/cache";
 interface AdicionarMentoriaParams {
   alunoId: string;
   data: Date;
-  slot: SlotHorario;
+  slotId: number; // ID do SlotHorario
   duracao?: number; // Opcional, padrão 20 minutos
 }
 
@@ -19,25 +19,52 @@ interface AdicionarMentoriaResult {
   error?: string;
 }
 
-// Enums (assumindo que estão definidos em outro lugar)
-enum SlotHorario {
-  SLOT_15_00 = 'SLOT_15_00',
-  SLOT_15_20 = 'SLOT_15_20',
-  SLOT_15_40 = 'SLOT_15_40',
-  SLOT_16_00 = 'SLOT_16_00',
-  SLOT_16_20 = 'SLOT_16_20',
-  SLOT_16_40 = 'SLOT_16_40'
+// Enums importados do Prisma
+import { StatusMentoria } from "@/app/generated/prisma";
+
+export async function listarDiasSemana() {
+  return await prisma.diaSemana.findMany({
+    orderBy: {
+      dia: 'asc'
+    }
+  })
 }
 
-enum StatusHorario {
-  OCUPADO = 'OCUPADO',
-  LIVRE = 'LIVRE'
+export async function editarDiasSemana(id: number, status: boolean) {
+  try {
+    await prisma.diaSemana.update({
+      where: {
+        id: id
+      },
+      data: {
+        status: status
+      }
+    })
+    revalidatePath('/professor/mentorias')
+  } catch (error) {
+    console.log(error)
+  }
 }
 
-enum StatusMentoria {
-  AGENDADA = 'AGENDADA',
-  CANCELADA = 'CANCELADA',
-  REALIZADA = 'REALIZADA'
+export async function listarSlotsHorario() {
+  return await prisma.slotHorario.findMany({})
+}
+
+export async function editarSlotsHorario(id: number, status: boolean) {
+  try {
+    await prisma.slotHorario.update({
+      where: {
+        id: id
+      },
+      data: {
+        status: status
+      }
+    })
+
+    revalidatePath('/professor/mentorias')
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 /**
@@ -48,7 +75,7 @@ enum StatusMentoria {
 export async function adicionarMentoria(
   params: AdicionarMentoriaParams
 ): Promise<AdicionarMentoriaResult> {
-  const { alunoId, data, slot, duracao = 20 } = params;
+  const { alunoId, data, slotId, duracao = 20 } = params;
 
   try {
     // Normalizar a data para evitar problemas com fuso horário
@@ -75,7 +102,7 @@ export async function adicionarMentoria(
     let horario = await prisma.horario.findFirst({
       where: {
         data: dataNormalizada,
-        slot: slot
+        slotId: slotId
       },
       include: {
         mentorias: {
@@ -91,8 +118,8 @@ export async function adicionarMentoria(
       horario = await prisma.horario.create({
         data: {
           data: dataNormalizada,
-          slot: slot,
-          status: StatusHorario.LIVRE
+          slotId: slotId,
+          status: true // Status como boolean (true = disponível)
         },
         include: {
           mentorias: {
@@ -161,7 +188,7 @@ export async function adicionarMentoria(
     if (mentoriasAtivas + 1 >= 4) {
       await prisma.horario.update({
         where: { id: horario.id },
-        data: { status: StatusHorario.OCUPADO }
+        data: { status: false } // false = ocupado
       });
     }
     revalidatePath('/aluno/mentorias')
@@ -195,12 +222,12 @@ export async function adicionarMentoria(
 /**
  * Função auxiliar para verificar disponibilidade de um horário
  * @param data - Data da mentoria
- * @param slot - Slot de horário
+ * @param slotId - ID do slot de horário
  * @returns Número de vagas disponíveis (0-4)
  */
 export async function verificarDisponibilidadeHorario(
   data: Date,
-  slot: SlotHorario
+  slotId: number
 ): Promise<number> {
   try {
     // Normalizar a data para evitar problemas com fuso horário
@@ -213,7 +240,7 @@ export async function verificarDisponibilidadeHorario(
     const horario = await prisma.horario.findFirst({
       where: {
         data: dataNormalizada,
-        slot: slot
+        slotId: slotId
       },
       include: {
         _count: {
@@ -265,7 +292,11 @@ export async function listarMentoriasHorario(
       include: {
         mentorias: {
           include: {
-            horario: true,
+            horario: {
+              include: {
+                slot: true
+              }
+            },
             aluno: true
           },
         }
@@ -311,7 +342,7 @@ export async function listarMentoriasAluno(alunoId: string) {
 interface EditarMentoriaParams {
   mentoriaId: number;
   data: Date;
-  slot: SlotHorario;
+  slotId: number; // ID do SlotHorario
   duracao?: number;
 }
 
@@ -330,7 +361,7 @@ interface EditarMentoriaResult {
 export async function editarMentoria(
   params: EditarMentoriaParams
 ): Promise<EditarMentoriaResult> {
-  const { mentoriaId, data, slot, duracao = 20 } = params;
+  const { mentoriaId, data, slotId, duracao = 20 } = params;
 
   try {
     // Normalizar a data para evitar problemas com fuso horário
@@ -360,7 +391,7 @@ export async function editarMentoria(
     let novoHorario = await prisma.horario.findFirst({
       where: {
         data: dataNormalizada,
-        slot: slot
+        slotId: slotId
       },
       include: {
         mentorias: {
@@ -377,8 +408,8 @@ export async function editarMentoria(
       novoHorario = await prisma.horario.create({
         data: {
           data: dataNormalizada,
-          slot: slot,
-          status: StatusHorario.LIVRE
+          slotId: slotId,
+          status: true // Status como boolean (true = disponível)
         },
         include: {
           mentorias: {
@@ -450,7 +481,7 @@ export async function editarMentoria(
       // Se há menos de 4 mentorias, marcar como livre
       await prisma.horario.update({
         where: { id: horarioAntigo.id },
-        data: { status: StatusHorario.LIVRE }
+        data: { status: true } // true = disponível
       });
     }
 
@@ -458,7 +489,7 @@ export async function editarMentoria(
     if (mentoriasAtivas + 1 >= 4) {
       await prisma.horario.update({
         where: { id: novoHorario.id },
-        data: { status: StatusHorario.OCUPADO }
+        data: { status: false } // false = ocupado
       });
     }
 
@@ -512,7 +543,7 @@ export async function atualizarStatusMentoria(
     }
 
     // Update status
-   const mentoriaAtualizada= await prisma.mentoria.update({
+    const mentoriaAtualizada = await prisma.mentoria.update({
       where: { id: mentoriaId },
       data: { status },
       include: { aluno: true, horario: true }

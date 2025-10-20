@@ -1,36 +1,18 @@
-import { SlotHorario, StatusHorario, StatusMentoria } from "@/app/generated/prisma"
+import { Prisma, SlotHorario, StatusMentoria } from "@/app/generated/prisma"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { ModalMentoriaProfessor } from "./modal-mentoria-professor"
 
-type Mentoria = {
-    id: number
-    status: StatusMentoria
-    alunoId: string
-    horarioId: number
-    duracao: number
-    createdAt: Date
-    updatedAt: Date
-    horario: {
-        data: Date
-        slot: SlotHorario
-        id: number
-        status: StatusHorario
+type Mentoria = Prisma.MentoriaGetPayload<{
+    include: {
+      aluno: true,
+      horario: {
+        include: {
+          slot: true
+        }
+      },
     }
-    aluno: {
-        image: string | null
-        id: string
-        name: string
-        role: string | null
-        createdAt: Date
-        updatedAt: Date
-        email: string
-        emailVerified: boolean
-        banned: boolean | null
-        banReason: string | null
-        banExpires: Date | null
-    }
-}
+  }>
 
 interface CardMentoriaAlunoProps {
     mentoria: Mentoria;

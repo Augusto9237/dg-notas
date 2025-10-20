@@ -27,84 +27,135 @@ import { toast } from "sonner"
 import { Item, ItemActions, ItemContent, ItemHeader, ItemTitle } from "./ui/item"
 import clsx from "clsx"
 import { Label } from "./ui/label"
+import { DiaSemana, SlotHorario } from "@/app/generated/prisma"
+import { editarDiasSemana, editarSlotsHorario } from "@/actions/mentoria"
 
 // Schema de validação
 const agendaSchema = z.object({
-  diasSemana: z.array(z.string()).min(2, "Selecione pelo menos 2 dias da semana").max(2, "Selecione no máximo 2 dias da semana"),
-  horarios: z.array(z.string()).min(1, "Selecione pelo menos um horário")
+  diasSemana: z.array(
+    z.object({
+      id: z.number(),
+      status: z.boolean(),
+    })
+  ),
+  horarios: z.array(
+    z.object({
+      id: z.number(),
+      status: z.boolean(),
+    })
+  )
 })
 
 type AgendaFormData = z.infer<typeof agendaSchema>
 
-// Dados dos dias da semana
-const diasSemana = [
-  { value: "segunda", label: "Segunda-feira" },
-  { value: "terca", label: "Terça-feira" },
-  { value: "quarta", label: "Quarta-feira" },
-  { value: "quinta", label: "Quinta-feira" },
-  { value: "sexta", label: "Sexta-feira" },
-]
 
-// Gerar horários de 20 em 20 minutos entre 15h e 17h
-const gerarHorarios = () => {
-  const horarios = []
-  for (let hora = 15; hora < 17; hora++) {
-    for (let minuto = 0; minuto < 60; minuto += 20) {
-      const horaFormatada = hora.toString().padStart(2, '0')
-      const minutoFormatado = minuto.toString().padStart(2, '0')
-      const valor = `${horaFormatada}:${minutoFormatado}`
-      const label = `${horaFormatada}:${minutoFormatado}`
-      horarios.push({ value: valor, label })
-    }
-  }
-  return horarios
+interface AjustarAgendaProps {
+  diasSemana: DiaSemana[]
+  slotsHorario: SlotHorario[]
+  onDiasChange?: (diasAtualizados: DiaSemana[]) => void
+  onHorariosChange?: (horariosAtualizados: SlotHorario[]) => void
 }
 
-const horariosDisponiveis = gerarHorarios()
-
-export function AjustarAgenda() {
+export function AjustarAgenda({
+  diasSemana,
+  slotsHorario,
+  onDiasChange,
+  onHorariosChange
+}: AjustarAgendaProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [diasSelecionados, setDiasSelecionados] = useState<string[]>([])
-  const [horariosSelecionados, setHorariosSelecionados] = useState<string[]>([])
+  const [diasAtualizados, setDiasAtualizados] = useState<DiaSemana[]>(diasSemana)
+  const [horariosAtualizados, setHorariosAtualizados] = useState<SlotHorario[]>(slotsHorario);
+
 
   const form = useForm<AgendaFormData>({
     resolver: zodResolver(agendaSchema),
     defaultValues: {
-      diasSemana: [],
-      horarios: []
+      diasSemana: diasSemana.map(dia => ({ id: dia.id, status: dia.status })),
+      horarios: slotsHorario.map(horario => ({ id: horario.id, status: horario.status }))
     }
   })
 
-  const handleDiaChange = (dia: string, checked: boolean) => {
-    if (checked) {
-      if (diasSelecionados.length >= 2) {
-        toast.error("Você pode selecionar apenas 2 dias da semana")
-        return
+  // Sincronizar estados quando as props mudarem
+  useEffect(() => {
+    setDiasAtualizados(diasSemana)
+  }, [diasSemana])
+
+  useEffect(() => {
+    setHorariosAtualizados(slotsHorario)
+  }, [slotsHorario])
+
+  const handleDiaChange = (diaId: number, checked: boolean) => {
+    const diasAtivos = diasAtualizados.filter(dia => dia.status)
+
+    if (checked && diasAtivos.length >= 2) {
+      toast.error("Você pode selecionar apenas 2 dias da semana")
+      return
+    }
+
+    const novosDias = diasAtualizados.map(dia =>
+      dia.id === diaId ? { ...dia, status: checked } : dia
+    )
+
+    setDiasAtualizados(novosDias)
+  }
+
+  const handleHorarioChange = (horarioId: number, checked: boolean) => {
+    const novosHorarios = horariosAtualizados.map(horario =>
+      horario.id === horarioId ? { ...horario, status: checked } : horario
+    )
+
+    setHorariosAtualizados(novosHorarios)
+  }
+
+  async function onSubmit(data: AgendaFormData) {
+    // Chama as funções de callback se fornecidas
+    if (onDiasChange) {
+      onDiasChange(diasAtualizados)
+    }
+    if (onHorariosChange) {
+      onHorariosChange(horariosAtualizados)
+    }
+
+    try {
+      const alteracaoDias = diasAtualizados.some((diaAtual) => {
+        const diaOriginal = diasSemana.find(dia => dia.id === diaAtual.id)
+        return diaOriginal && diaOriginal.status !== diaAtual.status
+      });
+
+      const alteracaoHorarios = horariosAtualizados.some((horarioAtual) => {
+        const horarioOriginal = slotsHorario.find(slot => slot.id === horarioAtual.id)
+        return horarioOriginal && horarioOriginal.status !== horarioAtual.status
+      });
+
+      if (alteracaoDias) {
+        await Promise.all(
+          diasAtualizados.map(async (dia) => {
+            const diaOriginal = diasSemana.find(d => d.id === dia.id)
+            if (diaOriginal && diaOriginal.status !== dia.status) {
+              await editarDiasSemana(dia.id, dia.status)
+            }
+          })
+        );
       }
-      setDiasSelecionados([...diasSelecionados, dia])
-    } else {
-      setDiasSelecionados(diasSelecionados.filter(d => d !== dia))
-    }
-  }
 
-  const handleHorarioChange = (horario: string, checked: boolean) => {
-    if (checked) {
-      setHorariosSelecionados([...horariosSelecionados, horario])
-    } else {
-      setHorariosSelecionados(horariosSelecionados.filter(h => h !== horario))
-    }
-  }
+      if (alteracaoHorarios) {
+        await Promise.all(
+          horariosAtualizados.map(async (horario) => {
+            await editarSlotsHorario(horario.id, horario.status)
+          })
+        )
+      }
+      toast.success('Agenda ajustada com sucesso');
+      setIsOpen(false)
 
-  const onSubmit = (data: AgendaFormData) => {
-    console.log("Configuração da agenda:", data)
-    toast.success("Agenda configurada com sucesso!")
-    setIsOpen(false)
-    // Aqui você pode adicionar a lógica para salvar no banco de dados
+    } catch (error) {
+      toast.error('Algo deu errado, tente novamente!')
+    }
   }
 
   const handleCancel = () => {
-    setDiasSelecionados([])
-    setHorariosSelecionados([])
+    setDiasAtualizados(diasSemana)
+    setHorariosAtualizados(slotsHorario)
     form.reset()
     setIsOpen(false)
   }
@@ -126,68 +177,92 @@ export function AjustarAgenda() {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-            {/* Seleção de Dias da Semana */}
-            <div className="space-y-2">
-              <div>
-                <FormLabel >
-                  Dias da Semana
-                </FormLabel>
-                <FormDescription className="max-sm:text-xs">
-                  Selecione 2 dias da semana.
-                </FormDescription>
-              </div>
-              <div className="grid grid-cols-5 max-sm:grid-cols-3 gap-2">
-                {diasSemana.map((dia) => (
-                  <div key={dia.value} className="flex flex-col items-center gap-1">
-                    <Label
-                      htmlFor={dia.value}
-                      className={clsx("text-xs font-medium text-nowrap leading-none ", diasSelecionados.includes(dia.value) && 'text-primary', !diasSelecionados.includes(dia.value) && 'text-muted-foreground')}
-                    >
-                      {dia.label}
-                    </Label>
-                    <div className="p-2">
-                      <Checkbox
-                        id={dia.value}
-                        checked={diasSelecionados.includes(dia.value)}
-                        onCheckedChange={(checked) =>
-                          handleDiaChange(dia.value, checked as boolean)
-                        }
-                      />
-                    </div>
+            <FormField
+              control={form.control}
+              name='diasSemana'
+              render={({ field }) => (
+                <div className="space-y-2">
+                  <div>
+                    <FormLabel >
+                      Dias da Semana
+                    </FormLabel>
+                    <FormDescription className="max-sm:text-xs">
+                      Selecione 2 dias da semana.
+                    </FormDescription>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="grid grid-cols-5 max-sm:grid-cols-3 gap-2">
+                    {diasSemana.map((semana) => (
+                      <div key={semana.id} className="flex flex-col items-center gap-1">
+                        <Label
+                          htmlFor={semana.nome}
+                          className={clsx("text-xs font-medium text-nowrap leading-none ",
+                            diasAtualizados.find(d => d.id === semana.id)?.status && 'text-primary',
+                            !diasAtualizados.find(d => d.id === semana.id)?.status && 'text-muted-foreground'
+                          )}
+                        >
+                          {semana.nome}
+                        </Label>
+                        <div className="p-2">
+                          <Checkbox
+                            id={String(semana.id)}
+                            checked={diasAtualizados.find(d => d.id === semana.id)?.status || false}
+                            onCheckedChange={(checked) =>
+                              handleDiaChange(semana.id, Boolean(checked))
+                            }
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            />
 
-            {/* Seleção de Horários */}
-            <div className="space-y-2">
-              <div>
-                <FormLabel className="flex items-center gap-2">
-                  Horários Disponíveis
-                </FormLabel>
-                <FormDescription className="max-sm:text-xs">
-                  Selecione os horários de 15h às 17h (slots de 20min)
-                </FormDescription>
-              </div>
-              <div className="grid grid-cols-3 gap-4 max-h-48 overflow-y-auto ">
-                {horariosDisponiveis.map((horario) => (
-                  <Item key={horario.value} variant='muted' size='sm' className={clsx('max-sm:flex-col-reverse',horariosSelecionados.includes(horario.value) && 'bg-primary/5 border-primary text-primary')}>
-                    <ItemActions>
-                      <Checkbox
-                        id={horario.value}
-                        checked={horariosSelecionados.includes(horario.value)}
-                        onCheckedChange={(checked) =>
-                          handleHorarioChange(horario.value, checked as boolean)
-                        }
-                      />
-                    </ItemActions>
-                    <ItemContent>
-                      <ItemTitle>{horario.label}</ItemTitle>
-                    </ItemContent>
-                  </Item>
-                ))}
-              </div>
-            </div>
+            <FormField
+              control={form.control}
+              name='horarios'
+              render={({ field }) => (
+                <div className="space-y-2">
+                  <div>
+                    <FormLabel className="flex items-center gap-2">
+                      Horários Disponíveis
+                    </FormLabel>
+                    <FormDescription className="max-sm:text-xs">
+                      Selecione os horários de 15h às 17h (slots de 20min)
+                    </FormDescription>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 max-h-48 overflow-y-auto ">
+                    {slotsHorario.map((horario) => {
+                      const horarioAtualizado = horariosAtualizados.find(h => h.id === horario.id)
+                      return (
+                        <Item
+                          key={horario.id}
+                          variant='muted'
+                          size='sm'
+                          className={clsx(
+                            'max-sm:flex-col-reverse',
+                            horarioAtualizado?.status && 'bg-primary/5 border-primary text-primary'
+                          )}
+                        >
+                          <ItemActions>
+                            <Checkbox
+                              id={String(horario.id)}
+                              checked={horarioAtualizado?.status || false}
+                              onCheckedChange={(checked) =>
+                                handleHorarioChange(horario.id, Boolean(checked))
+                              }
+                            />
+                          </ItemActions>
+                          <ItemContent>
+                            <ItemTitle className="text-xs">{horario.nome}</ItemTitle>
+                          </ItemContent>
+                        </Item>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            />
 
             <div className="flex justify-center gap-4 pt-4">
               <Button

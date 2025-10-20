@@ -1,6 +1,6 @@
 'use client';
 
-import { SlotHorario, StatusHorario, StatusMentoria } from "@/app/generated/prisma";
+import { Prisma, SlotHorario, StatusMentoria } from "@/app/generated/prisma";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTrigger } from "./ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { DialogTitle } from "@radix-ui/react-dialog";
@@ -25,34 +25,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils";
 
-type Mentoria = {
-    id: number
-    status: StatusMentoria
-    alunoId: string
-    horarioId: number
-    duracao: number
-    createdAt: Date
-    updatedAt: Date
-    horario: {
-        data: Date
-        slot: SlotHorario
-        id: number
-        status: StatusHorario
+type Mentoria = Prisma.MentoriaGetPayload<{
+    include: {
+        aluno: true,
+        horario: {
+            include: {
+                slot: true
+            }
+        },
     }
-    aluno: {
-        image: string | null
-        id: string
-        name: string
-        role: string | null
-        createdAt: Date
-        updatedAt: Date
-        email: string
-        emailVerified: boolean
-        banned: boolean | null
-        banReason: string | null
-        banExpires: Date | null
-    }
-}
+}>
 
 interface ModalMentoriaProfessorProps {
     mentoria: Mentoria;
@@ -160,7 +142,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
                                     {mentoria.aluno.email}
                                 </DialogDescription>
                                 <DialogDescription>
-                                    {formartarData(mentoria.horario.data)} - {generateTimeSlots().find(slot => slot.slot === mentoria.horario.slot)?.display.replace(' - ', ' às ')}
+                                    {formartarData(mentoria.horario.data)} - {mentoria.horario.slot.nome.replace(' - ', ' às ')}
                                 </DialogDescription>
 
                                 <ButtonGroup className="w-full max-w-[298px] mt-5">

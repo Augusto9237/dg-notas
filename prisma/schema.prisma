@@ -61,31 +61,42 @@ enum StatusMentoria {
   REALIZADA
 }
 
-// Enum para slots de horário (15h às 17h, intervalos de 20min)
-enum SlotHorario {
-  SLOT_15_00 // 15:00 - 15:20
-  SLOT_15_20 // 15:20 - 15:40
-  SLOT_15_40 // 15:40 - 16:00
-  SLOT_16_00 // 16:00 - 16:20
-  SLOT_16_20 // 16:20 - 16:40
-  SLOT_16_40 // 16:40 - 17:00
+model DiaSemana {
+  id Int @id @default(autoincrement())
+  dia Int
+  nome String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  status Boolean @default(false)
+  @@unique([nome])
 }
 
-enum StatusHorario {
-  OCUPADO
-  LIVRE
+
+model SlotHorario {
+  id Int @id @default(autoincrement())
+  nome String
+  status Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Horario Horario[]
 }
 
 model Horario {
   id     Int           @id @default(autoincrement())
   data   DateTime      @db.Date // Apenas data, sem horário
-  slot   SlotHorario
-  status StatusHorario @default(LIVRE)
+  status Boolean @default(true)
 
   mentorias Mentoria[]
 
   // Permite até 4 mentorias por horário (data + slot)
-  @@unique([data, slot, id])
+  // ERRO: Não é permitido usar campos de relação em índices únicos
+  // Solução: Use o campo de chave estrangeira scalar `slotId` ao invés do objeto de relação `slot`
+  slotId Int
+  slot   SlotHorario @relation(fields: [slotId], references: [id])
+
+  @@unique([data, slotId])
+
 }
 
 model Mentoria {
