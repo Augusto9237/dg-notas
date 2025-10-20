@@ -2,10 +2,9 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import { ptBR } from 'date-fns/locale'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent} from "@/components/ui/card"
 
 import { useEffect, useState } from "react"
-import { AgendarMentoriaModal } from "./agendar-mentoria-modal"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "./ui/calendar"
 import { CardMentoria } from "./card-mentoria"
