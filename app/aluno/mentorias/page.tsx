@@ -28,7 +28,7 @@ export default async function Page() {
 
                     <AgendarMentoriaAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} />
 
-                    <ListMentoriasAlunos mentoriasIniciais={mentorias} />
+                    <ListMentoriasAlunos mentoriasIniciais={mentorias} diasSemana={diasAtivos} slotsHorario={horariosAtivos} />
                 </main>
             </div>
         )

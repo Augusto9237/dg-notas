@@ -2,20 +2,26 @@
 import { useContext, useEffect, useState } from "react"
 import { CardMentoria } from "./card-mentoria"
 import { Card, CardContent } from "./ui/card"
-import { Prisma } from "@/app/generated/prisma"
+import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma"
 import { ContextoAluno } from "@/context/contexto-aluno"
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
-        horario: true;
+        horario: {
+            include: {
+                slot: true
+            }
+        }
     };
 }>;
 
 interface ListMentoriasAlunosProps {
-    mentoriasIniciais: Mentoria[]
+    mentoriasIniciais: Mentoria[];
+    diasSemana: DiaSemana[]
+    slotsHorario: SlotHorario[]
 }
 
-export function ListMentoriasAlunos({ mentoriasIniciais }: ListMentoriasAlunosProps) {
+export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorario }: ListMentoriasAlunosProps) {
     const { fetchAvaliacoes } = useContext(ContextoAluno);
     const [mentorias, setMentorias] = useState<Mentoria[]>(mentoriasIniciais)
 
@@ -35,7 +41,7 @@ export function ListMentoriasAlunos({ mentoriasIniciais }: ListMentoriasAlunosPr
                 </Card>
             ) : (
                 mentorias.map((mentoria) => (
-                    <CardMentoria key={mentoria.id} modo='ALUNO' mentoria={mentoria} />
+                    <CardMentoria key={mentoria.id} modo='ALUNO' mentoria={mentoria}  diasSemana={diasSemana} slotsHorario={slotsHorario}/>
                 ))
             )}
         </div>

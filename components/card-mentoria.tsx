@@ -4,8 +4,8 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { CalendarX, ChevronDown, Loader2 } from "lucide-react";
-import { Prisma, User } from "@/app/generated/prisma";
-import { AgendarMentoriaAluno, generateTimeSlots } from "./agendar-mentoria-aluno";
+import { DiaSemana, Prisma, SlotHorario, User } from "@/app/generated/prisma";
+import { AgendarMentoriaAluno } from "./agendar-mentoria-aluno";
 import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -27,9 +27,11 @@ interface CardMentoriaProps {
     modo: 'PROFESSOR' | 'ALUNO';
     mentoria: Mentoria;
     aluno?: User | null;
+    diasSemana: DiaSemana[]
+    slotsHorario: SlotHorario[]
 }
 
-export function CardMentoria({ mentoria, aluno, modo = 'ALUNO' }: CardMentoriaProps) {
+export function CardMentoria({ diasSemana, slotsHorario, mentoria, aluno, modo = 'ALUNO' }: CardMentoriaProps) {
     const [open, setOpen] = useState(false);
     const [carregando, setCarregando] = useState(false);
 
@@ -139,7 +141,7 @@ export function CardMentoria({ mentoria, aluno, modo = 'ALUNO' }: CardMentoriaPr
 
 
             <CardFooter className="p-4 pt-0 gap-5 overflow-hidden grid grid-cols-2">
-                <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" />
+                <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" diasSemana={diasSemana} slotsHorario={slotsHorario} />
 
                 <Button
                     size="sm"
