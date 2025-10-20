@@ -2,10 +2,10 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, FileCheck2 } from "lucide-react";
+import {FileCheck2 } from "lucide-react";
 import Image from "next/image";
 import { Card } from "./card";
-import { RiUserStarFill } from "react-icons/ri";
+import { RiUserStarLine } from "react-icons/ri";
 
 interface FooterAlunoProps {
     className?: string;
@@ -22,7 +22,7 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
             active: pathname === "/aluno",
         },
         {
-            icon: <RiUserStarFill className="h-5 w-5" />,
+            icon: <RiUserStarLine className="h-5 w-5" />,
             href: "/aluno/mentorias",
             label: "Mentorias",
             active: pathname === "/aluno/mentorias",

@@ -164,7 +164,7 @@ export function AjustarAgenda({
       <DialogTrigger asChild>
         <Button variant="outline">
           <CalendarCog />
-          Ajustes
+          Ajustar Agenda
         </Button>
       </DialogTrigger>
       <DialogContent >

@@ -12,7 +12,6 @@ export default async function Page() {
     const diasSemana = await listarDiasSemana()
     const slotsHorario = await listarSlotsHorario()
     const mentorias = await listarMentoriasHorario()
-    const alunos = await prisma.user.findMany({});
 
     const diasAtivos = diasSemana.filter((dia) => dia.status === true)
     const horariosAtivos = slotsHorario.filter((horario) => horario.status === true)

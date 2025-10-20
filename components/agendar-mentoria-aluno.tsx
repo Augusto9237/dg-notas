@@ -36,7 +36,7 @@ const formSchema = z.object({
     }).min(new Date(), {
         message: "Data deve ser no futuro",
     }),
-    horario: z.number()
+    horario: z.string({ message: "Selecione um horario" }).min(1)
 })
 
 
@@ -95,9 +95,10 @@ export function AgendarMentoriaAluno({
         resolver: zodResolver(formSchema),
         defaultValues: {
             horario: mode === 'edit' && mentoriaData
-                ? mentoriaData.horario.slotId 
-                : 1,
-            data: getInitialDate(),
+                ? String(mentoriaData.horario.slotId)
+                : '',
+            data: mode === 'edit' && mentoriaData
+                ? getInitialDate() : undefined
         },
     })
 
@@ -107,13 +108,13 @@ export function AgendarMentoriaAluno({
             const dataCorrigida = convertUTCToLocalDate(mentoriaData.horario.data);
 
             form.reset({
-                horario: mentoriaData.horario.slot.id,
+                horario: String(mentoriaData.horario.slotId),
                 data: dataCorrigida
             });
         } else if (mode === 'create') {
             form.reset({
-                horario: 1,
-                data: new Date(),
+                horario: '',
+                data: undefined,
             });
         }
     }, [mode, mentoriaData, form]);
@@ -128,9 +129,9 @@ export function AgendarMentoriaAluno({
             const horario = form.getValues('horario')
 
             if (data && horario) {
-    
-                    const vagas = await verificarDisponibilidadeHorario(data, horario)
-                    setVagasDisponiveis(vagas)
+
+                const vagas = await verificarDisponibilidadeHorario(data, Number(horario))
+                setVagasDisponiveis(vagas)
             }
         }
         verificarVagas()
@@ -143,21 +144,21 @@ export function AgendarMentoriaAluno({
                 await editarMentoria({
                     mentoriaId: mentoriaData.id,
                     data: values.data,
-                    slotId: values.horario,
+                    slotId: Number(values.horario),
                     duracao: mentoriaData.duracao,
                 });
             } else {
                 await adicionarMentoria({
                     alunoId: session?.user.id || "user_123",
                     data: values.data,
-                    slotId: values.horario,
+                    slotId: Number(values.horario),
                 });
             }
-                const message = mode === 'edit' ? 'Mentoria editada com sucesso!' : 'Mentoria agendada com sucesso!';
-                toast.success(message);
-                form.reset();
-                setOpen(false);
-                setIsOpen && setIsOpen(false)
+            const message = mode === 'edit' ? 'Mentoria editada com sucesso!' : 'Mentoria agendada com sucesso!';
+            toast.success(message);
+            form.reset();
+            setOpen(false);
+            setIsOpen && setIsOpen(false)
         } catch (error) {
             toast.error('Algo deu errado, tente novamente');
             console.error(`Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria:`, error);

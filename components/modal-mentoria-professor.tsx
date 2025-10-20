@@ -1,6 +1,6 @@
 'use client';
 
-import { Prisma, SlotHorario, StatusMentoria } from "@/app/generated/prisma";
+import { DiaSemana, Prisma, SlotHorario, StatusMentoria } from "@/app/generated/prisma";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTrigger } from "./ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { DialogTitle } from "@radix-ui/react-dialog";
@@ -8,7 +8,7 @@ import { CalendarX, ChevronDown, ChevronDownIcon, ChevronRight, Loader2 } from "
 import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
 import { useState } from "react";
-import { AgendarMentoriaAluno, generateTimeSlots } from "./agendar-mentoria-aluno";
+import { AgendarMentoriaAluno } from "./agendar-mentoria-aluno";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { format } from "date-fns";
@@ -39,6 +39,8 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 interface ModalMentoriaProfessorProps {
     mentoria: Mentoria;
     setListaMentorias: React.Dispatch<React.SetStateAction<Mentoria[]>>
+    diasSemana: DiaSemana[]
+    slotsHorario: SlotHorario[]
 }
 
 
@@ -52,7 +54,7 @@ const getInitials = (name: string): string => {
         .slice(0, 2)
 }
 
-export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMentoriaProfessorProps) {
+export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana, slotsHorario }: ModalMentoriaProfessorProps) {
     const [open, setOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [carregando, setCarregando] = useState(false)
@@ -179,7 +181,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias }: ModalMen
                         </div>
                         <Separator />
                         <DialogFooter className="grid grid-cols-2 gap-4">
-                            <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" size='default' />
+                            <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" size='default' diasSemana={diasSemana} slotsHorario={slotsHorario} />
                             <Button
                                 variant={mentoria.status === 'REALIZADA' ? 'ghost' : "destructive"}
                                 className="w-full"
