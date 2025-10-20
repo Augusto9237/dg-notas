@@ -1,4 +1,4 @@
-import { Prisma, SlotHorario, StatusMentoria } from "@/app/generated/prisma"
+import { DiaSemana, Prisma, SlotHorario} from "@/app/generated/prisma"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { ModalMentoriaProfessor } from "./modal-mentoria-professor"
@@ -17,6 +17,8 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 interface CardMentoriaAlunoProps {
     mentoria: Mentoria;
     setListaMentorias: React.Dispatch<React.SetStateAction<Mentoria[]>>
+    diasSemana: DiaSemana[]
+    slotsHorario: SlotHorario[]
 }
 
 const STATUS_COLORS = {
@@ -24,7 +26,7 @@ const STATUS_COLORS = {
     REALIZADA: "bg-primary",
 } as const
 
-export function CardMentoriaProfessor({ mentoria, setListaMentorias }: CardMentoriaAlunoProps) {
+export function CardMentoriaProfessor({ mentoria, setListaMentorias, diasSemana, slotsHorario }: CardMentoriaAlunoProps) {
 
     const getInitials = (name: string): string => {
         return name
@@ -74,7 +76,7 @@ export function CardMentoriaProfessor({ mentoria, setListaMentorias }: CardMento
                     </div>
                 </div>
             </div>
-            <ModalMentoriaProfessor mentoria={mentoria} setListaMentorias={setListaMentorias} />
+            <ModalMentoriaProfessor mentoria={mentoria} setListaMentorias={setListaMentorias} diasSemana={diasSemana} slotsHorario={slotsHorario}/>
         </div>
     )
 }
