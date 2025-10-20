@@ -1,5 +1,4 @@
 
-import { CardAvaliacao } from '@/components/card-avaliacao';
 import { ListarAvaliacoesAlunoId, ListarCriterios } from '@/actions/avaliacao';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
