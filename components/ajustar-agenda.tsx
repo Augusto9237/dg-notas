@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { CalendarCog, Clock } from "lucide-react"
+import { CalendarCog, Clock, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import {
   Dialog,
@@ -164,7 +164,10 @@ export function AjustarAgenda({
       <DialogTrigger asChild>
         <Button variant="outline">
           <CalendarCog />
-          Ajustar Agenda
+          <span className="max-sm:hidden flex gap-2">
+            Ajustar
+            <p className="max-md:hidden">Agenda</p>
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent >
@@ -253,7 +256,10 @@ export function AjustarAgenda({
                             />
                           </ItemActions>
                           <ItemContent>
-                            <ItemTitle className="text-xs">{horario.nome}</ItemTitle>
+                            <ItemTitle className="text-xs">
+                              <div className="max-sm:hidden">{horario.nome}</div>
+                              <div className="sm:hidden">{horario.nome.split(" ")[0]}</div>
+                            </ItemTitle>
                           </ItemContent>
                         </Item>
                       )
@@ -277,7 +283,8 @@ export function AjustarAgenda({
                 className="min-w-[100px]"
                 disabled={form.formState.isSubmitting}
               >
-                Salvar
+                {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {form.formState.isSubmitting ? 'Salvando' : 'Salvar'}
               </Button>
             </div>
           </form>

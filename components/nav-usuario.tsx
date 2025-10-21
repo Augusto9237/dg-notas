@@ -50,7 +50,7 @@ export function NavUsuario() {
 
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-semibold">{session?.user.name}</span>
-                                <span className="truncate text-xs text-muted-foreground">Professor(a)</span>
+                                <span className="truncate text-xs text-muted">Professor(a)</span>
                             </div>
                         </>
                     }
