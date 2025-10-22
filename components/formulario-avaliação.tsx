@@ -150,7 +150,7 @@ export const FormularioAvaliacao = memo(function FormularioAvaliacao({ temas, cr
           </Button>
         }
       </DialogTrigger>
-      <DialogContent className="max-sm:max-h-[94vh] max-sm:overflow-y-auto">
+      <DialogContent className="max-sm:max-h-[94vh] max-sm:overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="text-center max-sm:text-base">{isEditMode ? "Editar Avaliação" : "Adicionar Avaliação"}</DialogTitle>
         </DialogHeader>
@@ -167,7 +167,7 @@ export const FormularioAvaliacao = memo(function FormularioAvaliacao({ temas, cr
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder='Selecione um tema' />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="w-full overflow-x-hidden">
                         {temas.map((tema) => (
                           <SelectItem key={tema.id} value={String(tema.id)}>{tema.nome}</SelectItem>
                         ))}

@@ -200,6 +200,21 @@ export async function EditarAvaliacao(
     }
 }
 
+export async function ListarAvaliacoesTemaId(temaId: number) {
+  const avaliacoes = await prisma.avaliacao.findMany({
+    where: {
+      temaId: temaId
+    },
+    include: {
+      tema: true,
+      aluno: true,
+      criterios: true
+    }
+  });
+
+  return avaliacoes;
+}
+
 export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string) {
     try {
         // Construir o where clause dinamicamente

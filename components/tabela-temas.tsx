@@ -11,8 +11,9 @@ import { FaFileContract } from "react-icons/fa";
 import { toast } from "sonner"
 import { InputBusca } from "./input-busca"
 import { useSearchParams } from "next/navigation"
-import { Ellipsis, Trash } from "lucide-react"
+import { Ellipsis, FileCheck2, Trash } from "lucide-react"
 import { Button } from "./ui/button"
+import Link from "next/link"
 
 interface ModalTemasProps {
   temas: Tema[];
@@ -88,8 +89,15 @@ export function TabelaTemas({ temas }: ModalTemasProps) {
               <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
               <TableCell className="w-[54px]">
                 <div className="flex items-center justify-center gap-4">
+                   <Link href={`/professor/avaliacoes/${tema.id}`} passHref>
+                    <Button>
+                      <FileCheck2 />
+                      <span className='max-md:hidden'>
+                        Avaliações
+                      </span>
+                    </Button>
+                  </Link>
                   <FormularioTema tema={tema} />
-
                   <>
                     <Button variant='destructive' className='max-md:hidden' onClick={() => ExcluirTema(tema.id)}>
                       <Trash />

@@ -45,7 +45,7 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
   return (
     <Card className='p-5'>
       <CardHeader className='flex w-full justify-between items-center p-0'>
-        <CardTitle >Top 10 alunos</CardTitle>
+        <CardTitle >Top Alunos</CardTitle>
 
         <Link href="/professor/alunos" className='flex gap-2 items-center text-sm text-primary '>
           Ver todos
