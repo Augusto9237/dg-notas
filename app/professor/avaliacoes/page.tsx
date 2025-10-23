@@ -2,7 +2,6 @@ import { ListarAlunosGoogle } from '@/actions/alunos';
 import { ListarCriterios, ListarTemas } from '@/actions/avaliacao';
 import { FormularioTema } from '@/components/formulario-tema';
 import { TabelaTemas } from '@/components/tabela-temas';
-import { TabelaAlunos } from '@/components/tabela-alunos';
 import { Suspense } from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import Loading from './loading';

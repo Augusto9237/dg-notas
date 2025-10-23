@@ -26,6 +26,7 @@ import { ListarAlunosGoogle } from '@/actions/alunos';
 import { useSearchParams } from 'next/navigation';
 import { Avaliacao, Prisma } from '@/app/generated/prisma';
 import { calcularMedia } from '@/lib/media-geral';
+import { FormularioCorrecao } from './formulario-correcao';
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -44,6 +45,8 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
   const [listaAvaliacoes, setListaAvaliacoes] = useState<TabelaAvaliacoesTemaProps['avaliacoes']>([])
   const searchParams = useSearchParams()
   const busca = searchParams.get('busca')
+
+  
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
@@ -155,8 +158,11 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                     {criterio.pontuacao}
                   </TableCell>
                 ))}
-                <TableCell className='w-full max-w-[120px] min-w-[120px] text-center font-semibold'>{avaliacao.notaFinal}</TableCell>
+                <TableCell className='w-full max-w-[120px] min-w-[120px] text-center font-semibold'>
+                  {avaliacao.notaFinal}
+                </TableCell>
                 <TableCell className="text-center">
+                  <FormularioCorrecao alunoId={avaliacao.alunoId} />
                 </TableCell>
               </TableRow>
             ))
