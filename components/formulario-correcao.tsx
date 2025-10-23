@@ -8,8 +8,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Loader2, Pencil, Plus } from "lucide-react"
-import { useEffect, useState, useMemo, memo } from "react"
+import { FileText, Loader2, Paperclip, Pencil, Plus } from "lucide-react"
+import { useEffect, useState, useMemo, memo, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -43,6 +43,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
   const [isOpen, setIsOpen] = useState(false)
   const [temas, setTemas] = useState<Tema[]>([])
   const [criterios, setCriterios] = useState<Criterio[]>([])
+  const [arquivo, setArquivo] = useState<File | null>(null);
   const isEditMode = !!avaliacao
 
   const defaultValues = useMemo(() => {
@@ -66,7 +67,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
       const temas = await ListarTemas();
       const criterios = await ListarCriterios()
       setTemas(temas);
-      s
+      setCriterios(criterios);
     };
 
     fetchConfig();
@@ -104,6 +105,20 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
       };
     });
   }
+
+  // Referência para o input
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleButtonClick = () => {
+    inputRef.current?.click();
+  };
+
+  function carregarArquivo(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files;
+    if (file) {
+      setArquivo(file[0]);
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -161,42 +176,25 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
           </Button>
         }
       </DialogTrigger>
-      <DialogContent className="max-sm:max-h-[94vh] max-sm:overflow-y-auto overflow-x-hidden">
+      <DialogContent className="max-sm:max-h-[94vh] max-sm:overflow-y-auto overflow-x-hidden max-w-screen-md">
         <DialogHeader>
-          <DialogTitle className="text-center max-sm:text-base">{isEditMode ? "Editar Avaliação" : "Adicionar Avaliação"}</DialogTitle>
+          <DialogTitle className="text-center max-sm:text-base">{isEditMode ? "Editar Correção" : "Adicionar Correção"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
-            <FormField
-              control={form.control}
-              name="tema"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tema</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} value={String(field.value)}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder='Selecione um tema' />
-                      </SelectTrigger>
-                      <SelectContent className="w-full overflow-x-hidden">
-                        {temas.map((tema) => (
-                          <SelectItem key={tema.id} value={String(tema.id)}>{tema.nome}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div>
+              <FormLabel>Tema</FormLabel>
+              <FormDescription className="text-xs">TEMA TESTE</FormDescription>
+            </div>
+
 
             <div className="space-y-2">
               <FormLabel>Competências</FormLabel>
-              {criterios.map((criterion) => (
+              {criterios.map((criterio, i) => (
                 <FormField
-                  key={criterion.id}
+                  key={criterio.id}
                   control={form.control}
-                  name={`criterios.${criterion.id}.pontuacao`}
+                  name={`criterios.${criterio.id}.pontuacao`}
                   render={({ field }) => {
                     const currentValue = field.value || 0;
                     return (
@@ -204,8 +202,8 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
                         <Card className="gap-2 p-4">
                           <div className="flex justify-between items-center">
                             <div className="space-y-1">
-                              <FormLabel className="max-sm:text-sm">{criterion.id} - {criterion.nome}</FormLabel>
-                              <FormDescription className="text-xs">{criterion.descricao}</FormDescription>
+                              <FormLabel className="max-sm:text-sm">{i + 1} - {criterio.nome}</FormLabel>
+                              <FormDescription className="text-xs">{criterio.descricao}</FormDescription>
                             </div>
                             <div className="flex items-center gap-2">
                               <FormControl>
@@ -236,6 +234,32 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
                 />
               ))}
             </div>
+
+            <Input
+              placeholder="shadcn"
+              type="file"
+              className="hidden"
+              ref={inputRef}
+              onChange={carregarArquivo}
+            />
+            <Button
+              type="button"
+              onClick={handleButtonClick}
+              variant={arquivo === null ? 'ghost' : 'outline'}
+              className={arquivo === null ? "bg-background border border-accent-foreground" : "bg-primary/10"}
+            >
+              {arquivo === null ? (
+                <>
+                  <Paperclip />
+                  Anexar folha de redação - corrigida
+                </>
+              ) : (
+                <>
+                  <FileText />
+                  Arquivo carregado
+                </>
+              )}
+            </Button>
 
             <div className="flex flex-col justify-between items-center pt-4 gap-4 border-t border-muted">
               <div className="flex justify-between text-lg font-semibold w-full">
