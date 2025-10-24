@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { FileText, Loader2, Paperclip, Pencil, Plus } from "lucide-react"
+import { FilePenLine, FileText, Loader2, Paperclip, Pencil, Plus } from "lucide-react"
 import { useEffect, useState, useMemo, memo, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -167,10 +167,9 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
             </div>
           </div>
           :
-          <Button variant="secondary">
-            <Plus />
+          <Button>
+            <FilePenLine />
             <div className="max-sm:hidden flex gap-2">
-              <span className="max-sm:hidden">Nova</span>
               Correção
             </div>
           </Button>
