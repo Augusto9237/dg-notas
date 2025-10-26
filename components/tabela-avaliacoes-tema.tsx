@@ -162,7 +162,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                   {avaliacao.notaFinal}
                 </TableCell>
                 <TableCell className="text-center">
-                  <FormularioCorrecao alunoId={avaliacao.alunoId} />
+                  <FormularioCorrecao alunoId={avaliacao.alunoId} avaliacao={avaliacao} />
                 </TableCell>
               </TableRow>
             ))
