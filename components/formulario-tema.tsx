@@ -78,16 +78,7 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {isEditMode ?
-          <div>
-            <Button className="max-md:hidden">
-              <Pencil />
-              Editar
-            </Button>
-            <div className="md:hidden">
-              <EditButton/>
-            </div>
-          </div>
-
+          <EditButton />
           :
           <Button variant="secondary">
             <Plus />

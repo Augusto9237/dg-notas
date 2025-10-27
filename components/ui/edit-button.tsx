@@ -13,7 +13,8 @@ export function EditButton({ onClick}: EditButtonProps) {
             <TooltipTrigger asChild>
                 <Button
                     size="icon"
-                    className="hover:cursor-pointer"
+                    variant='ghost'
+                    className="hover:cursor-pointer hover:bg-primary text-primary hover:text-background"
                     onClick={onClick}
                 >
                     <Pencil />

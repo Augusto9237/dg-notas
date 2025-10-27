@@ -18,7 +18,7 @@ export function DeleteButton({ children, onClick, ...props }: DeleteButtonProps)
     return (
         <Tooltip>
             <TooltipTrigger asChild>
-                <Button size="icon" variant="destructive" onClick={onClick} {...props}>
+                <Button size="icon" variant='ghost' className='text-red-500 hover:bg-red-500 hover:text-background' onClick={onClick} {...props}>
                     <Trash />
                 </Button>
             </TooltipTrigger>

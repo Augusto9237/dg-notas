@@ -24,17 +24,18 @@ model Tema {
 }
 
 enum StatusAvaliacao {
-  ENVIADA      // Aluno enviou a resposta
-  CORRIGIDA   // Correção concluída
+  ENVIADA // Aluno enviou a resposta
+  CORRIGIDA // Correção concluída
 }
 
 model Avaliacao {
   id        Int                 @id @default(autoincrement())
-  alunoId   String
+  alunoId   String  
   aluno     User                @relation(fields: [alunoId], references: [id])
   temaId    Int
   tema      Tema                @relation(fields: [temaId], references: [id])
   criterios CriterioAvaliacao[]
+  resposta  String
   status    StatusAvaliacao     @default(ENVIADA)
   notaFinal Int
   createdAt DateTime            @default(now())
@@ -68,20 +69,20 @@ enum StatusMentoria {
 }
 
 model DiaSemana {
-  id Int @id @default(autoincrement())
-  dia Int
-  nome String
+  id        Int      @id @default(autoincrement())
+  dia       Int
+  nome      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  status Boolean @default(false)
+  status    Boolean  @default(false)
+
   @@unique([nome])
 }
 
-
 model SlotHorario {
-  id Int @id @default(autoincrement())
-  nome String
-  status Boolean @default(false)
+  id        Int      @id @default(autoincrement())
+  nome      String
+  status    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -89,9 +90,9 @@ model SlotHorario {
 }
 
 model Horario {
-  id     Int           @id @default(autoincrement())
-  data   DateTime      @db.Date // Apenas data, sem horário
-  status Boolean @default(true)
+  id     Int      @id @default(autoincrement())
+  data   DateTime @db.Date // Apenas data, sem horário
+  status Boolean  @default(true)
 
   mentorias Mentoria[]
 
@@ -102,7 +103,6 @@ model Horario {
   slot   SlotHorario @relation(fields: [slotId], references: [id])
 
   @@unique([data, slotId])
-
 }
 
 model Mentoria {

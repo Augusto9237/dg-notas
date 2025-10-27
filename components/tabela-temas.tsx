@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { Tema } from "@/app/generated/prisma"
+import { Avaliacao, Tema } from "@/app/generated/prisma"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { format } from "date-fns"
 import { DeleteButton } from "./ui/delete-button"
@@ -14,20 +14,26 @@ import { useSearchParams } from "next/navigation"
 import { Ellipsis, FileCheck2, Trash } from "lucide-react"
 import { Button } from "./ui/button"
 import Link from "next/link"
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 
 interface ModalTemasProps {
   temas: Tema[];
+  avaliacoes: Avaliacao[];
 }
 
-export function TabelaTemas({ temas }: ModalTemasProps) {
-  const [listaTemas, setListTemas] = useState<Tema[]>([])
+export function TabelaTemas({ temas, avaliacoes }: ModalTemasProps) {
+  const [listaTemas, setListTemas] = useState<Tema[]>([]);
+  const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>();
 
   const searchParams = useSearchParams()
   const busca = searchParams.get('busca')
 
+  
+
   useEffect(() => {
-    setListTemas(temas)
-  }, [temas])
+    setListTemas(temas);
+    setListaAvaliacoes(avaliacoes);
+  }, [temas, avaliacoes])
 
   useEffect(() => {
     let isMounted = true;
@@ -49,6 +55,8 @@ export function TabelaTemas({ temas }: ModalTemasProps) {
     };
 
   }, [busca])
+
+  const respostas = listaAvaliacoes?.filter(avaliacao => avaliacao.resposta) ?? []
 
 
   async function ExcluirTema(id: number) {
@@ -89,24 +97,24 @@ export function TabelaTemas({ temas }: ModalTemasProps) {
               <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
               <TableCell className="w-[54px]">
                 <div className="flex items-center justify-center gap-4">
-                   <Link href={`/professor/avaliacoes/${tema.id}`} passHref>
-                    <Button>
-                      <FileCheck2 />
-                      <span className='max-md:hidden'>
-                        Avaliações
-                      </span>
-                    </Button>
+                  <Link href={`/professor/avaliacoes/${tema.id}`} passHref>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="icon"
+                          className="hover:cursor-pointer"
+                        >
+                          <FileCheck2 />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-background">
+                        <p>{respostas.length} Redações</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </Link>
                   <FormularioTema tema={tema} />
-                  <>
-                    <Button variant='destructive' className='max-md:hidden' onClick={() => ExcluirTema(tema.id)}>
-                      <Trash />
-                      Excluir
-                    </Button>
-                    <div className='md:hidden'>
-                      <DeleteButton onClick={() => ExcluirTema(tema.id)} />
-                    </div>
-                  </>
+
+                  <DeleteButton onClick={() => ExcluirTema(tema.id)} />
                 </div>
               </TableCell>
             </TableRow>

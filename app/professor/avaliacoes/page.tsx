@@ -1,5 +1,5 @@
 import { ListarAlunosGoogle } from '@/actions/alunos';
-import { ListarCriterios, ListarTemas } from '@/actions/avaliacao';
+import { ListarAvaliacoes, ListarCriterios, ListarTemas } from '@/actions/avaliacao';
 import { FormularioTema } from '@/components/formulario-tema';
 import { TabelaTemas } from '@/components/tabela-temas';
 import { Suspense } from 'react';
@@ -10,6 +10,7 @@ import { ModalCompetencias } from '@/components/modal-competencias';
 export default async function Page() {
   const temas = await ListarTemas()
   const criterios = await ListarCriterios()
+  const avaliacoes = await ListarAvaliacoes()
 
   return (
     <Suspense fallback={<Loading />}>
@@ -27,7 +28,7 @@ export default async function Page() {
         </div>
 
         <main className="flex flex-col p-5">
-          <TabelaTemas temas={temas} />
+          <TabelaTemas temas={temas} avaliacoes={avaliacoes} />
         </main>
       </div>
     </Suspense>
