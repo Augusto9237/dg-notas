@@ -26,6 +26,7 @@ import { AdicionarTema, EditarTema } from "@/actions/avaliacao"
 import { toast } from "sonner"
 import { Tema } from "@/app/generated/prisma"
 import { EditButton } from "./ui/edit-button"
+import { Textarea } from "./ui/textarea"
 
 
 const formSchema = z.object({
@@ -104,7 +105,7 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
                 <FormItem>
                   <FormLabel>Tema</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       placeholder={isEditMode ? "Edite o tema" : "Digite o novo tema"}
                       {...field}
                     />

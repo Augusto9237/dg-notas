@@ -140,6 +140,7 @@ export async function AdicionarAvaliacao({
                 alunoId,
                 temaId,
                 notaFinal,
+                resposta: '', // Add empty string as default response
                 criterios: {
                     create: criterios.map((criterio) => ({
                         criterioId: criterio.criterioId,
@@ -246,6 +247,27 @@ export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string) {
     } catch (error) {
         console.error('Erro ao listar avaliações:', error);
         return [];
+    }
+}
+
+export async function ListarTemasDisponiveis(alunoId: string): Promise<Tema[]> {
+    try {
+        const temas = await prisma.tema.findMany({
+            where: {
+                Avaliacao: {
+                    none: {
+                        alunoId: alunoId
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'asc'
+            }
+        });
+        return temas;
+    } catch (error) {
+        console.error("Erro ao listar temas disponíveis:", error);
+        throw error;
     }
 }
 
