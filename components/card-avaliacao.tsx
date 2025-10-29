@@ -4,6 +4,7 @@ import { Badge } from "./ui/badge";
 import { ModalAvaliacao } from "./modal-avaliação";
 import { Progress } from "./ui/progress";
 import { Avaliacao, Criterio, CriterioAvaliacao, Prisma, Tema } from "@/app/generated/prisma";
+import clsx from "clsx";
 
 
 interface CardAvaliacaoProps {
@@ -37,20 +38,10 @@ const getGradeBadgeVariant = (
 };
 
 export function CardAvaliacao({ avaliacao, criterios }: CardAvaliacaoProps) {
-    // Verificação de segurança
-    if (!avaliacao || !avaliacao.tema) {
-        return (
-            <Card className="cursor-pointer hover:shadow-md transition-shadow p-0 min-h-[164px] h-full max-h-[164px] gap-0 relative">
-                <CardContent className="p-4 relative h-full flex items-center justify-center">
-                    <p className="text-muted-foreground text-sm">Avaliação sem tema</p>
-                </CardContent>
-            </Card>
-        );
-    }
 
     return (
         <Card
-            className="cursor-pointer hover:shadow-md transition-shadow p-0 min-h-[164px] h-full max-h-[164px] gap-0 relative"
+            className={clsx("cursor-pointer hover:shadow-md transition-shadow p-0 min-h-[164px] h-full max-h-[164px] gap-0 relative", avaliacao.status === 'ENVIADA' && "bg-primary/5")}
         >
             <CardContent className="p-4 relative h-full">
                 <div className="flex items-start justify-between">
@@ -66,13 +57,23 @@ export function CardAvaliacao({ avaliacao, criterios }: CardAvaliacaoProps) {
                         </p>
                     </div>
                     <div className="text-right">
-                        <Badge
-                            className="mb-2"
-                            variant={getGradeBadgeVariant(avaliacao.notaFinal, 1000)}
-                        >
-                            {avaliacao.notaFinal}/1000
-                        </Badge>
-                        <Progress value={(avaliacao.notaFinal / 1000) * 100} indicatorClassName={getGradeColor(avaliacao.notaFinal, 1000)} />
+                        {avaliacao.status === 'CORRIGIDA' ? (
+                            <>
+                                <Badge
+                                    className="mb-2"
+                                    variant={getGradeBadgeVariant(avaliacao.notaFinal, 1000)}
+                                >
+                                    {avaliacao.notaFinal}/1000
+                                </Badge>
+                                <Progress value={(avaliacao.notaFinal / 1000) * 100} indicatorClassName={getGradeColor(avaliacao.notaFinal, 1000)} />
+                            </>
+                        ) : (
+                            <Badge
+                                className="mb-2"
+                            >
+                                Enviada
+                            </Badge>
+                        )}
                     </div>
                 </div>
             </CardContent>

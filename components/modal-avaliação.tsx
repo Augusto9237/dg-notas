@@ -59,15 +59,18 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
     return "destructive";
   };
 
-  const calculateTotalScore = (competencies: number[]) =>
-    competencies.reduce((sum, score) => sum + score, 0);
-
   return (
-    <Dialog open={isOpen} onOpenChange={() => setIsOpen(open => !open)}>
+    <Dialog open={avaliacao.status === "ENVIADA" ? false : isOpen} onOpenChange={() => setIsOpen(open => !open)}>
       <DialogTrigger asChild>
         <Button className="w-full relative bg-primary/10" size="sm" variant="outline">
-          Avaliação Completa
+        {avaliacao.status === 'ENVIADA' ? (
+
+        ): (
+        <>
+          <p>Avaliação Completa<
           <ChevronRight className="absolute right-3 top-2" />
+          </>
+        )}
         </Button>
       </DialogTrigger>
       <DialogContent className="gap-2 overflow-y-auto max-h-[90vh]">
@@ -106,6 +109,6 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
           </div>
         </div>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   )
 }
