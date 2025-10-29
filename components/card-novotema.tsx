@@ -6,6 +6,7 @@ import { Progress } from "./ui/progress";
 import { Avaliacao, Criterio, CriterioAvaliacao, Prisma, Tema } from "@/app/generated/prisma";
 import { Button } from "./ui/button";
 import { Upload } from "lucide-react";
+import { ModalEnviarRedacao } from "./modal-enviar-redacao";
 
 
 interface CardNovoTemaProps {
@@ -45,10 +46,7 @@ export function CardNovoTema({ tema }: CardNovoTemaProps) {
                 </div>
             </CardContent>
             <CardFooter className="px-4 pb-4 absolute inset-x-0 bottom-0">
-                <Button className="w-full" size='sm'>
-                    <Upload />
-                    Enviar Redação
-                </Button>
+                <ModalEnviarRedacao tema={tema}/>
             </CardFooter>
         </Card>
     )

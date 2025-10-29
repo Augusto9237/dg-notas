@@ -17,7 +17,7 @@ import {
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
-import { Check, Download, FileClock, FileDown, FilePenLine, FileText, Paperclip } from "lucide-react";
+import { Check, Download, FileClock, FileDown, FilePenLine, FileText, Paperclip, Upload } from "lucide-react";
 
 import { Input } from "@/components/ui/input"
 import { z } from "zod"
@@ -26,6 +26,8 @@ import { getDownloadURL, ref, uploadBytes, uploadBytesResumable } from "firebase
 import { storage } from "@/lib/firebase";
 import { authClient } from "@/lib/auth-client";
 import { Tema } from "@/app/generated/prisma";
+import { toast } from "sonner";
+import { Label } from "./ui/label";
 
 
 const formSchema = z.object({
@@ -61,19 +63,19 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
 
         if (!arquivo || !session?.user?.email || !session?.user?.name) return;
 
-        const storageRef = ref(storage, `exercicios/${exercicio.id}/${session.user.email}`);
+        const storageRef = ref(storage, `exercicios/${tema.id}/${session.user.email}`);
 
         try {
             const res = await uploadBytes(storageRef, arquivo);
 
-            await enviarResposta({
-                resposta: `exercicios/${exercicio.id}/${session.user.email}`,
-                emailAluno: session.user.email,
-                nomeAluno: session.user.name,
-                exercicioId: exercicio.id
-            })
+            // await enviarResposta({
+            //     resposta: `exercicios/${exercicio.id}/${session.user.email}`,
+            //     emailAluno: session.user.email,
+            //     nomeAluno: session.user.name,
+            //     exercicioId: exercicio.id
+            // })
 
-            toast.success('Resposta enviada com sucesso!', { theme: 'colored' });
+            toast.success('Redação enviada com sucesso!');
             setArquivo(null);
             setIsOpen(false);
 
@@ -92,82 +94,25 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
     return (
         <Dialog open={isOpen} onOpenChange={() => setIsOpen(open => !open)}>
             <DialogTrigger asChild>
-                <Button className='h-[56px] uppercase font-semibold' variant={resposta ? 'outline' : 'default'}>
-                    {resposta ?
-                        <>
-                            <Check />
-                            Exercício Respondido
-                        </>
-                        :
-                        <>
-                            <FilePenLine />
-                            Exercícios
-                        </>}
+                <Button className="w-full" size='sm'>
+                    <Upload />
+                    Enviar Redação
                 </Button>
             </DialogTrigger>
             <DialogContent className="bg-card">
                 <DialogHeader>
-                    <DialogTitle className="text-center">Exercicio</DialogTitle>
+                    <DialogTitle className="text-center">Enviar Redação</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-8">
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-5">
                         <div>
-                            <p>Tema</p>
-                            <p className="text-sm text-muted-foreground">{exercicio.tema}</p>
-                        </div>
-                        <div>
-                            <p>Descriçao</p>
-                            <p className="text-sm text-muted-foreground">{exercicio.descricao}</p>
+                            <Label>Tema</Label>
+                            <p className="text-sm text-muted-foreground">{tema.nome}</p>
                         </div>
                     </div >
 
-                    {resposta ? (
-                        <div>
-                            {resposta.nota !== null && resposta.nota > 0 ? (
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="w-[100px]">Nota</TableHead>
-                                            <TableHead className="text-right pr-3">•••</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        <TableRow className="px-0">
-                                            <TableCell>{resposta.nota}</TableCell>
-                                            <TableCell className="text-right pr-0">
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button size="icon" variant="outline" className="z-50 hover:cursor-pointer">
-                                                            <FileDown />
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent className="bg-background fill-background">
-                                                        <p>Correção</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
-                            ) : (
-                                <span className="font-semibold flex gap-2 text-center justify-center">
-                                    <FileClock />
-                                    Aguardando a correção do Professor
-                                </span>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-4 items-center">
-                            <Button
-                                variant="ghost"
-                                className="bg-background border border-accent-foreground"
-                            >
-                                <Download />
-                                Baixar folha de redação
-                            </Button>
                             <Input
                                 placeholder="shadcn"
-                                type="file"
+                                type='file'
                                 className="hidden"
                                 ref={inputRef}
                                 onChange={carregarArquivo}
@@ -176,7 +121,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                                 type="button"
                                 onClick={handleButtonClick}
                                 variant={arquivo === null ? 'ghost' : 'outline'}
-                                className={arquivo === null ? "bg-background border border-accent-foreground" : "bg-primary/10"}
+                                className={arquivo === null ? "w-full bg-background border border-accent-foreground" : "w-full bg-primary/10"}
                             >
                                 {arquivo === null ? (
                                     <>
@@ -186,21 +131,11 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                                 ) : (
                                     <>
                                         <FileText />
-                                        Arquivo carregado
+                                        {arquivo.name}
                                     </>
                                 )}
                             </Button>
-                        </div>
-                    )}
-
-                    {resposta ? (
-                        <div className="w-full justify-center text-center">
-                            <Button type="button" className="min-w-[100px]" onClick={cancelar}>
-                                Ok
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="flex justify-center items-center gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <Button type="button" variant="outline" className="min-w-[100px]" onClick={cancelar}>
                                 Cancelar
                             </Button>
@@ -208,10 +143,6 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                                 Enviar
                             </Button>
                         </div>
-                    )
-                    }
-
-                </div >
             </DialogContent >
         </Dialog >
     );

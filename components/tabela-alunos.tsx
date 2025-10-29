@@ -24,7 +24,7 @@ import { Ellipsis, FileCheck2, Search } from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { ListarAlunosGoogle } from '@/actions/alunos';
 import { useSearchParams } from 'next/navigation';
-import { Avaliacao } from '@/app/generated/prisma';
+import { Avaliacao, StatusAvaliacao } from '@/app/generated/prisma';
 import { calcularMedia } from '@/lib/media-geral';
 
 
@@ -38,6 +38,8 @@ interface TabelaAlunosProps {
       alunoId: string;
       temaId: number;
       notaFinal: number;
+      status: StatusAvaliacao;
+      resposta: string;
     }[];
   } & {
     name: string;

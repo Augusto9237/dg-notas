@@ -182,7 +182,7 @@ export function AgendarMentoriaAluno({
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle className="text-center text-sm">
+                    <DialogTitle className="text-center">
                         {mode === 'edit' ? 'Reagendar Mentoria' : 'Agendar Mentoria'}
                     </DialogTitle>
                     <DialogDescription className="text-center text-xs">
