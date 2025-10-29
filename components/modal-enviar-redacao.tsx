@@ -28,6 +28,7 @@ import { authClient } from "@/lib/auth-client";
 import { Tema } from "@/app/generated/prisma";
 import { toast } from "sonner";
 import { Label } from "./ui/label";
+import { EnviarRespoastaAvaliacao } from "@/actions/avaliacao";
 
 
 const formSchema = z.object({
@@ -63,18 +64,16 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
 
         if (!arquivo || !session?.user?.email || !session?.user?.name) return;
 
-        const storageRef = ref(storage, `exercicios/${tema.id}/${session.user.email}`);
+        const storageRef = ref(storage, `avaliacoes/${tema.id}/${session.user.email}`);
 
         try {
             const res = await uploadBytes(storageRef, arquivo);
 
-            // await enviarResposta({
-            //     resposta: `exercicios/${exercicio.id}/${session.user.email}`,
-            //     emailAluno: session.user.email,
-            //     nomeAluno: session.user.name,
-            //     exercicioId: exercicio.id
-            // })
-
+            await EnviarRespoastaAvaliacao(
+                session.user.id,
+                tema.id,
+                `avaliacioes/${tema.id}/${session.user.email}`
+            )
             toast.success('Redação enviada com sucesso!');
             setArquivo(null);
             setIsOpen(false);

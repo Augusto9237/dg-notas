@@ -163,6 +163,28 @@ export async function AdicionarAvaliacao({
     }
 }
 
+export async function EnviarRespoastaAvaliacao(
+    idAluno: string,
+    idTema: number,
+    resposta: string
+){
+    try {
+        const avaliacaoCriada = await prisma.avaliacao.create({
+            data: {
+                alunoId: idAluno,
+                temaId: idTema,
+                resposta: resposta,
+                notaFinal: 0, // Default score
+            },
+        });
+        revalidatePath('/aluno');
+        return avaliacaoCriada;
+    } catch (error) {
+        console.error("Erro ao enviar resposta da avaliação:", error);
+        throw error;
+    }
+}
+
 export async function EditarAvaliacao(
     id: number,
     data: AdicionarAvaliacaoInput
