@@ -280,7 +280,8 @@ export async function ListarTemasDisponiveis(alunoId: string): Promise<Tema[]> {
                     none: {
                         alunoId: alunoId
                     }
-                }
+                },
+                disponivel: true
             },
             orderBy: {
                 createdAt: 'asc'

@@ -20,6 +20,8 @@ model Tema {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  disponivel Boolean @default(true)
+
   Avaliacao Avaliacao[]
 }
 
@@ -36,6 +38,7 @@ model Avaliacao {
   tema      Tema                @relation(fields: [temaId], references: [id])
   criterios CriterioAvaliacao[]
   resposta  String
+  correcao  String?
   status    StatusAvaliacao     @default(ENVIADA)
   notaFinal Int
   createdAt DateTime            @default(now())

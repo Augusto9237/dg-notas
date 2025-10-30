@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { ChevronRight, Plus } from "lucide-react"
+import { ChevronRight, FileClock, Plus } from "lucide-react"
 import { useState } from "react"
 import { Separator } from "@radix-ui/react-dropdown-menu"
 import { Essay, Student } from "@/lib/data"
@@ -62,15 +62,18 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
   return (
     <Dialog open={avaliacao.status === "ENVIADA" ? false : isOpen} onOpenChange={() => setIsOpen(open => !open)}>
       <DialogTrigger asChild>
-        <Button className="w-full relative bg-primary/10" size="sm" variant="outline">
-        {avaliacao.status === 'ENVIADA' ? (
-
-        ): (
-        <>
-          <p>Avaliação Completa<
-          <ChevronRight className="absolute right-3 top-2" />
-          </>
-        )}
+        <Button className="w-full relative bg-primary/10" size="sm" variant="outline" disabled={avaliacao.status === 'ENVIADA'}>
+          {avaliacao.status === 'ENVIADA' ?
+            <>
+              <FileClock />
+              <p>Aguardando Correção</p>
+            </>
+            :
+            <>
+              <p>Avaliação Completa</p>
+              <ChevronRight className="absolute right-3 top-2" />
+            </>
+          }
         </Button>
       </DialogTrigger>
       <DialogContent className="gap-2 overflow-y-auto max-h-[90vh]">

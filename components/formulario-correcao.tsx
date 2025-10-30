@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { FilePenLine, FileText, Loader2, Paperclip, Pencil, Plus } from "lucide-react"
+import { FileCheck2, FilePenLine, FileText, Loader2, Paperclip, Pencil, Plus } from "lucide-react"
 import { useEffect, useState, useMemo, memo, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -24,6 +24,7 @@ import { Avaliacao, Criterio, CriterioAvaliacao, Tema } from "@/app/generated/pr
 import { EditButton } from "./ui/edit-button"
 import { Card } from "./ui/card"
 import clsx from "clsx"
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 
 const formSchema = z.object({
   tema: z.string().min(1, "Tema é obrigatório"),
@@ -37,17 +38,17 @@ type FormValues = z.infer<typeof formSchema>
 interface FormularioAvaliacaoProps {
   alunoId: string;
   avaliacao?: Avaliacao & { criterios: CriterioAvaliacao[] };
+  modoEdicao: boolean;
 }
 
-export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, avaliacao }: FormularioAvaliacaoProps) {
+export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, avaliacao, modoEdicao }: FormularioAvaliacaoProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [temas, setTemas] = useState<Tema[]>([])
   const [criterios, setCriterios] = useState<Criterio[]>([])
   const [arquivo, setArquivo] = useState<File | null>(null);
-  const isEditMode = !!avaliacao
 
   const defaultValues = useMemo(() => {
-    if (isEditMode && avaliacao) {
+    if ( modoEdicao && avaliacao) {
       return {
         tema: String(avaliacao.temaId),
         criterios: avaliacao.criterios.reduce((acc, crit) => {
@@ -60,7 +61,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
       tema: "",
       criterios: {}
     };
-  }, [isEditMode, avaliacao]);
+  }, [ modoEdicao, avaliacao]);
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -136,7 +137,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
         notaFinal
       };
 
-      if (isEditMode && avaliacao) {
+      if ( modoEdicao && avaliacao) {
         await EditarAvaliacao(avaliacao.id, dadosAvaliacao);
         toast.success('Avaliação atualizada com sucesso');
       } else {
@@ -156,28 +157,28 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        {isEditMode ?
-          <div>
-            <Button className="max-md:hidden">
-              <Pencil />
-              Editar
-            </Button>
-            <div className="md:hidden">
-              <EditButton />
-            </div>
-          </div>
+        { modoEdicao ?
+          <EditButton />
           :
-          <Button>
-            <FilePenLine />
-            <div className="max-sm:hidden flex gap-2">
-              Correção
-            </div>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                className="hover:cursor-pointer"
+                onClick={() => setIsOpen(true)}
+              >
+                <FileCheck2 />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="text-background">
+              <p>Corrigir</p>
+            </TooltipContent>
+          </Tooltip>
         }
       </DialogTrigger>
       <DialogContent className="max-sm:max-h-[94vh] max-sm:overflow-y-auto overflow-x-hidden max-w-screen-md">
         <DialogHeader>
-          <DialogTitle className="text-center max-sm:text-base">{isEditMode ? "Editar Correção" : "Adicionar Correção"}</DialogTitle>
+          <DialogTitle className="text-center max-sm:text-base">{ modoEdicao ? "Editar Correção" : "Adicionar Correção"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">

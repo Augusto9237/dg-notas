@@ -26,7 +26,6 @@ export function CardNovoTema({ tema }: CardNovoTemaProps) {
                         <h3 className="font-medium mb-1 text-sm leading-tight">
                             {tema.nome}
                         </h3>
-
                     </div>
                     <div className="text-right">
                         <Badge

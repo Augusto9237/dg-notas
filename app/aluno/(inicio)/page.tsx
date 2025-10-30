@@ -23,8 +23,6 @@ export default async function Page() {
           <div className="flex items-center justify-between">
             <h2 className="text-primary font-semibold">Suas Redações</h2>
           </div>
-
-          <div>
             {novosTemas.length > 0 && (
               <div className='space-y-4'>
                 {novosTemas.map((tema) => (
@@ -32,7 +30,6 @@ export default async function Page() {
                 ))}
               </div>
             )}
-          </div>
           <ListaAvaliacoes avaliacoesIniciais={avaliacoes} criteriosIniciais={criterios} />
         </main>
       </div>

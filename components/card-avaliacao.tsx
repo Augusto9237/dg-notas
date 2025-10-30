@@ -43,18 +43,12 @@ export function CardAvaliacao({ avaliacao, criterios }: CardAvaliacaoProps) {
         <Card
             className={clsx("cursor-pointer hover:shadow-md transition-shadow p-0 min-h-[164px] h-full max-h-[164px] gap-0 relative", avaliacao.status === 'ENVIADA' && "bg-primary/5")}
         >
-            <CardContent className="p-4 relative h-full">
-                <div className="flex items-start justify-between">
+            <CardContent className="p-4 relative h-full flex-1 flex flex-col justify-between">
+                <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
                         <h3 className="font-medium mb-1 text-sm leading-tight">
                             {avaliacao.tema.nome}
                         </h3>
-                        <p className="text-xs text-muted-foreground mb-2">
-                            Profª Daniely Guedes
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                            {new Date(avaliacao.createdAt).toLocaleDateString("pt-BR")}
-                        </p>
                     </div>
                     <div className="text-right">
                         {avaliacao.status === 'CORRIGIDA' ? (
@@ -75,6 +69,14 @@ export function CardAvaliacao({ avaliacao, criterios }: CardAvaliacaoProps) {
                             </Badge>
                         )}
                     </div>
+                </div>
+                <div className="flex justify-between w-full pb-10">
+                    <p className="text-xs text-muted-foreground mb-2">
+                        Profª Daniely Guedes
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                        {new Date(avaliacao.createdAt).toLocaleDateString("pt-BR")}
+                    </p>
                 </div>
             </CardContent>
             <CardFooter className="px-4 pb-4 absolute inset-x-0 bottom-0">

@@ -20,13 +20,18 @@ import {
   PaginationNext,
 } from '@/components/ui/pagination';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Ellipsis, FileCheck2, Search } from 'lucide-react';
+import { Ellipsis, FileCheck2, FileDown, Search } from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { ListarAlunosGoogle } from '@/actions/alunos';
 import { useSearchParams } from 'next/navigation';
 import { Avaliacao, Prisma } from '@/app/generated/prisma';
 import { calcularMedia } from '@/lib/media-geral';
 import { FormularioCorrecao } from './formulario-correcao';
+import { ref, getDownloadURL } from 'firebase/storage';
+import { storage } from '@/lib/firebase';
+import useDownloader from "react-use-downloader";
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { toast } from 'sonner';
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -46,7 +51,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
   const searchParams = useSearchParams()
   const busca = searchParams.get('busca')
 
-  
+  const { download } = useDownloader();
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
@@ -106,6 +111,19 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
     }
   };
 
+  async function baixarArquivo(path: string, emailAluno: string) {
+    try {
+      const arquivo = ref(storage, path);
+      const url = await getDownloadURL(arquivo);
+
+      download(url, `${emailAluno}.jpg`);
+      toast.success('Download iniciado!');
+    } catch (error) {
+      console.error('Erro ao baixar o arquivo:', error);
+      toast.error('Erro ao baixar o arquivo. Tente novamente.');
+    }
+  }
+
   return (
     <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4'>
       <div className="flex items-center max-w-md relative">
@@ -162,7 +180,20 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                   {avaliacao.notaFinal}
                 </TableCell>
                 <TableCell className="text-center">
-                  <FormularioCorrecao alunoId={avaliacao.alunoId} avaliacao={avaliacao} />
+                  <div className="flex gap-4">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button size="icon" variant='outline' onClick={() => baixarArquivo(avaliacao.resposta, avaliacao.aluno.email)}>
+                          <FileDown />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-primary bg-background fill-background">
+                        <p>Baixar Redação</p>
+                      </TooltipContent>
+                    </Tooltip> 
+                  <FormularioCorrecao alunoId={avaliacao.alunoId} avaliacao={avaliacao} modoEdicao={false}/>
+                  <FormularioCorrecao alunoId={avaliacao.alunoId} avaliacao={avaliacao} modoEdicao={true}/>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
