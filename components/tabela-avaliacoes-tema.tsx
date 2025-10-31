@@ -32,6 +32,7 @@ import { storage } from '@/lib/firebase';
 import useDownloader from "react-use-downloader";
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { toast } from 'sonner';
+import { DeleteButton } from './ui/delete-button';
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -190,9 +191,9 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                       <TooltipContent className="text-primary bg-background fill-background">
                         <p>Baixar Redação</p>
                       </TooltipContent>
-                    </Tooltip> 
-                  <FormularioCorrecao alunoId={avaliacao.alunoId} avaliacao={avaliacao} modoEdicao={false}/>
-                  <FormularioCorrecao alunoId={avaliacao.alunoId} avaliacao={avaliacao} modoEdicao={true}/>
+                    </Tooltip>
+                    <FormularioCorrecao alunoId={avaliacao.alunoId} avaliacao={avaliacao} modoEdicao={false} />
+                    <DeleteButton />
                   </div>
                 </TableCell>
               </TableRow>
