@@ -20,35 +20,44 @@ import { Progress } from "./ui/progress"
 
 import { AdicionarAvaliacao, EditarAvaliacao, ListarCriterios, ListarTemas } from "@/actions/avaliacao"
 import { toast } from "sonner"
-import { Avaliacao, Criterio, CriterioAvaliacao, Tema } from "@/app/generated/prisma"
+import { Criterio, CriterioAvaliacao, Prisma, Tema } from "@/app/generated/prisma"
 import { EditButton } from "./ui/edit-button"
 import { Card } from "./ui/card"
 import clsx from "clsx"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
+import { ref, uploadBytes } from "firebase/storage"
+import { storage } from "@/lib/firebase"
+
+type Avaliacao= Prisma.AvaliacaoGetPayload<{
+  include: {
+    aluno: true,
+    criterios: true,
+    tema: true,
+  }
+}>
 
 const formSchema = z.object({
   tema: z.string().min(1, "Tema é obrigatório"),
   criterios: z.record(z.string(), z.object({
     pontuacao: z.number().min(0).max(200)
-  }))
+  })),
+  reposta: z.string().optional()
 })
 
 type FormValues = z.infer<typeof formSchema>
 
 interface FormularioAvaliacaoProps {
-  alunoId: string;
-  avaliacao?: Avaliacao & { criterios: CriterioAvaliacao[] };
-  modoEdicao: boolean;
+  avaliacao: Avaliacao
 }
 
-export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, avaliacao, modoEdicao }: FormularioAvaliacaoProps) {
+export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao }: FormularioAvaliacaoProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [temas, setTemas] = useState<Tema[]>([])
   const [criterios, setCriterios] = useState<Criterio[]>([])
   const [arquivo, setArquivo] = useState<File | null>(null);
 
   const defaultValues = useMemo(() => {
-    if ( modoEdicao && avaliacao) {
+    if (avaliacao) {
       return {
         tema: String(avaliacao.temaId),
         criterios: avaliacao.criterios.reduce((acc, crit) => {
@@ -59,9 +68,10 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
     }
     return {
       tema: "",
-      criterios: {}
+      criterios: {},
+      reposta: ""
     };
-  }, [ modoEdicao, avaliacao]);
+  }, [avaliacao]);
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -102,7 +112,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
       const criterioData = data as { pontuacao: number };
       return {
         criterioId: Number(criterioId),
-        pontuacao: criterioData.pontuacao
+        pontuacao: criterioData.pontuacao,
       };
     });
   }
@@ -122,6 +132,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const storageRef = ref(storage, `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`);
     try {
       if (!values.tema || !values.criterios) {
         throw new Error('Tema e critérios são obrigatórios');
@@ -131,18 +142,17 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
       const notaFinal = calcularNotaFinal(values.criterios);
 
       const dadosAvaliacao = {
-        alunoId,
+        alunoId: avaliacao.alunoId,
         temaId: Number(values.tema),
         criterios: criteriosFormatados,
-        notaFinal
+        notaFinal: notaFinal,
+        status: 'CORRIGIDA' as const,
       };
 
-      if ( modoEdicao && avaliacao) {
+      if (avaliacao && arquivo) {
+        await uploadBytes(storageRef, arquivo);
         await EditarAvaliacao(avaliacao.id, dadosAvaliacao);
-        toast.success('Avaliação atualizada com sucesso');
-      } else {
-        await AdicionarAvaliacao(dadosAvaliacao);
-        toast.success('Avaliação adicionada com sucesso');
+        toast.success('Avaliação corrigida com sucesso');
       }
 
       setIsOpen(false);
@@ -157,9 +167,6 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        { modoEdicao ?
-          <EditButton />
-          :
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -174,11 +181,10 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ alunoId, a
               <p>Corrigir</p>
             </TooltipContent>
           </Tooltip>
-        }
       </DialogTrigger>
       <DialogContent className="max-sm:max-h-[94vh] max-sm:overflow-y-auto overflow-x-hidden max-w-screen-md">
         <DialogHeader>
-          <DialogTitle className="text-center max-sm:text-base">{ modoEdicao ? "Editar Correção" : "Adicionar Correção"}</DialogTitle>
+          <DialogTitle className="text-center max-sm:text-base">Correção</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">

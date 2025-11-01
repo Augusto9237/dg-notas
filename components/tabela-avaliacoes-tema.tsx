@@ -136,15 +136,16 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
         <TableHeader>
           <TableRow >
             <TableHead>Aluno</TableHead>
+            <TableHead>E-mail</TableHead>
             <TableHead>Data</TableHead>
-            <TableHead>Competência 1</TableHead>
-            <TableHead>Competência 2</TableHead>
-            <TableHead>Competência 3</TableHead>
-            <TableHead>Competência 4</TableHead>
-            <TableHead>Competência 5</TableHead>
-            <TableHead>Nota Total</TableHead>
+            <TableHead className='w-[100px] text-center'>Competência 1</TableHead>
+            <TableHead className='w-[100px] text-center'>Competência 2</TableHead>
+            <TableHead className='w-[100px] text-center'>Competência 3</TableHead>
+            <TableHead className='w-[100px] text-center'>Competência 4</TableHead>
+            <TableHead className='w-[100px] text-center'>Competência 5</TableHead>
+            <TableHead className='text-center'>Total</TableHead>
             <TableHead className="text-center">
-              <div className='flex justify-center w-full'>
+              <div className='flex justify-center'>
                 <Ellipsis />
               </div>
             </TableHead>
@@ -160,28 +161,29 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
           ) : (
             paginacaoAvaliacoes.map((avaliacao) => (
               <TableRow key={avaliacao.id}>
-                <TableCell className='flex gap-2 items-center min-w-sm'>
+                <TableCell className='flex gap-2 items-center'>
                   <Avatar>
                     <AvatarImage src={avaliacao.aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
                     <AvatarFallback>{avaliacao.aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
-                  <span className='mt-1'>
+                  <p className='mt-1'>
                     {avaliacao.aluno.name}
-                  </span>
+                  </p>
                 </TableCell>
+                <TableCell>{avaliacao.aluno.email}</TableCell>
                 <TableCell>
                   {new Date(avaliacao.createdAt).toLocaleDateString('pt-BR')}
                 </TableCell>
                 {avaliacao.criterios.map((criterio) => (
-                  <TableCell key={criterio.id} className='text-center'>
+                  <TableCell key={criterio.id} className='text-center w-[100px]'>
                     {criterio.pontuacao}
                   </TableCell>
                 ))}
-                <TableCell className='w-full max-w-[120px] min-w-[120px] text-center font-semibold'>
+                <TableCell className="text-center font-semibold">
                   {avaliacao.notaFinal}
                 </TableCell>
-                <TableCell className="text-center">
-                  <div className="flex gap-4">
+                <TableCell className="w-[100px]">
+                  <div className="flex gap-4 justify-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button size="icon" variant='outline' onClick={() => baixarArquivo(avaliacao.resposta, avaliacao.aluno.email)}>
@@ -192,7 +194,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                         <p>Baixar Redação</p>
                       </TooltipContent>
                     </Tooltip>
-                    <FormularioCorrecao alunoId={avaliacao.alunoId} avaliacao={avaliacao} modoEdicao={false} />
+                    <FormularioCorrecao avaliacao={avaliacao} />
                     <DeleteButton />
                   </div>
                 </TableCell>

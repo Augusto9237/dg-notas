@@ -14,6 +14,7 @@ interface AdicionarAvaliacaoInput {
     temaId: number;
     criterios: CriterioAvaliacaoInput[];
     notaFinal: number;
+    status: 'ENVIADA' | 'CORRIGIDA';
 }
 
 
@@ -73,6 +74,24 @@ export async function EditarTema(id: number, novoNome: string): Promise<Tema> {
         return temaEditado;
     } catch (error) {
         console.error("Erro ao editar tema:", error);
+        throw error;
+    }
+}
+
+export async function AlterarDisponibilidadeTema(id: number, disponivel: boolean): Promise<Tema> {
+    try {
+        const temaAtualizado = await prisma.tema.update({
+            where: {
+                id,
+            },
+            data: {
+                disponivel,
+            },
+        });
+        revalidatePath('/professor')
+        return temaAtualizado;
+    } catch (error) {
+        console.error("Erro ao atualizar disponibilidade do tema:", error);
         throw error;
     }
 }
@@ -187,7 +206,8 @@ export async function EnviarRespoastaAvaliacao(
 
 export async function EditarAvaliacao(
     id: number,
-    data: AdicionarAvaliacaoInput
+    data: AdicionarAvaliacaoInput,
+    correcao?: string
 ): Promise<Avaliacao> {
     try {
         const transaction = await prisma.$transaction([
@@ -200,12 +220,14 @@ export async function EditarAvaliacao(
                     alunoId: data.alunoId,
                     temaId: data.temaId,
                     notaFinal: data.notaFinal,
+                    correcao: correcao,
                     criterios: {
                         create: data.criterios.map((criterio) => ({
                             criterioId: criterio.criterioId,
                             pontuacao: criterio.pontuacao,
                         })),
                     },
+                    status: data.status
                 },
                 include: {
                     criterios: true,
