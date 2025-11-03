@@ -18,36 +18,28 @@ import {
   PaginationLink,
   PaginationNext,
 } from '@/components/ui/pagination';
-import { Criterio, CriterioAvaliacao, Tema, Avaliacao } from '@/app/generated/prisma';
+import { Criterio, CriterioAvaliacao, Tema, Prisma, User } from '@/app/generated/prisma';
 import { DeletarAvaliacao, ListarAvaliacoesAlunoId } from '@/actions/avaliacao';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
 import { Skeleton } from './ui/skeleton';
 import { Button } from './ui/button';
 import { Trash } from 'lucide-react';
+import { FormularioCorrecao } from './formulario-correcao';
 
-interface Aluno {
-  name: string;
-  id: string;
-  email: string;
-  emailVerified: boolean;
-  image: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  role: string | null;
-  banned: boolean | null;
-  banReason: string | null;
-  banExpires: Date | null;
-}
+type Avaliacao = Prisma.AvaliacaoGetPayload<{
+  include: {
+    aluno: true,
+    criterios: true,
+    tema: true,
+  }
+}>
 
 interface TabelaAvaliacoesProps {
-  aluno: Aluno;
+  aluno: User;
   temas: Tema[];
   criterios: Criterio[];
-  avaliacoes: (Avaliacao & {
-    tema: Tema;
-    criterios: CriterioAvaliacao[];
-  })[];
+  avaliacoes: Avaliacao[];
 }
 
 export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, criterios, avaliacoes }: TabelaAvaliacoesProps) {
@@ -197,12 +189,7 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
                 </TableCell>
                 <TableCell className="w-[100px] pr-4">
                   <div className='flex justify-center gap-4'>
-                    <FormularioAvaliacao
-                      alunoId={aluno.id}
-                      temas={temas}
-                      criterios={criterios}
-                      avaliacao={avaliacao}
-                    />
+                    <FormularioCorrecao avaliacao={avaliacao} />
 
                     <>
                       <Button variant='destructive' className='max-md:hidden' onClick={() => excluirAvaliacao(avaliacao.id)}>

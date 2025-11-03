@@ -279,8 +279,9 @@ export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string) {
         const avaliacoes = await prisma.avaliacao.findMany({
             where: whereClause,
             include: {
-                tema: true,      // Continua retornando todos os dados do tema
-                criterios: true, // Continua retornando todos os critérios
+                tema: true,
+                criterios: true,
+                aluno: true,
             },
             orderBy: {
                 createdAt: 'desc',

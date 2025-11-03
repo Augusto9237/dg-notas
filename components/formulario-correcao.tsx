@@ -195,7 +195,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
             <div>
               <FormLabel>Tema</FormLabel>
-              <FormDescription className="text-xs">TEMA TESTE</FormDescription>
+              <FormDescription className="text-xs">{avaliacao.tema.nome}</FormDescription>
             </div>
 
 
