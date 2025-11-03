@@ -107,7 +107,8 @@ export const FormularioAvaliacao = memo(function FormularioAvaliacao({ temas, cr
         alunoId,
         temaId: Number(values.tema),
         criterios: criteriosFormatados,
-        notaFinal
+        notaFinal,
+        status: 'ENVIADA' as const
       };
 
       if (isEditMode && avaliacao) {

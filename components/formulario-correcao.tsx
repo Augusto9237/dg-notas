@@ -28,7 +28,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 import { ref, uploadBytes } from "firebase/storage"
 import { storage } from "@/lib/firebase"
 
-type Avaliacao= Prisma.AvaliacaoGetPayload<{
+type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
     aluno: true,
     criterios: true,
@@ -149,10 +149,15 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
         status: 'CORRIGIDA' as const,
       };
 
-      if (avaliacao && arquivo) {
-        await uploadBytes(storageRef, arquivo);
-        await EditarAvaliacao(avaliacao.id, dadosAvaliacao);
-        toast.success('Avaliação corrigida com sucesso');
+      if (avaliacao) {
+        if (arquivo) {
+          await uploadBytes(storageRef, arquivo);
+          await EditarAvaliacao(avaliacao.id, dadosAvaliacao, `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`);
+          toast.success('Avaliação corrigida com sucesso');
+        } else {
+          await EditarAvaliacao(avaliacao.id, dadosAvaliacao, `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`);
+          toast.success('Avaliação corrigida com sucesso');
+        }
       }
 
       setIsOpen(false);
@@ -167,20 +172,20 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                className="hover:cursor-pointer"
-                onClick={() => setIsOpen(true)}
-              >
-                <FileCheck2 />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="text-background">
-              <p>Corrigir</p>
-            </TooltipContent>
-          </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              className="hover:cursor-pointer"
+              onClick={() => setIsOpen(true)}
+            >
+              <FileCheck2 />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent className="text-background">
+            <p>Corrigir</p>
+          </TooltipContent>
+        </Tooltip>
       </DialogTrigger>
       <DialogContent className="max-sm:max-h-[94vh] max-sm:overflow-y-auto overflow-x-hidden max-w-screen-md">
         <DialogHeader>

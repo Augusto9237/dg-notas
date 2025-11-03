@@ -7,15 +7,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { ChevronRight, FileClock, Plus } from "lucide-react"
+import { ChevronRight, Download, FileClock, Loader2, Plus } from "lucide-react"
 import { useState } from "react"
 import { Separator } from "@radix-ui/react-dropdown-menu"
-import { Essay, Student } from "@/lib/data"
 import { Badge } from "./ui/badge"
 import { Progress } from "./ui/progress"
 import { Avaliacao, Criterio, CriterioAvaliacao, Prisma } from "@/app/generated/prisma"
 import { Card } from "./ui/card"
-
+import { getDownloadURL, ref } from "firebase/storage"
+import { storage } from "@/lib/firebase"
+import useDownloader from "react-use-downloader";
+import { toast } from "sonner"
 
 type AvaliacaoProp = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -29,7 +31,9 @@ interface ModalAvaliacaoProps {
 }
 
 export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
-  const [isOpen, setIsOpen] = useState(false) // Add this state for dialog control
+  const [isOpen, setIsOpen] = useState(false);
+  const [carregando, setCarregando] = useState(false)
+  const { download } = useDownloader()
 
   // Verificação de segurança
   if (!avaliacao || !avaliacao.tema) {
@@ -58,6 +62,22 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
     if (percentage >= 25) return "outline";
     return "destructive";
   };
+
+  async function baixarArquivo(path: string, nomeArquivo: string) {
+    setCarregando(true);
+    try {
+      const arquivo = ref(storage, path);
+      const url = await getDownloadURL(arquivo);
+
+      download(url, `${nomeArquivo}.jpg`);
+      toast.success('Download iniciado');
+    } catch (error) {
+      console.error('Erro ao baixar o arquivo:', error);
+      toast.error('Erro ao baixar o arquivo. Tente novamente.');
+    } finally {
+      setCarregando(false);
+    }
+  }
 
   return (
     <Dialog open={avaliacao.status === "ENVIADA" ? false : isOpen} onOpenChange={() => setIsOpen(open => !open)}>
@@ -104,13 +124,21 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
           );
         })}
         <Separator />
-
         <div className="flex flex-col justify-between items-center pt-4 gap-4 border-t">
           <div className="flex justify-between font-semibold w-full text-primary">
             <span>Nota Final:</span>
             <span>{avaliacao.notaFinal}/1000</span>
           </div>
         </div>
+
+        <Separator className="w-muted" />
+        <Button
+          onClick={() => baixarArquivo(avaliacao.correcao!, avaliacao.tema.nome)}
+        >
+          {carregando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download />}
+          {carregando ? 'Baixando' : 'Baixar Correção'}
+        </Button>
+
       </DialogContent>
     </Dialog >
   )

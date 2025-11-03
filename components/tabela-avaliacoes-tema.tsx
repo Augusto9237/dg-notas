@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, useMemo, useEffect } from 'react';
 import {
   Table,
@@ -65,28 +64,28 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
     setCarregando(false);
   }, [avaliacoes]);
 
-  // useEffect(() => {
-  //   let isMounted = true;
+  useEffect(() => {
+    let isMounted = true;
 
-  //   const buscarAvaliacoes = async () => {
-  //     if (busca) {
-  //       setCarregando(true);
-  //       const resultadoBusca = await ListarAlunosGoogle(busca)
+    const buscarAvaliacoes = async () => {
+      if (busca) {
+        setCarregando(true);
+        const resultadoBusca = avaliacoes.filter((avaliacao) => avaliacao.aluno.email.toLowerCase().includes(busca.toLowerCase()));
 
-  //       if (isMounted) {
-  //         setListaAvaliacoes(resultadoBusca);
-  //         setCarregando(false);
-  //       }
-  //     }
-  //   };
+        if (isMounted) {
+          setListaAvaliacoes(resultadoBusca);
+          setCarregando(false);
+        }
+      }
+    };
 
-  //   buscarAvaliacoes()
+    buscarAvaliacoes()
 
-  //   return () => {
-  //     isMounted = false;
-  //   };
+    return () => {
+      isMounted = false;
+    };
 
-  // }, [busca])
+  }, [busca])
 
   // Calcular paginação
   const totalPages = Math.ceil(listaAvaliacoes.length / pageSize);

@@ -20,12 +20,13 @@ import {
   PaginationNext,
 } from '@/components/ui/pagination';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Ellipsis, FileCheck2, Search } from 'lucide-react';
+import { Ellipsis, FileCheck2, FileDown, Search } from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { ListarAlunosGoogle } from '@/actions/alunos';
 import { useSearchParams } from 'next/navigation';
-import { Avaliacao, StatusAvaliacao } from '@/app/generated/prisma';
+import { StatusAvaliacao } from '@/app/generated/prisma';
 import { calcularMedia } from '@/lib/media-geral';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 
 
@@ -42,6 +43,17 @@ interface TabelaAlunosProps {
       resposta: string;
     }[];
   } & {
+    Avaliacao: {
+      id: number;
+      createdAt: Date;
+      updatedAt: Date;
+      alunoId: string;
+      temaId: number;
+      notaFinal: number;
+      status: StatusAvaliacao;
+      resposta: string;
+      correcao: string | null;
+    }[];
     name: string;
     id: string;
     email: string;
@@ -102,7 +114,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
   const endIndex = startIndex + pageSize;
   const paginatedAlunos = listaAlunos.slice(startIndex, endIndex);
 
- 
+
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -162,14 +174,19 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
                 <TableCell>{aluno.email}</TableCell>
                 <TableCell className='w-full max-w-[120px] min-w-[120px] text-center font-semibold'>{calcularMedia(aluno.Avaliacao)}</TableCell>
                 <TableCell className="text-center">
+
                   <Link href={`/professor/alunos/${aluno.id}`} passHref>
-                    <Button>
-                      <FileCheck2 />
-                      <span className='max-md:hidden'>
-                        Avaliações
-                      </span>
-                    </Button>
-                  </Link>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button size="icon">
+                          <FileCheck2/>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className='text-card'>
+                        <p>Avaliações</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    </Link>
                 </TableCell>
               </TableRow>
             ))
