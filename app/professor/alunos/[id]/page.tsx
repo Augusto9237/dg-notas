@@ -52,7 +52,7 @@ export default async function Page({
           </div>
           <div>
             <h2 className='text-lg font-semibold'>
-              Média Geral: {calcularMedia(avaliacoesData).toFixed(2)}
+              Média Geral: {calcularMedia(avaliacoesData)}
             </h2>
           </div>
         </div>
