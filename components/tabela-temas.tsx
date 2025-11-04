@@ -17,13 +17,19 @@ import { FormularioTema } from "./formulario-tema"
 import { InputBusca } from "./input-busca"
 import { Button } from "./ui/button"
 
+interface respostasPorTema {
+  total: number;
+  enviadas: number;
+}
+
+
 interface TabelaTemasProps {
   temas: Tema[];
   avaliacoes: Avaliacao[];
 }
 
 // Componente para agrupar os botões de ação da tabela
-function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRespostas: number; aoExcluir: (id: number) => void }) {
+function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRespostas: respostasPorTema; aoExcluir: (id: number) => void }) {
   return (
     <div className="flex items-center justify-center gap-4">
       <Link href={`/professor/avaliacoes/${tema.id}`} passHref>
@@ -31,15 +37,21 @@ function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRes
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              className="hover:cursor-pointer"
-              variant={totalRespostas > 0 ? 'default' : 'ghost'}
-              disabled={totalRespostas === 0}
+              className="hover:cursor-pointer relative"
+              variant={(totalRespostas.total) > 0 ? 'default' : 'ghost'}
+              disabled={!totalRespostas?.total}
             >
+              {totalRespostas.enviadas > 0 ? (
+                <span className="absolute -right-1 -top-1 flex size-4">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
+                  <span className="relative flex justify-center items-center size-4 rounded-full bg-card text-[0.60rem] text-center text-primary border border-primary">{totalRespostas.enviadas}</span>
+                </span>
+              ) : null}
               <FileCheck2 />
             </Button>
           </TooltipTrigger>
           <TooltipContent className="text-background">
-            <p>{totalRespostas} Redações</p>
+            <p>{totalRespostas.total} Redações</p>
           </TooltipContent>
         </Tooltip>
       </Link>
@@ -70,14 +82,12 @@ export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasPro
   }, [busca, temasIniciais]);
 
   // Memoiza a contagem de respostas para cada tema, evitando recálculos desnecessários
-  const respostasPorTema = useMemo(() => {
-    const contagem: { [key: number]: number } = {};
-    avaliacoes.forEach(avaliacao => {
-      if (avaliacao.resposta && avaliacao.temaId) {
-        contagem[avaliacao.temaId] = (contagem[avaliacao.temaId] || 0) + 1;
-      }
-    });
-    return contagem;
+  const respostasPorTema = useMemo(() => (temaId: number) => {
+    const respostas = avaliacoes.filter(avaliacao => avaliacao.temaId === temaId && avaliacao.resposta);
+    return {
+      total: respostas.length,
+      enviadas: respostas.filter(avaliacao => avaliacao.status === 'ENVIADA').length
+    };
   }, [avaliacoes]);
 
   // Função para excluir um tema
@@ -119,7 +129,7 @@ export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasPro
               <TableCell className="w-[54px]">
                 <AcoesDoTema
                   tema={tema}
-                  totalRespostas={respostasPorTema[tema.id] || 0}
+                  totalRespostas={respostasPorTema(tema.id)}
                   aoExcluir={excluirTema}
                 />
               </TableCell>
