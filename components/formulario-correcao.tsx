@@ -8,20 +8,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { FileCheck2, FilePenLine, FileText, Loader2, Paperclip, Pencil, Plus } from "lucide-react"
+import { FilePen, FileText, Loader2, Upload } from "lucide-react"
 import { useEffect, useState, useMemo, memo, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Separator } from "@radix-ui/react-dropdown-menu"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Progress } from "./ui/progress"
 
-import { AdicionarAvaliacao, EditarAvaliacao, ListarCriterios, ListarTemas } from "@/actions/avaliacao"
+import { EditarAvaliacao, ListarCriterios, ListarTemas } from "@/actions/avaliacao"
 import { toast } from "sonner"
-import { Criterio, CriterioAvaliacao, Prisma, Tema } from "@/app/generated/prisma"
-import { EditButton } from "./ui/edit-button"
+import { Criterio, Prisma, Tema } from "@/app/generated/prisma"
 import { Card } from "./ui/card"
 import clsx from "clsx"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
@@ -179,7 +176,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
               className="hover:cursor-pointer"
               onClick={() => setIsOpen(true)}
             >
-              <FileCheck2 />
+              <FilePen />
             </Button>
           </TooltipTrigger>
           <TooltipContent className="text-background">
@@ -261,8 +258,8 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
             >
               {arquivo === null ? (
                 <>
-                  <Paperclip />
-                  Anexar folha de redação - corrigida
+                  <Upload/>
+                  Enviar arquivo de correção
                 </>
               ) : (
                 <>

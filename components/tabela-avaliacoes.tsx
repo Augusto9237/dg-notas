@@ -191,15 +191,7 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
                   <div className='flex justify-center gap-4'>
                     <FormularioCorrecao avaliacao={avaliacao} />
 
-                    <>
-                      <Button variant='destructive' className='max-md:hidden' onClick={() => excluirAvaliacao(avaliacao.id)}>
-                        <Trash />
-                        Excluir
-                      </Button>
-                      <div className='md:hidden'>
-                        <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id)} />
-                      </div>
-                    </>
+                    <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id)} />
                   </div>
                 </TableCell>
               </TableRow>

@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import Loading from './loading';
 import { InputBusca } from '@/components/input-busca';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { calcularMedia } from '@/lib/media-geral';
 
 export default async function Page({
   params,
@@ -49,7 +50,11 @@ export default async function Page({
             <h1 className="text-xl max-sm:text-lg font-bold">{aluno.name}</h1>
             <p className="text-xs text-muted-foreground truncate">{aluno.email}</p>
           </div>
-          <FormularioAvaliacao alunoId={alunoId} temas={temasData} criterios={criteriosData} />
+          <div>
+            <h2 className='text-lg font-semibold'>
+              Média Geral: {calcularMedia(avaliacoesData).toFixed(2)}
+            </h2>
+          </div>
         </div>
         <main className="flex flex-col gap-4 p-5">
           <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
