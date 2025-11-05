@@ -51,7 +51,7 @@ function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRes
             </Button>
           </TooltipTrigger>
           <TooltipContent className="text-background">
-            <p>{totalRespostas.total} Redações</p>
+            <p>Redações</p>
           </TooltipContent>
         </Tooltip>
       </Link>
@@ -113,6 +113,7 @@ export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasPro
             <TableHead>Id</TableHead>
             <TableHead>Título</TableHead>
             <TableHead>Data</TableHead>
+            <TableHead className="text-center max-w-[54px]">Disponível</TableHead>
             <TableHead className="text-center max-w-[54px]">
               <div className='flex justify-center w-full'>
                 <Ellipsis />
@@ -126,6 +127,7 @@ export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasPro
               <TableCell className="w-[54px]">{tema.id}</TableCell>
               <TableCell>{tema.nome}</TableCell>
               <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
+              <TableCell></
               <TableCell className="w-[54px]">
                 <AcoesDoTema
                   tema={tema}

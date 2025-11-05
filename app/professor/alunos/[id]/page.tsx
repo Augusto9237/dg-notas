@@ -45,20 +45,21 @@ export default async function Page({
     <Suspense fallback={<Loading />}>
       <div className="w-full">
         <div className='flex justify-between items-center h-14 p-5 mt-3 gap-2 relative'>
-          <SidebarTrigger className='absolute'/>
+          <SidebarTrigger className='absolute' />
           <div className='max-[1025px]:ml-10 overflow-hidden'>
             <h1 className="text-xl max-sm:text-lg font-bold">{aluno.name}</h1>
             <p className="text-xs text-muted-foreground truncate">{aluno.email}</p>
           </div>
           <div>
-            <h2 className='text-lg font-semibold'>
-              Média Geral: {calcularMedia(avaliacoesData)}
-            </h2>
+            <div className='max-[1025px]:ml-10 overflow-hidden'>
+              <h1 className="text-xl max-sm:text-lg font-bold">{calcularMedia(avaliacoesData).toFixed(2)}</h1>
+              <p className="text-xs text-muted-foreground truncate">Média Geral</p>
+            </div>
           </div>
         </div>
         <main className="flex flex-col gap-4 p-5">
           <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
-            <InputBusca placeholder='Buscar por Tema'/>
+            <InputBusca placeholder='Buscar por Tema' />
             <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoesData} criterios={criteriosData} temas={temasData} />
           </div>
         </main>

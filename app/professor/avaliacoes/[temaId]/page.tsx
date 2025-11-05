@@ -4,6 +4,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ListarAvaliacoesTemaId } from '@/actions/avaliacao';
 import { TabelaAvaliacoesTema } from '@/components/tabela-avaliacoes-tema';
 import BotaoStatusTema from '@/components/botao-status-tema';
+import { calcularMedia } from '@/lib/media-geral';
 
 export default async function Page({
   params,
@@ -23,7 +24,11 @@ export default async function Page({
             <p className="text-xs text-muted-foreground">{avaliacoesTema.length > 0 ? avaliacoesTema[0].tema.nome : ""}</p>
           </div>
           <div>
-            <BotaoStatusTema tema={avaliacoesTema[0].tema} />
+            <div className='max-[1025px]:ml-10 overflow-hidden'>
+              <h1 className="text-xl max-sm:text-lg font-bold">{calcularMedia(avaliacoesTema).toFixed(2)}</h1>
+              <p className="text-xs text-muted-foreground truncate">Média Geral</p>
+            </div>
+            {/*  */}
           </div>
         </div>
 
