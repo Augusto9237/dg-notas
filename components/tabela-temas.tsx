@@ -122,7 +122,7 @@ export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasPro
         <TableHeader>
           <TableRow>
             <TableHead>Id</TableHead>
-            <TableHead>Título</TableHead>
+            <TableHead>Tema</TableHead>
             <TableHead>Data</TableHead>
             <TableHead className="text-center max-w-[54px]">Disponível</TableHead>
             <TableHead className="text-center max-w-[54px]">
