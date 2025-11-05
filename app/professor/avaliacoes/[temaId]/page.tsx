@@ -19,7 +19,7 @@ export default async function Page({
         <div className='flex justify-between items-center h-14 p-5 mt-3 relative w-full'>
           <SidebarTrigger className='absolute' />
           <div className="max-[1025px]:pl-10">
-            <h1 className=" text-xl font-bold">Tema: {tema}</h1>
+            <h1 className=" text-xl font-bold">Tema - {tema}</h1>
             <p className="text-xs text-muted-foreground">{avaliacoesTema.length > 0 ? avaliacoesTema[0].tema.nome : ""}</p>
           </div>
           <div>

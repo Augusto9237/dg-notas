@@ -34,7 +34,7 @@ function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRes
 
   return (
     <div className="flex items-center justify-center gap-4">
-      <Link href={`/professor/avaliacoes/${tema.id}`} passHref>
+      <Link href={totalRespostas.total > 0 ? `/professor/avaliacoes/${tema.id}` : '/professor/avaliacoes'} passHref>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button

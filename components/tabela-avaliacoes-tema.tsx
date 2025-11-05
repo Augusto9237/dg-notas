@@ -19,19 +19,20 @@ import {
   PaginationNext,
 } from '@/components/ui/pagination';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Ellipsis, FileCheck2, FileDown, Search } from 'lucide-react';
+import { Ellipsis, FileDown} from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { ListarAlunosGoogle } from '@/actions/alunos';
 import { useSearchParams } from 'next/navigation';
 import { Avaliacao, Prisma } from '@/app/generated/prisma';
 import { calcularMedia } from '@/lib/media-geral';
 import { FormularioCorrecao } from './formulario-correcao';
-import { ref, getDownloadURL } from 'firebase/storage';
+import { ref, getDownloadURL, deleteObject } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 import useDownloader from "react-use-downloader";
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
+import { DeletarAvaliacao } from '@/actions/avaliacao';
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -50,7 +51,6 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
   const [listaAvaliacoes, setListaAvaliacoes] = useState<TabelaAvaliacoesTemaProps['avaliacoes']>([])
   const searchParams = useSearchParams()
   const busca = searchParams.get('busca')
-
   const { download } = useDownloader();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -124,6 +124,19 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
     }
   }
 
+  async function excluirAvaliacao(avaliacaoId: number, path: string) {
+    const arquivo = ref(storage, path);
+    try {
+      await DeletarAvaliacao(avaliacaoId);
+      const deletarArquivo = await deleteObject(arquivo);
+      setListaAvaliacoes(prevAvaliacoes => prevAvaliacoes.filter(avaliacao => avaliacao.id !== avaliacaoId));
+      toast.success('Avaliação excluída com sucesso!');
+    } catch (error) {
+      console.error('Erro ao excluir a avaliação:', error);
+      toast.error('Erro ao excluir a avaliação. Tente novamente.');
+    }
+  }
+
   return (
     <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4'>
       <div className="flex items-center max-w-md relative">
@@ -173,11 +186,24 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                 <TableCell>
                   {new Date(avaliacao.createdAt).toLocaleDateString('pt-BR')}
                 </TableCell>
-                {avaliacao.criterios.map((criterio) => (
-                  <TableCell key={criterio.id} className='text-center w-[100px]'>
-                    {criterio.pontuacao}
-                  </TableCell>
-                ))}
+                {avaliacao.criterios.length === 0 ? (
+                  <>
+                    <TableCell className='text-center w-[100px]'>0</TableCell>
+                    <TableCell className='text-center w-[100px]'>0</TableCell>
+                    <TableCell className='text-center w-[100px]'>0</TableCell>
+                    <TableCell className='text-center w-[100px]'>0</TableCell>
+                    <TableCell className='text-center w-[100px]'>0</TableCell>
+                  </>
+                ) : (
+                  <>
+                    {avaliacao.criterios.map((criterio) => (
+                      <TableCell key={criterio.id} className='text-center w-[100px]'>
+                        {criterio.pontuacao}
+                      </TableCell>
+                    ))}
+                  </>
+                )
+                }
                 <TableCell className="text-center font-semibold">
                   {avaliacao.notaFinal}
                 </TableCell>
@@ -193,8 +219,10 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                         <p>Baixar Redação</p>
                       </TooltipContent>
                     </Tooltip>
+
                     <FormularioCorrecao avaliacao={avaliacao} />
-                    <DeleteButton />
+
+                    <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id, avaliacao.resposta)} />
                   </div>
                 </TableCell>
               </TableRow>
