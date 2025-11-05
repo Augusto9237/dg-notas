@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { Ellipsis, FileCheck2 } from "lucide-react"
 
 import { Avaliacao, Tema } from "@/app/generated/prisma"
-import { DeletarTema, ListarTemas } from "@/actions/avaliacao"
+import { AlterarDisponibilidadeTema, DeletarTema, ListarTemas } from "@/actions/avaliacao"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
@@ -16,6 +16,7 @@ import { DeleteButton } from "./ui/delete-button"
 import { FormularioTema } from "./formulario-tema"
 import { InputBusca } from "./input-busca"
 import { Button } from "./ui/button"
+import { Switch } from "./ui/switch"
 
 interface respostasPorTema {
   total: number;
@@ -30,6 +31,7 @@ interface TabelaTemasProps {
 
 // Componente para agrupar os botões de ação da tabela
 function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRespostas: respostasPorTema; aoExcluir: (id: number) => void }) {
+
   return (
     <div className="flex items-center justify-center gap-4">
       <Link href={`/professor/avaliacoes/${tema.id}`} passHref>
@@ -90,6 +92,15 @@ export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasPro
     };
   }, [avaliacoes]);
 
+  async function atualizarDisponibilidadeTema(temaId: number, status: boolean) {
+    try {
+      await AlterarDisponibilidadeTema(temaId, status)
+      toast.success('Status do tema atualizado com sucesso')
+    } catch {
+      toast.error('Erro ao atualizar status')
+    }
+  }
+
   // Função para excluir um tema
   async function excluirTema(id: number) {
     try {
@@ -127,7 +138,12 @@ export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasPro
               <TableCell className="w-[54px]">{tema.id}</TableCell>
               <TableCell>{tema.nome}</TableCell>
               <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
-              <TableCell></
+              <TableCell className="text-center">
+                <Switch
+                  checked={tema.disponivel}
+                  onCheckedChange={(checked) => atualizarDisponibilidadeTema(tema.id, checked)}
+                />
+              </TableCell>
               <TableCell className="w-[54px]">
                 <AcoesDoTema
                   tema={tema}
