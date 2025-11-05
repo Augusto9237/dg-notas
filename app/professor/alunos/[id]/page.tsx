@@ -52,7 +52,7 @@ export default async function Page({
           </div>
           <div>
             <div className='max-[1025px]:ml-10 overflow-hidden'>
-              <h1 className="text-xl max-sm:text-lg font-bold">{calcularMedia(avaliacoesData).toFixed(2)}</h1>
+              <h1 className="text-xl max-sm:text-lg font-bold">{calcularMedia(avaliacoesData).toFixed(2).replace('.', ',')}</h1>
               <p className="text-xs text-muted-foreground truncate">Média Geral</p>
             </div>
           </div>

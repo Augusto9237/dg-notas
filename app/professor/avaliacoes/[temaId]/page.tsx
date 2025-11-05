@@ -3,7 +3,6 @@ import { Suspense } from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ListarAvaliacoesTemaId } from '@/actions/avaliacao';
 import { TabelaAvaliacoesTema } from '@/components/tabela-avaliacoes-tema';
-import BotaoStatusTema from '@/components/botao-status-tema';
 import { calcularMedia } from '@/lib/media-geral';
 
 export default async function Page({
@@ -25,7 +24,7 @@ export default async function Page({
           </div>
           <div>
             <div className='max-[1025px]:ml-10 overflow-hidden'>
-              <h1 className="text-xl max-sm:text-lg font-bold">{calcularMedia(avaliacoesTema).toFixed(2)}</h1>
+              <h1 className="text-xl max-sm:text-lg font-bold">{calcularMedia(avaliacoesTema).toFixed(2).replace('.', ',')}</h1>
               <p className="text-xs text-muted-foreground truncate">Média Geral</p>
             </div>
             {/*  */}
