@@ -72,7 +72,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
             await EnviarRespoastaAvaliacao(
                 session.user.id,
                 tema.id,
-                `avaliacioes/${tema.id}/${session.user.email}`
+                `avaliacoes/${tema.id}/${session.user.email}`
             )
             toast.success('Redação enviada com sucesso!');
             setArquivo(null);
