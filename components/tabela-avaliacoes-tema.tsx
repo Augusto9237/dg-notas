@@ -21,10 +21,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Ellipsis, FileDown} from 'lucide-react';
 import { InputBusca } from './input-busca';
-import { ListarAlunosGoogle } from '@/actions/alunos';
 import { useSearchParams } from 'next/navigation';
-import { Avaliacao, Prisma } from '@/app/generated/prisma';
-import { calcularMedia } from '@/lib/media-geral';
+import { Prisma } from '@/app/generated/prisma';
 import { FormularioCorrecao } from './formulario-correcao';
 import { ref, getDownloadURL, deleteObject } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
