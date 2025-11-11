@@ -4,6 +4,7 @@ import { listarDiasSemana, listarMentoriasAluno, listarSlotsHorario } from "@/ac
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers"
 import { ListMentoriasAlunos } from "@/components/lista-mentorias-aluno";
+import { CardMentoriaConfirmacao } from "@/components/card-mentoria-confirmacao";
 
 
 export default async function Page() {
@@ -14,7 +15,19 @@ export default async function Page() {
     if (session?.user) {
         const diasSemana = await listarDiasSemana()
         const slotsHorario = await listarSlotsHorario()
-        const mentorias = await listarMentoriasAluno(session.user.id)
+        const mentorias = await listarMentoriasAluno(session.user.id);
+
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        const mentoriasDoDia = mentorias.filter(
+            (mentoria) => {
+                const dataMentoria = new Date(mentoria.horario.data);
+                dataMentoria.setHours(0, 0, 0, 0);
+                return dataMentoria.getTime() === hoje.getTime() && mentoria.status === "AGENDADA";
+            }
+        );
+
 
         const diasAtivos = diasSemana.filter((dia) => dia.status === true)
         const horariosAtivos = slotsHorario.filter((horario) => horario.status === true);
@@ -27,6 +40,13 @@ export default async function Page() {
                     </div>
 
                     <AgendarMentoriaAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} />
+                    {mentoriasDoDia.length > 0 && (
+                        <div>
+                            {mentoriasDoDia.map((mentoria) => (
+                                <CardMentoriaConfirmacao mentoria={mentoria} />
+                            ))}
+                        </div>
+                    )}
 
                     <ListMentoriasAlunos mentoriasIniciais={mentorias} diasSemana={diasAtivos} slotsHorario={horariosAtivos} />
                 </main>

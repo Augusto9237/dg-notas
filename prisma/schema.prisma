@@ -30,6 +30,8 @@ enum StatusAvaliacao {
   CORRIGIDA // Correção concluída
 }
 
+
+
 model Avaliacao {
   id        Int                 @id @default(autoincrement())
   alunoId   String  
@@ -68,6 +70,7 @@ model Criterio {
 // Enum para status da mentoria
 enum StatusMentoria {
   AGENDADA
+  CONFIRMADA
   REALIZADA
 }
 

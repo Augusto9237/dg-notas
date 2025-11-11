@@ -531,7 +531,7 @@ interface AtualizarStatusMentoriaResult {
 
 export async function atualizarStatusMentoria(
   mentoriaId: number,
-  status: 'AGENDADA' | 'REALIZADA'
+  status: 'AGENDADA' | 'CONFIRMADA' | 'REALIZADA'
 ): Promise<AtualizarStatusMentoriaResult | Mentoria> {
   try {
     // Verify if mentoria exists
@@ -611,3 +611,21 @@ export async function excluirMentoriaECascata(mentoriaId: number) {
   }
 }
 
+export async function confirmarMentoria(mentoriaId: number) {
+  try{
+    const mentoria = await prisma.mentoria.update({
+      where: {
+        id: mentoriaId
+      },
+      data: {
+        status: 'CONFIRMADA'
+      }
+    })
+
+    revalidatePath('/aluno/mentorias')
+    revalidatePath('/professor/mentorias')
+    return mentoria
+  } catch (error) {
+    console.log(error)
+  }
+}

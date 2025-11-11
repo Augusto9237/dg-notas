@@ -174,9 +174,8 @@ export function AgendarMentoriaAluno({
                         Reagendar
                     </Button>
                     :
-                    <Button>
+                    <Button variant='secondary'  className="rounded-full fixed bottom-20 right-5">
                         <CalendarPlus />
-                        Agendar Mentoria
                     </Button>
                 }
             </DialogTrigger>
