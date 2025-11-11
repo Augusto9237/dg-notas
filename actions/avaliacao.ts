@@ -98,17 +98,30 @@ export async function AlterarDisponibilidadeTema(id: number, disponivel: boolean
 
 export async function DeletarTema(id: number) {
     try {
+        // First, delete all CriterioAvaliacao entries related to evaluations of this theme
+        await prisma.criterioAvaliacao.deleteMany({
+            where: {
+                avaliacao: {
+                    temaId: id
+                }
+            }
+        });
+
+        // Then delete all evaluations related to this theme
         await prisma.avaliacao.deleteMany({
             where: {
                 temaId: id,
             },
         });
+
+        // Finally delete the theme itself
         await prisma.tema.delete({
             where: {
                 id,
             },
         });
-        revalidatePath('/professor')
+        
+        revalidatePath('/professor/avaliacoes')
     } catch (error) {
         console.error("Erro ao deletar tema:", error);
         throw error;
