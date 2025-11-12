@@ -174,7 +174,7 @@ export function AgendarMentoriaAluno({
                         Reagendar
                     </Button>
                     :
-                    <Button variant='secondary'  className="rounded-full fixed bottom-20 right-5">
+                    <Button variant='secondary' className="rounded-full fixed bottom-20 right-5 size-14">
                         <CalendarPlus />
                     </Button>
                 }
@@ -232,10 +232,11 @@ export function AgendarMentoriaAluno({
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Selecione um horário" />
                                             </SelectTrigger>
-                                            <SelectContent>
+                                            <SelectContent className="space-y-4">
                                                 {slotsHorario.map((horario) => (
-                                                    <SelectItem key={horario.id} value={String(horario.id)} disabled={vagasDisponiveis === 0 ? true : false} className={vagasDisponiveis === 0 ? 'opacity-45' : ''}>
-                                                        {horario.nome}
+                                                    <SelectItem key={horario.id} value={String(horario.id)} disabled={vagasDisponiveis === 0 ? true : false} className={vagasDisponiveis === 0 ? 'opacity-45 text-foreground hover:text-foreground' : 'text-primary hover:text-primary'}>
+                                                        {horario.nome} - {vagasDisponiveis > 0 ? `${vagasDisponiveis} ${vagasDisponiveis === 1 ? 'vaga disponível' : 'vagas disponíveis'}` : 
+                                                        'Reservado'}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>

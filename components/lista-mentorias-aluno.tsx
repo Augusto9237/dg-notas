@@ -4,6 +4,7 @@ import { CardMentoria } from "./card-mentoria"
 import { Card, CardContent } from "./ui/card"
 import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma"
 import { ContextoAluno } from "@/context/contexto-aluno"
+import { CalendarX } from "lucide-react"
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -34,14 +35,14 @@ export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorari
     return (
         <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4">
             {mentorias.length === 0 ? (
-                <Card className="col-span-4">
-                    <CardContent className="p-6 text-center text-muted-foreground">
-                        Nenhuma mentoria agendada para esta data
-                    </CardContent>
-                </Card>
+                <div className="w-full flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                    <CalendarX className="size-10" />
+                    <span className="text-foreground font-semibold">Nenhuma mentoria encontrada</span>
+                    <p className="text-xs">Que tal agendar uma nova mentoria?</p>
+                </div>
             ) : (
                 mentorias.map((mentoria) => (
-                    <CardMentoria key={mentoria.id} modo='ALUNO' mentoria={mentoria}  diasSemana={diasSemana} slotsHorario={slotsHorario}/>
+                    <CardMentoria key={mentoria.id} modo='ALUNO' mentoria={mentoria} diasSemana={diasSemana} slotsHorario={slotsHorario} />
                 ))
             )}
         </div>

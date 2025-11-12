@@ -100,6 +100,9 @@ export function CardMentoriaConfirmacao({ mentoria }: CardMentoriaProps) {
                 <Button
                     size="sm"
                     className="w-full"
+                    onClick={() => atualizarStatusDaMentoria('CONFIRMADA')}
+                    disabled={carregando}
+                    variant={carregando ? 'outline' : 'default'}
                 >
 
                     <CalendarCheck />
