@@ -2,7 +2,7 @@
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
-import { getMessaging, getToken, isSupported, onMessage } from 'firebase/messaging';
+import { getMessaging, getToken, isSupported, onMessage, MessagePayload } from 'firebase/messaging';
 
 // Configuração do Firebase para o lado do cliente, usando variáveis de ambiente
 const firebaseConfig = {
@@ -52,7 +52,7 @@ export const requestNotificationPermission = async () => {
   }
 };
 
-export const onMessageListener = async (callback: any) => {
+export const onMessageListener = async (callback: (payload: MessagePayload) => void) => {
   const messaging = await getMessagingInstance();
   if (!messaging) return;
 
