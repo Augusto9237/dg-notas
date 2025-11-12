@@ -174,7 +174,7 @@ export function AgendarMentoriaAluno({
                         Reagendar
                     </Button>
                     :
-                    <Button variant='secondary' className="rounded-full fixed bottom-20 right-5 size-14">
+                    <Button variant='secondary' className="rounded-full fixed bottom-20 right-5 size-12 shadow-md">
                         <CalendarPlus />
                     </Button>
                 }
