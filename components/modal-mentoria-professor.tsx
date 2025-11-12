@@ -43,16 +43,12 @@ interface ModalMentoriaProfessorProps {
     slotsHorario: SlotHorario[]
 }
 
+const STATUS_TEXT = {
+    AGENDADA: "Agendada",
+    CONFIRMADA: "Confirmada",
+    REALIZADA: "Realizada",
+} as const;
 
-
-const getInitials = (name: string): string => {
-    return name
-        .split(" ")
-        .map(word => word.charAt(0))
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-}
 
 export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana, slotsHorario }: ModalMentoriaProfessorProps) {
     const [open, setOpen] = useState(false);
@@ -60,7 +56,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
     const [carregando, setCarregando] = useState(false)
 
 
-    async function atualizarStatusDaMentoria(status: "AGENDADA" | "REALIZADA") {
+    async function atualizarStatusDaMentoria(status: "AGENDADA" | "CONFIRMADA" |  "REALIZADA") {
         setCarregando(true)
         setOpen(false)
 
@@ -85,6 +81,8 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
         }
     }
 
+    const statusText = STATUS_TEXT[mentoria.status as keyof typeof STATUS_TEXT];
+
     function formartarData(data: Date) {
         // Converter a data UTC para uma data local sem problemas de fuso horário
         const dataUTC = new Date(data);
@@ -108,8 +106,13 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                                 alt={mentoria.aluno.name}
                                 className="object-cover"
                             />
-                            <AvatarFallback className="text-xs">
-                                {getInitials(mentoria.aluno.name)}
+                            <AvatarFallback className='text-xs'>
+                                {mentoria.aluno.name
+                                    .split(" ")
+                                    .map(word => word.charAt(0))
+                                    .join("")
+                                    .toUpperCase()
+                                    .slice(0, 2)}
                             </AvatarFallback>
                         </Avatar>
                     </div>
@@ -125,14 +128,19 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                 ) : (
                     <>
                         <div className="flex flex-col gap-5 max-sm:gap-2 items-center relative w-full">
-                            <Avatar className={cn('size-44 border-2', { 'border-primary': mentoria.status === 'REALIZADA', 'border-secondary': mentoria.status === 'AGENDADA' })}>
+                            <Avatar className={cn('size-44 border-2', { 'border-primary': mentoria.status === 'REALIZADA', 'border-primary/15': mentoria.status === 'CONFIRMADA', 'border-secondary': mentoria.status === 'AGENDADA' })}>
                                 <AvatarImage
                                     src={mentoria.aluno.image || ''}
                                     alt={mentoria.aluno.name}
                                     className="object-cover"
                                 />
-                                <AvatarFallback className="text-xs">
-                                    {getInitials(mentoria.aluno.name)}
+                                <AvatarFallback className='text-xs'>
+                                    {mentoria.aluno.name
+                                        .split(" ")
+                                        .map(word => word.charAt(0))
+                                        .join("")
+                                        .toUpperCase()
+                                        .slice(0, 2)}
                                 </AvatarFallback>
                             </Avatar>
 
@@ -148,14 +156,14 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                                 </DialogDescription>
 
                                 <ButtonGroup className="w-full max-w-[298px] mt-5">
-                                    <Button variant={mentoria.status === 'REALIZADA' ? 'default' : 'secondary'} className="w-full">
+                                    <Button variant={mentoria.status === 'AGENDADA' && 'secondary' || mentoria.status === 'CONFIRMADA' && 'outline' || 'default'} className={cn("w-full", mentoria.status === 'CONFIRMADA' && 'bg-primary/10')}>
                                         <p className="pl-4">
-                                            {mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}
+                                            {statusText}
                                         </p>
                                     </Button>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant={mentoria.status === 'REALIZADA' ? 'default' : 'secondary'} className="!pl-2">
+                                            <Button variant={mentoria.status === 'AGENDADA' && 'secondary' || mentoria.status === 'CONFIRMADA' && 'outline' || 'default'} className={cn("!pl-2", mentoria.status === 'CONFIRMADA' && 'bg-primary/10 boder-l-0')}>
                                                 <ChevronDownIcon />
                                             </Button>
                                         </DropdownMenuTrigger>
@@ -166,6 +174,14 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                                                 className="w-full"
                                             >
                                                 Agendada
+                                            </Button>
+
+                                            <Button
+                                                variant='outline'
+                                                onClick={() => atualizarStatusDaMentoria("CONFIRMADA")}
+                                                className="w-full bg-primary/10"
+                                            >
+                                                Confirmada
                                             </Button>
 
                                             <Button

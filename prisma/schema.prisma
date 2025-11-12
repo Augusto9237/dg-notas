@@ -81,6 +81,7 @@ model DiaSemana {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   status    Boolean  @default(false)
+  slots     SlotHorario[] // Adicionando a relação inversa
 
   @@unique([nome])
 }
@@ -93,6 +94,10 @@ model SlotHorario {
   updatedAt DateTime @updatedAt
 
   Horario Horario[]
+
+  // Adicionando a relação com DiaSemana
+  diaSemanaId Int
+  diaSemana   DiaSemana @relation(fields: [diaSemanaId], references: [id])
 }
 
 model Horario {

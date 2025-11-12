@@ -1,18 +1,18 @@
-import { DiaSemana, Prisma, SlotHorario} from "@/app/generated/prisma"
+import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { ModalMentoriaProfessor } from "./modal-mentoria-professor"
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
-      aluno: true,
-      horario: {
-        include: {
-          slot: true
-        }
-      },
+        aluno: true,
+        horario: {
+            include: {
+                slot: true
+            }
+        },
     }
-  }>
+}>
 
 interface CardMentoriaAlunoProps {
     mentoria: Mentoria;
@@ -22,25 +22,25 @@ interface CardMentoriaAlunoProps {
 }
 
 const STATUS_COLORS = {
-    AGENDADA: "bg-secondary",
-    REALIZADA: "bg-primary",
-} as const
+    AGENDADA: "bg-secondary text-card ",
+    CONFIRMADA: "bg-primary/10 text-primary",
+    REALIZADA: "bg-primary text-card ",
+} as const;
+
+const STATUS_TEXT = {
+    AGENDADA: "Agendada",
+    CONFIRMADA: "Confirmada",
+    REALIZADA: "Realizada",
+} as const;
+
 
 export function CardMentoriaProfessor({ mentoria, setListaMentorias, diasSemana, slotsHorario }: CardMentoriaAlunoProps) {
-
-    const getInitials = (name: string): string => {
-        return name
-            .split(" ")
-            .map(word => word.charAt(0))
-            .join("")
-            .toUpperCase()
-            .slice(0, 2)
-    }
+    const statusText = STATUS_TEXT[mentoria.status as keyof typeof STATUS_TEXT];
 
     return (
         <div
             className={cn(
-                "relative rounded-md max-sm:rounded-full max-sm:h-12 p-4 max-md:p-2 max-sm:p-1 text-card flex items-center justify-between max-sm:justify-center w-full max-sm:w-fit text-xs font-medium shadow-sm  hover:opacity-90 transition-opacity overflow-hidden",
+                "relative rounded-md max-sm:rounded-full max-sm:h-12 p-4 max-md:p-2 max-sm:p-1 flex items-center justify-between max-sm:justify-center w-full max-sm:w-fit text-xs font-medium shadow-sm  hover:opacity-90 transition-opacity overflow-hidden",
                 STATUS_COLORS[mentoria.status as keyof typeof STATUS_COLORS],
             )}
         >
@@ -51,32 +51,30 @@ export function CardMentoriaProfessor({ mentoria, setListaMentorias, diasSemana,
                         alt={mentoria.aluno.name}
                         className="object-cover"
                     />
-                    <AvatarFallback className="text-xs">
-                        {getInitials(mentoria.aluno.name)}
+                    <AvatarFallback className='text-xs'>
+                        {mentoria.aluno.name
+                            .split(" ")
+                            .map(word => word.charAt(0))
+                            .join("")
+                            .toUpperCase()
+                            .slice(0, 2)}
                     </AvatarFallback>
                 </Avatar>
-                <div className="space-y-1 min-w-0 min-[800px]:hidden">
-                    <span className="font-semibold truncate text-ellipsis text-sm block">
+                <div className="space-y-1 min-w-0">
+                    <span className="font-semibold truncate text-ellipsis text-sm sm:hidden">
                         {mentoria.aluno.name.split(" ")[0]}
                     </span>
-                    <div>
-                        <p className="truncate text-xs max-md:leading-none opacity-80">
-                            {mentoria.status === 'REALIZADA' ? 'Realizada' : 'Agendada'}
-                        </p>
-                    </div>
-                </div>
-                <div className="space-y-1 min-w-0 max-[820px]:hidden">
-                    <span className="font-semibold truncate text-ellipsis text-sm block">
+                    <span className="font-semibold truncate text-ellipsis text-sm hidden sm:block">
                         {mentoria.aluno.name}
                     </span>
                     <div>
                         <p className="truncate text-xs max-md:leading-none opacity-80">
-                            {mentoria.status === 'REALIZADA' ? 'Realizada' : 'Agendada'}
+                            {statusText}
                         </p>
                     </div>
                 </div>
             </div>
-            <ModalMentoriaProfessor mentoria={mentoria} setListaMentorias={setListaMentorias} diasSemana={diasSemana} slotsHorario={slotsHorario}/>
+            <ModalMentoriaProfessor mentoria={mentoria} setListaMentorias={setListaMentorias} diasSemana={diasSemana} slotsHorario={slotsHorario} />
         </div>
     )
 }

@@ -80,7 +80,8 @@ export function AgendarMentoriaAluno({
     setIsOpen
 }: AgendarMentoriaAlunoProps) {
     const [open, setOpen] = useState(false)
-    const [vagasDisponiveis, setVagasDisponiveis] = useState<number>(4)
+    const [vagas, setVagas] = useState<Record<string, number>>({});
+    const [isLoading, setIsLoading] = useState(false);
     const { data: session } = authClient.useSession();
 
     // Determinar a data inicial corrigindo o fuso horário
@@ -119,23 +120,29 @@ export function AgendarMentoriaAluno({
         }
     }, [mode, mentoriaData, form]);
 
-    // Verificar disponibilidade quando data ou horário mudarem
-    const watchedData = form.watch('data')
-    const watchedHorario = form.watch('horario')
+    const watchedData = form.watch('data');
 
     useEffect(() => {
-        async function verificarVagas() {
-            const data = form.getValues('data')
-            const horario = form.getValues('horario')
+        const verificarVagas = async () => {
+            if (!watchedData) return;
 
-            if (data && horario) {
+            setIsLoading(true);
+            const vagasPromises = slotsHorario.map(horario =>
+                verificarDisponibilidadeHorario(watchedData, horario.id)
+            );
+            const vagasResult = await Promise.all(vagasPromises);
 
-                const vagas = await verificarDisponibilidadeHorario(data, Number(horario))
-                setVagasDisponiveis(vagas)
-            }
-        }
-        verificarVagas()
-    }, [watchedData, watchedHorario, form])
+            const vagasMap: Record<string, number> = {};
+            slotsHorario.forEach((horario, index) => {
+                vagasMap[horario.id] = vagasResult[index];
+            });
+
+            setVagas(vagasMap);
+            setIsLoading(false);
+        };
+
+        verificarVagas();
+    }, [watchedData, slotsHorario]);
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
@@ -205,13 +212,8 @@ export function AgendarMentoriaAluno({
                                         onSelect={field.onChange}
                                         locale={ptBR}
                                         disabled={(date) => {
-                                            // Disable dates in the past
                                             if (date < new Date()) return true
-
-                                            // Get day of week (0 = Sunday, 1 = Monday, etc)
                                             const dayOfWeek = date.getDay()
-
-                                            // Only enable Mondays (1) and Wednesdays (3)
                                             return dayOfWeek !== diasSemana[0].dia && dayOfWeek !== diasSemana[1].dia
                                         }}
                                         className="rounded-md border w-full"
@@ -230,15 +232,21 @@ export function AgendarMentoriaAluno({
                                     <FormControl>
                                         <Select onValueChange={field.onChange} value={String(field.value) ?? ""}>
                                             <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Selecione um horário" />
+                                                <SelectValue placeholder={!watchedData ? "Selecione uma data primeiro" : "Selecione um horário"} />
                                             </SelectTrigger>
                                             <SelectContent className="space-y-4">
-                                                {slotsHorario.map((horario) => (
-                                                    <SelectItem key={horario.id} value={String(horario.id)} disabled={vagasDisponiveis === 0 ? true : false} className={vagasDisponiveis === 0 ? 'opacity-45 text-foreground hover:text-foreground' : 'text-primary hover:text-primary'}>
-                                                        {horario.nome} - {vagasDisponiveis > 0 ? `${vagasDisponiveis} ${vagasDisponiveis === 1 ? 'vaga disponível' : 'vagas disponíveis'}` : 
-                                                        'Reservado'}
-                                                    </SelectItem>
-                                                ))}
+                                                {isLoading && <div className="flex items-center justify-center p-2"><Loader2 className="h-4 w-4 animate-spin" /></div>}
+                                                {!isLoading && Object.keys(vagas).length > 0 && slotsHorario.map((horario) => {
+                                                    const vagasDisponiveis = vagas[horario.id];
+                                                    const isAvailable = vagasDisponiveis > 0;
+
+                                                    return (
+                                                        <SelectItem key={horario.id} value={String(horario.id)} disabled={!isAvailable} className={!isAvailable ? 'opacity-45 text-foreground hover:text-foreground' : 'text-primary hover:text-primary'}>
+                                                            {horario.nome} - {isAvailable ? `${vagasDisponiveis} ${vagasDisponiveis === 1 ? 'vaga disponível' : 'vagas disponíveis'}` :
+                                                                'Reservado'}
+                                                        </SelectItem>
+                                                    )
+                                                })}
                                             </SelectContent>
                                         </Select>
                                     </FormControl>
