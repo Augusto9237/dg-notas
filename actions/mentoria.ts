@@ -9,6 +9,7 @@ interface AdicionarMentoriaParams {
   alunoId: string;
   data: Date;
   slotId: number; // ID do SlotHorario
+  diaSemanaId: number; // ID do DiaSemana
   duracao?: number; // Opcional, padrão 20 minutos
 }
 
@@ -75,7 +76,7 @@ export async function editarSlotsHorario(id: number, status: boolean) {
 export async function adicionarMentoria(
   params: AdicionarMentoriaParams
 ): Promise<AdicionarMentoriaResult> {
-  const { alunoId, data, slotId, duracao = 20 } = params;
+  const { alunoId, data, slotId, diaSemanaId, duracao = 20 } = params;
 
   try {
     // Normalizar a data para evitar problemas com fuso horário
@@ -119,6 +120,7 @@ export async function adicionarMentoria(
         data: {
           data: dataNormalizada,
           slotId: slotId,
+          diaSemanaId: diaSemanaId,
           status: true // Status como boolean (true = disponível)
         },
         include: {
@@ -227,7 +229,8 @@ export async function adicionarMentoria(
  */
 export async function verificarDisponibilidadeHorario(
   data: Date,
-  slotId: number
+  slotId: number,
+  diaSemanaId: number,
 ): Promise<number> {
   try {
     // Normalizar a data para evitar problemas com fuso horário
@@ -240,16 +243,13 @@ export async function verificarDisponibilidadeHorario(
     const horario = await prisma.horario.findFirst({
       where: {
         data: dataNormalizada,
-        slotId: slotId
+        slotId: slotId,
+        diaSemanaId: diaSemanaId
       },
       include: {
         _count: {
           select: {
-            mentorias: {
-              where: {
-                status: StatusMentoria.AGENDADA
-              }
-            }
+            mentorias: true
           }
         }
       }
@@ -263,6 +263,69 @@ export async function verificarDisponibilidadeHorario(
   } catch (error) {
     console.error('Erro ao verificar disponibilidade:', error);
     return 0;
+  }
+}
+
+/**
+ * Verifica disponibilidade de múltiplos slots de uma vez (otimizado)
+ * @param data - Data da mentoria
+ * @param slotIds - Array de IDs dos slots de horário
+ * @param diaSemanaId - ID do dia da semana
+ * @returns Mapa com slotId como chave e número de vagas como valor
+ */
+export async function verificarDisponibilidadeMultiplosSlots(
+  data: Date,
+  slotIds: number[],
+  diaSemanaId: number,
+): Promise<Record<number, number>> {
+  try {
+    if (slotIds.length === 0) return {};
+
+    // Normalizar a data para evitar problemas com fuso horário
+    const dataNormalizada = new Date(Date.UTC(
+      data.getFullYear(),
+      data.getMonth(),
+      data.getDate()
+    ));
+
+    // Buscar todos os horários de uma vez
+    const horarios = await prisma.horario.findMany({
+      where: {
+        data: dataNormalizada,
+        slotId: { in: slotIds },
+        diaSemanaId: diaSemanaId
+      },
+      include: {
+        _count: {
+          select: {
+            mentorias: true
+          }
+        }
+      }
+    });
+
+    // Criar mapa de resultados (slotId -> vagas disponíveis)
+    const resultado: Record<number, number> = {};
+    
+    // Inicializar todos os slots com 4 vagas (padrão quando não existe horário)
+    slotIds.forEach(slotId => {
+      resultado[slotId] = 4;
+    });
+
+    // Atualizar com os valores reais encontrados
+    horarios.forEach(horario => {
+      resultado[horario.slotId] = Math.max(0, 4 - horario._count.mentorias);
+    });
+
+    return resultado;
+  } catch (error) {
+    console.error('Erro ao verificar disponibilidade múltipla:', error);
+    // Retornar valores padrão em caso de erro
+    const resultado: Record<number, number> = {};
+    slotIds.forEach(slotId => {
+      resultado[slotId] = 0;
+    });
+    return resultado;
   }
 }
 
@@ -347,6 +410,7 @@ interface EditarMentoriaParams {
   mentoriaId: number;
   data: Date;
   slotId: number; // ID do SlotHorario
+  diaSemanaId: number; // ID do DiaSemana
   duracao?: number;
 }
 
@@ -365,7 +429,7 @@ interface EditarMentoriaResult {
 export async function editarMentoria(
   params: EditarMentoriaParams
 ): Promise<EditarMentoriaResult> {
-  const { mentoriaId, data, slotId, duracao = 20 } = params;
+  const { mentoriaId, data, slotId, diaSemanaId, duracao = 20 } = params;
 
   try {
     // Normalizar a data para evitar problemas com fuso horário
@@ -413,6 +477,7 @@ export async function editarMentoria(
         data: {
           data: dataNormalizada,
           slotId: slotId,
+          diaSemanaId: diaSemanaId,
           status: true // Status como boolean (true = disponível)
         },
         include: {

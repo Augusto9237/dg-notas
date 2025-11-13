@@ -81,9 +81,8 @@ model DiaSemana {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   status    Boolean  @default(false)
-  slots     SlotHorario[] // Adicionando a relação inversa
 
-  @@unique([nome])
+  horarios Horario[]
 }
 
 model SlotHorario {
@@ -95,15 +94,12 @@ model SlotHorario {
 
   Horario Horario[]
 
-  // Adicionando a relação com DiaSemana
-  diaSemanaId Int
-  diaSemana   DiaSemana @relation(fields: [diaSemanaId], references: [id])
 }
 
 model Horario {
   id     Int      @id @default(autoincrement())
   data   DateTime @db.Date // Apenas data, sem horário
-  status Boolean  @default(true)
+  status Boolean  @default(true) // true = disponível, false = ocupado (4 mentorias)
 
   mentorias Mentoria[]
 
@@ -112,8 +108,13 @@ model Horario {
   // Solução: Use o campo de chave estrangeira scalar `slotId` ao invés do objeto de relação `slot`
   slotId Int
   slot   SlotHorario @relation(fields: [slotId], references: [id])
+  diaSemanaId Int
+  diaSemana   DiaSemana @relation(fields: [diaSemanaId], references: [id])
 
+  // Índices para otimizar consultas de disponibilidade
   @@unique([data, slotId])
+  @@index([data, slotId, status]) // Otimiza busca por data+slot com status
+  @@index([status]) // Otimiza filtros por disponibilidade
 }
 
 model Mentoria {
@@ -129,8 +130,12 @@ model Mentoria {
 
   // Garante que um aluno só possa ter uma mentoria por horário
   @@unique([alunoId, horarioId])
-  @@index([status])
+  // Índices para otimizar consultas
+  @@index([status]) // Filtra mentorias por status
+  @@index([horarioId, status]) // Otimiza contagem de mentorias ativas por horário
 }
+
+
 
 model User {
   id            String    @id
@@ -149,9 +154,20 @@ model User {
   banExpires DateTime?
   Avaliacao  Avaliacao[]
   Mentorias  Mentoria[]
+  Professor  Professor?
 
   @@unique([email])
   @@map("user")
+}
+
+model Professor {
+  id        Int      @id @default(autoincrement())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("professor")
 }
 
 model Session {

@@ -21,10 +21,10 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Calendar } from "./ui/calendar"
 import { CalendarPlus, CalendarSync, Loader2 } from "lucide-react"
-import { useState, useEffect, Dispatch, SetStateAction } from "react"
+import { useState, useEffect, useMemo, useCallback, Dispatch, SetStateAction, useRef } from "react"
 import { ptBR } from "date-fns/locale"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { adicionarMentoria, editarMentoria, verificarDisponibilidadeHorario } from "@/actions/mentoria"
+import { adicionarMentoria, editarMentoria, verificarDisponibilidadeMultiplosSlots} from "@/actions/mentoria"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma"
@@ -83,14 +83,23 @@ export function AgendarMentoriaAluno({
     const [vagas, setVagas] = useState<Record<string, number>>({});
     const [isLoading, setIsLoading] = useState(false);
     const { data: session } = authClient.useSession();
+    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Determinar a data inicial corrigindo o fuso horário
-    const getInitialDate = () => {
+    // Memoizar a data inicial para evitar recálculos
+    const initialDate = useMemo(() => {
         if (mode === 'edit' && mentoriaData) {
             return convertUTCToLocalDate(mentoriaData.horario.data);
         }
         return new Date();
-    };
+    }, [mode, mentoriaData]);
+
+    // Memoizar IDs dos slots para evitar recriação de arrays
+    const slotIds = useMemo(() => slotsHorario.map(slot => slot.id), [slotsHorario]);
+
+    // Memoizar dias permitidos para o calendário
+    const diasPermitidos = useMemo(() => {
+        return diasSemana.map(dia => dia.dia);
+    }, [diasSemana]);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -99,7 +108,7 @@ export function AgendarMentoriaAluno({
                 ? String(mentoriaData.horario.slotId)
                 : '',
             data: mode === 'edit' && mentoriaData
-                ? getInitialDate() : undefined
+                ? initialDate : undefined
         },
     })
 
@@ -118,47 +127,96 @@ export function AgendarMentoriaAluno({
                 data: undefined,
             });
         }
-    }, [mode, mentoriaData, form]);
+    }, [mode, mentoriaData, form, initialDate]);
 
     const watchedData = form.watch('data');
 
-    useEffect(() => {
-        const verificarVagas = async () => {
-            if (!watchedData) return;
+    // Memoizar cálculo do diaSemanaId
+    const diaSemanaId = useMemo(() => {
+        if (!watchedData) return 0;
+        return diasSemana.find(dia => dia.dia === watchedData.getDay())?.id || 0;
+    }, [watchedData, diasSemana]);
 
-            setIsLoading(true);
-            const vagasPromises = slotsHorario.map(horario =>
-                verificarDisponibilidadeHorario(watchedData, horario.id)
+    // Função otimizada para verificar vagas com debounce
+    const verificarVagas = useCallback(async (data: Date) => {
+        if (!data || slotIds.length === 0) {
+            setVagas({});
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const vagasResult = await verificarDisponibilidadeMultiplosSlots(
+                data,
+                slotIds,
+                diaSemanaId
             );
-            const vagasResult = await Promise.all(vagasPromises);
 
+            // Converter para Record<string, number> para manter compatibilidade
             const vagasMap: Record<string, number> = {};
-            slotsHorario.forEach((horario, index) => {
-                vagasMap[horario.id] = vagasResult[index];
+            Object.entries(vagasResult).forEach(([slotId, vagas]) => {
+                vagasMap[slotId] = Number(vagas);
             });
 
             setVagas(vagasMap);
+        } catch (error) {
+            console.error('Erro ao verificar vagas:', error);
+            setVagas({});
+        } finally {
             setIsLoading(false);
+        }
+    }, [slotIds, diaSemanaId]);
+
+    // useEffect com debounce para evitar múltiplas chamadas
+    useEffect(() => {
+        // Limpar timer anterior se existir
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+
+        if (!watchedData) {
+            setVagas({});
+            return;
+        }
+
+        // Debounce de 300ms para evitar chamadas excessivas
+        debounceTimerRef.current = setTimeout(() => {
+            verificarVagas(watchedData);
+        }, 300);
+
+        // Cleanup
+        return () => {
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
         };
+    }, [watchedData, verificarVagas]);
 
-        verificarVagas();
-    }, [watchedData, slotsHorario]);
+    // Memoizar função disabled do calendário
+    const isDateDisabled = useCallback((date: Date) => {
+        if (date < new Date()) return true
+        const dayOfWeek = date.getDay()
+        return !diasPermitidos.includes(dayOfWeek)
+    }, [diasPermitidos]);
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    // Memoizar função de submit
+    const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
         try {
-
             if (mode === 'edit' && mentoriaData) {
                 await editarMentoria({
                     mentoriaId: mentoriaData.id,
                     data: values.data,
                     slotId: Number(values.horario),
+                    diaSemanaId: mentoriaData.horario.diaSemanaId,
                     duracao: mentoriaData.duracao,
                 });
             } else {
+                const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === values.data.getDay())?.id || 0;
                 await adicionarMentoria({
                     alunoId: session?.user.id || "user_123",
                     data: values.data,
                     slotId: Number(values.horario),
+                    diaSemanaId: diaSemanaIdCalculado,
                 });
             }
             const message = mode === 'edit' ? 'Mentoria editada com sucesso!' : 'Mentoria agendada com sucesso!';
@@ -170,7 +228,7 @@ export function AgendarMentoriaAluno({
             toast.error('Algo deu errado, tente novamente');
             console.error(`Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria:`, error);
         }
-    }
+    }, [mode, mentoriaData, session?.user.id, diasSemana, form, setIsOpen]);
 
     return (
         <Dialog open={open} onOpenChange={setOpen} >
@@ -211,11 +269,7 @@ export function AgendarMentoriaAluno({
                                         selected={field.value}
                                         onSelect={field.onChange}
                                         locale={ptBR}
-                                        disabled={(date) => {
-                                            if (date < new Date()) return true
-                                            const dayOfWeek = date.getDay()
-                                            return dayOfWeek !== diasSemana[0].dia && dayOfWeek !== diasSemana[1].dia
-                                        }}
+                                        disabled={isDateDisabled}
                                         className="rounded-md border w-full"
                                     />
                                     <FormMessage />
