@@ -1,9 +1,8 @@
 'use client';
 
 import { DiaSemana, Prisma, SlotHorario, StatusMentoria } from "@/app/generated/prisma";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { DialogTitle } from "@radix-ui/react-dialog";
 import { CalendarX, ChevronDown, ChevronDownIcon, ChevronRight, Loader2 } from "lucide-react";
 import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
@@ -24,6 +23,9 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Badge } from "./ui/badge";
+import { Textarea } from "./ui/textarea";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -56,7 +58,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
     const [carregando, setCarregando] = useState(false)
 
 
-    async function atualizarStatusDaMentoria(status: "AGENDADA" | "CONFIRMADA" |  "REALIZADA") {
+    async function atualizarStatusDaMentoria(status: "AGENDADA" | "CONFIRMADA" | "REALIZADA") {
         setCarregando(true)
         setOpen(false)
 
@@ -99,7 +101,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
             <DialogTrigger asChild>
                 <Button size='icon' variant='ghost' className="bg-transparent hover:bg-accent-foreground/20 hover:text-card hover:cursor-pointer">
                     <ChevronRight className="max-sm:hidden" />
-                    <div className="sm:hidden">
+                    {/* <div className="sm:hidden">
                         <Avatar className="size-10.5">
                             <AvatarImage
                                 src={mentoria.aluno.image || ''}
@@ -115,11 +117,11 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                                     .slice(0, 2)}
                             </AvatarFallback>
                         </Avatar>
-                    </div>
+                    </div> */}
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="flex flex-col overflow-hidden w-full sm:max-w-sm" style={{ maxWidth: '384px' }}>
+            <DialogContent >
                 {carregando === true ? (
                     <div className="min-h-[360px] h-full z-50 flex items-center justify-center">
                         <DialogTitle />
@@ -128,7 +130,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                 ) : (
                     <>
                         <div className="flex flex-col gap-5 max-sm:gap-2 items-center relative w-full">
-                            <Avatar className={cn('size-44 border-2', { 'border-primary': mentoria.status === 'REALIZADA', 'border-primary/15': mentoria.status === 'CONFIRMADA', 'border-secondary': mentoria.status === 'AGENDADA' })}>
+                            {/* <Avatar className={cn('size-44 border-2', { 'border-primary': mentoria.status === 'REALIZADA', 'border-primary/15': mentoria.status === 'CONFIRMADA', 'border-secondary': mentoria.status === 'AGENDADA' })}>
                                 <AvatarImage
                                     src={mentoria.aluno.image || ''}
                                     alt={mentoria.aluno.name}
@@ -142,20 +144,69 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                                         .toUpperCase()
                                         .slice(0, 2)}
                                 </AvatarFallback>
-                            </Avatar>
-
-                            <div className="w-full flex flex-col overflow-hidden relative">
-                                <DialogTitle>
-                                    {mentoria.aluno.name}
+                            </Avatar> */}
+                            <DialogHeader>
+                                <DialogTitle className="text-center">
+                                    Mentoria
                                 </DialogTitle>
-                                <DialogDescription>
-                                    {mentoria.aluno.email}
-                                </DialogDescription>
-                                <DialogDescription>
-                                    {formartarData(mentoria.horario.data)} - {mentoria.horario.slot.nome.replace(' - ', ' às ')}
-                                </DialogDescription>
+                            </DialogHeader>
 
-                                <ButtonGroup className="w-full max-w-[298px] mt-5">
+                            <div className="w-full flex flex-col gap-5 overflow-hidden relative">
+                                <div className="flex gap-4 items-center">
+                                    <Avatar className={cn('border-2 size-14', { 'border-primary': mentoria.status === 'REALIZADA', 'border-primary/15': mentoria.status === 'CONFIRMADA', 'border-secondary': mentoria.status === 'AGENDADA' })}>
+                                        <AvatarImage
+                                            src={mentoria.aluno.image || ''}
+                                            alt={mentoria.aluno.name}
+                                            className="object-cover"
+                                        />
+                                        <AvatarFallback className='text-xs'>
+                                            {mentoria.aluno.name
+                                                .split(" ")
+                                                .map(word => word.charAt(0))
+                                                .join("")
+                                                .toUpperCase()
+                                                .slice(0, 2)}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <h2 className="font-semibold">{mentoria.aluno.name}</h2>
+                                        <p className="text-sm text-muted-foreground">
+                                            {mentoria.aluno.email}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="grid grid-cols-3">
+                                        <div>
+                                            <p className="font-semibold">Data</p>
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold">Horário</p>
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold">Status</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-3">
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">{formartarData(mentoria.horario.data)}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">{mentoria.horario.slot.nome.replace(' - ', ' às ')}</p>
+                                        </div>
+                                        <div>
+                                            <Badge
+                                                variant={mentoria.status === 'AGENDADA' && 'secondary' || mentoria.status === 'CONFIRMADA' && 'outline' || 'default'}
+                                                className={cn(mentoria.status === 'CONFIRMADA' && 'bg-primary/10 text-primary border border-primary')}
+                                            >
+                                                {statusText}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* <ButtonGroup className="w-full max-w-[298px] mt-5">
                                     <Button variant={mentoria.status === 'AGENDADA' && 'secondary' || mentoria.status === 'CONFIRMADA' && 'outline' || 'default'} className={cn("w-full", mentoria.status === 'CONFIRMADA' && 'bg-primary/10')}>
                                         <p className="pl-4">
                                             {statusText}
@@ -192,25 +243,37 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                                             </Button>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
-                                </ButtonGroup>
+                                </ButtonGroup> */}
                             </div>
                         </div>
                         <Separator />
-                        <DialogFooter className="grid grid-cols-2 gap-4">
-                            <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" size='default' diasSemana={diasSemana} slotsHorario={slotsHorario} />
-                            <Button
-                                variant={mentoria.status === 'REALIZADA' ? 'ghost' : "destructive"}
-                                className="w-full"
-                                onClick={() => excluirMentoria(mentoria.id)}
-                                disabled={mentoria.status === 'REALIZADA'}
-                            >
-                                <CalendarX />
-                                Cancelar
-                            </Button>
+                        <DialogFooter>
+                            {mentoria.status === 'CONFIRMADA' ?
+                                (
+                                    <div className="flex flex-col w-full gap-5">
+                                        <Textarea placeholder="Adicione um Feedback após finalizar a mentoria" />
+                                        <Button className="w-full">Finalizar e enviar o Feedback</Button>
+                                    </div>
+                                )
+                                :
+                                (
+                                    <div className="grid grid-cols-2 gap-4 w-full">
+                                        <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" size='default' diasSemana={diasSemana} slotsHorario={slotsHorario} />
+                                        <Button
+                                            variant="destructive"
+                                            className="w-full"
+                                            onClick={() => excluirMentoria(mentoria.id)}
+
+                                        >
+                                            <CalendarX />
+                                            Cancelar
+                                        </Button>
+                                    </div>
+                                )}
                         </DialogFooter>
                     </>
                 )}
             </DialogContent>
-        </Dialog>
+        </Dialog >
     )
 }
