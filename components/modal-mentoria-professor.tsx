@@ -206,6 +206,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                                                 defaultValue={mentoriaData?.status}
                                                 value={mentoriaData?.status}
                                                 onValueChange={(value) => handleStatusChange(value as "AGENDADA" | "CONFIRMADA" | "REALIZADA")}
+                                                disabled={mentoria.status === 'REALIZADA'}
                                             >
                                                 <SelectTrigger className="w-full p-0 py-0 border-none shadow-none" style={{ height: '24px' }}>
                                                     <SelectValue />
