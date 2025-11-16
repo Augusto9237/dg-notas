@@ -3,29 +3,21 @@
 import { DiaSemana, Prisma, SlotHorario, StatusMentoria } from "@/app/generated/prisma";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { CalendarX, ChevronDown, ChevronDownIcon, ChevronRight, Loader2 } from "lucide-react";
+import { CalendarX, CheckCircle, ChevronRight, Clock2, Loader2 } from "lucide-react";
+import { TbClockCheck } from "react-icons/tb";
 import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AgendarMentoriaAluno } from "./agendar-mentoria-aluno";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-import { ButtonGroup } from "@/components/ui/button-group"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "./ui/select";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -53,24 +45,37 @@ const STATUS_TEXT = {
 
 
 export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana, slotsHorario }: ModalMentoriaProfessorProps) {
-    const [open, setOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [mentoriaData, setMentoriaData] = useState<Mentoria | null>(null);
+    const [feedback, setFeedback] = useState('')
     const [carregando, setCarregando] = useState(false)
+
+    useEffect(() => {
+        setCarregando(true)
+        setMentoriaData(mentoria)
+        setFeedback(mentoria.feedback || '')
+        setCarregando(false)
+    }, [mentoria, isOpen])
 
 
     async function atualizarStatusDaMentoria(status: "AGENDADA" | "CONFIRMADA" | "REALIZADA") {
-        setCarregando(true)
-        setOpen(false)
-
+        setCarregando(true);
         try {
-            const mentoriaData = await atualizarStatusMentoria(mentoria.id, status)
-            toast.success('Status atualizado com sucesso')
-            setListaMentorias(prev => prev.map(m => m.id === mentoria.id ? { ...m, status: status } : m))
-            return mentoriaData
-        } catch {
-            toast.error('Erro ao atualizar status')
+            // Feedback só deve ser enviado se o status for REALIZADA
+            const feedbackToSend = status === 'REALIZADA' && feedback.trim().length > 0 ? feedback.trim() : undefined;
+            await atualizarStatusMentoria(mentoria.id, status, feedbackToSend);
+
+            toast.success(
+                status === 'REALIZADA'
+                    ? 'Mentoria realizada com sucesso!'
+                    : 'Status atualizado com sucesso'
+            );
+            setIsOpen(false);
+        } catch (error) {
+            console.error('Erro ao atualizar status:', error);
+            toast.error('Erro ao atualizar status. Tente novamente.');
         } finally {
-            setCarregando(false)
+            setCarregando(false);
         }
     }
 
@@ -83,7 +88,6 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
         }
     }
 
-    const statusText = STATUS_TEXT[mentoria.status as keyof typeof STATUS_TEXT];
 
     function formartarData(data: Date) {
         // Converter a data UTC para uma data local sem problemas de fuso horário
@@ -94,6 +98,23 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
             dataUTC.getUTCDate()
         );
         return format(dataLocal, "dd/MM/yyyy", { locale: ptBR });
+    }
+
+    const handleStatusChange = async (novoStatus: "AGENDADA" | "CONFIRMADA" | "REALIZADA") => {
+        if (!mentoriaData) return;
+        setCarregando(true);
+        try {
+            setMentoriaData({ ...mentoriaData, status: novoStatus });
+            if (novoStatus === 'REALIZADA') {
+                toast(`Status da mentoria foi atualizado para ${novoStatus}! Digite um feedback e finalize a mentoria`)
+            } else {
+                toast(`Status da mentoria foi atualiza para ${novoStatus}! Salve para confirmar a alteração`);
+            }
+        } catch (error) {
+            toast.error('Erro ao atualizar status');
+        } finally {
+            setCarregando(false);
+        }
     }
 
     return (
@@ -130,21 +151,6 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                 ) : (
                     <>
                         <div className="flex flex-col gap-5 max-sm:gap-2 items-center relative w-full">
-                            {/* <Avatar className={cn('size-44 border-2', { 'border-primary': mentoria.status === 'REALIZADA', 'border-primary/15': mentoria.status === 'CONFIRMADA', 'border-secondary': mentoria.status === 'AGENDADA' })}>
-                                <AvatarImage
-                                    src={mentoria.aluno.image || ''}
-                                    alt={mentoria.aluno.name}
-                                    className="object-cover"
-                                />
-                                <AvatarFallback className='text-xs'>
-                                    {mentoria.aluno.name
-                                        .split(" ")
-                                        .map(word => word.charAt(0))
-                                        .join("")
-                                        .toUpperCase()
-                                        .slice(0, 2)}
-                                </AvatarFallback>
-                            </Avatar> */}
                             <DialogHeader>
                                 <DialogTitle className="text-center">
                                     Mentoria
@@ -196,80 +202,97 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                                             <p className="text-sm text-muted-foreground">{mentoria.horario.slot.nome.replace(' - ', ' às ')}</p>
                                         </div>
                                         <div>
-                                            <Badge
-                                                variant={mentoria.status === 'AGENDADA' && 'secondary' || mentoria.status === 'CONFIRMADA' && 'outline' || 'default'}
-                                                className={cn(mentoria.status === 'CONFIRMADA' && 'bg-primary/10 text-primary border border-primary')}
+                                            <Select
+                                                defaultValue={mentoriaData?.status}
+                                                value={mentoriaData?.status}
+                                                onValueChange={(value) => handleStatusChange(value as "AGENDADA" | "CONFIRMADA" | "REALIZADA")}
                                             >
-                                                {statusText}
-                                            </Badge>
+                                                <SelectTrigger className="w-full p-0 py-0 border-none shadow-none" style={{ height: '24px' }}>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        <SelectItem value={'AGENDADA'}>
+                                                            <Badge
+                                                                variant='secondary'
+                                                                className="w-full min-w-full"
+                                                            >
+                                                                <Clock2 className="stroke-card" />
+                                                                Agendada
+                                                            </Badge>
+                                                        </SelectItem>
+                                                        <SelectItem value={'CONFIRMADA'}>
+                                                            <Badge
+                                                                variant='outline'
+                                                                className='bg-primary/10 text-primary border border-primary'
+                                                            >
+                                                                <TbClockCheck className="stroke-primary" />
+                                                                Confirmada
+                                                            </Badge>
+                                                        </SelectItem>
+                                                        <SelectItem value={'REALIZADA'}>
+                                                            <Badge
+                                                                variant='default'
+                                                            >
+                                                                <CheckCircle className="stroke-card" />
+                                                                Realizada
+                                                            </Badge>
+                                                        </SelectItem>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* <ButtonGroup className="w-full max-w-[298px] mt-5">
-                                    <Button variant={mentoria.status === 'AGENDADA' && 'secondary' || mentoria.status === 'CONFIRMADA' && 'outline' || 'default'} className={cn("w-full", mentoria.status === 'CONFIRMADA' && 'bg-primary/10')}>
-                                        <p className="pl-4">
-                                            {statusText}
-                                        </p>
-                                    </Button>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant={mentoria.status === 'AGENDADA' && 'secondary' || mentoria.status === 'CONFIRMADA' && 'outline' || 'default'} className={cn("!pl-2", mentoria.status === 'CONFIRMADA' && 'bg-primary/10 boder-l-0')}>
-                                                <ChevronDownIcon />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align='end' className="space-y-4 min-w-[330px] max-w-[330px] p-2" sideOffset={0} style={{ width: "100%" }}>
-                                            <Button
-                                                variant='secondary'
-                                                onClick={() => atualizarStatusDaMentoria("AGENDADA")}
-                                                className="w-full"
-                                            >
-                                                Agendada
-                                            </Button>
-
-                                            <Button
-                                                variant='outline'
-                                                onClick={() => atualizarStatusDaMentoria("CONFIRMADA")}
-                                                className="w-full bg-primary/10"
-                                            >
-                                                Confirmada
-                                            </Button>
-
-                                            <Button
-                                                onClick={() => atualizarStatusDaMentoria("REALIZADA")}
-                                                className="w-full"
-                                            >
-                                                Realizada
-                                            </Button>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </ButtonGroup> */}
                             </div>
                         </div>
                         <Separator />
                         <DialogFooter>
-                            {mentoria.status === 'CONFIRMADA' ?
+                            {mentoriaData?.status === 'REALIZADA' ?
                                 (
                                     <div className="flex flex-col w-full gap-5">
-                                        <Textarea placeholder="Adicione um Feedback após finalizar a mentoria" />
-                                        <Button className="w-full">Finalizar e enviar o Feedback</Button>
+                                        <Textarea
+                                            placeholder="Adicione um Feedback após finalizar a mentoria"
+                                            value={feedback}
+                                            onChange={(value) => setFeedback(value.currentTarget.value)} />
+                                        <Button
+                                            className="w-full"
+                                            onClick={() => atualizarStatusDaMentoria(mentoriaData.status)}
+                                        >Finalizar e enviar o Feedback</Button>
                                     </div>
                                 )
                                 :
                                 (
-                                    <div className="grid grid-cols-2 gap-4 w-full">
-                                        <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" size='default' diasSemana={diasSemana} slotsHorario={slotsHorario} />
-                                        <Button
-                                            variant="destructive"
-                                            className="w-full"
-                                            onClick={() => excluirMentoria(mentoria.id)}
+                                    <>
+                                        {mentoria.status !== mentoriaData?.status ?
+                                            (
+                                                <div className="grid grid-cols-2 gap-4 w-full">
+                                                    <Button variant='outline'>
+                                                        Cancelar
+                                                    </Button>
+                                                    <Button onClick={() => atualizarStatusDaMentoria(mentoriaData?.status!)}>
+                                                        Salvar
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-2 gap-4 w-full">
+                                                    <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" size='default' diasSemana={diasSemana} slotsHorario={slotsHorario} />
+                                                    <Button
+                                                        variant="destructive"
+                                                        className="w-full"
+                                                        onClick={() => excluirMentoria(mentoria.id)}
 
-                                        >
-                                            <CalendarX />
-                                            Cancelar
-                                        </Button>
-                                    </div>
-                                )}
+                                                    >
+                                                        <CalendarX />
+                                                        Cancelar
+                                                    </Button>
+                                                </div>
+                                            )
+                                        }
+                                    </>
+
+                                )
+                            }
                         </DialogFooter>
                     </>
                 )}

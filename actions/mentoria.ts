@@ -306,7 +306,7 @@ export async function verificarDisponibilidadeMultiplosSlots(
 
     // Criar mapa de resultados (slotId -> vagas disponíveis)
     const resultado: Record<number, number> = {};
-    
+
     // Inicializar todos os slots com 4 vagas (padrão quando não existe horário)
     slotIds.forEach(slotId => {
       resultado[slotId] = 4;
@@ -596,10 +596,10 @@ interface AtualizarStatusMentoriaResult {
 
 export async function atualizarStatusMentoria(
   mentoriaId: number,
-  status: 'AGENDADA' | 'CONFIRMADA' | 'REALIZADA'
+  status: 'AGENDADA' | 'CONFIRMADA' | 'REALIZADA',
+  feedback?: string
 ): Promise<AtualizarStatusMentoriaResult | Mentoria> {
   try {
-    // Verify if mentoria exists
     const mentoria = await prisma.mentoria.findUnique({
       where: { id: mentoriaId }
     });
@@ -611,15 +611,24 @@ export async function atualizarStatusMentoria(
       };
     }
 
-    // Update status
+    let dataToUpdate: {
+      status: 'AGENDADA' | 'CONFIRMADA' | 'REALIZADA',
+      feedback?: string
+    } = { status };
+
+    // Se for REALIZADA e houver feedback, incluir o feedback no update
+    if (status === 'REALIZADA' && feedback) {
+      dataToUpdate.feedback = feedback;
+    }
+
     const mentoriaAtualizada = await prisma.mentoria.update({
       where: { id: mentoriaId },
-      data: { status },
+      data: dataToUpdate,
       include: { aluno: true, horario: true }
     });
 
     revalidatePath('/aluno/mentorias');
-
+    revalidatePath('/professor/mentorias');
     return mentoriaAtualizada;
 
   } catch (error) {
@@ -677,7 +686,7 @@ export async function excluirMentoriaECascata(mentoriaId: number) {
 }
 
 export async function confirmarMentoria(mentoriaId: number) {
-  try{
+  try {
     const mentoria = await prisma.mentoria.update({
       where: {
         id: mentoriaId

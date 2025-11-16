@@ -30,11 +30,9 @@ enum StatusAvaliacao {
   CORRIGIDA // Correção concluída
 }
 
-
-
 model Avaliacao {
   id        Int                 @id @default(autoincrement())
-  alunoId   String  
+  alunoId   String
   aluno     User                @relation(fields: [alunoId], references: [id])
   temaId    Int
   tema      Tema                @relation(fields: [temaId], references: [id])
@@ -93,7 +91,6 @@ model SlotHorario {
   updatedAt DateTime @updatedAt
 
   Horario Horario[]
-
 }
 
 model Horario {
@@ -106,10 +103,10 @@ model Horario {
   // Permite até 4 mentorias por horário (data + slot)
   // ERRO: Não é permitido usar campos de relação em índices únicos
   // Solução: Use o campo de chave estrangeira scalar `slotId` ao invés do objeto de relação `slot`
-  slotId Int
-  slot   SlotHorario @relation(fields: [slotId], references: [id])
+  slotId      Int
+  slot        SlotHorario @relation(fields: [slotId], references: [id])
   diaSemanaId Int
-  diaSemana   DiaSemana @relation(fields: [diaSemanaId], references: [id])
+  diaSemana   DiaSemana   @relation(fields: [diaSemanaId], references: [id])
 
   // Índices para otimizar consultas de disponibilidade
   @@unique([data, slotId])
@@ -125,6 +122,7 @@ model Mentoria {
   horario   Horario        @relation(fields: [horarioId], references: [id])
   status    StatusMentoria @default(AGENDADA)
   duracao   Int            @default(20) // Duração em minutos
+  feedback  String?
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
@@ -134,8 +132,6 @@ model Mentoria {
   @@index([status]) // Filtra mentorias por status
   @@index([horarioId, status]) // Otimiza contagem de mentorias ativas por horário
 }
-
-
 
 model User {
   id            String    @id
