@@ -9,9 +9,11 @@ import { AgendarMentoriaAluno } from "./agendar-mentoria-aluno";
 import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { ptBR, se } from "date-fns/locale";
+import { ptBR } from "date-fns/locale";
+import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useState } from "react";
+import { ModalFeedbackMentoria } from "./modal-feedback-mentoria";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -140,19 +142,24 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria, aluno, modo =
 
 
 
-            <CardFooter className="p-4 pt-0 gap-5 overflow-hidden grid grid-cols-2">
-                <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" diasSemana={diasSemana} slotsHorario={slotsHorario} />
+            <CardFooter className="p-4 pt-0">
+                {mentoria.status === "REALIZADA" ? (
+                  <ModalFeedbackMentoria feedback={mentoria.feedback ?? ''}/>
+                ) : (
+                    <div className="gap-5 overflow-hidden grid grid-cols-2">
+                        <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" diasSemana={diasSemana} slotsHorario={slotsHorario} />
+                        <Button
+                            size="sm"
+                            variant="destructive"
+                            className="w-full"
+                            onClick={() => excluirMentoria(mentoria.id)}
+                        >
+                            <CalendarX />
+                            Cancelar
+                        </Button>
+                    </div>
+                )}
 
-                <Button
-                    size="sm"
-                    variant={mentoria.status === 'REALIZADA' ? 'ghost' : "destructive"}
-                    className="w-full"
-                    onClick={() => excluirMentoria(mentoria.id)}
-                    disabled={mentoria.status === 'REALIZADA'}
-                >
-                    <CalendarX />
-                    Cancelar
-                </Button>
             </CardFooter>
         </Card >
     );

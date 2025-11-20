@@ -48,12 +48,15 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
     const [isOpen, setIsOpen] = useState(false);
     const [mentoriaData, setMentoriaData] = useState<Mentoria | null>(null);
     const [feedback, setFeedback] = useState('')
+    const [feedbackTouched, setFeedbackTouched] = useState(false)
     const [carregando, setCarregando] = useState(false)
 
     useEffect(() => {
+        if (!isOpen) return; // só inicializa quando o modal for aberto
         setCarregando(true)
         setMentoriaData(mentoria)
         setFeedback(mentoria.feedback || '')
+        setFeedbackTouched(false)
         setCarregando(false)
     }, [mentoria, isOpen])
 
@@ -61,8 +64,13 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
     async function atualizarStatusDaMentoria(status: "AGENDADA" | "CONFIRMADA" | "REALIZADA") {
         setCarregando(true);
         try {
-            // Feedback só deve ser enviado se o status for REALIZADA
-            const feedbackToSend = status === 'REALIZADA' && feedback.trim().length > 0 ? feedback.trim() : undefined;
+            // Se o usuário editou o campo de feedback, envie o valor (pode ser string vazia para limpar).
+            // Se não editou, envie undefined para não sobrescrever o feedback existente no banco.
+            const feedbackTrimmed = feedback.trim();
+            const feedbackToSend = status === 'REALIZADA'
+                ? (feedbackTouched ? feedbackTrimmed : undefined)
+                : undefined;
+
             await atualizarStatusMentoria(mentoria.id, status, feedbackToSend);
 
             toast.success(
@@ -118,7 +126,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={() => setIsOpen((open) => !open)}>
+        <Dialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
             <DialogTrigger asChild>
                 <Button size='icon' variant='ghost' className="bg-transparent hover:bg-accent-foreground/20 hover:text-card hover:cursor-pointer">
                     <ChevronRight className="max-sm:hidden" />
@@ -255,7 +263,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                                         <Textarea
                                             placeholder="Adicione um Feedback após finalizar a mentoria"
                                             value={feedback}
-                                            onChange={(value) => setFeedback(value.currentTarget.value)} />
+                                            onChange={(e) => { setFeedback(e.currentTarget.value); setFeedbackTouched(true); }} />
                                         <Button
                                             className="w-full"
                                             onClick={() => atualizarStatusDaMentoria(mentoriaData.status)}
