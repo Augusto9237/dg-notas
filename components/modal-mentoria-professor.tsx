@@ -1,7 +1,7 @@
 'use client';
 
-import { DiaSemana, Prisma, SlotHorario, StatusMentoria } from "@/app/generated/prisma";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { CalendarX, CheckCircle, ChevronRight, Clock2, Loader2 } from "lucide-react";
 import { TbClockCheck } from "react-icons/tb";
@@ -17,7 +17,7 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "./ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -37,14 +37,7 @@ interface ModalMentoriaProfessorProps {
     slotsHorario: SlotHorario[]
 }
 
-const STATUS_TEXT = {
-    AGENDADA: "Agendada",
-    CONFIRMADA: "Confirmada",
-    REALIZADA: "Realizada",
-} as const;
-
-
-export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana, slotsHorario }: ModalMentoriaProfessorProps) {
+export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: ModalMentoriaProfessorProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [mentoriaData, setMentoriaData] = useState<Mentoria | null>(null);
     const [feedback, setFeedback] = useState('')
@@ -118,7 +111,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
             } else {
                 toast(`Status da mentoria foi atualiza para ${novoStatus}! Salve para confirmar a alteração`);
             }
-        } catch (error) {
+        } catch {
             toast.error('Erro ao atualizar status');
         } finally {
             setCarregando(false);
@@ -130,23 +123,6 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
             <DialogTrigger asChild>
                 <Button size='icon' variant='ghost' className="bg-transparent hover:bg-accent-foreground/20 hover:text-card hover:cursor-pointer">
                     <ChevronRight className="max-sm:hidden" />
-                    {/* <div className="sm:hidden">
-                        <Avatar className="size-10.5">
-                            <AvatarImage
-                                src={mentoria.aluno.image || ''}
-                                alt={mentoria.aluno.name}
-                                className="object-cover"
-                            />
-                            <AvatarFallback className='text-xs'>
-                                {mentoria.aluno.name
-                                    .split(" ")
-                                    .map(word => word.charAt(0))
-                                    .join("")
-                                    .toUpperCase()
-                                    .slice(0, 2)}
-                            </AvatarFallback>
-                        </Avatar>
-                    </div> */}
                 </Button>
             </DialogTrigger>
 
@@ -266,7 +242,7 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                                             onChange={(e) => { setFeedback(e.currentTarget.value); setFeedbackTouched(true); }} />
                                         <Button
                                             className="w-full"
-                                            onClick={() => atualizarStatusDaMentoria(mentoriaData.status)}
+                                            onClick={() => mentoriaData && atualizarStatusDaMentoria(mentoriaData.status)}
                                         >Finalizar e enviar o Feedback</Button>
                                     </div>
                                 )
@@ -276,10 +252,10 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                                         {mentoria.status !== mentoriaData?.status ?
                                             (
                                                 <div className="grid grid-cols-2 gap-4 w-full">
-                                                    <Button variant='outline'>
+                                                    <Button variant='outline' onClick={() => setIsOpen(false)}>
                                                         Cancelar
                                                     </Button>
-                                                    <Button onClick={() => atualizarStatusDaMentoria(mentoriaData?.status!)}>
+                                                    <Button onClick={() => mentoriaData && atualizarStatusDaMentoria(mentoriaData.status)}>
                                                         Salvar
                                                     </Button>
                                                 </div>
@@ -290,7 +266,6 @@ export function ModalMentoriaProfessor({ mentoria, setListaMentorias, diasSemana
                                                         variant="destructive"
                                                         className="w-full"
                                                         onClick={() => excluirMentoria(mentoria.id)}
-
                                                     >
                                                         <CalendarX />
                                                         Cancelar
