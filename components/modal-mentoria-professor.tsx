@@ -12,7 +12,7 @@ import { AgendarMentoriaAluno } from "./agendar-mentoria-aluno";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { el, ptBR } from "date-fns/locale";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
@@ -55,26 +55,46 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
 
 
     async function atualizarStatusDaMentoria(status: "AGENDADA" | "CONFIRMADA" | "REALIZADA") {
+        const MENSAGENS = {
+            MENTORIA_INVALIDA: 'Dados da mentoria inválidos.',
+            FEEDBACK_OBRIGATORIO: 'Por favor, adicione um feedback antes de finalizar a mentoria.',
+            REALIZADO_SUCESSO: 'Mentoria realizada com sucesso! Feedback enviado.',
+            STATUS_ATUALIZADO: 'Status atualizado com sucesso',
+            ERRO_ATUALIZAR: 'Erro ao atualizar status. Tente novamente.'
+        };
+
+        const id = mentoria?.id;
+        if (!id) {
+            toast.error(MENSAGENS.MENTORIA_INVALIDA);
+            return;
+        }
+
         setCarregando(true);
         try {
-            // Se o usuário editou o campo de feedback, envie o valor (pode ser string vazia para limpar).
-            // Se não editou, envie undefined para não sobrescrever o feedback existente no banco.
-            const feedbackTrimmed = feedback.trim();
-            const feedbackToSend = status === 'REALIZADA'
-                ? (feedbackTouched ? feedbackTrimmed : undefined)
-                : undefined;
+            if (status === 'REALIZADA') {
+                const textoFeedbackDigitado = feedback?.trim() ?? '';
+                const feedbackExistente = mentoria.feedback?.trim() ?? '';
 
-            await atualizarStatusMentoria(mentoria.id, status, feedbackToSend);
+                const deveEnviarFeedbackDigitado = feedbackTouched && textoFeedbackDigitado.length > 0;
+                const feedbackValido = deveEnviarFeedbackDigitado ? textoFeedbackDigitado : feedbackExistente;
 
-            toast.success(
-                status === 'REALIZADA'
-                    ? 'Mentoria realizada com sucesso!'
-                    : 'Status atualizado com sucesso'
-            );
+                if (!feedbackValido) {
+                    toast.error(MENSAGENS.FEEDBACK_OBRIGATORIO);
+                    return;
+                }
+
+                await atualizarStatusMentoria(id, status, feedbackValido);
+                toast.success(MENSAGENS.REALIZADO_SUCESSO);
+                setFeedbackTouched(false);
+            } else {
+                await atualizarStatusMentoria(id, status);
+                toast.success(MENSAGENS.STATUS_ATUALIZADO);
+            }
+
             setIsOpen(false);
         } catch (error) {
             console.error('Erro ao atualizar status:', error);
-            toast.error('Erro ao atualizar status. Tente novamente.');
+            toast.error(MENSAGENS.ERRO_ATUALIZAR);
         } finally {
             setCarregando(false);
         }
@@ -243,7 +263,7 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
                                         <Button
                                             className="w-full"
                                             onClick={() => mentoriaData && atualizarStatusDaMentoria(mentoriaData.status)}
-                                        >Finalizar e enviar o Feedback</Button>
+                                        >{mentoria.feedback ? 'Editar Feedback' : 'Finalizar e enviar o Feedback'}</Button>
                                     </div>
                                 )
                                 :
