@@ -13,7 +13,7 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ChevronRight } from 'lucide-react';
-import { Card, CardHeader, CardTitle } from './ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from './ui/card';
 
 interface AlunoRankeado {
   posicao: number;
@@ -45,7 +45,10 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
   return (
     <Card className='p-5'>
       <CardHeader className='flex w-full justify-between items-center p-0'>
-        <CardTitle >Top Alunos</CardTitle>
+        <div>
+          <CardTitle >Melhores Desempenhos</CardTitle>
+          <CardDescription>Top 10 alunos com melhores médias</CardDescription>
+        </div>
 
         <Link href="/professor/alunos" className='flex gap-2 items-center text-sm text-primary '>
           Ver todos

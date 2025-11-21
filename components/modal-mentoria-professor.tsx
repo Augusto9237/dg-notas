@@ -141,8 +141,8 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
     return (
         <Dialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
             <DialogTrigger asChild>
-                <Button size='icon' variant='ghost' className="bg-transparent hover:bg-accent-foreground/20 hover:text-card hover:cursor-pointer">
-                    <ChevronRight className="max-sm:hidden" />
+                <Button size='icon' variant='ghost' className="bg-transparent hover:bg-accent-foreground/20 hover:text-card hover:cursor-pointer max-sm:h-8 rounded-md max-sm:px-3 max-sm:has-[>svg]:px-2.5">
+                    <ChevronRight />
                 </Button>
             </DialogTrigger>
 

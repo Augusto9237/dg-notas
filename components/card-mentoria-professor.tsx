@@ -40,12 +40,12 @@ export function CardMentoriaProfessor({ mentoria, setListaMentorias, diasSemana,
     return (
         <div
             className={cn(
-                "relative rounded-md max-sm:rounded-full max-sm:h-12 p-4 max-md:p-2 max-sm:p-1 flex items-center justify-between max-sm:justify-center w-full max-sm:w-fit text-xs font-medium shadow-sm  hover:opacity-90 transition-opacity overflow-hidden",
+                "relative rounded-md max-sm:rounded-sm max-sm:h-12 p-4 max-md:px-2 max-sm:p-2 flex items-center justify-between max-sm:justify-center w-full text-xs font-medium shadow-sm  hover:opacity-90 transition-opacity overflow-hidden",
                 STATUS_COLORS[mentoria.status as keyof typeof STATUS_COLORS],
             )}
         >
-            <div className="flex items-center gap-2 w-full max-sm:hidden">
-                <Avatar className="size-10 flex-shrink-0">
+            <div className="flex items-center gap-2 w-full">
+                <Avatar className="size-10 flex-shrink-0 max-sm:hidden">
                     <AvatarImage
                         src={mentoria.aluno.image || undefined}
                         alt={mentoria.aluno.name}
@@ -61,14 +61,14 @@ export function CardMentoriaProfessor({ mentoria, setListaMentorias, diasSemana,
                     </AvatarFallback>
                 </Avatar>
                 <div className="space-y-1 min-w-0">
-                    <span className="font-semibold truncate text-ellipsis text-sm sm:hidden">
+                    <span className="font-semibold truncate text-ellipsis text-sm md:hidden">
                         {mentoria.aluno.name.split(" ")[0]}
                     </span>
                     <span className="font-semibold truncate text-ellipsis text-sm hidden sm:block">
                         {mentoria.aluno.name}
                     </span>
                     <div>
-                        <p className="truncate text-xs max-md:leading-none opacity-80">
+                        <p className="truncate text-xs max-md:leading-none opacity-80 max-sm:hidden">
                             {statusText}
                         </p>
                     </div>
