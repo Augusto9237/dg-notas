@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from "./ui/select"
 import { Skeleton } from "./ui/skeleton"
-import { CardMentoriaProfessor } from "./card-mentoria-professor"
 import { cn } from "@/lib/utils"
 import {
   DiaSemana,
@@ -27,6 +26,7 @@ import {
   SlotHorario,
 } from "@/app/generated/prisma"
 import React from "react"
+import { ModalMentoriaProfessor } from "./modal-mentoria-professor"
 
 // Types
 type Mentoria = Prisma.MentoriaGetPayload<{
@@ -142,13 +142,7 @@ const CelulaHorario = React.memo(
               </div>
             )}
             {mentoriasDoSlot.map((mentoria) => (
-              <CardMentoriaProfessor
-                mentoria={mentoria}
-                setListaMentorias={setListaMentorias}
-                diasSemana={diasSemana}
-                slotsHorario={slotsHorario}
-                key={mentoria.id}
-              />
+              <ModalMentoriaProfessor key={mentoria.id} mentoria={mentoria} setListaMentorias={setListaMentorias} diasSemana={diasSemana} slotsHorario={slotsHorario} />
             ))}
           </>
         )}

@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { CardMentoriaProfessor } from "./card-mentoria-professor";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -141,9 +142,7 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
     return (
         <Dialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
             <DialogTrigger asChild>
-                <Button size='icon' variant='ghost' className="bg-transparent hover:bg-accent-foreground/20 hover:text-card hover:cursor-pointer max-sm:h-8 rounded-md max-sm:px-3 max-sm:has-[>svg]:px-2.5">
-                    <ChevronRight />
-                </Button>
+                <CardMentoriaProfessor mentoria={mentoria} onclick={() => setIsOpen(true)} />
             </DialogTrigger>
 
             <DialogContent >
