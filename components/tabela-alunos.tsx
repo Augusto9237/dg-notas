@@ -144,6 +144,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
           <TableRow >
             <TableHead className='min-w-sm'>Aluno</TableHead>
             <TableHead className='w-full' >E-mail</TableHead>
+            <TableHead className='w-full max-w-[120px] min-w-[120px] font-semibold'>Avaliações</TableHead>
             <TableHead className='w-full max-w-[120px] min-w-[120px] font-semibold'>Média Geral</TableHead>
             <TableHead className="text-center">
               <div className='flex justify-center w-full'>
@@ -172,21 +173,23 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
                   </span>
                 </TableCell>
                 <TableCell>{aluno.email}</TableCell>
+                <TableCell className='w-full max-w-[120px] min-w-[120px] text-center font-semibold'>
+                  {aluno.Avaliacao.length}
+                </TableCell>
                 <TableCell className='w-full max-w-[120px] min-w-[120px] text-center font-semibold'>{calcularMedia(aluno.Avaliacao)}</TableCell>
                 <TableCell className="text-center">
-
                   <Link href={`/professor/alunos/${aluno.id}`} passHref>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button size="icon">
-                          <FileCheck2/>
+                          <FileCheck2 />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent className='text-card'>
                         <p>Avaliações</p>
                       </TooltipContent>
                     </Tooltip>
-                    </Link>
+                  </Link>
                 </TableCell>
               </TableRow>
             ))
