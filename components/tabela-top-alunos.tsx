@@ -47,7 +47,7 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
       <CardHeader className='flex w-full justify-between items-center p-0'>
         <div>
           <CardTitle >Melhores Desempenhos</CardTitle>
-          <CardDescription className='text-sm mt-1'>Top 10 alunos com melhores médias</CardDescription>
+          <CardDescription className='text-xs mt-1'>Top 10 alunos com melhores médias</CardDescription>
         </div>
 
         <Link href="/professor/alunos" className='flex gap-1 items-center text-sm text-primary '>

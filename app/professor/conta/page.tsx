@@ -1,3 +1,4 @@
+import { FormularioConta } from "@/components/formulario-conta";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +21,8 @@ export default async function Page() {
                     <h1 className="text-xl font-bold">Sua Conta</h1>
                     <p className="text-xs text-muted-foreground">Gerencie suas informações pessoais e profissionais</p>
                 </div>
+
+                <FormularioConta />
             </div>
 
             <main className="grid grid-cols-3 p-5 gap-5  w-full">

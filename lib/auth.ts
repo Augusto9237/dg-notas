@@ -1,7 +1,5 @@
 
-import {
-    betterAuth
-} from 'better-auth';
+import { betterAuth } from 'better-auth';
 import { admin } from 'better-auth/plugins';
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from './prisma';
@@ -10,19 +8,34 @@ import ForgotPasswordEmail from '@/components/reset-password';
 
 const resend = new Resend(process.env.RESEND_API_KEY as string)
 
-
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
-        provider: "postgresql", // or "mysql", "postgresql", ...etc
+        provider: "postgresql",
     }),
+    user: {
+        additionalFields: {
+            especialidade: {
+                type: "string",
+                required: false,
+            },
+            telefone: {
+                type: "string",
+                required: false,
+            },
+            bio: {
+                type: "string",
+                required: false,
+            },
+        },
+    },
     emailAndPassword: {
         enabled: true,
-        sendResetPassword: async ({user, url}) => {
-            resend.emails.send({
+        sendResetPassword: async ({ user, url }) => {
+            await resend.emails.send({
                 from: 'onboarding@resend.dev',
                 to: user.email,
                 subject: "Redefinição de senha",
-                react: ForgotPasswordEmail({userName: user.name, userEmail: user.email, resetUrl: url})
+                react: ForgotPasswordEmail({ userName: user.name, userEmail: user.email, resetUrl: url })
             });
         },
     },
@@ -35,5 +48,4 @@ export const auth = betterAuth({
     plugins: [
         admin()
     ]
-}
-);
+});

@@ -1,58 +1,67 @@
- 'use server'
+'use server'
 
-import { auth } from "@/lib/auth"
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma"
+import { revalidatePath } from "next/cache"
+import { headers } from "next/headers";
 
- export interface CreateUserData {
-    name: string
-    email: string
-    password: string
-    role?: "user" | "admin" | ("user" | "admin")[] | undefined
-    data?: Record<string, any>
+type AtualizarContaProfessorParams = {
+  email: string;
+  name: string;
+  telefone: string;
+  especialidade: string;
+}
+
+export async function obterProfessorPorId(userId: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
+    return user
+  } catch (error) {
+    return null
   }
+}
 
-export async function createUser(userData: CreateUserData) {
-    try {
-      // Validação básica
-      if (!userData.email || !userData.password || !userData.name) {
-        throw new Error('Nome, email e senha são obrigatórios')
+export async function atualizarContaProfessor(userId: string, data: AtualizarContaProfessorParams, senhaAtual?: string, novaSenha?: string) {
+  try {
+    const user = await prisma.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        email: data.email,
+        name: data.name,
+        telefone: data.telefone,
+        especialidade: data.especialidade,
       }
+    })
 
-      // Validação de email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(userData.email)) {
-        throw new Error('Formato de email inválido')
-      }
-
-      // Validação de senha
-      if (userData.password.length < 8) {
-        throw new Error('Senha deve ter pelo menos 8 caracteres')
-      }
-
-      const newUser = await auth.api.createUser({
+    if (senhaAtual && novaSenha) {
+      const passwordUpdate = await auth.api.changePassword({
         body: {
-            email: userData.email, // required
-            password: userData.password, // required
-            name: userData.name, // required
-            role: userData.role,
-            data: { customField: "customValue" },
+          newPassword: novaSenha,
+          currentPassword: senhaAtual,
+          revokeOtherSessions: true,
         },
-    });
-    
+        headers: await headers(),
+      });
+    }
 
-      return {
-        success: true,
-        data: newUser,
-        message: 'Usuário criado com sucesso'
-      }
-    } catch (error) {
-      let errorMessage = 'Erro desconhecido';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      return {
-        success: false,
-        error: errorMessage,
-        message: 'Erro ao criar usuário'
-      }
+    revalidatePath('/professor/conta')
+
+    return {
+      success: true,
+      message: 'Usuário atualizado com sucesso',
+      data: user
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Erro ao atualizar usuário',
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
     }
   }
+}
