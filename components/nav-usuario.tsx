@@ -71,15 +71,11 @@ export function NavUsuario() {
                 align="start"
                 sideOffset={4}
             >
-                <DropdownMenuItem onClick={sair} className="text-primary">
+                <DropdownMenuItem onClick={() => router.push("/professor/conta")} className="text-primary">
                     <FaUser className="fill-primary" />
                     Sua conta
                 </DropdownMenuItem>
 
-                <DropdownMenuItem onClick={sair} className="text-primary">
-                    <FaGear  className="fill-primary" />
-                    Configuraçoes
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={sair} className="text-primary">
                     <LogOut className="stroke-primary" />

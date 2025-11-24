@@ -98,15 +98,97 @@ export function FormularioConta({ professor }: FormularioContaProps) {
         }
     }
 
-    const onSubmit = async (data: SignUpFormData) => {
-        try {
-            await atualizarContaProfessor(professor.id, data, data.currentPassword, data.password)
-            toast.success("Conta atualizada com sucesso")
-            setIsOpen(false)
-        } catch (error) {
-            toast.error("Erro ao atualizar conta. Tente novamente.")
+    // Função auxiliar para comprimir imagem
+async function compressImage(
+    file: File, 
+    options: { maxWidth: number; maxHeight: number; quality: number }
+): Promise<File> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target?.result as string;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > options.maxWidth) {
+                        height *= options.maxWidth / width;
+                        width = options.maxWidth;
+                    }
+                } else {
+                    if (height > options.maxHeight) {
+                        width *= options.maxHeight / height;
+                        height = options.maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx?.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(
+                    (blob) => {
+                        if (blob) {
+                            const compressedFile = new File([blob], file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now(),
+                            });
+                            resolve(compressedFile);
+                        } else {
+                            reject(new Error('Erro ao comprimir imagem'));
+                        }
+                    },
+                    'image/jpeg',
+                    options.quality
+                );
+            };
+        };
+        reader.onerror = (error) => reject(error);
+    });
+}
+
+const onSubmit = async (data: SignUpFormData) => {
+    try {
+        let image = undefined;
+        
+        if (data.image?.name) {
+            // Comprimir a imagem antes de converter
+            const compressedImage = await compressImage(data.image, {
+                maxWidth: 800,
+                maxHeight: 800,
+                quality: 0.7
+            });
+            image = await convertImageToBase64(compressedImage);
         }
+        
+        await atualizarContaProfessor(
+            professor.id,
+            {
+                name: data.name,
+                email: data.email,
+                telefone: data.telefone,
+                especialidade: data.especialidade,
+                bio: data.bio,
+                image: image
+            },
+            data.currentPassword || undefined,
+            data.password || undefined
+        );
+        
+        form.reset();
+        toast.success("Conta atualizada com sucesso");
+        setIsOpen(false);
+    } catch (error) {
+        toast.error("Erro ao atualizar conta. Tente novamente.");
     }
+};
+
+
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>

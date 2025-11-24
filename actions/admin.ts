@@ -10,6 +10,8 @@ type AtualizarContaProfessorParams = {
   name: string;
   telefone: string;
   especialidade: string;
+  bio: string;
+  image?: string;
 }
 
 export async function obterProfessorPorId(userId: string) {
@@ -27,17 +29,6 @@ export async function obterProfessorPorId(userId: string) {
 
 export async function atualizarContaProfessor(userId: string, data: AtualizarContaProfessorParams, senhaAtual?: string, novaSenha?: string) {
   try {
-    const user = await prisma.user.update({
-      where: {
-        id: userId
-      },
-      data: {
-        email: data.email,
-        name: data.name,
-        telefone: data.telefone,
-        especialidade: data.especialidade,
-      }
-    })
 
     if (senhaAtual && novaSenha) {
       const passwordUpdate = await auth.api.changePassword({
@@ -49,6 +40,20 @@ export async function atualizarContaProfessor(userId: string, data: AtualizarCon
         headers: await headers(),
       });
     }
+
+    const user = await prisma.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        email: data.email,
+        name: data.name,
+        telefone: data.telefone,
+        especialidade: data.especialidade,
+        bio: data.bio,
+        image: data.image
+      }
+    })
 
     revalidatePath('/professor/conta')
 
@@ -63,5 +68,22 @@ export async function atualizarContaProfessor(userId: string, data: AtualizarCon
       message: 'Erro ao atualizar usuário',
       error: error instanceof Error ? error.message : 'Erro desconhecido'
     }
+  }
+}
+
+export async function banirUsuario(userId: string) {
+  try {
+    await auth.api.banUser({
+      body: {
+        userId: userId, // required
+        banReason: "Spamming",
+        banExpiresIn: 60 * 60 * 24 * 7,
+      },
+      // This endpoint requires session cookies.
+      headers: await headers(),
+    });
+  }
+  catch (error) {
+    console.log(error)
   }
 }
