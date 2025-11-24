@@ -55,12 +55,12 @@ export default async function RootLayout({
             <AppSidebar />
           </div>
           <SidebarInset>
-            <div className="realtive">
+            <div className="relative">
               {children}
             </div>
           </SidebarInset>
         </SidebarProvider>
-        <Toaster richColors theme="light"/>
+        <Toaster richColors theme="light" />
       </body>
     </html>
   );
