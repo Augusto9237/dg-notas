@@ -15,14 +15,12 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "./ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-
-import { Check, Download, FileClock, FileDown, FilePenLine, FileText, Paperclip, Upload } from "lucide-react";
+import { FileText, Paperclip, Upload } from "lucide-react";
 
 import { Input } from "@/components/ui/input"
 import { z } from "zod"
 import { useRef, useState } from "react";
-import { getDownloadURL, ref, uploadBytes, uploadBytesResumable } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { authClient } from "@/lib/auth-client";
 import { Tema } from "@/app/generated/prisma";
@@ -102,46 +100,46 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                 <DialogHeader>
                     <DialogTitle className="text-center">Enviar Redação</DialogTitle>
                 </DialogHeader>
-                    <div className="flex flex-col gap-5">
-                        <div>
-                            <Label>Tema</Label>
-                            <p className="text-sm text-muted-foreground">{tema.nome}</p>
-                        </div>
-                    </div >
+                <div className="flex flex-col gap-5">
+                    <div>
+                        <Label>Tema</Label>
+                        <p className="text-sm text-muted-foreground">{tema.nome}</p>
+                    </div>
+                </div >
 
-                            <Input
-                                placeholder="shadcn"
-                                type='file'
-                                className="hidden"
-                                ref={inputRef}
-                                onChange={carregarArquivo}
-                            />
-                            <Button
-                                type="button"
-                                onClick={handleButtonClick}
-                                variant={arquivo === null ? 'ghost' : 'outline'}
-                                className={arquivo === null ? "w-full bg-background border border-accent-foreground" : "w-full bg-primary/10"}
-                            >
-                                {arquivo === null ? (
-                                    <>
-                                        <Paperclip />
-                                        Anexar folha de redação
-                                    </>
-                                ) : (
-                                    <>
-                                        <FileText />
-                                        {arquivo.name}
-                                    </>
-                                )}
-                            </Button>
-                        <div className="grid grid-cols-2 gap-4">
-                            <Button type="button" variant="outline" className="min-w-[100px]" onClick={cancelar}>
-                                Cancelar
-                            </Button>
-                            <Button type="button" className="min-w-[100px]" onClick={enviarRespostaExercicio}>
-                                Enviar
-                            </Button>
-                        </div>
+                <Input
+                    placeholder="shadcn"
+                    type='file'
+                    className="hidden"
+                    ref={inputRef}
+                    onChange={carregarArquivo}
+                />
+                <Button
+                    type="button"
+                    onClick={handleButtonClick}
+                    variant={arquivo === null ? 'ghost' : 'outline'}
+                    className={arquivo === null ? "w-full bg-background border border-accent-foreground" : "w-full bg-primary/10"}
+                >
+                    {arquivo === null ? (
+                        <>
+                            <Paperclip />
+                            Anexar folha de redação
+                        </>
+                    ) : (
+                        <>
+                            <FileText />
+                            {arquivo.name}
+                        </>
+                    )}
+                </Button>
+                <div className="grid grid-cols-2 gap-4">
+                    <Button type="button" variant="outline" className="min-w-[100px]" onClick={cancelar}>
+                        Cancelar
+                    </Button>
+                    <Button type="button" className="min-w-[100px]" onClick={enviarRespostaExercicio}>
+                        Enviar
+                    </Button>
+                </div>
             </DialogContent >
         </Dialog >
     );

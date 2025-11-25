@@ -3,7 +3,7 @@
 import { Eye, EyeOff, Loader2, PencilIcon, X } from "lucide-react"
 import { Button } from "./ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
 import { Input } from "./ui/input"
 import { useForm } from "react-hook-form"
@@ -11,7 +11,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { useRouter } from "next/navigation"
 import { Textarea } from "./ui/textarea"
 import { User } from "@/app/generated/prisma"
 
@@ -22,6 +21,9 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import { atualizarContaProfessor } from "@/actions/admin"
+import { ref, uploadBytes } from "firebase/storage"
+import { storage } from "@/lib/firebase"
+import { obterUrlImagem } from "@/lib/obter-imagem"
 
 export const contaSchema = z.object({
     image: z
@@ -48,14 +50,23 @@ export const contaSchema = z.object({
     bio: z.string().min(1, "Bio é obrigatória"),
     currentPassword: z
         .string()
-        .optional(),
+        .optional()
+        .or(z.literal('')), // Aceita string vazia
     password: z
         .string()
-        .optional(),
+        .optional()
+        .or(z.literal('')), // Aceita string vazia
     confirmPassword: z
         .string()
-        .optional(),
-}).refine((data) => data.password === data.confirmPassword, {
+        .optional()
+        .or(z.literal('')), // Aceita string vazia
+}).refine((data) => {
+    // Só valida se pelo menos uma senha foi preenchida
+    if (data.password || data.confirmPassword) {
+        return data.password === data.confirmPassword;
+    }
+    return true;
+}, {
     message: "Senhas não coincidem",
     path: ["confirmPassword"],
 })
@@ -68,9 +79,25 @@ interface FormularioContaProps {
 
 export function FormularioConta({ professor }: FormularioContaProps) {
     const [isOpen, setIsOpen] = useState(false)
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [imagePreview, setImagePreview] = useState<File | null>(null);
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function fetchImage() {
+            if (professor.image) {
+                try {
+                    const url = await obterUrlImagem(professor.image);
+                    setCurrentAvatarUrl(url);
+                } catch (error) {
+                    console.error("Erro ao carregar imagem:", error);
+                    setCurrentAvatarUrl(null);
+                }
+            }
+        }
+        fetchImage();
+    }, [professor.image]);
 
     const form = useForm<SignUpFormData>({
         resolver: zodResolver(contaSchema),
@@ -80,113 +107,50 @@ export function FormularioConta({ professor }: FormularioContaProps) {
             telefone: professor.telefone || '',
             especialidade: professor.especialidade || '',
             bio: professor.bio || '',
-            currentPassword: undefined,
-            password: undefined,
-            confirmPassword: undefined,
+            currentPassword: '', // Mudança: de undefined para string vazia
+            password: '', // Mudança: de undefined para string vazia
+            confirmPassword: '', // Mudança: de undefined para string vazia
         },
     })
 
     const handleImageChange = (file: File | undefined) => {
         if (file) {
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string)
+            setImagePreview(file);
+        }
+    }
+
+    const onSubmit = async (data: SignUpFormData) => {
+        const storageRef = ref(storage, `perfil/${professor.id}.jpg`);
+        try {
+            let image = undefined;
+
+            if (data.image?.name) {
+                await uploadBytes(storageRef, data.image);
+
+                image = `perfil/${professor.id}.jpg`
             }
-            reader.readAsDataURL(file)
-        } else {
-            setImagePreview(null)
+
+            const resultado = await atualizarContaProfessor(
+                professor.id,
+                {
+                    name: data.name,
+                    email: data.email,
+                    telefone: data.telefone,
+                    especialidade: data.especialidade,
+                    bio: data.bio,
+                    image: image
+                },
+                // Envia undefined se string vazia
+                data.currentPassword && data.currentPassword.trim() !== '' ? data.currentPassword : undefined,
+                data.password && data.password.trim() !== '' ? data.password : undefined
+            );
+            form.reset();
+            toast.success(resultado.message);
+            setIsOpen(false);
+        } catch (error) {
+            toast.error("Erro ao atualizar conta. Tente novamente.");
         }
-    }
-
-    // Função auxiliar para comprimir imagem
-async function compressImage(
-    file: File, 
-    options: { maxWidth: number; maxHeight: number; quality: number }
-): Promise<File> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target?.result as string;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-
-                if (width > height) {
-                    if (width > options.maxWidth) {
-                        height *= options.maxWidth / width;
-                        width = options.maxWidth;
-                    }
-                } else {
-                    if (height > options.maxHeight) {
-                        width *= options.maxHeight / height;
-                        height = options.maxHeight;
-                    }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx?.drawImage(img, 0, 0, width, height);
-
-                canvas.toBlob(
-                    (blob) => {
-                        if (blob) {
-                            const compressedFile = new File([blob], file.name, {
-                                type: 'image/jpeg',
-                                lastModified: Date.now(),
-                            });
-                            resolve(compressedFile);
-                        } else {
-                            reject(new Error('Erro ao comprimir imagem'));
-                        }
-                    },
-                    'image/jpeg',
-                    options.quality
-                );
-            };
-        };
-        reader.onerror = (error) => reject(error);
-    });
-}
-
-const onSubmit = async (data: SignUpFormData) => {
-    try {
-        let image = undefined;
-        
-        if (data.image?.name) {
-            // Comprimir a imagem antes de converter
-            const compressedImage = await compressImage(data.image, {
-                maxWidth: 800,
-                maxHeight: 800,
-                quality: 0.7
-            });
-            image = await convertImageToBase64(compressedImage);
-        }
-        
-        await atualizarContaProfessor(
-            professor.id,
-            {
-                name: data.name,
-                email: data.email,
-                telefone: data.telefone,
-                especialidade: data.especialidade,
-                bio: data.bio,
-                image: image
-            },
-            data.currentPassword || undefined,
-            data.password || undefined
-        );
-        
-        form.reset();
-        toast.success("Conta atualizada com sucesso");
-        setIsOpen(false);
-    } catch (error) {
-        toast.error("Erro ao atualizar conta. Tente novamente.");
-    }
-};
+    };
 
 
     return (
@@ -217,7 +181,7 @@ const onSubmit = async (data: SignUpFormData) => {
                                             {professor.image && !imagePreview && (
                                                 <Avatar className="h-12 w-12 border-2 border-secondary">
                                                     <AvatarImage
-                                                        src={professor.image}
+                                                        src={currentAvatarUrl || ""}
                                                         style={{ objectFit: "cover" }}
                                                     />
                                                     <AvatarFallback className="bg-background text-primary font-medium">
@@ -229,7 +193,7 @@ const onSubmit = async (data: SignUpFormData) => {
                                             {imagePreview && (
                                                 <Avatar className="h-12 w-12 border-2 border-secondary">
                                                     <AvatarImage
-                                                        src={imagePreview}
+                                                        src={URL.createObjectURL(imagePreview)}
                                                         style={{ objectFit: "cover" }}
                                                     />
                                                     <AvatarFallback className="bg-background text-primary font-medium">
@@ -543,13 +507,4 @@ const onSubmit = async (data: SignUpFormData) => {
             </DialogContent>
         </Dialog>
     )
-}
-
-async function convertImageToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onloadend = () => resolve(reader.result as string)
-        reader.onerror = reject
-        reader.readAsDataURL(file)
-    })
 }

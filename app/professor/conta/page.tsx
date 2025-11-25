@@ -7,8 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
+import { obterUrlImagem } from "@/lib/obter-imagem";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import Loading from "../(dashboard)/loading";
 
 export default async function Page() {
     const session = await auth.api.getSession({
@@ -21,8 +24,10 @@ export default async function Page() {
 
     const professor = await obterProfessorPorId(session.user.id)
 
+    const fotoPerfil = await obterUrlImagem(professor?.image!)
+
     return (
-        <>
+        <Suspense fallback={<Loading />}>
             <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
                 <SidebarTrigger className='absolute' />
                 <div className="max-[1025px]:pl-10">
@@ -38,7 +43,7 @@ export default async function Page() {
                     <div className="flex flex-col items-center gap-4 justify-center  flex-1">
                         <Avatar className="size-52 border-2 border-primary">
                             <AvatarImage
-                                src={professor?.image!}
+                                src={fotoPerfil || ''}
                                 alt={professor?.name! || 'Avatar'}
                                 className="object-cover"
                             />
@@ -54,7 +59,7 @@ export default async function Page() {
 
                         <div className="text-center space-y-2">
                             <CardTitle className="text-primary">
-                                Profª {professor?.name}
+                                {professor?.name}
                             </CardTitle>
                             <Badge variant={'secondary'}>
                                 {professor?.especialidade}
@@ -97,7 +102,7 @@ export default async function Page() {
                     </CardContent>
                 </Card>
             </main>
-        </>
+        </Suspense>
     )
 }
 

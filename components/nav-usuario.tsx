@@ -23,15 +23,33 @@ import { useRouter } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
 import { Skeleton } from "./ui/skeleton"
 import { useEffect, useState } from "react"
+import { obterUrlImagem } from "@/lib/obter-imagem";
 
 export function NavUsuario() {
     const [isClient, setIsClient] = useState(false)
     const { data: session, isPending } = authClient.useSession();
+    const [avatarImagem, setAvatarImagem] = useState<string | null>(null);
+
     const router = useRouter()
 
     useEffect(() => {
         setIsClient(true)
     }, [])
+
+    useEffect(() => {
+        async function fetchImage() {
+            if (session?.user?.image) {
+                try {
+                    const url = await obterUrlImagem(session.user.image);
+                    setAvatarImagem(url);
+                } catch (error) {
+                    console.error("Erro ao carregar imagem:", error);
+                    setAvatarImagem(null);
+                }
+            }
+        }
+        fetchImage();
+    }, [session])
 
     async function sair() {
         await authClient.signOut();
@@ -55,7 +73,7 @@ export function NavUsuario() {
             <DropdownMenuTrigger asChild>
                 <div className="flex items-center gap-2 cursor-pointer text-muted">
                     <Avatar className="border-2 border-secondary size-10">
-                        <AvatarImage src={session?.user ? session.user.image! : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} className="object-cover" />
+                        <AvatarImage src={avatarImagem ? avatarImagem : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} className="object-cover" />
                         <AvatarFallback>DG</AvatarFallback>
                     </Avatar>
 
