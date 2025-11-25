@@ -155,13 +155,18 @@ export function FormularioConta({ professor }: FormularioContaProps) {
         }
     };
 
+    function cancelar() {
+        setImagePreview(null);
+        setIsOpen(false);
+        form.reset();
+    }
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
                 <Button variant="secondary">
                     <PencilIcon />
-                    Editar Conta
+                    <span className="max-sm:hidden">Editar Conta</span>
                 </Button>
             </DialogTrigger>
             <DialogContent>
@@ -207,7 +212,7 @@ export function FormularioConta({ professor }: FormularioContaProps) {
                                             <div className="flex items-center gap-2 w-full">
                                                 <Input
                                                     type="file"
-                                                    accept="image/*"
+                                                    accept=".jpg, .jpeg"
                                                     onChange={(e) => {
                                                         const file = e.target.files?.[0]
                                                         onChange(file)
@@ -483,8 +488,10 @@ export function FormularioConta({ professor }: FormularioContaProps) {
 
                         <div className="w-full grid grid-cols-2 gap-4 pt-4">
                             <Button
+                                type="reset"
+                                disabled={form.formState.isSubmitting}
                                 variant="outline"
-                                onClick={() => setIsOpen(false)}
+                                onClick={cancelar}
                             >
                                 Cancelar
                             </Button>
