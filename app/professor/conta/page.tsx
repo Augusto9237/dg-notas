@@ -23,7 +23,7 @@ export default async function Page() {
 
     const professor = await obterProfessorPorId(session.user.id)
 
-    const fotoPerfil = await obterUrlImagem(professor?.image!)
+    const fotoPerfil = professor?.image ? await obterUrlImagem(professor.image) : null
 
     return (
         <Suspense fallback={<Loading />}>
@@ -43,7 +43,7 @@ export default async function Page() {
                         <Avatar className="size-52 border-2 border-primary">
                             <AvatarImage
                                 src={fotoPerfil || ''}
-                                alt={professor?.name! || 'Avatar'}
+                                alt={professor?.name || 'Avatar'}
                                 className="object-cover"
                             />
                             <AvatarFallback className='text-xs'>
