@@ -24,6 +24,7 @@ import { atualizarContaProfessor } from "@/actions/admin"
 import { ref, uploadBytes } from "firebase/storage"
 import { storage } from "@/lib/firebase"
 import { obterUrlImagem } from "@/lib/obter-imagem"
+import { authClient } from "@/lib/auth-client"
 
 export const contaSchema = z.object({
     image: z
@@ -83,6 +84,7 @@ export function FormularioConta({ professor }: FormularioContaProps) {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | null>(null);
+    const { refetch } = authClient.useSession();
 
     useEffect(() => {
         async function fetchImage() {
@@ -147,6 +149,7 @@ export function FormularioConta({ professor }: FormularioContaProps) {
             form.reset();
             toast.success(resultado.message);
             setIsOpen(false);
+            refetch();
         } catch (error) {
             toast.error("Erro ao atualizar conta. Tente novamente.");
         }
