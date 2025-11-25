@@ -13,6 +13,7 @@ import { Criterio } from "@/app/generated/prisma"
 import { Card } from "./ui/card"
 import { ListChecks } from "lucide-react"
 import { FormularioCriterio } from "./formulario-criterio"
+import { Label } from "./ui/label"
 
 
 interface ModalCompetenciasProps {
@@ -46,13 +47,13 @@ export function ModalCompetencias({ criterios }: ModalCompetenciasProps) {
         <div className="space-y-4">
           {listaCriterios.map((criterio, i) => (
             <Card className="gap-2 p-4" key={criterio.id}>
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between gap-1 items-center">
                 <div className="h-full  w-full space-y-1">
-                  <span className="max-sm:text-sm">{i + 1} - {criterio.nome}</span>
+                  <Label >{i + 1} - {criterio.nome}</Label>
                   <p className="text-xs text-muted-foreground ">{criterio.descricao}</p>
                   <p className="text-xs text-muted-foreground ">Pont. Máxima: {criterio.pontuacaoMax}</p>
                 </div>
-                <FormularioCriterio criterio={criterio}/>
+                <FormularioCriterio criterio={criterio} />
               </div>
             </Card>
           ))}

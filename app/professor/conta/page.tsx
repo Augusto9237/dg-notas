@@ -31,7 +31,7 @@ export default async function Page() {
                 <SidebarTrigger className='absolute' />
                 <div className="max-[1025px]:pl-10">
                     <h1 className="text-xl font-bold">Sua Conta</h1>
-                    <p className="text-xs text-muted-foreground">Gerencie suas informações pessoais e profissionais</p>
+                    <p className="text-xs text-muted-foreground max-sm:hidden">Gerencie suas informações</p>
                 </div>
 
                 <FormularioConta professor={professor!} />

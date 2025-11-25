@@ -19,10 +19,10 @@ export default async function Page() {
           <SidebarTrigger className='absolute' />
           <div className="max-[1025px]:pl-10">
             <h1 className=" text-xl font-bold">Avaliações</h1>
-            <p className="text-xs text-muted-foreground">Lista de temas cadastrados</p>
+            <p className="text-xs text-muted-foreground max-sm:hidden">Lista de avaliações</p>
           </div>
           <div className='flex items-center gap-4'>
-            <ModalCompetencias criterios={criterios}/>
+            <ModalCompetencias criterios={criterios} />
             <FormularioTema />
           </div>
         </div>

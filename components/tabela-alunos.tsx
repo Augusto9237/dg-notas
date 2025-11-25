@@ -27,6 +27,9 @@ import { useSearchParams } from 'next/navigation';
 import { StatusAvaliacao } from '@/app/generated/prisma';
 import { calcularMedia } from '@/lib/media-geral';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { banirUsuario } from '@/actions/admin';
+import { toast } from 'sonner';
+import { DeleteButton } from './ui/delete-button';
 
 
 
@@ -108,6 +111,15 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
 
   }, [busca])
 
+  async function excluirAluno(alundoId: string) {
+    try {
+      await banirUsuario(alundoId)
+      toast.error('Aluno excluído com sucesso')
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   // Calcular paginação
   const totalPages = Math.ceil(listaAlunos.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
@@ -177,7 +189,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
                   {aluno.Avaliacao.length}
                 </TableCell>
                 <TableCell className='w-full max-w-[120px] min-w-[120px] text-center font-semibold'>{calcularMedia(aluno.Avaliacao)}</TableCell>
-                <TableCell className="text-center">
+                <TableCell className="text-center space-x-2">
                   <Link href={`/professor/alunos/${aluno.id}`} passHref>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -190,6 +202,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
                       </TooltipContent>
                     </Tooltip>
                   </Link>
+                  <DeleteButton onClick={() => excluirAluno(aluno.id)} />
                 </TableCell>
               </TableRow>
             ))

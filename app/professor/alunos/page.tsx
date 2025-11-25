@@ -14,7 +14,7 @@ export default async function Page() {
           <SidebarTrigger className='absolute'/>
           <div className="max-[1025px]:pl-10">
             <h1 className="text-xl font-bold">Alunos</h1>
-            <p className="text-xs text-muted-foreground">Lista de alunos cadastrados</p>
+            <p className="text-xs text-muted-foreground max-sm:hidden">Lista de alunos</p>
           </div>
         </div>
 
