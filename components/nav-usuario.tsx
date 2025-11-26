@@ -2,6 +2,7 @@
 import {
     ChevronDown,
     LogOut,
+    UserCog,
 } from "lucide-react"
 import {
     Avatar,
@@ -12,12 +13,9 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-import { FaGear, FaUser, FaUserGear } from "react-icons/fa6";
 
 import { useRouter } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
@@ -89,13 +87,13 @@ export function NavUsuario() {
                 align="start"
                 sideOffset={4}
             >
-                <DropdownMenuItem onClick={() => router.push("/professor/conta")} className="text-primary">
-                    <FaUser className="fill-primary" />
+                <DropdownMenuItem onClick={() => router.push("/professor/conta")} className="text-primary hover:text-primary">
+                    <UserCog className="stroke-primary" />
                     Sua conta
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={sair} className="text-primary">
+                <DropdownMenuItem onClick={sair} className="text-primary hover:text-primary">
                     <LogOut className="stroke-primary" />
                     Sair
                 </DropdownMenuItem>

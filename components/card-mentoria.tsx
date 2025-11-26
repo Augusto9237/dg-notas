@@ -146,7 +146,7 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria, aluno, modo =
                 {mentoria.status === "REALIZADA" ? (
                   <ModalFeedbackMentoria feedback={mentoria.feedback ?? ''}/>
                 ) : (
-                    <div className="gap-5 overflow-hidden grid grid-cols-2">
+                    <div className="gap-5 overflow-hidden grid grid-cols-2 w-full">
                         <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" diasSemana={diasSemana} slotsHorario={slotsHorario} />
                         <Button
                             size="sm"

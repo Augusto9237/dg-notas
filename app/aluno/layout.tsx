@@ -11,6 +11,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ProvedorAluno } from '@/context/provedor-aluno';
 import Loading from './loading';
+import { FormularioTelefone } from '@/components/formulario-telefone';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -28,15 +29,15 @@ interface RootLayoutProps {
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-    // const session = await auth.api.getSession({
-    //     headers: await headers() // you need to pass the headers object.
-    // })
+    const session = await auth.api.getSession({
+        headers: await headers() // you need to pass the headers object.
+    })
 
     // if (!session?.user) {
     //     redirect('/')
     // }
 
-    // if (session.user.role === 'professor') {
+    // if (session.user.role !== 'user') {
     //     await auth.api.signOut({
     //         headers: await headers()
     //     })
@@ -50,6 +51,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             >
                     <ProvedorAluno>
                         <Header />
+                        <FormularioTelefone user={session?.user!}/>
                         <main>{children}</main>
                         <FooterAluno />
                         <Toaster richColors theme="light" />

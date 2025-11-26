@@ -67,7 +67,7 @@ export default async function Page() {
                     </div>
                 </Card>
 
-                <Card className="col-span-2">
+                <Card className="col-span-2 max-sm:gap-4">
                     <CardHeader>
                         <CardTitle>Informações Pessoais</CardTitle>
                     </CardHeader>
@@ -75,25 +75,25 @@ export default async function Page() {
                         <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-4">
                             <div>
                                 <Label>Nome completo</Label>
-                                <p className="text-muted-foreground">{professor?.name}</p>
+                                <p className="text-muted-foreground max-sm:text-sm">{professor?.name}</p>
                             </div>
                             <div>
                                 <Label>Especialidade</Label>
-                                <p className="text-muted-foreground">{professor?.especialidade}</p>
+                                <p className="text-muted-foreground max-sm:text-sm">{professor?.especialidade}</p>
                             </div>
                             <div>
                                 <Label>E-mail</Label>
-                                <p className="text-muted-foreground">{professor?.email}</p>
+                                <p className="text-muted-foreground max-sm:text-sm">{professor?.email}</p>
                             </div>
                             <div>
                                 <Label>Telefone</Label>
-                                <p className="text-muted-foreground">{professor?.telefone}</p>
+                                <p className="text-muted-foreground max-sm:text-sm">{professor?.telefone}</p>
                             </div>
                         </div>
 
                         <div className="mt-4">
                             <Label>Bio</Label>
-                            <p className="text-muted-foreground">{professor?.bio}</p>
+                            <p className="text-muted-foreground max-sm:text-sm">{professor?.bio}</p>
                         </div>
                     </CardContent>
                 </Card>
