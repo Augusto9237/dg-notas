@@ -118,8 +118,17 @@ export async function banirUsuario(userId: string) {
       // This endpoint requires session cookies.
       headers: await headers(),
     });
+
+    return {
+      success: true,
+      message: 'Usuário banido com sucesso',
+    }
   }
   catch (error) {
-    console.log(error)
+    return{
+      success: false,
+      message: `Erro ao banir usuário: ${error}`,
+      error: error
+    }
   }
 }

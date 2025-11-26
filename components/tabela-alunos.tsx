@@ -113,8 +113,8 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
 
   async function excluirAluno(alundoId: string) {
     try {
-      await banirUsuario(alundoId)
-      toast.error('Aluno excluído com sucesso')
+     const resposta = await banirUsuario(alundoId)
+      toast.error(resposta.message)
     } catch (error) {
       console.log(error)
     }
@@ -155,7 +155,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
         <TableHeader>
           <TableRow >
             <TableHead className='min-w-sm'>Aluno</TableHead>
-            <TableHead className='w-full' >E-mail</TableHead>
+            <TableHead className='sm:w-full' >E-mail</TableHead>
             <TableHead className='w-full max-w-[120px] min-w-[120px] font-semibold'>Avaliações</TableHead>
             <TableHead className='w-full max-w-[120px] min-w-[120px] font-semibold'>Média Geral</TableHead>
             <TableHead className="text-center">
