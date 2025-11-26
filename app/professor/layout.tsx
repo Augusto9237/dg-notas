@@ -38,7 +38,7 @@ export default async function RootLayout({
     redirect('/')
   }
 
-  if (session.user.role !== 'professor') {
+  if (session.user.role !== 'admin') {
     await auth.api.signOut({
       headers: await headers()
     })

@@ -119,13 +119,15 @@ export async function banirUsuario(userId: string) {
       headers: await headers(),
     });
 
+    revalidatePath('/professor/alunos')
+
     return {
       success: true,
       message: 'Usuário banido com sucesso',
     }
   }
   catch (error) {
-    return{
+    return {
       success: false,
       message: `Erro ao banir usuário: ${error}`,
       error: error

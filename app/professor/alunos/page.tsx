@@ -1,20 +1,20 @@
-import { ListarAlunosGoogle } from '@/actions/alunos';
+import { listarAlunosGoogle } from '@/actions/alunos';
 import { TabelaAlunos } from '@/components/tabela-alunos';
 import Loading from './loading';
 import { Suspense } from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
 export default async function Page() {
-  const alunos = await ListarAlunosGoogle();
+  const alunos = await listarAlunosGoogle();
 
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full">
         <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
-          <SidebarTrigger className='absolute'/>
+          <SidebarTrigger className='absolute' />
           <div className="max-[1025px]:pl-10">
             <h1 className="text-xl font-bold">Alunos</h1>
-            <p className="text-xs text-muted-foreground max-sm:hidden">Lista de alunos</p>
+            <p className="text-xs text-muted-foreground max-sm:leading-none">Lista de alunos</p>
           </div>
         </div>
 

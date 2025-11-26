@@ -22,7 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Ellipsis, FileCheck2, FileDown, Search } from 'lucide-react';
 import { InputBusca } from './input-busca';
-import { ListarAlunosGoogle } from '@/actions/alunos';
+import { listarAlunosGoogle } from '@/actions/alunos';
 import { useSearchParams } from 'next/navigation';
 import { StatusAvaliacao } from '@/app/generated/prisma';
 import { calcularMedia } from '@/lib/media-geral';
@@ -94,7 +94,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
     const buscarAvaliacoes = async () => {
       if (busca) {
         setCarregando(true);
-        const resultadoBusca = await ListarAlunosGoogle(busca)
+        const resultadoBusca = await listarAlunosGoogle(busca)
 
         if (isMounted) {
           setListaAlunos(resultadoBusca);
@@ -113,7 +113,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
 
   async function excluirAluno(alundoId: string) {
     try {
-     const resposta = await banirUsuario(alundoId)
+      const resposta = await banirUsuario(alundoId)
       toast.error(resposta.message)
     } catch (error) {
       console.log(error)
@@ -189,7 +189,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
                   {aluno.Avaliacao.length}
                 </TableCell>
                 <TableCell className='w-full max-w-[120px] min-w-[120px] text-center font-semibold'>{calcularMedia(aluno.Avaliacao)}</TableCell>
-                <TableCell className="text-center space-x-2">
+                <TableCell className="text-center space-x-4">
                   <Link href={`/professor/alunos/${aluno.id}`} passHref>
                     <Tooltip>
                       <TooltipTrigger asChild>

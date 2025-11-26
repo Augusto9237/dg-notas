@@ -23,7 +23,7 @@ export default async function Page() {
                     <SidebarTrigger className='absolute' />
                     <div className="max-[1025px]:pl-10">
                         <h1 className=" text-xl font-bold">Mentorias</h1>
-                        <p className="text-xs text-muted-foreground">Lista de mentorias agendadas</p>
+                        <p className="text-xs text-muted-foreground max-sm:leading-none max-sm:truncate">Lista de mentorias agendadas</p>
                     </div>
                     <AjustarAgenda diasSemana={diasSemana} slotsHorario={slotsHorario} />
                 </div>

@@ -66,6 +66,7 @@ model Criterio {
 }
 
 // Enum para status da mentoria
+
 enum StatusMentoria {
   AGENDADA
   CONFIRMADA
@@ -109,9 +110,11 @@ model Horario {
   diaSemana   DiaSemana   @relation(fields: [diaSemanaId], references: [id])
 
   // Índices para otimizar consultas de disponibilidade
+  // Otimiza busca por data+slot com status
+  // Otimiza filtros por disponibilidade
   @@unique([data, slotId])
-  @@index([data, slotId, status]) // Otimiza busca por data+slot com status
-  @@index([status]) // Otimiza filtros por disponibilidade
+  @@index([data, slotId, status])
+  @@index([status])
 }
 
 model Mentoria {
@@ -127,10 +130,12 @@ model Mentoria {
   updatedAt DateTime       @updatedAt
 
   // Garante que um aluno só possa ter uma mentoria por horário
-  @@unique([alunoId, horarioId])
   // Índices para otimizar consultas
-  @@index([status]) // Filtra mentorias por status
-  @@index([horarioId, status]) // Otimiza contagem de mentorias ativas por horário
+  // Filtra mentorias por status
+  // Otimiza contagem de mentorias ativas por horário
+  @@unique([alunoId, horarioId])
+  @@index([status])
+  @@index([horarioId, status])
 }
 
 model User {
@@ -174,6 +179,7 @@ model Session {
 
   @@unique([token])
   @@map("session")
+  @@index([userId])
 }
 
 model Account {
@@ -193,6 +199,7 @@ model Account {
   updatedAt             DateTime
 
   @@map("account")
+  @@index([userId])
 }
 
 model Verification {
@@ -204,4 +211,5 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+  @@index([identifier])
 }

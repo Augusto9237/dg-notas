@@ -31,7 +31,7 @@ export default async function Page() {
                 <SidebarTrigger className='absolute' />
                 <div className="max-[1025px]:pl-10">
                     <h1 className="text-xl font-bold">Sua Conta</h1>
-                    <p className="text-xs text-muted-foreground max-sm:hidden">Gerencie suas informações</p>
+                    <p className="text-xs text-muted-foreground max-sm:leading-none max-sm:truncate">Gerencie suas informações</p>
                 </div>
 
                 <FormularioConta professor={professor!} />
@@ -70,12 +70,9 @@ export default async function Page() {
                 <Card className="col-span-2">
                     <CardHeader>
                         <CardTitle>Informações Pessoais</CardTitle>
-                        <CardDescription>
-                            Atualize suas informações de perfil e configurações
-                        </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-4">
                             <div>
                                 <Label>Nome completo</Label>
                                 <p className="text-muted-foreground">{professor?.name}</p>

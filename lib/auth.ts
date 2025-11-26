@@ -46,6 +46,8 @@ export const auth = betterAuth({
         }
     },
     plugins: [
-        admin()
+        admin({
+            adminRoles: ["admin", "professor"]
+        })
     ]
 });

@@ -1,4 +1,4 @@
-import { ListarAlunosGoogle } from "@/actions/alunos";
+import { listarAlunosGoogle } from "@/actions/alunos";
 import { ListarAvaliacoes, ListarTemas } from "@/actions/avaliacao";
 import { listarMentoriasHorario } from "@/actions/mentoria";
 import { Avaliacao } from "@/app/generated/prisma";
@@ -41,7 +41,7 @@ export default async function Page() {
     const session = await auth.api.getSession({
         headers: await headers() // you need to pass the headers object.
     })
-    const alunos = await ListarAlunosGoogle();
+    const alunos = await listarAlunosGoogle();
     const temas = await ListarTemas();
     const mentorias = await listarMentoriasHorario();
     const avaliacoes = await ListarAvaliacoes();

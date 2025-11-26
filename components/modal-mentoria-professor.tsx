@@ -104,7 +104,7 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
     async function excluirMentoria(id: number) {
         try {
             await excluirMentoriaECascata(id)
-            toast.success('Mentoria excluída com sucesso')
+            toast.error('Mentoria excluída com sucesso')
         } catch {
             toast.error('Erro ao excluir mentoria')
         }
@@ -147,7 +147,7 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
 
             <DialogContent >
                 {carregando === true ? (
-                    <div className="min-h-[360px] h-full z-50 flex items-center justify-center">
+                    <div className="min-h-[214px] h-full z-50 flex items-center justify-center">
                         <DialogTitle />
                         <Loader2 className="animate-spin text-primary" size={32} />
                     </div>

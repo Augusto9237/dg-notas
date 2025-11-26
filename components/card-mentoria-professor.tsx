@@ -39,7 +39,7 @@ export function CardMentoriaProfessor({ mentoria, onclick }: CardMentoriaAlunoPr
 
     return (
         <Button
-            className={cn('h-full')}
+            className={cn('h-full', mentoria.status === "CONFIRMADA" && "bg-primary/10", mentoria.status === 'AGENDADA' && "text-card")}
             onClick={onclick}
             variant={STATUS_VARIANTES[mentoria.status as keyof typeof STATUS_VARIANTES]}
         >

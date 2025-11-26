@@ -1,4 +1,3 @@
-import { ListarAlunosGoogle } from '@/actions/alunos';
 import { ListarAvaliacoes, ListarCriterios, ListarTemas } from '@/actions/avaliacao';
 import { FormularioTema } from '@/components/formulario-tema';
 import { TabelaTemas } from '@/components/tabela-temas';
@@ -19,7 +18,7 @@ export default async function Page() {
           <SidebarTrigger className='absolute' />
           <div className="max-[1025px]:pl-10">
             <h1 className=" text-xl font-bold">Avaliações</h1>
-            <p className="text-xs text-muted-foreground max-sm:hidden">Lista de avaliações</p>
+            <p className="text-xs text-muted-foreground max-sm:leading-none">Lista de avaliações</p>
           </div>
           <div className='flex items-center gap-4'>
             <ModalCompetencias criterios={criterios} />

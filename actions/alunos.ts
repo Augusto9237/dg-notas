@@ -2,15 +2,16 @@
 import { prisma } from "@/lib/prisma";
 
 // Função para listar alunos que fizeram login apenas com o Google
-export async function ListarAlunosGoogle(busca?: string) {
+export async function listarAlunosGoogle(busca?: string) {
     try {
         // Construir o where clause dinamicamente
-        const whereClause = {
+        const clasulaDeFiltro = {
             accounts: {
                 every: {
                     providerId: 'google'
                 }
             },
+            banned: false, // Adicionado filtro para usuários não banidos
             ...(busca && busca.trim() !== '' && {
                 email: {
                     contains: busca.trim(),
@@ -19,7 +20,7 @@ export async function ListarAlunosGoogle(busca?: string) {
             }),
         }
         const alunos = await prisma.user.findMany({
-            where: whereClause,
+            where: clasulaDeFiltro,
             include: {
                 Avaliacao: true
             }
