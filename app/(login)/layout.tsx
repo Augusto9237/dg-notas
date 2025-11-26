@@ -31,7 +31,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     })
 
     if (session?.user) {
-        if (session.user.role === 'professor') {
+        if (session.user.role === 'admin') {
             redirect('/professor')
         } else {
             redirect('/aluno')
