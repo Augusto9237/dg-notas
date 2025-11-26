@@ -59,10 +59,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                             </div>
                         </div>
                         <div className="bg-muted relative hidden lg:block">
-                            <img
+                            <Image
                                 src="/foto-1.jpeg"
                                 alt="Image"
-                                className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                                fill
+                                className="object-cover dark:brightness-[0.2] dark:grayscale"
                             />
                         </div>
                     </div>

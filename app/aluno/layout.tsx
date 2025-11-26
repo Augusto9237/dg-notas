@@ -1,4 +1,4 @@
-import { ReactNode, Suspense } from 'react'
+import { ReactNode } from 'react'
 import type { Metadata } from "next";
 import { Poppins } from 'next/font/google';
 
@@ -10,7 +10,6 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ProvedorAluno } from '@/context/provedor-aluno';
-import Loading from './loading';
 import { FormularioTelefone } from '@/components/formulario-telefone';
 
 const poppins = Poppins({
@@ -33,16 +32,16 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         headers: await headers() // you need to pass the headers object.
     })
 
-    // if (!session?.user) {
-    //     redirect('/')
-    // }
+    if (!session?.user) {
+        redirect('/')
+    }
 
-    // if (session.user.role !== 'user') {
-    //     await auth.api.signOut({
-    //         headers: await headers()
-    //     })
-    //     redirect('/')
-    // }
+    if (session.user.role !== 'user') {
+        await auth.api.signOut({
+            headers: await headers()
+        })
+        redirect('/')
+    }
 
     return (
         <html lang="pt-BR">
@@ -51,7 +50,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             >
                     <ProvedorAluno>
                         <Header />
-                        <FormularioTelefone user={session?.user!}/>
+                        <FormularioTelefone user={session.user}/>
                         <main>{children}</main>
                         <FooterAluno />
                         <Toaster richColors theme="light" />

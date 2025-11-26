@@ -2,7 +2,6 @@ import { listarAlunosGoogle } from "@/actions/alunos";
 import { ListarAvaliacoes, ListarTemas } from "@/actions/avaliacao";
 import { listarMentoriasHorario } from "@/actions/mentoria";
 import { Avaliacao } from "@/app/generated/prisma";
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileType, Users } from "lucide-react";
 import { RiUserStarLine } from "react-icons/ri";
 import { FaChartLine } from "react-icons/fa";

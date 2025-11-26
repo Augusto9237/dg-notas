@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import Loading from "./loading";
 import { CalendarioGrande } from "@/components/calendario-grande";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { prisma } from "@/lib/prisma";
 import { AjustarAgenda } from "@/components/ajustar-agenda";
 
 

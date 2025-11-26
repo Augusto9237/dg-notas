@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { CalendarCog, Clock, Loader2 } from "lucide-react"
+import { CalendarCog, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import {
   Dialog,
@@ -14,17 +14,14 @@ import {
 } from "@/components/ui/dialog"
 import {
   Form,
-  FormControl,
   FormDescription,
   FormField,
-  FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from "sonner"
-import { Item, ItemActions, ItemContent, ItemHeader, ItemTitle } from "./ui/item"
+import { Item, ItemActions, ItemContent, ItemTitle } from "./ui/item"
 import clsx from "clsx"
 import { Label } from "./ui/label"
 import { DiaSemana, SlotHorario } from "@/app/generated/prisma"
@@ -106,7 +103,7 @@ export function AjustarAgenda({
     setHorariosAtualizados(novosHorarios)
   }
 
-  async function onSubmit(data: AgendaFormData) {
+  async function onSubmit() {
     // Chama as funções de callback se fornecidas
     if (onDiasChange) {
       onDiasChange(diasAtualizados)
@@ -147,7 +144,7 @@ export function AjustarAgenda({
       toast.success('Agenda ajustada com sucesso');
       setIsOpen(false)
 
-    } catch (error) {
+    } catch {
       toast.error('Algo deu errado, tente novamente!')
     }
   }
@@ -182,7 +179,7 @@ export function AjustarAgenda({
             <FormField
               control={form.control}
               name='diasSemana'
-              render={({ field }) => (
+              render={() => (
                 <div className="space-y-2">
                   <div>
                     <FormLabel >
@@ -223,7 +220,7 @@ export function AjustarAgenda({
             <FormField
               control={form.control}
               name='horarios'
-              render={({ field }) => (
+              render={() => (
                 <div className="space-y-2">
                   <div>
                     <FormLabel className="flex items-center gap-2">

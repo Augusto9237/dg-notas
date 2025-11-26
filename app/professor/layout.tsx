@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "../globals.css";
 import {
   SidebarInset,
@@ -8,7 +8,7 @@ import {
 import { AppSidebar } from "@/components/app-sidebar";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { redirect, unauthorized } from "next/navigation";
+import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 
 const poppins = Poppins({
