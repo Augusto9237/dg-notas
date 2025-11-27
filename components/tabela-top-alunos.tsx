@@ -14,6 +14,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ChevronRight } from 'lucide-react';
 import { Card, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Progress } from './ui/progress';
+import { Badge } from './ui/badge';
 
 interface AlunoRankeado {
   posicao: number;
@@ -43,13 +45,9 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
 
 
   return (
-    <Card className='p-5'>
+    <Card className='p-5 gap-5'>
       <CardHeader className='flex w-full justify-between items-center p-0'>
-        <div>
-          <CardTitle >Melhores Desempenhos</CardTitle>
-          <CardDescription className='text-xs mt-1'>Top 10 alunos com melhores médias</CardDescription>
-        </div>
-
+        <CardTitle >Melhores Desempenhos</CardTitle>
         <Link href="/professor/alunos" className='flex  items-center text-sm text-primary '>
           <p className='leading-relaxed max-sm:hidden'>Ver todos</p>
           <p className='sm:hidden'>Todos</p>
@@ -61,8 +59,7 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
           <TableRow >
             <TableHead>Pos</TableHead>
             <TableHead>Aluno</TableHead>
-            <TableHead >E-mail</TableHead>
-            <TableHead className="text-right">Média Geral</TableHead>
+            <TableHead className='w-[46px]'>Média</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -75,17 +72,21 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
           ) : (
             listaAlunos.map((aluno) => (
               <TableRow key={aluno.id}>
-                <TableCell className=' font-semibold w-[50px] text-center'>{aluno.posicao}º</TableCell>
-                <TableCell className=' flex gap-4 items-center'>
-                  <Avatar>
-                    <AvatarImage src={aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
-                    <AvatarFallback>{aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  {aluno.name}
-                </TableCell>
-                <TableCell>{aluno.email}</TableCell>
-                <TableCell className="pr-5 font-semibold text-right">
-                  {aluno.mediaNotas}
+                <TableCell className='font-semibold w-[46px] text-center'>{aluno.posicao}º</TableCell>
+                <TableCell colSpan={2}>
+                  <div className='flex gap-2 items-center w-full'>
+                    <Avatar>
+                      <AvatarImage src={aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
+                      <AvatarFallback>{aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div className='w-full flex flex-col gap-1'>
+                      <div className='flex w-full justify-between items-center -mt-1'>
+                        <p className='leading-0'>{aluno.name}</p>
+                        <Badge>{aluno.mediaNotas}</Badge>
+                      </div>
+                      <Progress value={(aluno.mediaNotas / 10) * 100}/>
+                    </div>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
