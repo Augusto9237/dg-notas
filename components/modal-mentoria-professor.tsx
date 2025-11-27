@@ -19,6 +19,7 @@ import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { CardMentoriaProfessor } from "./card-mentoria-professor";
+import { Label } from "./ui/label";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -128,7 +129,7 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
         try {
             setMentoriaData({ ...mentoriaData, status: novoStatus });
             if (novoStatus === 'REALIZADA') {
-                toast(`Status da mentoria foi atualizado para ${novoStatus}! Digite um feedback e finalize a mentoria`)
+                toast.info(`Status da mentoria foi atualizado para ${novoStatus}! Digite um feedback e finalize a mentoria`)
             } else {
                 toast(`Status da mentoria foi atualiza para ${novoStatus}! Salve para confirmar a alteração`);
             }
@@ -162,14 +163,14 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
 
                             <div className="w-full flex flex-col gap-5 overflow-hidden relative">
                                 <div className="flex gap-4 items-center">
-                                    <Avatar className={cn('border-2 size-14', { 'border-primary': mentoria.status === 'REALIZADA', 'border-primary/15': mentoria.status === 'CONFIRMADA', 'border-secondary': mentoria.status === 'AGENDADA' })}>
+                                    <Avatar className={cn('border-2 size-16.5', { 'border-primary': mentoriaData?.status === 'REALIZADA', 'border-primary/15': mentoriaData?.status === 'CONFIRMADA', 'border-secondary': mentoriaData?.status === 'AGENDADA' })}>
                                         <AvatarImage
-                                            src={mentoria.aluno.image || ''}
-                                            alt={mentoria.aluno.name}
+                                            src={mentoriaData?.aluno.image || ''}
+                                            alt={mentoriaData?.aluno.name}
                                             className="object-cover"
                                         />
                                         <AvatarFallback className='text-xs'>
-                                            {mentoria.aluno.name
+                                            {mentoriaData?.aluno.name
                                                 .split(" ")
                                                 .map(word => word.charAt(0))
                                                 .join("")
@@ -182,19 +183,16 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
                                         <p className="text-sm text-muted-foreground">
                                             {mentoria.aluno.email}
                                         </p>
+                                        <p className="text-sm text-muted-foreground">
+                                            {mentoria.aluno.telefone}
+                                        </p>
                                     </div>
                                 </div>
                                 <div>
                                     <div className="grid grid-cols-3">
-                                        <div>
-                                            <p className="font-semibold">Data</p>
-                                        </div>
-                                        <div>
-                                            <p className="font-semibold">Horário</p>
-                                        </div>
-                                        <div>
-                                            <p className="font-semibold">Status</p>
-                                        </div>
+                                        <Label>Data</Label>
+                                        <Label>Horário</Label>
+                                        <Label>Status</Label>
                                     </div>
 
                                     <div className="grid grid-cols-3">
