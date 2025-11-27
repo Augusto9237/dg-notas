@@ -37,37 +37,30 @@ interface TabelaAlunosProps {
   alunos: ({
     Avaliacao: {
       id: number;
-      createdAt: Date;
-      updatedAt: Date;
       alunoId: string;
       temaId: number;
-      notaFinal: number;
-      status: StatusAvaliacao;
-      resposta: string;
-    }[];
-  } & {
-    Avaliacao: {
-      id: number;
-      createdAt: Date;
-      updatedAt: Date;
-      alunoId: string;
-      temaId: number;
-      notaFinal: number;
-      status: StatusAvaliacao;
       resposta: string;
       correcao: string | null;
+      status: StatusAvaliacao;
+      notaFinal: number;
+      createdAt: Date;
+      updatedAt: Date;
     }[];
+  } & {
+    image: string | null;
     name: string;
     id: string;
-    email: string;
-    emailVerified: boolean;
-    image: string | null;
     createdAt: Date;
     updatedAt: Date;
+    email: string;
+    emailVerified: boolean;
     role: string | null;
     banned: boolean | null;
     banReason: string | null;
     banExpires: Date | null;
+    especialidade: string | null;
+    telefone: string | null;
+    bio: string | null;
   })[]
 }
 
@@ -155,9 +148,10 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
         <TableHeader>
           <TableRow >
             <TableHead className='min-w-sm'>Aluno</TableHead>
-            <TableHead className='sm:w-full' >E-mail</TableHead>
+            <TableHead className='min-w-sm'>E-mail</TableHead>
+            <TableHead className='min-w-sm'>Telefone</TableHead>
             <TableHead className='w-full max-w-[120px] min-w-[120px] font-semibold'>Avaliações</TableHead>
-            <TableHead className='w-full max-w-[120px] min-w-[120px] font-semibold'>Média Geral</TableHead>
+            <TableHead className='w-full max-w-[68px] min-w-[68px] font-semibold'>Média</TableHead>
             <TableHead className="text-center">
               <div className='flex justify-center w-full'>
                 <Ellipsis />
@@ -184,11 +178,14 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
                     {aluno.name}
                   </span>
                 </TableCell>
-                <TableCell>{aluno.email}</TableCell>
-                <TableCell className='w-full max-w-[120px] min-w-[120px] text-center font-semibold'>
+                <TableCell className='min-w-sm'>{aluno.email}</TableCell>
+                <TableCell className='min-w-sm'>{aluno.telefone}</TableCell>
+                <TableCell className='w-full max-w-[120px] min-w-[120px] font-semibold'>
                   {aluno.Avaliacao.length}
                 </TableCell>
-                <TableCell className='w-full max-w-[120px] min-w-[120px] text-center font-semibold'>{calcularMedia(aluno.Avaliacao)}</TableCell>
+                <TableCell className='w-full max-w-[68px] min-w-[68px] font-semibold'>
+                  {calcularMedia(aluno.Avaliacao)}
+                </TableCell>
                 <TableCell className="text-center space-x-4">
                   <Link href={`/professor/alunos/${aluno.id}`} passHref>
                     <Tooltip>

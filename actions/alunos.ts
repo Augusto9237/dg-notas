@@ -52,3 +52,25 @@ export async function BuscarAlunoGooglePorId(id: string) {
         throw error;
     }
 }
+
+
+export async function adicionarTelefone(id: string, telefone: string) {
+    try {
+        const aluno = await prisma.user.update({
+            where: {
+                id: id,
+            },
+            data: {
+                telefone: telefone,
+            },
+        });
+        return {
+            success: true,
+            message: 'Telefone adicionado com sucesso',
+            aluno
+        }
+    } catch (error) {
+        console.error("Erro ao adicionar telefone");
+        throw error;
+    }
+}

@@ -17,14 +17,14 @@ interface ModalFeedbackMentoriaProps {
 }
 
 
-export function ModalFeedbackMentoria({feedback}: ModalFeedbackMentoriaProps) {
+export function ModalFeedbackMentoria({ feedback }: ModalFeedbackMentoriaProps) {
 
     return (
         <Dialog >
-            <DialogTrigger asChild disabled={feedback.length === 0 }>
+            <DialogTrigger asChild disabled={feedback.length === 0}>
                 <Button className="w-full relative bg-primary/10" size="sm" variant='outline'>
                     <IoChatbubbleEllipsesOutline />
-                    Feedback do Professor
+                    Feedback
                 </Button>
             </DialogTrigger>
             <DialogContent className="bg-card">

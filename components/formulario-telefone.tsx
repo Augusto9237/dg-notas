@@ -22,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { Input } from "./ui/input"
+import { adicionarTelefone } from "@/actions/alunos"
 
 const formSchema = z.object({
     telefone: z.string().min(10, "O telefone deve ter pelo menos 10 caracteres."),
@@ -29,16 +30,15 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-// This interface now only expects the properties the component actually uses,
-// making it more robust and preventing type errors from other properties on the user object.
 interface FormularioTelefoneProps {
     user: {
+        id: string;
         telefone?: string | null;
     } | null
 }
 
 export function FormularioTelefone({ user }: FormularioTelefoneProps) {
-    const [isOpen, setIsOpen] = useState(true)
+    const [isOpen, setIsOpen] = useState(false)
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -48,25 +48,19 @@ export function FormularioTelefone({ user }: FormularioTelefoneProps) {
     })
 
     useEffect(() => {
-        // Using == null checks for both null and undefined
         if (user && user.telefone == null) {
             setIsOpen(true)
         }
     }, [user])
 
     async function onSubmit(values: FormValues) {
-        // TODO: This should call an action to update the user's phone number.
-        // The previous actions (AdicionarTema, EditarTema) were incorrect for this form.
-        console.log(values)
-        toast.info("A funcionalidade de salvar o telefone ainda não foi implementada.");
-        // Example of what the implementation could look like:
-        // try {
-        //   await updateUserPhoneNumber(values.telefone);
-        //   toast.success("Telefone salvo com sucesso!");
-        //   setIsOpen(false);
-        // } catch (error) {
-        //   toast.error("Erro ao salvar o telefone.");
-        // }
+        const resposta = await adicionarTelefone(user?.id!, values.telefone)
+        if (resposta.success) {
+            toast.success(resposta.message);
+            setIsOpen(false);
+        } else {
+            toast.error(resposta.message);
+        }
     }
 
     return (
