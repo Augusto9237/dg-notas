@@ -54,7 +54,7 @@ export function ListaAvaliacoes({ avaliacoesIniciais, criteriosIniciais }: Lista
                             </div>
                         </CardContent>
                         <CardFooter className="px-4 pb-4 absolute inset-x-0 bottom-0">
-                        <Skeleton className="w-full h-8" />
+                            <Skeleton className="w-full h-8" />
                         </CardFooter>
                     </Card>
                 ))}
@@ -64,19 +64,13 @@ export function ListaAvaliacoes({ avaliacoesIniciais, criteriosIniciais }: Lista
 
     return (
         <div className="space-y-4">
-            {avaliacoes.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8">
-                    Nenhuma avaliação encontrada
-                </div>
-            ) : (
-                avaliacoes.map((avaliacao) => (
-                    <CardAvaliacao
-                        key={avaliacao.id}
-                        avaliacao={avaliacao}
-                        criterios={criterios}
-                    />
-                ))
-            )}
+            {avaliacoes.map((avaliacao) => (
+                <CardAvaliacao
+                    key={avaliacao.id}
+                    avaliacao={avaliacao}
+                    criterios={criterios}
+                />
+            ))}
         </div>
     );
 }

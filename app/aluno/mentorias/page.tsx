@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers"
 import { ListMentoriasAlunos } from "@/components/lista-mentorias-aluno";
 import { CardMentoriaConfirmacao } from "@/components/card-mentoria-confirmacao";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 export default async function Page() {
@@ -36,27 +37,44 @@ export default async function Page() {
     const diasAtivos = diasSemana.filter((dia) => dia.status)
     const horariosAtivos = slotsHorario.filter((horario) => horario.status)
 
+
     return (
         <div className="w-full">
             <main className="flex flex-col gap-4 p-5 pb-20">
                 <div className="flex items-center justify-between">
                     <h2 className="text-primary font-semibold">Suas Mentorias</h2>
                 </div>
-
                 <AgendarMentoriaAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} />
-                {mentoriasDoDia.length > 0 && (
-                    <div>
-                        {mentoriasDoDia.map((mentoria) => (
-                            <CardMentoriaConfirmacao key={mentoria.id} mentoria={mentoria} />
-                        ))}
-                    </div>
-                )}
+                <Tabs defaultValue="agendada">
+                    <TabsList>
+                        <TabsTrigger value="agendada" className="text-foreground max-sm:text-xs">Agendadas</TabsTrigger>
+                        <TabsTrigger value="realizada" className="text-foreground max-sm:text-xs">Realizadas</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="agendada" className="flex flex-col gap-4">
+                        {mentoriasDoDia.length > 0 && (
+                            <div>
+                                {mentoriasDoDia.map((mentoria) => (
+                                    <CardMentoriaConfirmacao key={mentoria.id} mentoria={mentoria} />
+                                ))}
+                            </div>
+                        )}
 
-                <ListMentoriasAlunos 
-                    mentoriasIniciais={mentorias} 
-                    diasSemana={diasAtivos} 
-                    slotsHorario={horariosAtivos} 
-                />
+                        <ListMentoriasAlunos
+                            mentoriasIniciais={mentorias.filter((mentoria) => mentoria.status === "AGENDADA")}
+                            diasSemana={diasAtivos}
+                            slotsHorario={horariosAtivos}
+                        />
+                    </TabsContent>
+                    <TabsContent value="realizada" className="flex flex-col gap-4">
+                        <ListMentoriasAlunos
+                            mentoriasIniciais={mentorias.filter((mentoria) => mentoria.status === "REALIZADA")}
+                            diasSemana={diasAtivos}
+                            slotsHorario={horariosAtivos}
+                        />
+                    </TabsContent>
+                </Tabs>
+
+
             </main>
         </div>
     )

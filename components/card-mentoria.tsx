@@ -144,14 +144,14 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria, aluno, modo =
 
             <CardFooter className="p-4 pt-0">
                 {mentoria.status === "REALIZADA" ? (
-                  <ModalFeedbackMentoria feedback={mentoria.feedback ?? ''}/>
+                    <ModalFeedbackMentoria feedback={mentoria.feedback ?? ''} />
                 ) : (
                     <div className="gap-5 overflow-hidden grid grid-cols-2 w-full">
                         <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" diasSemana={diasSemana} slotsHorario={slotsHorario} />
                         <Button
                             size="sm"
-                            variant="destructive"
-                            className="w-full"
+                            variant='ghost'
+                            className="w-full text-red-500 hover:text-card hover:bg-red-500  border border-red-500"
                             onClick={() => excluirMentoria(mentoria.id)}
                         >
                             <CalendarX />
