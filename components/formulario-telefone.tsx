@@ -54,7 +54,11 @@ export function FormularioTelefone({ user }: FormularioTelefoneProps) {
     }, [user])
 
     async function onSubmit(values: FormValues) {
-        const resposta = await adicionarTelefone(user?.id!, values.telefone)
+        if (!user?.id) {
+            toast.error("Erro: Usuário não encontrado.");
+            return;
+        }
+        const resposta = await adicionarTelefone(user.id, values.telefone)
         if (resposta.success) {
             toast.success(resposta.message);
             setIsOpen(false);
