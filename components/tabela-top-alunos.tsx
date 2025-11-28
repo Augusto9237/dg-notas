@@ -34,6 +34,7 @@ interface TabelaAlunosProps {
 export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
   const [carregando, setCarregando] = useState(false)
   const [listaAlunos, setListaAlunos] = useState<AlunoRankeado[]>([])
+  console.log(alunos)
 
   useEffect(() => {
     setCarregando(true)
@@ -72,19 +73,19 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
           ) : (
             listaAlunos.map((aluno) => (
               <TableRow key={aluno.id}>
-                <TableCell className='font-semibold w-[46px] text-center'>{aluno.posicao}º</TableCell>
+                <TableCell className='font-semibold w-[46px] text-center text-xl'>{aluno.posicao}º</TableCell>
                 <TableCell colSpan={2}>
                   <div className='flex gap-2 items-center w-full'>
-                    <Avatar>
+                    <Avatar className='size-10'>
                       <AvatarImage src={aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
                       <AvatarFallback>{aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <div className='w-full flex flex-col gap-1'>
+                    <div className='w-full flex flex-col gap-2'>
                       <div className='flex w-full justify-between items-center -mt-1'>
-                        <p className='leading-0'>{aluno.name}</p>
+                        <p className='pt-1 leading-none'>{aluno.name}</p>
                         <Badge>{aluno.mediaNotas}</Badge>
                       </div>
-                      <Progress value={(aluno.mediaNotas / 10) * 100}/>
+                      <Progress value={(aluno.mediaNotas / 10)} />
                     </div>
                   </div>
                 </TableCell>

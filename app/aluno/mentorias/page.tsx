@@ -6,6 +6,7 @@ import { headers } from "next/headers"
 import { ListMentoriasAlunos } from "@/components/lista-mentorias-aluno";
 import { CardMentoriaConfirmacao } from "@/components/card-mentoria-confirmacao";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { obterProfessor } from "@/actions/admin";
 
 
 export default async function Page() {
@@ -17,10 +18,11 @@ export default async function Page() {
         return <div>Usuário não autenticado</div>
     }
 
-    const [diasSemana, slotsHorario, mentorias] = await Promise.all([
+    const [diasSemana, slotsHorario, mentorias, professor] = await Promise.all([
         listarDiasSemana(),
         listarSlotsHorario(),
-        listarMentoriasAluno(session.user.id)
+        listarMentoriasAluno(session.user.id),
+        obterProfessor()
     ])
 
     const hoje = new Date()
@@ -54,7 +56,7 @@ export default async function Page() {
                         {mentoriasDoDia.length > 0 && (
                             <div>
                                 {mentoriasDoDia.map((mentoria) => (
-                                    <CardMentoriaConfirmacao key={mentoria.id} mentoria={mentoria} />
+                                    <CardMentoriaConfirmacao key={mentoria.id} mentoria={mentoria} professor={professor} />
                                 ))}
                             </div>
                         )}
@@ -63,6 +65,7 @@ export default async function Page() {
                             mentoriasIniciais={mentorias.filter((mentoria) => mentoria.status === "AGENDADA")}
                             diasSemana={diasAtivos}
                             slotsHorario={horariosAtivos}
+                            professor={professor}
                         />
                     </TabsContent>
                     <TabsContent value="realizada" className="flex flex-col gap-4">
@@ -70,6 +73,7 @@ export default async function Page() {
                             mentoriasIniciais={mentorias.filter((mentoria) => mentoria.status === "REALIZADA")}
                             diasSemana={diasAtivos}
                             slotsHorario={horariosAtivos}
+                            professor={professor}
                         />
                     </TabsContent>
                 </Tabs>

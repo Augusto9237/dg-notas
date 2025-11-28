@@ -10,7 +10,6 @@ import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/ment
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useState } from "react";
 import { ModalFeedbackMentoria } from "./modal-feedback-mentoria";
@@ -26,14 +25,21 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 }>;
 
 interface CardMentoriaProps {
-    modo: 'PROFESSOR' | 'ALUNO';
     mentoria: Mentoria;
     aluno?: User | null;
     diasSemana: DiaSemana[]
     slotsHorario: SlotHorario[]
+    professor: {
+        nome: string;
+        email: string;
+        telefone: string | null;
+        especialidade: string | null;
+        bio: string | null;
+        image: string | null;
+    } | null
 }
 
-export function CardMentoria({ diasSemana, slotsHorario, mentoria, aluno, modo = 'ALUNO' }: CardMentoriaProps) {
+export function CardMentoria({ diasSemana, slotsHorario, mentoria, aluno, professor }: CardMentoriaProps) {
     const [open, setOpen] = useState(false);
     const [carregando, setCarregando] = useState(false);
 
@@ -77,12 +83,12 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria, aluno, modo =
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <Avatar className="border-2 border-primary size-10">
-                                <AvatarImage src={modo === 'PROFESSOR' ? (aluno?.image || '/foto-1.jpeg') : '/foto-1.jpeg'} style={{ objectFit: 'cover' }} />
-                                <AvatarFallback>DG</AvatarFallback>
+                                <AvatarImage src={professor?.image || ''} style={{ objectFit: 'cover' }} />
+                                <AvatarFallback>{professor?.nome?.slice(0, 2)}</AvatarFallback>
                             </Avatar>
                             <div className="space-y-1">
                                 <h3 className="font-medium text-sm">
-                                    {modo === 'PROFESSOR' ? aluno?.name : "Profª Daniely Guedes"}
+                                    {professor?.nome}
                                 </h3>
                                 <p className="text-xs text-muted-foreground">
                                     {formartarData(mentoria.horario.data)} - {mentoria.horario.slot.nome}
@@ -91,51 +97,12 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria, aluno, modo =
                         </div>
 
                     </div>
-                    {modo === 'PROFESSOR' ? (
-                        <Popover open={open} onOpenChange={setOpen}>
-                            <PopoverTrigger asChild className="cursor-pointer">
-                                <div className="flex items-center gap-0.5">
-                                    <Badge
-                                        variant={mentoria.status === "REALIZADA" ? 'default' : 'secondary'}
-                                    >
-                                        {mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}
-                                    </Badge>
-                                    <ChevronDown size={16} className="text-muted-foreground" />
-                                </div>
-                            </PopoverTrigger>
-                            <PopoverContent
-                                className="overflow-hidden max-w-fit flex flex-col gap-3 p-2"
-                                align="center"
-                            >
-                                {carregando === true ?
-                                    (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <>
-                                            <Badge
-                                                onClick={() => atualizarStatusDaMentoria("REALIZADA")}
-                                                variant='default'
-                                            >
-                                                Realizada
-                                            </Badge>
 
-                                            <Badge
-                                                onClick={() => atualizarStatusDaMentoria("AGENDADA")}
-                                                variant='secondary'
-                                            >
-                                                Agendada
-                                            </Badge>
-                                        </>
-                                    )}
-                            </PopoverContent>
-                        </Popover>
-                    ) : (
-                        <Badge
-                            variant={mentoria.status === "REALIZADA" ? 'default' : 'secondary'}
-                        >
-                            {mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}
-                        </Badge>
-                    )}
+                    <Badge
+                        variant={mentoria.status === "REALIZADA" ? 'default' : 'secondary'}
+                    >
+                        {mentoria.status === 'AGENDADA' ? 'Agendada' : 'Realizada'}
+                    </Badge>
                 </div>
 
             </CardContent>

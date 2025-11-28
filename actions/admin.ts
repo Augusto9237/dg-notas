@@ -1,6 +1,7 @@
 'use server'
 
 import { auth } from "@/lib/auth";
+import { obterUrlImagem } from "@/lib/obter-imagem";
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { headers } from "next/headers";
@@ -12,6 +13,27 @@ type AtualizarContaProfessorParams = {
   especialidade: string;
   bio: string;
   image?: string;
+}
+
+export async function obterProfessor() {
+  try {
+    const resultado = await prisma.user.findMany({
+      where: {
+        role: 'admin'
+      }
+    })
+    return {
+      nome: resultado[0].name,
+      email: resultado[0].email,
+      telefone: resultado[0].telefone,
+      especialidade: resultado[0].especialidade,
+      bio: resultado[0].bio,
+      image: await obterUrlImagem(resultado[0].image!)
+    }
+  } catch (error) {
+    console.log(error)
+    return null
+  }
 }
 
 export async function obterProfessorPorId(userId: string) {

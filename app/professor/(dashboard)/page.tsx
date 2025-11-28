@@ -146,7 +146,10 @@ export default async function Page() {
                     />
                 </div>
 
-                <TabelaTopAlunos alunos={top10} />
+                <div className="grid grid-cols-2 gap-5">
+                    <div>temas</div>
+                    <TabelaTopAlunos alunos={top10} />
+                </div>
             </main>
         </div>
     )

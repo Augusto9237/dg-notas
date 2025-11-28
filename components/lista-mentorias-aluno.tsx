@@ -20,9 +20,17 @@ interface ListMentoriasAlunosProps {
     mentoriasIniciais: Mentoria[];
     diasSemana: DiaSemana[]
     slotsHorario: SlotHorario[]
+    professor: {
+        nome: string;
+        email: string;
+        telefone: string | null;
+        especialidade: string | null;
+        bio: string | null;
+        image: string | null;
+    } | null
 }
 
-export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorario }: ListMentoriasAlunosProps) {
+export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorario, professor }: ListMentoriasAlunosProps) {
     const { fetchAvaliacoes } = useContext(ContextoAluno);
     const [mentorias, setMentorias] = useState<Mentoria[]>(mentoriasIniciais)
 
@@ -42,7 +50,7 @@ export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorari
                 </div>
             ) : (
                 mentorias.map((mentoria) => (
-                    <CardMentoria key={mentoria.id} modo='ALUNO' mentoria={mentoria} diasSemana={diasSemana} slotsHorario={slotsHorario} />
+                    <CardMentoria key={mentoria.id} mentoria={mentoria} diasSemana={diasSemana} slotsHorario={slotsHorario} professor={professor} />
                 ))
             )}
         </div>
