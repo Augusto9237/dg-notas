@@ -10,6 +10,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { CardDashboard } from "@/components/card-dashboard";
 import { TabelaTopAlunos } from "@/components/tabela-top-alunos";
+import { MonthYearPicker } from "@/components/month-year-picker";
 
 interface Aluno {
     id: string;
@@ -114,6 +115,7 @@ export default async function Page() {
                     <h1 className="text-xl max-sm:text-lg font-bold">Olá,  {session?.user.name}!</h1>
                     <p className="text-xs text-muted-foreground truncate"></p>
                 </div>
+                <MonthYearPicker />
             </div>
             <main className="flex flex-col gap-4 p-5">
                 <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">

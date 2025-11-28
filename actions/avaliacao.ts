@@ -120,7 +120,7 @@ export async function DeletarTema(id: number) {
                 id,
             },
         });
-        
+
         revalidatePath('/professor/avaliacoes')
     } catch (error) {
         console.error("Erro ao deletar tema:", error);
@@ -199,7 +199,7 @@ export async function EnviarRespoastaAvaliacao(
     idAluno: string,
     idTema: number,
     resposta: string
-){
+) {
     try {
         const avaliacaoCriada = await prisma.avaliacao.create({
             data: {
@@ -259,18 +259,18 @@ export async function EditarAvaliacao(
 }
 
 export async function ListarAvaliacoesTemaId(temaId: number) {
-  const avaliacoes = await prisma.avaliacao.findMany({
-    where: {
-      temaId: temaId
-    },
-    include: {
-      tema: true,
-      aluno: true,
-      criterios: true
-    }
-  });
+    const avaliacoes = await prisma.avaliacao.findMany({
+        where: {
+            temaId: temaId
+        },
+        include: {
+            tema: true,
+            aluno: true,
+            criterios: true
+        }
+    });
 
-  return avaliacoes;
+    return avaliacoes;
 }
 
 export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string) {
@@ -353,13 +353,59 @@ export async function DeletarAvaliacao(id: number) {
     }
 }
 
-export async function ListarAvaliacoes(): Promise<Avaliacao[]> {
-    const avaliacoes = await prisma.avaliacao.findMany({
-        include: {
-            aluno: true,
-            criterios: true
-        }
-    });
+export async function ListarAvaliacoes(month?: number, year?: number): Promise<Avaliacao[]> {
+    // Usa o ano atual se não for fornecido
+    const targetYear = year ?? new Date().getFullYear();
 
-    return avaliacoes;
+    // Validação do mês
+    if (month !== undefined && (month < 1 || month > 12)) {
+        throw new Error('O mês deve estar entre 1 e 12');
+    }
+
+    // Validação do ano
+    if (targetYear < 1900 || targetYear > 2100) {
+        throw new Error('Ano inválido');
+    }
+
+    let startDate: Date;
+    let endDate: Date;
+
+    if (month !== undefined) {
+        // Filter para um mês específico
+        startDate = new Date(targetYear, month - 1, 1);
+        endDate = new Date(targetYear, month, 1);
+    } else {
+        // Filter para o ano inteiro
+        startDate = new Date(targetYear, 0, 1);
+        endDate = new Date(targetYear + 1, 0, 1);
+    }
+
+    try {
+        const avaliacoes = await prisma.avaliacao.findMany({
+            where: {
+                createdAt: {
+                    gte: startDate,
+                    lt: endDate,
+                },
+            },
+            include: {
+                aluno: true,
+                criterios: true,
+            },
+            orderBy: {
+                createdAt: 'desc', // Ordena da mais recente para a mais antiga
+            },
+        });
+
+        return avaliacoes;
+    } catch (error) {
+        console.error("Erro ao listar avaliações:", error);
+
+        // Fornece uma mensagem de erro mais específica
+        if (error instanceof Error) {
+            throw new Error(`Falha ao buscar avaliações: ${error.message}`);
+        }
+
+        throw new Error('Erro desconhecido ao buscar avaliações');
+    }
 }
