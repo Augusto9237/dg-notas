@@ -375,7 +375,49 @@ export async function listarMentoriasHorario(
   }
 }
 
+export async function listarMentoriasMes(mes?: number, ano?: number) {
+  const now = new Date();
+  const targetMes = mes ?? (now.getMonth() + 1);
+  const targetAno = ano ?? now.getFullYear();
 
+  // Validações
+  if (targetMes < 1 || targetMes > 12) {
+    throw new Error('O mês deve estar entre 1 e 12');
+  }
+
+  // Criar intervalo de datas
+  const startDate = new Date(Date.UTC(targetAno, targetMes - 1, 1));
+  const endDate = new Date(Date.UTC(targetAno, targetMes, 1));
+
+  try {
+    const horarios = await prisma.horario.findMany({
+      where: {
+        data: {
+          gte: startDate,
+          lt: endDate
+        }
+      },
+      include: {
+        mentorias: {
+          include: {
+            horario: {
+              include: {
+                slot: true
+              }
+            },
+            aluno: true
+          },
+        }
+      },
+      orderBy: { data: 'asc' }
+    });
+
+    return horarios.flatMap(horario => horario.mentorias) || [];
+  } catch (error) {
+    console.error('Erro ao listar mentorias do mês:', error);
+    return [];
+  }
+}
 /**
  * Função para listar todas as mentorias de um aluno a partir do ID
  * @param alunoId - ID do aluno

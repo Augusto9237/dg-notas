@@ -62,7 +62,7 @@ export function SeletorData() {
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-2" align="start">
-                <div className="flex gap-4">
+                <div className="flex gap-2">
                     <Select
                         value={months[date.getMonth()]}
                         onValueChange={handleMonthChange}
@@ -82,7 +82,7 @@ export function SeletorData() {
                         value={date.getFullYear().toString()}
                         onValueChange={handleYearChange}
                     >
-                        <SelectTrigger className="w-[100px]">
+                        <SelectTrigger className="w-[90px]">
                             <SelectValue placeholder="Ano" />
                         </SelectTrigger>
                         <SelectContent>

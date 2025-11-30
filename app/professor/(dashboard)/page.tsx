@@ -1,6 +1,6 @@
 import { listarAlunosGoogle } from "@/actions/alunos";
-import { ListarAvaliacoes, ListarTemas } from "@/actions/avaliacao";
-import { listarMentoriasHorario } from "@/actions/mentoria";
+import { ListarAvaliacoes, ListarTemas, listarTemasMes } from "@/actions/avaliacao";
+import { listarMentoriasMes } from "@/actions/mentoria";
 
 import { FileType, Users } from "lucide-react";
 import { RiUserStarLine } from "react-icons/ri";
@@ -12,6 +12,22 @@ import { CardDashboard } from "@/components/card-dashboard";
 import { TabelaTopAlunos } from "@/components/tabela-top-alunos";
 import { SeletorData } from "@/components/seletor-data";
 import { calcularMediaGeral, rankearMelhoresAlunos } from "@/lib/dashboard-utils";
+import { Prisma, Tema } from "@/app/generated/prisma";
+
+type Avaliacao = Prisma.AvaliacaoGetPayload<{
+    include: {
+        aluno: true,
+        criterios: true,
+        tema: true,
+    }
+}>
+
+type Mentoria = Prisma.MentoriaGetPayload<{
+    include: {
+        aluno: true,
+        horario: true,
+    }
+}>
 
 export default async function Page({
     searchParams
@@ -24,9 +40,20 @@ export default async function Page({
         headers: await headers()
     })
     const alunos = await listarAlunosGoogle();
-    const temas = await ListarTemas();
-    const mentorias = await listarMentoriasHorario();
-    const avaliacoes = await ListarAvaliacoes(Number(mes), Number(ano));
+
+    let avaliacoes: Avaliacao[] = [];
+    let mentorias: Mentoria[] = [];
+    let temasMes: Tema[] = [];
+
+    if (mes === undefined || ano === undefined) {
+        avaliacoes = await ListarAvaliacoes();
+        mentorias = await listarMentoriasMes();
+        temasMes = await listarTemasMes();
+    } else {
+        mentorias = await listarMentoriasMes(Number(mes), Number(ano));
+        avaliacoes = await ListarAvaliacoes(Number(mes), Number(ano));
+        temasMes = await listarTemasMes(Number(mes), Number(ano));
+    }
 
     const mediaGeral = calcularMediaGeral(avaliacoes);
     const top10 = rankearMelhoresAlunos(avaliacoes);
@@ -59,7 +86,7 @@ export default async function Page({
 
                     <CardDashboard
                         description="Total de Temas"
-                        value={temas.length}
+                        value={temasMes.length}
                         icon={<FileType size={26} />}
                         footerText="Temas cadastrados"
                     />

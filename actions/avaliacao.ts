@@ -33,9 +33,8 @@ export async function AdicionarTema(nome: string): Promise<Tema> {
     }
 }
 
-export async function ListarTemas(busca?: string): Promise<Tema[]> {
+export async function ListarTemas(busca?: string, month?: number, year?: number): Promise<Tema[]> {
     try {
-        // Construir o where clause dinamicamente
         const whereClause = {
             // Só aplica o filtro se busca for fornecida e não vazia
             ...(busca && busca.trim() !== '' && {
@@ -44,6 +43,54 @@ export async function ListarTemas(busca?: string): Promise<Tema[]> {
                     mode: 'insensitive' as const, // Case-insensitive
                 },
             }),
+        };
+
+        const temas = await prisma.tema.findMany({
+            where: whereClause,
+            orderBy: {
+                nome: 'asc',
+            },
+        });
+
+        return temas;
+    } catch (error) {
+        console.error("Erro ao listar temas:", error);
+        throw error;
+    }
+}
+
+export async function listarTemasMes(month?: number, year?: number): Promise<Tema[]> {
+    try {
+        const now = new Date();
+
+        // Se nenhum parâmetro for fornecido, usa o mês e ano atual
+        const targetMonth = month ?? (now.getMonth() + 1);
+        const targetYear = year ?? now.getFullYear();
+
+        // Validação do mês
+        if (targetMonth < 1 || targetMonth > 12) {
+            throw new Error('O mês deve estar entre 1 e 12');
+        }
+
+        // Validação do ano
+        if (targetYear < 1900 || targetYear > 2100) {
+            throw new Error('Ano inválido');
+        }
+
+        // Criar intervalo de datas para o mês inteiro
+        const startDate = new Date(Date.UTC(targetYear, targetMonth - 1, 1));
+        const endDate = new Date(Date.UTC(targetYear, targetMonth, 1));
+
+        // Validação adicional para garantir que as datas são válidas
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            throw new Error('Erro ao criar datas de filtro');
+        }
+
+        const whereClause = {
+            createdAt: {
+                gte: startDate,
+                lt: endDate,
+            },
         };
 
         const temas = await prisma.tema.findMany({
@@ -354,9 +401,14 @@ export async function DeletarAvaliacao(id: number) {
 }
 
 export async function ListarAvaliacoes(month?: number, year?: number) {
-    const targetYear = year ?? new Date().getFullYear();
+    const now = new Date();
 
-    if (month !== undefined && (month < 1 || month > 12)) {
+    // Se nenhum parâmetro for fornecido, usa o mês e ano atual
+    const targetMonth = month ?? (now.getMonth() + 1); // getMonth() retorna 0-11
+    const targetYear = year ?? now.getFullYear();
+
+    // Validação do mês
+    if (targetMonth < 1 || targetMonth > 12) {
         throw new Error('O mês deve estar entre 1 e 12');
     }
 
@@ -365,17 +417,14 @@ export async function ListarAvaliacoes(month?: number, year?: number) {
         throw new Error('Ano inválido');
     }
 
-    let startDate: Date;
-    let endDate: Date;
+    // Cria as datas de início e fim do mês
+    // month - 1 porque o construtor Date usa índice 0-11 para meses
+    const startDate = new Date(targetYear, targetMonth - 1, 1);
+    const endDate = new Date(targetYear, targetMonth, 1);
 
-    if (month !== undefined) {
-        // Filter para um mês específico
-        startDate = new Date(targetYear, month - 1, 1);
-        endDate = new Date(targetYear, month, 1);
-    } else {
-        // Filter para o ano inteiro
-        startDate = new Date(targetYear, 0, 1);
-        endDate = new Date(targetYear + 1, 0, 1);
+    // Validação adicional para garantir que as datas são válidas
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        throw new Error('Erro ao criar datas de filtro');
     }
 
     try {
@@ -392,7 +441,7 @@ export async function ListarAvaliacoes(month?: number, year?: number) {
                 tema: true,
             },
             orderBy: {
-                createdAt: 'desc', // Ordena da mais recente para a mais antiga
+                createdAt: 'desc',
             },
         });
 
@@ -400,7 +449,6 @@ export async function ListarAvaliacoes(month?: number, year?: number) {
     } catch (error) {
         console.error("Erro ao listar avaliações:", error);
 
-        // Fornece uma mensagem de erro mais específica
         if (error instanceof Error) {
             throw new Error(`Falha ao buscar avaliações: ${error.message}`);
         }
