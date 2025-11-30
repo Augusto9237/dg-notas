@@ -17,30 +17,27 @@ import { Card, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Progress } from './ui/progress';
 import { Badge } from './ui/badge';
 
-interface AlunoRankeado {
+interface AlunoRanking {
   posicao: number;
-  id: string;
-  name: string;
+  alunoId: string;
+  nome: string;
   email: string;
-  image: string | null; // Pode ser null
-  mediaNotas: number;
+  image: string | null;
+  mediaFinal: number;
   totalAvaliacoes: number;
 }
 
 interface TabelaAlunosProps {
-  alunos: AlunoRankeado[]
+  alunos: AlunoRanking[]
 }
 
 export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
   const [carregando, setCarregando] = useState(false)
-  const [listaAlunos, setListaAlunos] = useState<AlunoRankeado[]>([])
-  console.log(alunos)
+  const [listaAlunos, setListaAlunos] = useState<AlunoRanking[]>([])
 
   useEffect(() => {
     setCarregando(true)
-    if (alunos.length > 0) {
-      setListaAlunos(alunos)
-    }
+    setListaAlunos(alunos)
     setCarregando(false)
   }, [alunos]);
 
@@ -58,7 +55,7 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
       <Table >
         <TableHeader>
           <TableRow >
-            <TableHead>Pos</TableHead>
+            <TableHead className='w-[46px]'>Pos</TableHead>
             <TableHead>Aluno</TableHead>
             <TableHead className='w-[46px]'>Média</TableHead>
           </TableRow>
@@ -72,20 +69,20 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
             </TableRow>
           ) : (
             listaAlunos.map((aluno) => (
-              <TableRow key={aluno.id}>
+              <TableRow key={aluno.alunoId}>
                 <TableCell className='font-semibold w-[46px] text-center text-xl'>{aluno.posicao}º</TableCell>
                 <TableCell colSpan={2}>
                   <div className='flex gap-2 items-center w-full'>
                     <Avatar className='size-10'>
                       <AvatarImage src={aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
-                      <AvatarFallback>{aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>{aluno.nome.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className='w-full flex flex-col gap-2'>
                       <div className='flex w-full justify-between items-center -mt-1'>
-                        <p className='pt-1 leading-none'>{aluno.name}</p>
-                        <Badge>{aluno.mediaNotas}</Badge>
+                        <p className='pt-1 leading-none'>{aluno.nome}</p>
+                        <Badge>{aluno.mediaFinal}</Badge>
                       </div>
-                      <Progress value={(aluno.mediaNotas / 10)} />
+                      <Progress value={(aluno.mediaFinal / 10)} />
                     </div>
                   </div>
                 </TableCell>

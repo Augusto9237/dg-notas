@@ -1,7 +1,7 @@
 import { listarAlunosGoogle } from "@/actions/alunos";
 import { ListarAvaliacoes, ListarTemas } from "@/actions/avaliacao";
 import { listarMentoriasHorario } from "@/actions/mentoria";
-import { Avaliacao } from "@/app/generated/prisma";
+
 import { FileType, Users } from "lucide-react";
 import { RiUserStarLine } from "react-icons/ri";
 import { FaChartLine } from "react-icons/fa";
@@ -10,102 +10,26 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { CardDashboard } from "@/components/card-dashboard";
 import { TabelaTopAlunos } from "@/components/tabela-top-alunos";
-import { MonthYearPicker } from "@/components/month-year-picker";
+import { SeletorData } from "@/components/seletor-data";
+import { calcularMediaGeral, rankearMelhoresAlunos } from "@/lib/dashboard-utils";
 
-interface Aluno {
-    id: string;
-    name: string;
-    email: string;
-    emailVerified: boolean;
-    image: string | null; // Pode ser null
-    createdAt: Date;
-    updatedAt: Date;
-    role: string | null; // Pode ser null
-    banned: boolean | null; // Pode ser null
-    banReason: string | null;
-    banExpires: Date | null;
-    Avaliacao: Avaliacao[];
-}
-
-interface AlunoRankeado {
-    posicao: number;
-    id: string;
-    name: string;
-    email: string;
-    image: string | null; // Pode ser null
-    mediaNotas: number;
-    totalAvaliacoes: number;
-}
-
-export default async function Page() {
+export default async function Page({
+    searchParams
+}: {
+    searchParams: Promise<{ mes: string, ano: string }>
+}) {
+    const mes = (await searchParams).mes;
+    const ano = (await searchParams).ano;
     const session = await auth.api.getSession({
-        headers: await headers() // you need to pass the headers object.
+        headers: await headers()
     })
     const alunos = await listarAlunosGoogle();
     const temas = await ListarTemas();
     const mentorias = await listarMentoriasHorario();
-    const avaliacoes = await ListarAvaliacoes();
-
-    function calcularMediaGeral(avaliacoes: Avaliacao[]): number {
-        if (avaliacoes.length === 0) {
-            return 0;
-        }
-
-        const somaNotas = avaliacoes.reduce((acc, avaliacao) => acc + avaliacao.notaFinal, 0);
-        const media = somaNotas / avaliacoes.length;
-
-        return media;
-    }
+    const avaliacoes = await ListarAvaliacoes(Number(mes), Number(ano));
 
     const mediaGeral = calcularMediaGeral(avaliacoes);
-
-
-
-    function rankearMelhoresAlunos(alunos: Aluno[], top: number = 10): AlunoRankeado[] {
-        // Calcula a média de cada aluno e mapeia para o formato desejado
-        const alunosComMedia = alunos
-            .map(aluno => {
-                const avaliacoes = aluno.Avaliacao || [];
-
-                // Se não tiver avaliações, retorna média 0
-                if (avaliacoes.length === 0) {
-                    return {
-                        id: aluno.id,
-                        name: aluno.name,
-                        email: aluno.email,
-                        image: aluno.image,
-                        mediaNotas: 0,
-                        totalAvaliacoes: 0
-                    };
-                }
-
-                // Calcula a média das notas finais
-                const somaNotas = avaliacoes.reduce((acc, av) => acc + av.notaFinal, 0);
-                const mediaNotas = somaNotas / avaliacoes.length;
-
-                return {
-                    id: aluno.id,
-                    name: aluno.name,
-                    email: aluno.email,
-                    image: aluno.image,
-                    mediaNotas: Math.round(mediaNotas * 100) / 100, // Arredonda para 2 casas
-                    totalAvaliacoes: avaliacoes.length
-                };
-            })
-            // Ordena do maior para o menor (decrescente)
-            .sort((a, b) => b.mediaNotas - a.mediaNotas)
-            // Pega apenas os N primeiros
-            .slice(0, top)
-            // Adiciona a posição no ranking
-            .map((aluno, index) => ({
-                posicao: index + 1,
-                ...aluno
-            }));
-
-        return alunosComMedia;
-    }
-
-    const top10 = rankearMelhoresAlunos(alunos);
+    const top10 = rankearMelhoresAlunos(avaliacoes);
 
     return (
         <div className="w-full">
@@ -115,7 +39,7 @@ export default async function Page() {
                     <h1 className="text-xl max-sm:text-lg font-bold">Olá,  {session?.user.name}!</h1>
                     <p className="text-xs text-muted-foreground truncate"></p>
                 </div>
-                <MonthYearPicker />
+                <SeletorData />
             </div>
             <main className="flex flex-col gap-4 p-5">
                 <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">

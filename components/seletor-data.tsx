@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import { format, setMonth, setYear } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { ptBR } from "date-fns/locale"
@@ -19,14 +18,21 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 
-export function MonthYearPicker() {
-    const [date, setDate] = React.useState(new Date())
+export function SeletorData() {
+    const [date, setDate] = useState(new Date())
     const months = [
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
     ]
+    const router = useRouter()
+
+    useEffect(() => {
+        router.replace(`?mes=${date.getMonth() + 1}&ano=${date.getFullYear()}`)
+    }, [date])
 
     const currentYear = new Date().getFullYear()
     const years = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i)
@@ -55,7 +61,7 @@ export function MonthYearPicker() {
                     {date ? format(date, "MMMM yyyy", { locale: ptBR }) : <span>Selecione uma data</span>}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-4" align="start">
+            <PopoverContent className="w-auto p-2" align="start">
                 <div className="flex gap-4">
                     <Select
                         value={months[date.getMonth()]}

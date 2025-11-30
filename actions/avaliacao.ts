@@ -353,11 +353,9 @@ export async function DeletarAvaliacao(id: number) {
     }
 }
 
-export async function ListarAvaliacoes(month?: number, year?: number): Promise<Avaliacao[]> {
-    // Usa o ano atual se não for fornecido
+export async function ListarAvaliacoes(month?: number, year?: number) {
     const targetYear = year ?? new Date().getFullYear();
 
-    // Validação do mês
     if (month !== undefined && (month < 1 || month > 12)) {
         throw new Error('O mês deve estar entre 1 e 12');
     }
@@ -391,6 +389,7 @@ export async function ListarAvaliacoes(month?: number, year?: number): Promise<A
             include: {
                 aluno: true,
                 criterios: true,
+                tema: true,
             },
             orderBy: {
                 createdAt: 'desc', // Ordena da mais recente para a mais antiga
