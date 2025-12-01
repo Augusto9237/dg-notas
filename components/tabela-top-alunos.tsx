@@ -27,7 +27,7 @@ export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
         <Link href="/professor/alunos" className='flex  items-center text-sm text-primary '>
           <p className='leading-relaxed max-sm:hidden'>Ver todos</p>
           <p className='sm:hidden'>Todos</p>
-          <ChevronRight />
+          <ChevronRight className="max-sm:size-[14px]" />
         </Link>
       </CardHeader>
       <Table >

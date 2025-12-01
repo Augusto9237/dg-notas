@@ -7,7 +7,7 @@ import { format } from "date-fns"
 import { toast } from "sonner"
 import { Ellipsis, FileCheck2 } from "lucide-react"
 
-import { Avaliacao, Tema } from "@/app/generated/prisma"
+import { Avaliacao, Prisma } from "@/app/generated/prisma"
 import { AlterarDisponibilidadeTema, DeletarTema, ListarTemas } from "@/actions/avaliacao"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
@@ -17,6 +17,12 @@ import { FormularioTema } from "./formulario-tema"
 import { InputBusca } from "./input-busca"
 import { Button } from "./ui/button"
 import { Switch } from "./ui/switch"
+
+type Tema = Prisma.TemaGetPayload<{
+  include: {
+    Avaliacao: true,
+  }
+}>
 
 interface respostasPorTema {
   total: number;
@@ -30,22 +36,22 @@ interface TabelaTemasProps {
 }
 
 // Componente para agrupar os botões de ação da tabela
-function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRespostas: respostasPorTema; aoExcluir: (id: number) => void }) {
+function AcoesDoTema({ tema, aoExcluir }: { tema: Tema; totalRespostas: respostasPorTema; aoExcluir: (id: number) => void }) {
   return (
     <div className="flex items-center justify-center gap-4">
-      <Link href={totalRespostas.total > 0 ? `/professor/avaliacoes/${tema.id}` : '/professor/avaliacoes'} passHref>
+      <Link href={tema.Avaliacao.length > 0 ? `/professor/avaliacoes/${tema.id}` : '/professor/avaliacoes'} passHref>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               size="icon"
               className="hover:cursor-pointer relative"
-              variant={(totalRespostas.total) > 0 ? 'default' : 'ghost'}
-              disabled={!totalRespostas?.total}
+              variant={tema.Avaliacao.length > 0 ? 'default' : 'ghost'}
+              disabled={tema.Avaliacao.length === 0}
             >
-              {totalRespostas.enviadas > 0 ? (
+              {tema.Avaliacao.filter(avaliacao => avaliacao.status === 'ENVIADA').length > 0 ? (
                 <span className="absolute -right-1 -top-1 flex size-4">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
-                  <span className="relative flex justify-center items-center size-4 rounded-full bg-card text-[0.60rem] text-center text-primary border border-primary">{totalRespostas.enviadas}</span>
+                  <span className="relative flex justify-center items-center size-4 rounded-full bg-card text-[0.60rem] text-center text-primary border border-primary">{tema.Avaliacao.filter(avaliacao => avaliacao.status === 'ENVIADA').length}</span>
                 </span>
               ) : null}
               <FileCheck2 />
@@ -63,7 +69,7 @@ function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRes
 }
 
 export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasProps) {
-  const [temas, setTemas] = useState<Tema[]>(temasIniciais);
+  const [temas, setTemas] = useState<Tema[]>([]);
   const searchParams = useSearchParams();
   const busca = searchParams.get('busca');
 

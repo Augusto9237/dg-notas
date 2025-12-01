@@ -20,7 +20,7 @@ export function UltimasAvaliacoes({ temasMes }: { temasMes: TemasMes }) {
                 <Link href="/professor/avaliacoes" className='flex  items-center text-sm text-primary '>
                     <p className='leading-relaxed max-sm:hidden'>Ver todas</p>
                     <p className='sm:hidden'>Todas</p>
-                    <ChevronRight />
+                    <ChevronRight className="max-sm:size-[14px]" />
                 </Link>
             </CardHeader>
             <CardContent className="p-0">

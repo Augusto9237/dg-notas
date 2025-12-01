@@ -33,7 +33,7 @@ export async function AdicionarTema(nome: string): Promise<Tema> {
     }
 }
 
-export async function ListarTemas(busca?: string, month?: number, year?: number): Promise<Tema[]> {
+export async function ListarTemas(busca?: string, month?: number, year?: number) {
     try {
         const whereClause = {
             // Só aplica o filtro se busca for fornecida e não vazia
@@ -50,6 +50,9 @@ export async function ListarTemas(busca?: string, month?: number, year?: number)
             orderBy: {
                 nome: 'asc',
             },
+            include: {
+                Avaliacao: true,
+            }
         });
 
         return temas;

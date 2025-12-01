@@ -53,11 +53,11 @@ export function SeletorData() {
                 <Button
                     variant='ghost'
                     className={cn(
-                        "w-[200px]  capitalize bg-card hover:bg-card/75 border",
+                        "md:w-[200px]  capitalize bg-card hover:bg-card/75 gap-2 ",
                         !date && "text-muted-foreground"
                     )}
                 >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className="h-4 w-4" />
                     {date ? <span className="max-sm:hidden">{format(date, "MMMM yyyy", { locale: ptBR })}</span> : <span className="max-sm:hidden">Selecione uma data</span>}
                 </Button>
             </PopoverTrigger>
