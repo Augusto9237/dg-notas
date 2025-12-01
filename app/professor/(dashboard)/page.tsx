@@ -1,7 +1,6 @@
 import { listarAlunosGoogle } from "@/actions/alunos";
-import { ListarAvaliacoes, ListarTemas, listarTemasMes } from "@/actions/avaliacao";
+import { ListarAvaliacoes, listarTemasMes } from "@/actions/avaliacao";
 import { listarMentoriasMes } from "@/actions/mentoria";
-
 import { FileType, Users } from "lucide-react";
 import { RiUserStarLine } from "react-icons/ri";
 import { FaChartLine } from "react-icons/fa";
@@ -12,7 +11,12 @@ import { CardDashboard } from "@/components/card-dashboard";
 import { TabelaTopAlunos } from "@/components/tabela-top-alunos";
 import { SeletorData } from "@/components/seletor-data";
 import { calcularMediaGeral, rankearMelhoresAlunos } from "@/lib/dashboard-utils";
-import { Prisma, Tema } from "@/app/generated/prisma";
+import { Prisma } from "@/app/generated/prisma";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { format } from "date-fns";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { UltimasAvaliacoes } from "@/components/ultimas-avaliacoes";
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
     include: {
@@ -29,45 +33,67 @@ type Mentoria = Prisma.MentoriaGetPayload<{
     }
 }>
 
+
+// Helper para normalizar os parâmetros
+function normalizarParams(mes?: string, ano?: string) {
+    if (!mes || !ano) return { mes: undefined, ano: undefined };
+
+    const mesNum = Number(mes);
+    const anoNum = Number(ano);
+
+    // Validação básica
+    if (isNaN(mesNum) || isNaN(anoNum) || mesNum < 1 || mesNum > 12) {
+        return { mes: undefined, ano: undefined };
+    }
+
+    return { mes: mesNum, ano: anoNum };
+}
+
 export default async function Page({
     searchParams
 }: {
-    searchParams: Promise<{ mes: string, ano: string }>
+    searchParams: Promise<{ mes?: string, ano?: string }>
 }) {
-    const mes = (await searchParams).mes;
-    const ano = (await searchParams).ano;
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    const alunos = await listarAlunosGoogle();
+    // Executar autenticação e params em paralelo
+    const [session, params] = await Promise.all([
+        auth.api.getSession({ headers: await headers() }),
+        searchParams
+    ]);
 
-    let avaliacoes: Avaliacao[] = [];
-    let mentorias: Mentoria[] = [];
-    let temasMes: Tema[] = [];
+    const { mes, ano } = normalizarParams(params.mes, params.ano);
 
-    if (mes === undefined || ano === undefined) {
-        avaliacoes = await ListarAvaliacoes();
-        mentorias = await listarMentoriasMes();
-        temasMes = await listarTemasMes();
-    } else {
-        mentorias = await listarMentoriasMes(Number(mes), Number(ano));
-        avaliacoes = await ListarAvaliacoes(Number(mes), Number(ano));
-        temasMes = await listarTemasMes(Number(mes), Number(ano));
-    }
+    // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
+    const [avaliacoes, mentorias, temasMes, alunos] = await Promise.all([
+        ListarAvaliacoes(mes, ano),
+        listarMentoriasMes(mes, ano),
+        listarTemasMes(mes, ano),
+        listarAlunosGoogle()
+    ]);
 
+    // Cálculos após receber os dados
     const mediaGeral = calcularMediaGeral(avaliacoes);
     const top10 = rankearMelhoresAlunos(avaliacoes);
+
+    const meses = [
+        "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+        "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+    ]
 
     return (
         <div className="w-full">
             <div className='flex justify-between items-center h-14 p-5 mt-3 gap-2 relative'>
                 <SidebarTrigger className='absolute' />
                 <div className='max-[1025px]:ml-10 overflow-hidden'>
-                    <h1 className="text-xl max-sm:text-lg font-bold">Olá,  {session?.user.name}!</h1>
-                    <p className="text-xs text-muted-foreground truncate"></p>
+                    <h1 className="text-xl max-sm:text-lg font-bold">
+                        Olá, {session?.user.name}!
+                    </h1>
+                    <p className="text-xs text-muted-foreground truncate">
+                        {mes && ano ? `Dados de ${meses[Number(mes) - 1]} de ${ano}` : 'Dados do mês atual'}
+                    </p>
                 </div>
                 <SeletorData />
             </div>
+
             <main className="flex flex-col gap-4 p-5">
                 <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
                     <CardDashboard
@@ -88,22 +114,22 @@ export default async function Page({
                         description="Total de Temas"
                         value={temasMes.length}
                         icon={<FileType size={26} />}
-                        footerText="Temas cadastrados"
+                        footerText={mes && ano ? `Temas de ${mes}/${ano}` : 'Temas do mês atual'}
                     />
 
                     <CardDashboard
                         description="Total de Mentorias"
                         value={mentorias.length}
                         icon={<RiUserStarLine size={26} />}
-                        footerText="Mentorias cadastradas"
+                        footerText={mes && ano ? `Mentorias de ${mes}/${ano}` : 'Mentorias do mês atual'}
                     />
                 </div>
 
-                <div className="grid grid-cols-2 gap-5">
-                    <div>temas</div>
+                <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1">
+                    <UltimasAvaliacoes temasMes={temasMes} />
                     <TabelaTopAlunos alunos={top10} />
                 </div>
-            </main>
-        </div>
+            </main >
+        </div >
     )
 }

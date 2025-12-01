@@ -59,7 +59,7 @@ export async function ListarTemas(busca?: string, month?: number, year?: number)
     }
 }
 
-export async function listarTemasMes(month?: number, year?: number): Promise<Tema[]> {
+export async function listarTemasMes(month?: number, year?: number) {
     try {
         const now = new Date();
 
@@ -98,6 +98,9 @@ export async function listarTemasMes(month?: number, year?: number): Promise<Tem
             orderBy: {
                 nome: 'asc',
             },
+            include: {
+                Avaliacao: true,
+            }, // Limita o retorno a apenas 10 registros
         });
 
         return temas;
