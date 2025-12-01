@@ -31,7 +31,6 @@ interface TabelaTemasProps {
 
 // Componente para agrupar os botões de ação da tabela
 function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRespostas: respostasPorTema; aoExcluir: (id: number) => void }) {
-
   return (
     <div className="flex items-center justify-center gap-4">
       <Link href={totalRespostas.total > 0 ? `/professor/avaliacoes/${tema.id}` : '/professor/avaliacoes'} passHref>

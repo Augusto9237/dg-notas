@@ -114,14 +114,14 @@ export default async function Page({
                         description="Total de Temas"
                         value={temasMes.length}
                         icon={<FileType size={26} />}
-                        footerText={mes && ano ? `Temas de ${mes}/${ano}` : 'Temas do mês atual'}
+                        footerText={mes && ano ? `Temas de ${meses[Number(mes) - 1]}` : 'Temas do mês atual'}
                     />
 
                     <CardDashboard
                         description="Total de Mentorias"
                         value={mentorias.length}
                         icon={<RiUserStarLine size={26} />}
-                        footerText={mes && ano ? `Mentorias de ${mes}/${ano}` : 'Mentorias do mês atual'}
+                        footerText={mes && ano ? `Mentorias de ${meses[Number(mes) - 1]}` : 'Mentorias do mês atual'}
                     />
                 </div>
 

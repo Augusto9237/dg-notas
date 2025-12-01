@@ -58,7 +58,7 @@ export function SeletorData() {
                     )}
                 >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "MMMM yyyy", { locale: ptBR }) : <span>Selecione uma data</span>}
+                    {date ? <span className="max-sm:hidden">{format(date, "MMMM yyyy", { locale: ptBR })}</span> : <span className="max-sm:hidden">Selecione uma data</span>}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-2" align="start">

@@ -87,11 +87,11 @@ export function FormularioEntrar() {
   return (
     <Tabs defaultValue="aluno" className="w-full mt-5">
       <TabsList className="W-full bg-primary px-5">
-        <TabsTrigger value="aluno" className="">
+        <TabsTrigger value="aluno" className="text-card/50 data-[state=active]:text-card">
           <PiStudentFill />
           Aluno(a)
         </TabsTrigger>
-        <TabsTrigger value="professor">
+        <TabsTrigger value="professor" className="text-card/50 data-[state=active]:text-card">
           <PiChalkboardTeacherFill />
           Professor(a)
         </TabsTrigger>
