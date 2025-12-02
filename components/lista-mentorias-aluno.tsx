@@ -41,9 +41,9 @@ export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorari
 
 
     return (
-        <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4">
+        <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4 h-full">
             {mentorias.length === 0 ? (
-                <div className="w-full flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                <div className="w-full h-full flex flex-col flex-1 items-center justify-center gap-2 text-muted-foreground pt-5">
                     <CalendarX className="size-10" />
                     <span className="text-foreground font-semibold">Nenhuma mentoria encontrada</span>
                     <p className="text-xs">Que tal agendar uma nova mentoria?</p>
