@@ -15,23 +15,22 @@ export default async function Page({
 
   return (
     <Suspense fallback={<Loading />}>
-      <div className="w-full">
-        <div className='flex justify-between items-center h-14 p-5 mt-3 relative w-full'>
+      <div className="w-full max-w-screen overflow-hidden">
+        <div className='flex justify-between items-center h-14 p-5 mt-3 relative w-full max-w-screen overflow-hidden'>
           <SidebarTrigger className='absolute' />
-          <div className="max-[1025px]:pl-10">
+          <div className="max-[1025px]:pl-10 w-full max-w-screen overflow-hidden">
             <h1 className=" text-xl font-bold">Tema - {tema}</h1>
-            <p className="text-xs text-muted-foreground max-sm:leading-none max-sm:truncate">{avaliacoesTema.length > 0 ? avaliacoesTema[0].tema.nome : ""}</p>
+            <p className="text-xs text-muted-foreground max-sm:leading-none truncate">{avaliacoesTema.length > 0 ? avaliacoesTema[0].tema.nome : ""}</p>
           </div>
           <div>
             <div className='max-[1025px]:ml-10 overflow-hidden'>
               <h1 className="text-xl max-sm:text-lg font-bold">{calcularMedia(avaliacoesTema).toFixed(2).replace('.', ',')}</h1>
               <p className="text-xs text-muted-foreground max-sm:leading-none truncate">Média Geral</p>
             </div>
-            {/*  */}
           </div>
         </div>
 
-        <main className="flex flex-col p-5">
+        <main className="p-5">
           <TabelaAvaliacoesTema avaliacoes={avaliacoesTema} />
         </main>
       </div>

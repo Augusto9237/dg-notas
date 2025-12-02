@@ -19,8 +19,8 @@ export function UltimasAvaliacoes({ temasMes }: { temasMes: TemasMes }) {
                 <CardTitle>Últimas Avaliações</CardTitle>
                 <Link href="/professor/avaliacoes" className='flex  items-center text-sm text-primary '>
                     <p className='leading-relaxed max-sm:hidden'>Ver todas</p>
-                    <p className='sm:hidden'>Todas</p>
-                    <ChevronRight className="max-sm:size-[14px]" />
+                    <p className='sm:hidden leading-none'>Todas</p>
+                    <ChevronRight className="max-sm:size-[16px] size-[20px]" />
                 </Link>
             </CardHeader>
             <CardContent className="p-0">

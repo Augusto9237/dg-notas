@@ -213,9 +213,6 @@ export function FormularioEntrar() {
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <span className="text-card text-sm">Ainda não possui conta? <Link href="/inscricao" className="underline underline-offset-4 text-secondary ml-1"> Criar conta</Link></span>
-          </CardFooter>
         </Card>
       </TabsContent>
     </Tabs>

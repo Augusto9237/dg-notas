@@ -19,7 +19,7 @@ import {
   PaginationNext,
 } from '@/components/ui/pagination';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Ellipsis, FileDown} from 'lucide-react';
+import { Ellipsis, FileDown } from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { useSearchParams } from 'next/navigation';
 import { Prisma } from '@/app/generated/prisma';
@@ -148,11 +148,11 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
             <TableHead>Aluno</TableHead>
             <TableHead>E-mail</TableHead>
             <TableHead>Data</TableHead>
-            <TableHead className='w-[100px] text-center'>Competência 1</TableHead>
-            <TableHead className='w-[100px] text-center'>Competência 2</TableHead>
-            <TableHead className='w-[100px] text-center'>Competência 3</TableHead>
-            <TableHead className='w-[100px] text-center'>Competência 4</TableHead>
-            <TableHead className='w-[100px] text-center'>Competência 5</TableHead>
+            <TableHead className='w-[100px] text-center'>C1</TableHead>
+            <TableHead className='w-[100px] text-center'>C2</TableHead>
+            <TableHead className='w-[100px] text-center'>C3</TableHead>
+            <TableHead className='w-[100px] text-center'>C4</TableHead>
+            <TableHead className='w-[100px] text-center'>C5</TableHead>
             <TableHead className='text-center'>Total</TableHead>
             <TableHead className="text-center">
               <div className='flex justify-center'>

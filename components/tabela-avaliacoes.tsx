@@ -89,11 +89,11 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
           <TableRow>
             <TableHead className='pl-4 md:min-w-[360px]'>Tema</TableHead>
             <TableHead>Data</TableHead>
-            <TableHead>Competência 1</TableHead>
-            <TableHead>Competência 2</TableHead>
-            <TableHead>Competência 3</TableHead>
-            <TableHead>Competência 4</TableHead>
-            <TableHead>Competência 5</TableHead>
+            <TableHead>C1</TableHead>
+            <TableHead>C2</TableHead>
+            <TableHead>C3</TableHead>
+            <TableHead>C4</TableHead>
+            <TableHead>C5</TableHead>
             <TableHead>Nota Total</TableHead>
             <TableHead className="w-[100px] text-center pr-4">•••</TableHead>
           </TableRow>
