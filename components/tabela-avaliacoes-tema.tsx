@@ -153,7 +153,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
             <TableHead className='w-[100px] text-center'>C3</TableHead>
             <TableHead className='w-[100px] text-center'>C4</TableHead>
             <TableHead className='w-[100px] text-center'>C5</TableHead>
-            <TableHead className='text-center'>Total</TableHead>
+            <TableHead className='text-center w-full min-w-[68px] max-w-['>Total</TableHead>
             <TableHead className="text-center">
               <div className='flex justify-center'>
                 <Ellipsis />
@@ -202,7 +202,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                   </>
                 )
                 }
-                <TableCell className="text-center font-semibold">
+                <TableCell className="text-center font-semibold w-full min-w-[68px] max-w-[68px]">
                   {avaliacao.notaFinal}
                 </TableCell>
                 <TableCell className="w-[100px]">

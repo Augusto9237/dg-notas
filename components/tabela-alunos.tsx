@@ -147,11 +147,11 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
       <Table >
         <TableHeader>
           <TableRow >
-            <TableHead className='min-w-sm'>Aluno</TableHead>
-            <TableHead className='min-w-sm'>E-mail</TableHead>
-            <TableHead className='min-w-sm'>Telefone</TableHead>
-            <TableHead className='w-full max-w-[120px] min-w-[120px] font-semibold'>Avaliações</TableHead>
-            <TableHead className='w-full max-w-[68px] min-w-[68px] font-semibold'>Média</TableHead>
+            <TableHead className='min-[1025px]:min-w-sm'>Aluno</TableHead>
+            <TableHead className='min-[1025px]:min-w-sm'>E-mail</TableHead>
+            <TableHead className='w-full'>Telefone</TableHead>
+            <TableHead className='w-full max-w-[100px] min-w-[100px] font-semibold'>Avaliações</TableHead>
+            <TableHead className='w-full max-w-[64px] min-w-[64px] font-semibold'>Média</TableHead>
             <TableHead className="text-center">
               <div className='flex justify-center w-full'>
                 <Ellipsis />
@@ -169,7 +169,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
           ) : (
             paginatedAlunos.map((aluno) => (
               <TableRow key={aluno.id}>
-                <TableCell className='flex gap-2 items-center min-w-sm'>
+                <TableCell className='flex gap-2 items-center min-[1025px]:min-w-sm'>
                   <Avatar>
                     <AvatarImage src={aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
                     <AvatarFallback>{aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
@@ -178,12 +178,12 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
                     {aluno.name}
                   </span>
                 </TableCell>
-                <TableCell className='min-w-sm'>{aluno.email}</TableCell>
-                <TableCell className='min-w-sm'>{aluno.telefone}</TableCell>
-                <TableCell className='w-full max-w-[120px] min-w-[120px] font-semibold'>
+                <TableCell className='min-[1025px]:min-w-sm'>{aluno.email}</TableCell>
+                <TableCell className='w-full'>{aluno.telefone}</TableCell>
+                <TableCell className='w-full max-w-[100px] min-w-[100px] font-semibold text-center'>
                   {aluno.Avaliacao.length}
                 </TableCell>
-                <TableCell className='w-full max-w-[68px] min-w-[68px] font-semibold'>
+                <TableCell className='w-full max-w-[64px] min-w-[64px] font-semibold text-center'>
                   {calcularMedia(aluno.Avaliacao)}
                 </TableCell>
                 <TableCell className="text-center space-x-4">
