@@ -112,6 +112,22 @@ const CelulaHorario = React.memo(
     diasSemana,
     slotsHorario,
   }: CelulaHorarioProps) => {
+
+    useEffect(() => {
+      const horario = new Date()
+      const horarioSimples = horario.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      async function deletarMentoria() {
+        const mentoriasFiltradas = mentorias.filter(mentoria => mentoria.horario.slot.nome.split(' - ')[0] === horarioSimples)
+        if (mentoriasFiltradas[0].status === "AGENDADA") {
+          const mentoria = mentoriasFiltradas[0]
+          // await deletarMentoria(mentoria.id)
+        }
+      }
+    }, [])
+
     const mentoriasDoSlot = useMemo(
       () =>
         mentorias.filter(
@@ -162,6 +178,8 @@ export function CalendarioGrande({
   const [semanaAtual, setSemanaAtual] = useState(obterInicioSemanaAtual)
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>(mentorias)
   const [carregando, setCarregando] = useState(false)
+
+  const horario = new Date()
 
   const diasSemanaAtivos = useMemo(() =>
     diasSemana.filter(dia => dia.status),

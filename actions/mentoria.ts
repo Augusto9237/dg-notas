@@ -22,6 +22,8 @@ interface AdicionarMentoriaResult {
 
 // Enums importados do Prisma
 import { StatusMentoria } from "@/app/generated/prisma";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export async function listarDiasSemana() {
   return await prisma.diaSemana.findMany({
@@ -688,6 +690,14 @@ export async function atualizarStatusMentoria(
  * @returns true se excluído com sucesso, false caso contrário
  */
 export async function excluirMentoriaECascata(mentoriaId: number) {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+
+  if (!session?.user) {
+    throw new Error('Usuário não autorizado');
+  }
+
   try {
     // Busca a mentoria para obter o horarioId
     const mentoria = await prisma.mentoria.findUnique({
@@ -728,6 +738,12 @@ export async function excluirMentoriaECascata(mentoriaId: number) {
 }
 
 export async function confirmarMentoria(mentoriaId: number) {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  if (!session?.user) {
+    throw new Error('Usuário não autorizado');
+  }
   try {
     const mentoria = await prisma.mentoria.update({
       where: {

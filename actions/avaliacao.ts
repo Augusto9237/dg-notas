@@ -3,6 +3,8 @@ import { revalidatePath } from "next/cache";
 import { Criterio, Tema } from "../app/generated/prisma";
 import { Avaliacao } from "../app/generated/prisma";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 interface CriterioAvaliacaoInput {
     criterioId: number;
@@ -17,8 +19,15 @@ interface AdicionarAvaliacaoInput {
     status: 'ENVIADA' | 'CORRIGIDA';
 }
 
-
 export async function AdicionarTema(nome: string): Promise<Tema> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
+
     try {
         const novoTema = await prisma.tema.create({
             data: {
@@ -34,6 +43,14 @@ export async function AdicionarTema(nome: string): Promise<Tema> {
 }
 
 export async function ListarTemas(busca?: string, month?: number, year?: number) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
+
     try {
         const whereClause = {
             // Só aplica o filtro se busca for fornecida e não vazia
@@ -114,6 +131,12 @@ export async function listarTemasMes(month?: number, year?: number) {
 }
 
 export async function EditarTema(id: number, novoNome: string): Promise<Tema> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
     try {
         const temaEditado = await prisma.tema.update({
             where: {
@@ -150,6 +173,14 @@ export async function AlterarDisponibilidadeTema(id: number, disponivel: boolean
 }
 
 export async function DeletarTema(id: number) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
+
     try {
         // First, delete all CriterioAvaliacao entries related to evaluations of this theme
         await prisma.criterioAvaliacao.deleteMany({
@@ -183,6 +214,13 @@ export async function DeletarTema(id: number) {
 
 
 export async function ListarCriterios(): Promise<Criterio[]> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
     try {
         const criterios = await prisma.criterio.findMany({
             orderBy: {
@@ -198,6 +236,12 @@ export async function ListarCriterios(): Promise<Criterio[]> {
 }
 
 export async function EditarCriterio(id: number, nome: string, descricao: string, pontuacaoMax: number): Promise<Criterio> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
     const resposta = await prisma.criterio.update({
         where: {
             id,
@@ -219,6 +263,12 @@ export async function AdicionarAvaliacao({
     criterios,
     notaFinal,
 }: AdicionarAvaliacaoInput): Promise<Avaliacao> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session?.user) {
+        throw new Error('Usuário não autorizado');
+    }
     try {
         const avaliacao = await prisma.avaliacao.create({
             data: {
@@ -253,6 +303,14 @@ export async function EnviarRespoastaAvaliacao(
     idTema: number,
     resposta: string
 ) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user) {
+        throw new Error('Usuário não autorizado');
+    }
+
     try {
         const avaliacaoCriada = await prisma.avaliacao.create({
             data: {
@@ -275,6 +333,13 @@ export async function EditarAvaliacao(
     data: AdicionarAvaliacaoInput,
     correcao?: string
 ): Promise<Avaliacao> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
     try {
         const transaction = await prisma.$transaction([
             prisma.criterioAvaliacao.deleteMany({
@@ -327,6 +392,13 @@ export async function ListarAvaliacoesTemaId(temaId: number) {
 }
 
 export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user) {
+        throw new Error('Usuário não autorizado');
+    }
     try {
         // Construir o where clause dinamicamente
         const whereClause = {
@@ -384,6 +456,13 @@ export async function ListarTemasDisponiveis(alunoId: string): Promise<Tema[]> {
 }
 
 export async function DeletarAvaliacao(id: number) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
     try {
         // Primeiro, deleta todos os critérios associados à avaliação
         await prisma.criterioAvaliacao.deleteMany({
