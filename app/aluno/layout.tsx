@@ -49,8 +49,8 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 className={`${poppins.className} antialiased`}
             >
                     <ProvedorAluno>
-                        <Header />
-                        <FormularioTelefone user={session.user}/>
+                        {/* <Header /> */}
+                        {/* <FormularioTelefone user={session.user}/> */}
                         <main>{children}</main>
                         <FooterAluno />
                         <Toaster richColors theme="light" />
