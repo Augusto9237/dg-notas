@@ -48,13 +48,12 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             <body
                 className={`${poppins.className} antialiased`}
             >
-                    <ProvedorAluno>
-                        {/* <Header /> */}
-                        {/* <FormularioTelefone user={session.user}/> */}
-                        <main>{children}</main>
-                        <FooterAluno />
-                        <Toaster richColors theme="light" />
-                    </ProvedorAluno>
+                <ProvedorAluno>
+                    <FormularioTelefone user={session.user} />
+                    <main>{children}</main>
+                    <FooterAluno />
+                    <Toaster richColors theme="light" />
+                </ProvedorAluno>
             </body>
         </html>
     )

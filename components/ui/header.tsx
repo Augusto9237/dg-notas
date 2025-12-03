@@ -46,7 +46,7 @@ export default function Header() {
   }
   else {
     return (
-      <div className="bg-primary text-card px-5 py-4">
+      <div className="bg-primary text-card px-5 py-4 h-full max-h-[156px] overflow-hidden">
         <div className="flex items-center gap-3 mb-4">
           <Avatar className="h-12 w-12 border-2 border-secondary">
             <AvatarImage
@@ -59,7 +59,7 @@ export default function Header() {
           <div>
             <h1 className="text-lg">Olá, {session ? session.user.name : "Usuário"}!</h1>
             <p className="text-xs opacity-90">
-              {session? session.user.email : "carregando..."}
+              {session ? session.user.email : "carregando..."}
             </p>
           </div>
         </div>
@@ -72,7 +72,7 @@ export default function Header() {
         <div className="grid grid-cols-3 gap-4">
           <Card className="text-center bg-card/10 rounded-lg backdrop-blur-sm border-none gap-0 p-2">
             <CardTitle className="text-lg font-bold text-secondary">
-                {mediaGeral.toFixed(2).replace('.', ',')}
+              {mediaGeral.toFixed(2).replace('.', ',')}
             </CardTitle>
             <CardDescription className="text-xs opacity-90 text-card">Média Geral</CardDescription>
           </Card>

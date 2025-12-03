@@ -218,7 +218,7 @@ export async function ListarCriterios(): Promise<Criterio[]> {
         headers: await headers()
     })
 
-    if (!session?.user || session.user.role !== 'admin') {
+    if (!session?.user) {
         throw new Error('Usuário não autorizado');
     }
     try {
@@ -266,9 +266,11 @@ export async function AdicionarAvaliacao({
     const session = await auth.api.getSession({
         headers: await headers()
     })
+
     if (!session?.user) {
         throw new Error('Usuário não autorizado');
     }
+
     try {
         const avaliacao = await prisma.avaliacao.create({
             data: {

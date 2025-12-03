@@ -1,68 +1,56 @@
-
-import { ListarAvaliacoesAlunoId, ListarCriterios, ListarTemasDisponiveis } from '@/actions/avaliacao';
+import { ListarAvaliacoesAlunoId, ListarCriterios } from '@/actions/avaliacao';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import { ListaAvaliacoes } from '@/components/lista-avaliacoes';
-import { CardNovoTema } from '@/components/card-novotema';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileX } from 'lucide-react';
-
+import { CardCompetencia } from '@/components/card-competencias';
+import Header from '@/components/ui/header';
+import { redirect } from 'next/navigation';
 
 export default async function Page() {
   const session = await auth.api.getSession({
-    headers: await headers() // you need to pass the headers object.
-  })
+    headers: await headers()
+  });
 
-  if (session?.user) {
-
-    const avaliacoes = await ListarAvaliacoesAlunoId(session.user.id)
-    const criterios = await ListarCriterios()
-    const novosTemas = await ListarTemasDisponiveis(session.user.id)
-
-    return (
-      <div className="w-full">
-        <main className="flex flex-col gap-4 p-5 pb-20">
-          <div className="flex items-center justify-between">
-            <h2 className="text-primary font-semibold">Suas Redações</h2>
-          </div>
-
-          <Tabs defaultValue="pendentes">
-            <TabsList>
-              <TabsTrigger value="pendentes" className="text-foreground max-sm:text-xs">Pendentes</TabsTrigger>
-              <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">Corrigidas</TabsTrigger>
-            </TabsList>
-            <TabsContent value='pendentes' className="flex flex-col gap-4">
-              {(() => {
-                const pendingAvaliacoes = avaliacoes.filter((avaliacao) => avaliacao.status === "ENVIADA");
-
-                if (pendingAvaliacoes.length > 0) {
-                  return (
-                    <ListaAvaliacoes avaliacoesIniciais={pendingAvaliacoes} criteriosIniciais={criterios} />
-                  );
-                } else if (novosTemas.length > 0) {
-                  return (
-                    <div className='space-y-4'>
-                      {novosTemas.map((tema) => (
-                        <CardNovoTema key={tema.id} tema={tema} />
-                      ))}
-                    </div>
-                  );
-                } else {
-                  return (
-                    <div className="w-full h-full flex flex-col flex-1 items-center justify-center gap-2 text-muted-foreground pt-5">
-                      <FileX className="size-10" />
-                      <span className="text-foreground font-semibold">Nenhuma avaliação pendente</span>
-                    </div>
-                  );
-                }
-              })()}
-            </TabsContent>
-            <TabsContent value='corrigidas' className="flex flex-col gap-4">
-              <ListaAvaliacoes avaliacoesIniciais={avaliacoes.filter((avaliacao) => avaliacao.status === "CORRIGIDA")} criteriosIniciais={criterios} />
-            </TabsContent>
-          </Tabs>
-        </main>
-      </div>
-    );
+  if (!session?.user) {
+    redirect('/');
   }
+
+  const avaliacoes = await ListarAvaliacoesAlunoId(session.user.id);
+  const criterios = await ListarCriterios();
+
+
+  function calcularMediasPorCriterio(avaliacoes: Awaited<ReturnType<typeof ListarAvaliacoesAlunoId>>) {
+    const pontuacoesPorCriterio = avaliacoes
+      .flatMap(avaliacao => avaliacao.criterios)
+      .reduce((acc, criterio) => {
+        if (!acc[criterio.criterioId]) {
+          acc[criterio.criterioId] = [];
+        }
+        acc[criterio.criterioId].push(criterio.pontuacao);
+        return acc;
+      }, {} as Record<number, number[]>);
+
+    return Object.entries(pontuacoesPorCriterio).map(([criterioId, pontuacoes]) => ({
+      criterioId: Number(criterioId),
+      media: pontuacoes.reduce((sum, current) => sum + current, 0) / pontuacoes.length,
+    }));
+  }
+
+  const mediasPorCriterio = calcularMediasPorCriterio(avaliacoes);
+
+  return (
+    <div className="w-full h-full max-h-screen overflow-hidden">
+      <Header />
+      <main className="flex flex-col gap-4 p-5 pb-10 h-full max-h-[calc(100vh-156px)] overflow-hidden">
+        <div className="flex items-center justify-between">
+          <h2 className="text-primary font-semibold">Suas Habilidades</h2>
+        </div>
+
+        <div className='space-y-4 h-full overflow-y-auto'>
+          {mediasPorCriterio.map((criterio, i) => (
+            <CardCompetencia key={i} criterio={criterio} criterios={criterios} />
+          ))}
+        </div>
+      </main>
+    </div>
+  );
 }

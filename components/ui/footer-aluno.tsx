@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {FileCheck2 } from "lucide-react";
+import { FileCheck2 } from "lucide-react";
 import Image from "next/image";
 import { Card } from "./card";
 import { RiUserStarLine } from "react-icons/ri";
@@ -17,9 +17,9 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
     const routes = [
         {
             icon: <FileCheck2 className="h-5 w-5" />,
-            href: "/aluno",
+            href: "/aluno/avaliacoes",
             label: "Avaliações",
-            active: pathname === "/aluno",
+            active: pathname === "/aluno/avaliacoes",
         },
         {
             icon: <RiUserStarLine className="h-5 w-5" />,
@@ -30,10 +30,12 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
     ];
 
     return (
-        <footer className={cn("fixed inset-x-0 bottom-0 px-2 pb-2", className)}>
+        <footer className={cn("fixed inset-x-0 bottom-0 px-5 pb-2", className)}>
             <Card className="backdrop-blur-lg p-0 border-none bg-card/70">
                 <nav className="flex justify-between w-full px-5 relative">
-                    <Image src="/Símbolo4.svg" alt="logo" width={100} height={100} className="absolute top-0 left-1/2 transform -translate-x-1/2 object-cover w-14 h-14 bg-primary rounded-full p-2 border border-secondary" />
+                    <Link href="/aluno" className="absolute top-0 left-1/2 transform -translate-x-1/2 object-cover">
+                        <Image src="/Símbolo4.svg" alt="logo" width={100} height={100} className={cn("w-14 h-14 bg-primary rounded-full p-2 border border-2 ", pathname === "/aluno" ? "border-secondary" : "border-primary")} />
+                    </Link>
                     {routes.map((route) => (
                         <Link
                             key={route.href}
