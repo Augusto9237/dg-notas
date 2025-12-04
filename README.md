@@ -1,43 +1,47 @@
-# Plataforma de Mentoria
+# Plataforma de Mentoria e Correção de Redações
 
 ## Visão Geral
 
-Uma plataforma web projetada para conectar alunos e professores para sessões de mentoria. O sistema permite que os alunos agendem horários com os professores disponíveis e fornece ferramentas para que os professores gerenciem seus horários, avaliem os alunos e acompanhem seu progresso.
+Uma plataforma web completa para conectar alunos e professores, facilitando mentorias e a correção detalhada de redações. O sistema oferece ferramentas avançadas para agendamento, avaliação por competências, acompanhamento de progresso e rankings de desempenho.
 
 ## Funcionalidades
 
 ### Para Alunos:
 
 - **Autenticação Segura:** Cadastro e login de usuários.
-- **Visualização de Horários:** Acesso aos horários de mentoria disponíveis.
-- **Agendamento:** Agendamento de novas sessões de mentoria.
-- **Gerenciamento:** Visualização e gerenciamento de suas mentorias agendadas e passadas.
-- **Feedback:** Recebimento de avaliações dos professores.
+- **Submissão de Redações:** Envio de redações para correção e feedback detalhado.
+- **Dashboard de Competências:** Visualização de desempenho por competência (C1 a C5) com gráficos interativos.
+- **Ranking:** Acompanhamento da posição no ranking geral de alunos.
+- **Agendamento de Mentorias:** Visualização e agendamento de horários com professores.
+- **Histórico:** Acesso a todas as avaliações e mentorias passadas.
+- **Perfil:** Gerenciamento de dados pessoais.
 
 ### Para Professores:
 
-- **Autenticação Segura:** Cadastro e login de usuários.
-- **Dashboard:** Painel para visualização de todos os alunos e suas informações.
-- **Gerenciamento de Agenda:** Controle de disponibilidade e horários de mentoria.
-- **Avaliações:** Criação, visualização e gerenciamento de avaliações de alunos com base em critérios específicos.
-- **Detalhes do Aluno:** Acesso a informações detalhadas de cada aluno.
+- **Dashboard Administrativo:** Visão geral dos alunos, avaliações recentes e estatísticas.
+- **Correção de Redações:** Interface otimizada para avaliar redações com base em critérios específicos.
+- **Gestão de Temas:** Criação e gerenciamento de temas de redação disponíveis para os alunos.
+- **Ranking de Alunos:** Visualização dos alunos com melhor desempenho (Top 5).
+- **Gerenciamento de Agenda:** Controle total sobre a disponibilidade para mentorias.
+- **Detalhes do Aluno:** Acesso ao histórico completo e evolução de cada aluno.
 
 ### Gerais:
 
-- **Controle de Acesso Baseado em Função:** Distinção entre Aluno e Professor.
-- **Design Responsivo:** Interface adaptável para desktops e dispositivos móveis.
+- **Controle de Acesso Baseado em Função:** Permissões específicas para Alunos e Professores/Admins.
+- **Design Responsivo:** Interface moderna e adaptável para qualquer dispositivo.
+- **Dark/Light Mode:** Suporte a temas visuais.
 
 ## Tecnologias Utilizadas
 
-- **Framework:** [Next.js](https://nextjs.org/) (com App Router)
+- **Framework:** [Next.js](https://nextjs.org/) (App Router)
 - **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
-- **ORM de Banco de Dados:** [Prisma](https://www.prisma.io/)
+- **Banco de Dados:** [Prisma ORM](https://www.prisma.io/)
 - **Autenticação:** [BetterAuth](https://www.better-auth.com/)
-- **UI:** [React](https://reactjs.org/)
 - **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
-- **Componentes de UI:** [shadcn/ui](https://ui.shadcn.com/)
-- **Linting:** [ESLint](https://eslint.org/)
-- **Server Actions:** Para mutações de dados e lógica do lado do servidor.
+- **Componentes:** [shadcn/ui](https://ui.shadcn.com/)
+- **Gráficos:** [Recharts](https://recharts.org/)
+- **Validação:** [Zod](https://zod.dev/)
+- **Formulários:** [React Hook Form](https://react-hook-form.com/)
 
 ## Começando
 
@@ -76,12 +80,12 @@ Siga os passos abaixo para configurar e executar o projeto localmente.
 
 ## Estrutura do Projeto
 
-- **/app**: Diretório principal da aplicação usando o App Router do Next.js.
-  - `/(login)`: Rotas relacionadas à autenticação.
-  - `/aluno`: Rotas e funcionalidades para a função de aluno.
-  - `/professor`: Rotas e funcionalidades para a função de professor.
-- **/actions**: Server Actions para manipulação de formulários e mutações de dados.
-- **/components**: Componentes React reutilizáveis.
-  - `/ui`: Componentes da biblioteca `shadcn/ui`.
-- **/lib**: Funções utilitárias, configuração de autenticação e instância do cliente Prisma.
-- **/prisma**: Schema do banco de dados (`schema.prisma`) e arquivos de migração.
+- **/app**: Diretório principal (App Router).
+  - `/(login)`: Rotas de autenticação.
+  - `/aluno`: Dashboard e funcionalidades do aluno.
+  - `/professor`: Dashboard e ferramentas do professor.
+- **/actions**: Server Actions para lógica de negócios e mutações.
+- **/components**: Componentes React modulares.
+  - `/ui`: Componentes base do shadcn/ui.
+- **/lib**: Utilitários, configurações (auth, prisma) e helpers.
+- **/prisma**: Schema do banco de dados e migrações.

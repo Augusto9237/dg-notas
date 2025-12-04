@@ -40,12 +40,12 @@ export default async function Page() {
   return (
     <div className="w-full h-full max-h-screen overflow-hidden">
       <Header />
-      <main className="flex flex-col gap-4 p-5 pb-10 h-full max-h-[calc(100vh-156px)] overflow-hidden">
+      <main className="flex flex-col gap-4 p-5 h-full max-h-[calc(100vh-156px)] overflow-hidden">
         <div className="flex items-center justify-between">
           <h2 className="text-primary font-semibold">Suas Habilidades</h2>
         </div>
 
-        <div className='space-y-4 h-full overflow-y-auto'>
+        <div className='space-y-4 h-full overflow-y-auto pb-14'>
           {mediasPorCriterio.map((criterio, i) => (
             <CardCompetencia key={i} criterio={criterio} criterios={criterios} />
           ))}

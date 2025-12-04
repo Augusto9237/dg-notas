@@ -77,7 +77,7 @@ export function NavUsuario() {
 
                     <div className="grid flex-1 text-left text-sm leading-tight gap-1">
                         <span className="truncate font-semibold">{session?.user.name}</span>
-                        <span className="truncate text-xs text-muted">Professor(a)</span>
+                        <span className="truncate text-xs text-muted">Administrador(a)</span>
                     </div>
                     <ChevronDown className="ml-auto size-4" />
                 </div>

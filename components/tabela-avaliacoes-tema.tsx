@@ -145,15 +145,15 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
       <Table >
         <TableHeader>
           <TableRow >
-            <TableHead>Aluno</TableHead>
-            <TableHead>E-mail</TableHead>
-            <TableHead>Data</TableHead>
-            <TableHead className='w-[100px] text-center'>C1</TableHead>
-            <TableHead className='w-[100px] text-center'>C2</TableHead>
-            <TableHead className='w-[100px] text-center'>C3</TableHead>
-            <TableHead className='w-[100px] text-center'>C4</TableHead>
-            <TableHead className='w-[100px] text-center'>C5</TableHead>
-            <TableHead className='text-center w-full min-w-[68px] max-w-['>Total</TableHead>
+            <TableHead className='min-[1025px]:min-w-sm'>Aluno</TableHead>
+            <TableHead className='min-[1025px]:min-w-sm'>E-mail</TableHead>
+            <TableHead className='min-[1025px]:min-w-[200px]'>Data</TableHead>
+            <TableHead className='min-[1025px]:min-w-[24px] text-center'>C1</TableHead>
+            <TableHead className='min-[1025px]:min-w-[24px] text-center'>C2</TableHead>
+            <TableHead className='min-[1025px]:min-w-[24px] text-center'>C3</TableHead>
+            <TableHead className='min-[1025px]:min-w-[24px] text-center'>C4</TableHead>
+            <TableHead className='min-[1025px]:min-w-[24px] text-center'>C5</TableHead>
+            <TableHead className='text-center  min-[1025px]:min-w-[24px]'>Total</TableHead>
             <TableHead className="text-center">
               <div className='flex justify-center'>
                 <Ellipsis />
@@ -171,7 +171,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
           ) : (
             paginacaoAvaliacoes.map((avaliacao) => (
               <TableRow key={avaliacao.id}>
-                <TableCell className='flex gap-2 items-center'>
+                <TableCell className='flex gap-2 items-center md:max-w-sm'>
                   <Avatar>
                     <AvatarImage src={avaliacao.aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
                     <AvatarFallback>{avaliacao.aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
@@ -180,7 +180,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                     {avaliacao.aluno.name}
                   </p>
                 </TableCell>
-                <TableCell>{avaliacao.aluno.email}</TableCell>
+                <TableCell className='md:max-w-sm'>{avaliacao.aluno.email}</TableCell>
                 <TableCell>
                   {new Date(avaliacao.createdAt).toLocaleDateString('pt-BR')}
                 </TableCell>

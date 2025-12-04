@@ -24,7 +24,7 @@ import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
 import { Skeleton } from './ui/skeleton';
 import { Button } from './ui/button';
-import { Trash } from 'lucide-react';
+import { Ellipsis, Trash } from 'lucide-react';
 import { FormularioCorrecao } from './formulario-correcao';
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
@@ -149,15 +149,19 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className='pl-4 md:min-w-[360px]'>Tema</TableHead>
-            <TableHead>Data</TableHead>
-            <TableHead>Competência 1</TableHead>
-            <TableHead>Competência 2</TableHead>
-            <TableHead>Competência 3</TableHead>
-            <TableHead>Competência 4</TableHead>
-            <TableHead>Competência 5</TableHead>
-            <TableHead>Nota Total</TableHead>
-            <TableHead className="w-[100px] text-center pr-4">•••</TableHead>
+            <TableHead className='min-[1025px]:min-w-lg'>Tema</TableHead>
+            <TableHead className='min-[1025px]:min-w-[200px]'>Data</TableHead>
+            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C1</TableHead>
+            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C2</TableHead>
+            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C3</TableHead>
+            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C4</TableHead>
+            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C5</TableHead>
+            <TableHead className='min-[1025px]:min-w-[32px] text-center'>Total</TableHead>
+            <TableHead className="text-center">
+              <div className='flex justify-center'>
+                <Ellipsis />
+              </div>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -179,7 +183,7 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
                 {Array.from({ length: 5 }, (_, index) => {
                   const criterio = avaliacao.criterios[index];
                   return (
-                    <TableCell key={criterio?.id || `empty-${index}`} className='text-center'>
+                    <TableCell key={criterio?.id || `empty-${index}`} className='text-center min-[1025px]:min-w-[32px]'>
                       {criterio?.pontuacao || 0}
                     </TableCell>
                   );

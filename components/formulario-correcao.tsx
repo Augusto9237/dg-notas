@@ -16,9 +16,9 @@ import * as z from "zod"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Progress } from "./ui/progress"
 
-import { EditarAvaliacao, ListarCriterios, ListarTemas } from "@/actions/avaliacao"
+import { EditarAvaliacao, ListarCriterios } from "@/actions/avaliacao"
 import { toast } from "sonner"
-import { Criterio, Prisma, Tema } from "@/app/generated/prisma"
+import { Criterio, Prisma } from "@/app/generated/prisma"
 import { Card } from "./ui/card"
 import clsx from "clsx"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
@@ -49,7 +49,6 @@ interface FormularioAvaliacaoProps {
 
 export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao }: FormularioAvaliacaoProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [temas, setTemas] = useState<Tema[]>([])
   const [criterios, setCriterios] = useState<Criterio[]>([])
   const [arquivo, setArquivo] = useState<File | null>(null);
 
@@ -72,9 +71,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
 
   useEffect(() => {
     const fetchConfig = async () => {
-      const temas = await ListarTemas();
       const criterios = await ListarCriterios()
-      setTemas(temas);
       setCriterios(criterios);
     };
 
@@ -87,10 +84,8 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
   })
 
   useEffect(() => {
-    // Reset the form whenever the `avaliacao` prop changes
     form.reset(defaultValues);
-  }, [avaliacao, form]); // Removed defaultValues from dependencies
-
+  }, [avaliacao, form, defaultValues]);
 
   const getGradeColor = (grade: number, maxGrade: number) => {
     const percentage = (grade / maxGrade) * 100;
@@ -114,7 +109,6 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
     });
   }
 
-  // Referência para o input
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleButtonClick = () => {
@@ -146,16 +140,14 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
         status: 'CORRIGIDA' as const,
       };
 
-      if (avaliacao) {
-        if (arquivo) {
-          await uploadBytes(storageRef, arquivo);
-          await EditarAvaliacao(avaliacao.id, dadosAvaliacao, `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`);
-          toast.success('Avaliação corrigida com sucesso');
-        } else {
-          await EditarAvaliacao(avaliacao.id, dadosAvaliacao, `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`);
-          toast.success('Avaliação corrigida com sucesso');
-        }
+      let correcaoUrl = `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`;
+
+      if (arquivo) {
+        await uploadBytes(storageRef, arquivo);
       }
+
+      await EditarAvaliacao(avaliacao.id, dadosAvaliacao, correcaoUrl);
+      toast.success('Avaliação corrigida com sucesso');
 
       setIsOpen(false);
       form.reset();
@@ -258,7 +250,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
             >
               {arquivo === null ? (
                 <>
-                  <Upload/>
+                  <Upload />
                   Enviar arquivo de correção
                 </>
               ) : (

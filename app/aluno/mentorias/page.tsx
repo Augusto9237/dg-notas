@@ -25,15 +25,24 @@ export default async function Page() {
         obterProfessor()
     ])
 
+    // Get today's date in Brazil timezone
     const hoje = new Date()
-    hoje.setHours(0, 0, 0, 0)
-    const hojeTimestamp = hoje.getTime()
+    const brasilTime = new Date(hoje.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
+    const hojeAno = brasilTime.getFullYear()
+    const hojeMes = brasilTime.getMonth()
+    const hojeDia = brasilTime.getDate()
 
     const mentoriasDoDia = mentorias.filter((mentoria) => {
         if (mentoria.status !== "AGENDADA") return false
+
+        // Database stores dates at midnight UTC, which represents the correct day
+        // So we compare using UTC date components, not local time
         const dataMentoria = new Date(mentoria.horario.data)
-        dataMentoria.setHours(0, 0, 0, 0)
-        return dataMentoria.getTime() === hojeTimestamp
+
+        // Compare year, month, and day using UTC components
+        return dataMentoria.getUTCFullYear() === hojeAno &&
+            dataMentoria.getUTCMonth() === hojeMes &&
+            dataMentoria.getUTCDate() === hojeDia
     })
 
     const diasAtivos = diasSemana.filter((dia) => dia.status)
