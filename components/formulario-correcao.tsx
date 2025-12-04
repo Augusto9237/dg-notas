@@ -140,7 +140,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
         status: 'CORRIGIDA' as const,
       };
 
-      let correcaoUrl = `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`;
+      const correcaoUrl = `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`;
 
       if (arquivo) {
         await uploadBytes(storageRef, arquivo);
