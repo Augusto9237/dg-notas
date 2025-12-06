@@ -45,7 +45,7 @@ export default async function Page() {
           <h2 className="text-primary font-semibold">Suas Habilidades</h2>
         </div>
 
-        <div className='space-y-4 h-full overflow-y-auto pb-14'>
+        <div className='space-y-4 h-full overflow-y-auto pb-14 scrollbar-thin scrollbar-thumb-card scrollbar-track-background'>
           {mediasPorCriterio.map((criterio, i) => (
             <CardCompetencia key={i} criterio={criterio} criterios={criterios} />
           ))}
