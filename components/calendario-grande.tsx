@@ -27,6 +27,8 @@ import {
 } from "@/app/generated/prisma"
 import React from "react"
 import { ModalMentoriaProfessor } from "./modal-mentoria-professor"
+import { excluirMentoriaECascata } from "@/actions/mentoria"
+import { toast } from "sonner"
 
 // Types
 type Mentoria = Prisma.MentoriaGetPayload<{
@@ -112,22 +114,6 @@ const CelulaHorario = React.memo(
     diasSemana,
     slotsHorario,
   }: CelulaHorarioProps) => {
-
-    useEffect(() => {
-      const horario = new Date()
-      const horarioSimples = horario.toLocaleTimeString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-      async function deletarMentoria() {
-        const mentoriasFiltradas = mentorias.filter(mentoria => mentoria.horario.slot.nome.split(' - ')[0] === horarioSimples)
-        if (mentoriasFiltradas[0].status === "AGENDADA") {
-          const mentoria = mentoriasFiltradas[0]
-          // await deletarMentoria(mentoria.id)
-        }
-      }
-    }, [])
-
     const mentoriasDoSlot = useMemo(
       () =>
         mentorias.filter(
@@ -179,7 +165,42 @@ export function CalendarioGrande({
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>(mentorias)
   const [carregando, setCarregando] = useState(false)
 
-  const horario = new Date()
+  // Constante para horário limite de exclusão automática
+  const HORA_LIMITE_EXCLUSAO = 17
+
+  /**
+   * Exclui automaticamente mentorias agendadas do dia atual após o horário limite
+   * Executa quando o componente é montado ou quando as mentorias mudam
+   */
+  useEffect(() => {
+    const agora = new Date()
+
+    // Verifica se a hora atual é depois do horário limite
+    if (agora.getHours() >= HORA_LIMITE_EXCLUSAO) {
+      const mentoriasParaRemover = mentorias.filter(mentoria => {
+        // Verifica se a mentoria é do dia de hoje
+        const ehHoje = saoMesmaDataUTC(mentoria.horario.data, agora)
+        const estaAgendada = mentoria.status === 'AGENDADA'
+
+        return ehHoje && estaAgendada
+      })
+
+      // Exclui todas as mentorias em paralelo e exibe uma única notificação
+      if (mentoriasParaRemover.length > 0) {
+        Promise.all(
+          mentoriasParaRemover.map(mentoria => excluirMentoriaECascata(mentoria.id))
+        ).then(() => {
+          toast.error(
+            `${mentoriasParaRemover.length} mentoria${mentoriasParaRemover.length > 1 ? 's' : ''} não confirmada${mentoriasParaRemover.length > 1 ? 's foram' : ' foi'} excluída${mentoriasParaRemover.length > 1 ? 's' : ''} automaticamente`
+          )
+        }).catch((erro) => {
+          console.error('Erro ao excluir mentorias:', erro)
+          toast.error('Erro ao excluir mentorias não confirmadas')
+        })
+      }
+    }
+  }, [mentorias]);
+
 
   const diasSemanaAtivos = useMemo(() =>
     diasSemana.filter(dia => dia.status),
