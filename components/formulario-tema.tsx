@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Plus} from "lucide-react"
+import { Plus } from "lucide-react"
 import { useState, useEffect } from "react"
 import {
   Dialog,
@@ -27,6 +27,7 @@ import { toast } from "sonner"
 import { Tema } from "@/app/generated/prisma"
 import { EditButton } from "./ui/edit-button"
 import { Textarea } from "./ui/textarea"
+import useFcmToken from "@/hooks/useFcmToken"
 
 
 const formSchema = z.object({
@@ -41,6 +42,7 @@ interface FormularioTemaProps {
 
 export function FormularioTema({ tema }: FormularioTemaProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const { token, notificationPermissionStatus } = useFcmToken();
   const isEditMode = !!tema
 
   const form = useForm<FormValues>({
@@ -66,6 +68,18 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
       } else {
         const newTema = await AdicionarTema(values.nome)
         toast.success(`O tema ${newTema.nome} foi adicionado com sucesso`)
+        await fetch("/api/send-notification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token: token,
+            title: "Novo tema adicionado",
+            message: `O tema ${newTema.nome} foi adicionado com sucesso`,
+            link: "/aluno/avaliacoes",
+          }),
+        });
       }
       form.reset()
       setIsOpen(false)
