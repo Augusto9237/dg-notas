@@ -23,47 +23,28 @@ export const getMessagingInstance = async () => {
   return supported ? getMessaging(app) : null;
 };
 
-export const requestNotificationPermission = async () => {
+const messaging = async () => {
+  const supported = await isSupported();
+  return supported ? getMessaging(app) : null;
+};
+
+export const fetchToken = async () => {
   try {
-    const permission = await Notification.requestPermission();
-
-    if (permission === 'granted') {
-      console.log('Permissão de notificação concedida');
-
-      const messaging = await getMessagingInstance();
-      if (!messaging) {
-        console.log('Messaging não suportado neste navegador');
-        return null;
-      }
-
-      const token = await getToken(messaging, {
-        vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
+    const fcmMessaging = await messaging();
+    if (fcmMessaging) {
+      const token = await getToken(fcmMessaging, {
+        vapidKey: process.env.NEXT_PUBLIC_FIREBASE_FCM_VAPID_KEY,
       });
-
-      console.log('FCM Token:', token);
       return token;
-    } else {
-      console.log('Permissão de notificação negada');
-      return null;
     }
-  } catch (error) {
-    console.error('Erro ao solicitar permissão:', error);
+    return null;
+  } catch (err) {
+    console.error("An error occurred while fetching the token:", err);
     return null;
   }
 };
-
-export const onMessageListener = async (callback: (payload: MessagePayload) => void) => {
-  const messaging = await getMessagingInstance();
-  if (!messaging) return;
-
-  return onMessage(messaging, (payload) => {
-    console.log('Mensagem recebida (foreground):', payload);
-    callback(payload);
-  });
-};
-
 // Exporta os serviços do Firebase para uso no cliente
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-export { app, auth, storage };
+export { app, auth, storage, messaging };

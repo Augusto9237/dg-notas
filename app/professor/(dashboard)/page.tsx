@@ -79,10 +79,6 @@ export default async function Page({
         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
     ]
 
-    const horario = new Date()
-
-    console.log(horario)
-
     return (
         <div className="w-full">
             <div className='flex justify-between items-center h-14 p-5 mt-3 gap-2 relative'>

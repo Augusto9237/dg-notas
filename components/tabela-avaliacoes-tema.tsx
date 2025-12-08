@@ -148,12 +148,12 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
             <TableHead className='min-[1025px]:min-w-sm'>Aluno</TableHead>
             <TableHead className='min-[1025px]:min-w-sm'>E-mail</TableHead>
             <TableHead className='min-[1025px]:min-w-[200px]'>Data</TableHead>
-            <TableHead className='min-[1025px]:min-w-[24px] text-center'>C1</TableHead>
-            <TableHead className='min-[1025px]:min-w-[24px] text-center'>C2</TableHead>
-            <TableHead className='min-[1025px]:min-w-[24px] text-center'>C3</TableHead>
-            <TableHead className='min-[1025px]:min-w-[24px] text-center'>C4</TableHead>
-            <TableHead className='min-[1025px]:min-w-[24px] text-center'>C5</TableHead>
-            <TableHead className='text-center  min-[1025px]:min-w-[24px]'>Total</TableHead>
+            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C1</TableHead>
+            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C2</TableHead>
+            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C3</TableHead>
+            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C4</TableHead>
+            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C5</TableHead>
+            <TableHead className='min-[1025px]:min-w-[32px] text-center'>Total</TableHead>
             <TableHead className="text-center">
               <div className='flex justify-center'>
                 <Ellipsis />
@@ -195,7 +195,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                 ) : (
                   <>
                     {avaliacao.criterios.map((criterio) => (
-                      <TableCell key={criterio.id} className='text-center w-[100px]'>
+                      <TableCell key={criterio.id} className='text-center'>
                         {criterio.pontuacao}
                       </TableCell>
                     ))}
