@@ -315,6 +315,17 @@ export async function EnviarRespoastaAvaliacao(
     }
 
     try {
+        const avaliacaoExistente = await prisma.avaliacao.findFirst({
+            where: {
+                alunoId: idAluno,
+                temaId: idTema,
+            },
+        });
+
+        if (avaliacaoExistente) {
+            throw new Error('Você já enviou uma resposta para este tema.');
+        }
+
         const avaliacaoCriada = await prisma.avaliacao.create({
             data: {
                 alunoId: idAluno,
@@ -436,7 +447,7 @@ export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string) {
     }
 }
 
-export async function ListarTemasDisponiveis(alunoId: string): Promise<Tema[]> {
+export async function ListarTemasDisponiveis(alunoId: string) {
     try {
         const temas = await prisma.tema.findMany({
             where: {
@@ -446,6 +457,9 @@ export async function ListarTemasDisponiveis(alunoId: string): Promise<Tema[]> {
                     }
                 },
                 disponivel: true
+            },
+            include: {
+                professor: true
             },
             orderBy: {
                 createdAt: 'asc'

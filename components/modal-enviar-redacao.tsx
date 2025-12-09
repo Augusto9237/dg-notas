@@ -27,6 +27,7 @@ import { Tema } from "@/app/generated/prisma";
 import { toast } from "sonner";
 import { Label } from "./ui/label";
 import { EnviarRespoastaAvaliacao } from "@/actions/avaliacao";
+import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
 
 
 const formSchema = z.object({
@@ -75,6 +76,12 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
             toast.success('Redação enviada com sucesso!');
             setArquivo(null);
             setIsOpen(false);
+            await enviarNotificacaoParaUsuario(
+                tema.professorId,
+                'Nova redação recebida!',
+                `A redação sobre o tema "${tema.nome}" foi recebida!`,
+                '/professor/avaliacoes'
+            )
 
         } catch (error) {
             console.log(error)
@@ -133,7 +140,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                     )}
                 </Button>
                 <div className="grid grid-cols-2 gap-4">
-                    <Button type="button" variant="outline" className="min-w-[100px]" onClick={cancelar}>
+                    <Button type="button" variant="ghost" className="min-w-[100px]" onClick={cancelar}>
                         Cancelar
                     </Button>
                     <Button type="button" className="min-w-[100px]" onClick={enviarRespostaExercicio}>

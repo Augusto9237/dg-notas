@@ -30,64 +30,64 @@ import { Textarea } from "./ui/textarea"
 import { enviarNotificacaoParaTodos } from "@/actions/notificacoes"
 
 
-const formSchema = z.object({
+const esquemaFormulario = z.object({
   nome: z.string().min(3, "O nome do tema deve ter pelo menos 3 caracteres"),
 })
 
-type FormValues = z.infer<typeof formSchema>
+type ValoresFormulario = z.infer<typeof esquemaFormulario>
 
 interface FormularioTemaProps {
   tema?: Tema
 }
 
 export function FormularioTema({ tema }: FormularioTemaProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const isEditMode = !!tema
+  const [estaAberto, setEstaAberto] = useState(false)
+  const ehModoEdicao = !!tema
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const formulario = useForm<ValoresFormulario>({
+    resolver: zodResolver(esquemaFormulario),
     defaultValues: {
       nome: tema?.nome || "",
     },
   })
 
   useEffect(() => {
-    if (isOpen) {
-      form.reset({
+    if (estaAberto) {
+      formulario.reset({
         nome: tema?.nome || "",
       })
     }
-  }, [isOpen, tema, form])
+  }, [estaAberto, tema, formulario])
 
-  async function onSubmit(values: FormValues) {
+  async function aoEnviar(valores: ValoresFormulario) {
     try {
-      if (isEditMode) {
-        const updatedTema = await EditarTema(tema.id, values.nome)
-        toast.success(`O tema ${updatedTema.nome} foi atualizado com sucesso`)
+      if (ehModoEdicao) {
+        const atualizarTema = await EditarTema(tema.id, valores.nome)
+        toast.success(`O tema ${atualizarTema.nome} foi atualizado com sucesso`)
       } else {
-        const newTema = await AdicionarTema(values.nome)
-        toast.success(`O tema ${newTema.nome} foi adicionado com sucesso`)
+        const novoTema = await AdicionarTema(valores.nome)
+        toast.success(`O tema ${novoTema.nome} foi adicionado com sucesso`)
 
         // Envia notificações para todos os alunos
         try {
-          const result = await enviarNotificacaoParaTodos(
+          const resultado = await enviarNotificacaoParaTodos(
             'user',
             'Novo tema disponível!',
-            `O tema "${newTema.nome}" foi adicionado`,
+            `O tema "${novoTema.nome}" foi adicionado`,
             '/aluno/avaliacoes'
           )
 
-          if (result.successCount > 0) {
-            toast.info(`📲 Notificações enviadas para ${result.successCount} aluno(s)`)
+          if (resultado.successCount > 0) {
+            toast.info(`📲 Notificações enviadas para ${resultado.successCount} aluno(s)`)
           }
-        } catch (notificationError) {
-          console.error('Erro ao enviar notificações:', notificationError)
+        } catch (erroNotificacao) {
+          console.error('Erro ao enviar notificações:', erroNotificacao)
           // Não bloqueia o fluxo se notificações falharem
           toast.warning('Tema adicionado, mas houve erro ao enviar notificações')
         }
       }
-      form.reset()
-      setIsOpen(false)
+      formulario.reset()
+      setEstaAberto(false)
     } catch (error) {
       toast.error("Algo deu errado, tente novamente!")
       console.error("Erro ao salvar tema:", error)
@@ -95,9 +95,9 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={estaAberto} onOpenChange={setEstaAberto}>
       <DialogTrigger asChild>
-        {isEditMode ?
+        {ehModoEdicao ?
           <EditButton />
           :
           <Button variant="secondary">
@@ -112,20 +112,20 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-center">
-            {isEditMode ? "Editar Tema" : "Adicionar Tema"}
+            {ehModoEdicao ? "Editar Tema" : "Adicionar Tema"}
           </DialogTitle>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <Form {...formulario}>
+          <form onSubmit={formulario.handleSubmit(aoEnviar)} className="space-y-4">
             <FormField
-              control={form.control}
+              control={formulario.control}
               name="nome"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tema</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder={isEditMode ? "Edite o tema" : "Digite o novo tema"}
+                      placeholder={ehModoEdicao ? "Edite o tema" : "Digite o novo tema"}
                       {...field}
                     />
                   </FormControl>
@@ -139,8 +139,8 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  form.reset()
-                  setIsOpen(false)
+                  formulario.reset()
+                  setEstaAberto(false)
                 }}
                 className="min-w-[100px]"
               >
@@ -149,9 +149,9 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
               <Button
                 type="submit"
                 className="min-w-[100px]"
-                disabled={form.formState.isSubmitting}
+                disabled={formulario.formState.isSubmitting}
               >
-                {form.formState.isSubmitting ? "Salvando..." : "Salvar"}
+                {formulario.formState.isSubmitting ? "Salvando..." : "Salvar"}
               </Button>
             </div>
           </form>

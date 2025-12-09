@@ -1,13 +1,14 @@
 'use client'
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { ModalAvaliacao } from "./modal-avaliação";
-import { Progress } from "./ui/progress";
-import { Avaliacao, Criterio, CriterioAvaliacao, Prisma, Tema } from "@/app/generated/prisma";
-import { Button } from "./ui/button";
-import { Upload } from "lucide-react";
 import { ModalEnviarRedacao } from "./modal-enviar-redacao";
+import { Prisma } from "@/app/generated/prisma";
 
+type Tema = Prisma.TemaGetPayload<{
+    include: {
+        professor: true
+    }
+}>
 
 interface CardNovoTemaProps {
     tema: Tema;
@@ -37,7 +38,7 @@ export function CardNovoTema({ tema }: CardNovoTemaProps) {
                 </div>
                 <div className="flex justify-between w-full pb-10">
                     <p className="text-xs text-muted-foreground mb-1">
-                        Profª Daniely Guedes
+                        {tema.professor.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
                         {new Date(tema.createdAt).toLocaleDateString("pt-BR")}
@@ -45,7 +46,7 @@ export function CardNovoTema({ tema }: CardNovoTemaProps) {
                 </div>
             </CardContent>
             <CardFooter className="px-4 pb-4 absolute inset-x-0 bottom-0">
-                <ModalEnviarRedacao tema={tema}/>
+                <ModalEnviarRedacao tema={tema} />
             </CardFooter>
         </Card>
     )
