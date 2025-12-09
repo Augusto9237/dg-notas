@@ -22,7 +22,7 @@ export async function listarAlunosGoogle(busca?: string) {
         const alunos = await prisma.user.findMany({
             where: clasulaDeFiltro,
             include: {
-                Avaliacao: true
+                avaliacoesComoAluno: true
             }
         });
         return alunos;

@@ -126,7 +126,7 @@ export default async function Page({
                 </div>
 
                 <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1">
-                    <UltimasAvaliacoes temasMes={temasMes} />
+                    <UltimasAvaliacoes temasMes={temasMes} avaliacoes={avaliacoes} />
                     <TabelaTopAlunos alunos={top10} />
                 </div>
             </main >

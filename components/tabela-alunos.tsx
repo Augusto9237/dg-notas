@@ -24,44 +24,22 @@ import { Ellipsis, FileCheck2, FileDown, Search } from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { listarAlunosGoogle } from '@/actions/alunos';
 import { useSearchParams } from 'next/navigation';
-import { StatusAvaliacao } from '@/app/generated/prisma';
+import { Prisma, StatusAvaliacao } from '@/app/generated/prisma';
 import { calcularMedia } from '@/lib/media-geral';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { banirUsuario } from '@/actions/admin';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
 
+type Aluno = Prisma.UserGetPayload<{
+  include: {
+    avaliacoesComoAluno: true;
+  }
+}>
 
 
 interface TabelaAlunosProps {
-  alunos: ({
-    Avaliacao: {
-      id: number;
-      alunoId: string;
-      temaId: number;
-      resposta: string;
-      correcao: string | null;
-      status: StatusAvaliacao;
-      notaFinal: number;
-      createdAt: Date;
-      updatedAt: Date;
-    }[];
-  } & {
-    image: string | null;
-    name: string;
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    email: string;
-    emailVerified: boolean;
-    role: string | null;
-    banned: boolean | null;
-    banReason: string | null;
-    banExpires: Date | null;
-    especialidade: string | null;
-    telefone: string | null;
-    bio: string | null;
-  })[]
+  alunos: Aluno[]
 }
 
 export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
@@ -181,10 +159,10 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
                 <TableCell className='min-[1025px]:min-w-sm'>{aluno.email}</TableCell>
                 <TableCell className='w-full'>{aluno.telefone}</TableCell>
                 <TableCell className='w-full max-w-[100px] min-w-[100px] font-semibold text-center'>
-                  {aluno.Avaliacao.length}
+                  {aluno.avaliacoesComoAluno.length}
                 </TableCell>
                 <TableCell className='w-full max-w-[64px] min-w-[64px] font-semibold text-center'>
-                  {calcularMedia(aluno.Avaliacao)}
+                  {calcularMedia(aluno.avaliacoesComoAluno)}
                 </TableCell>
                 <TableCell className="text-center space-x-4">
                   <Link href={`/professor/alunos/${aluno.id}`} passHref>

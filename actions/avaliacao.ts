@@ -32,6 +32,7 @@ export async function AdicionarTema(nome: string): Promise<Tema> {
         const novoTema = await prisma.tema.create({
             data: {
                 nome,
+                professorId: session.user.id,
             },
         });
         revalidatePath('/professor')
@@ -68,7 +69,7 @@ export async function ListarTemas(busca?: string, month?: number, year?: number)
                 nome: 'asc',
             },
             include: {
-                Avaliacao: true,
+                professor: true,
             }
         });
 
@@ -119,7 +120,7 @@ export async function listarTemasMes(month?: number, year?: number) {
                 nome: 'asc',
             },
             include: {
-                Avaliacao: true,
+                professor: true,
             }, // Limita o retorno a apenas 10 registros
         });
 

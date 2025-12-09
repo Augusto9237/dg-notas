@@ -18,9 +18,10 @@ import { InputBusca } from "./input-busca"
 import { Button } from "./ui/button"
 import { Switch } from "./ui/switch"
 
+
 type Tema = Prisma.TemaGetPayload<{
   include: {
-    Avaliacao: true,
+    professor: true,
   }
 }>
 
@@ -36,22 +37,22 @@ interface TabelaTemasProps {
 }
 
 // Componente para agrupar os botões de ação da tabela
-function AcoesDoTema({ tema, aoExcluir }: { tema: Tema; totalRespostas: respostasPorTema; aoExcluir: (id: number) => void }) {
+function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRespostas: respostasPorTema; aoExcluir: (id: number) => void }) {
   return (
     <div className="flex items-center justify-center gap-4">
-      <Link href={tema.Avaliacao.length > 0 ? `/professor/avaliacoes/${tema.id}` : '/professor/avaliacoes'} passHref>
+      <Link href={totalRespostas.total > 0 ? `/professor/avaliacoes/${tema.id}` : '/professor/avaliacoes'} passHref>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               size="icon"
               className="hover:cursor-pointer relative"
-              variant={tema.Avaliacao.length > 0 ? 'default' : 'ghost'}
-              disabled={tema.Avaliacao.length === 0}
+              variant={totalRespostas.total > 0 ? 'default' : 'ghost'}
+              disabled={totalRespostas.total === 0}
             >
-              {tema.Avaliacao.filter(avaliacao => avaliacao.status === 'ENVIADA').length > 0 ? (
+              {totalRespostas.enviadas > 0 ? (
                 <span className="absolute -right-1 -top-1 flex size-4">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
-                  <span className="relative flex justify-center items-center size-4 rounded-full bg-card text-[0.60rem] text-center text-primary border border-primary">{tema.Avaliacao.filter(avaliacao => avaliacao.status === 'ENVIADA').length}</span>
+                  <span className="relative flex justify-center items-center size-4 rounded-full bg-card text-[0.60rem] text-center text-primary border border-primary">{totalRespostas.enviadas}</span>
                 </span>
               ) : null}
               <FileCheck2 />

@@ -1,18 +1,18 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Prisma } from "@/app/generated/prisma";
+import { Prisma, Avaliacao } from "@/app/generated/prisma";
 import { format } from "date-fns";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
 type TemasMes = Prisma.TemaGetPayload<{
     include: {
-        Avaliacao: true,
+        professor: true,
     }
-}>[]
+}>
 
-export function UltimasAvaliacoes({ temasMes }: { temasMes: TemasMes }) {
+export function UltimasAvaliacoes({ temasMes, avaliacoes }: { temasMes: TemasMes[]; avaliacoes: Avaliacao[] }) {
     return (
         <Card className="gap-5 p-5 h-full">
             <CardHeader className="p-0 flex justify-between items-start">
@@ -46,7 +46,7 @@ export function UltimasAvaliacoes({ temasMes }: { temasMes: TemasMes }) {
                                     <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
                                     <TableCell className="w-[20px] text-center">
                                         <Badge>
-                                            {tema.Avaliacao.filter((avaliacao) => avaliacao.resposta.length > 0).length}
+                                            {avaliacoes.filter((avaliacao) => avaliacao.temaId === tema.id && avaliacao.resposta.length > 0).length}
                                         </Badge>
                                     </TableCell>
                                 </TableRow>

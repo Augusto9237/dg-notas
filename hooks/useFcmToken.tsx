@@ -5,6 +5,8 @@ import { getToken, onMessage, Unsubscribe } from "firebase/messaging";
 import { fetchToken, messaging } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+import { salvarFcmToken } from "@/actions/notificacoes";
 
 async function getNotificationPermissionAndToken() {
   // Step 1: Check if Notifications are supported in the browser.
@@ -32,11 +34,13 @@ async function getNotificationPermissionAndToken() {
 
 const useFcmToken = () => {
   const router = useRouter(); // Initialize the router for navigation.
+  const { data: session } = authClient.useSession(); // Get user session for saving token to DB
   const [notificationPermissionStatus, setNotificationPermissionStatus] =
     useState<NotificationPermission | null>(null); // State to store the notification permission status.
   const [token, setToken] = useState<string | null>(null); // State to store the FCM token.
   const retryLoadToken = useRef(0); // Ref to keep track of retry attempts.
   const isLoading = useRef(false); // Ref to keep track if a token fetch is currently in progress.
+  const tokenSaved = useRef(false); // Track if token was saved to prevent duplicate saves
 
   const loadToken = async () => {
     // Step 4: Prevent multiple fetches if already fetched or in progress.
@@ -88,6 +92,25 @@ const useFcmToken = () => {
       loadToken();
     }
   }, []);
+
+  // Step 8.5: Save token to database when available and user is authenticated
+  useEffect(() => {
+    const saveTokenToDatabase = async () => {
+      if (token && session?.user && !tokenSaved.current) {
+        try {
+          const deviceInfo = typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
+          await salvarFcmToken(session.user.id, token, deviceInfo);
+          tokenSaved.current = true;
+          console.log('FCM token saved to database successfully');
+        } catch (error) {
+          console.error('Failed to save FCM token to database:', error);
+          // Don't block the UI if saving fails
+        }
+      }
+    };
+
+    saveTokenToDatabase();
+  }, [token, session]);
 
   useEffect(() => {
     const setupListener = async () => {

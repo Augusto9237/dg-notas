@@ -27,7 +27,7 @@ import { toast } from "sonner"
 import { Tema } from "@/app/generated/prisma"
 import { EditButton } from "./ui/edit-button"
 import { Textarea } from "./ui/textarea"
-import useFcmToken from "@/hooks/useFcmToken"
+import { enviarNotificacaoParaTodos } from "@/actions/notificacoes"
 
 
 const formSchema = z.object({
@@ -42,7 +42,6 @@ interface FormularioTemaProps {
 
 export function FormularioTema({ tema }: FormularioTemaProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const { token, notificationPermissionStatus } = useFcmToken();
   const isEditMode = !!tema
 
   const form = useForm<FormValues>({
@@ -68,18 +67,24 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
       } else {
         const newTema = await AdicionarTema(values.nome)
         toast.success(`O tema ${newTema.nome} foi adicionado com sucesso`)
-        await fetch("/api/send-notification", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            token: token,
-            title: "Novo tema adicionado",
-            message: `O tema ${newTema.nome} foi adicionado com sucesso`,
-            link: "/aluno/avaliacoes",
-          }),
-        });
+
+        // Envia notificações para todos os alunos
+        try {
+          const result = await enviarNotificacaoParaTodos(
+            'user',
+            'Novo tema disponível!',
+            `O tema "${newTema.nome}" foi adicionado`,
+            '/aluno/avaliacoes'
+          )
+
+          if (result.successCount > 0) {
+            toast.info(`📲 Notificações enviadas para ${result.successCount} aluno(s)`)
+          }
+        } catch (notificationError) {
+          console.error('Erro ao enviar notificações:', notificationError)
+          // Não bloqueia o fluxo se notificações falharem
+          toast.warning('Tema adicionado, mas houve erro ao enviar notificações')
+        }
       }
       form.reset()
       setIsOpen(false)

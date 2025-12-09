@@ -15,10 +15,12 @@ datasource db {
 }
 
 model Tema {
-  id        Int      @id @default(autoincrement())
-  nome      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  nome        String
+  professorId String
+  professor   User     @relation("AvaliacoesProfessor", fields: [professorId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   disponivel Boolean @default(true)
 
@@ -31,18 +33,20 @@ enum StatusAvaliacao {
 }
 
 model Avaliacao {
-  id        Int                 @id @default(autoincrement())
-  alunoId   String
-  aluno     User                @relation(fields: [alunoId], references: [id])
-  temaId    Int
-  tema      Tema                @relation(fields: [temaId], references: [id])
-  criterios CriterioAvaliacao[]
-  resposta  String
-  correcao  String?
-  status    StatusAvaliacao     @default(ENVIADA)
-  notaFinal Int
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
+  id          Int                 @id @default(autoincrement())
+  alunoId     String
+  aluno       User                @relation("AvaliacoesAluno", fields: [alunoId], references: [id])
+  professorId String?
+  professor   User?               @relation("AvaliacoesProfessor", fields: [professorId], references: [id])
+  temaId      Int
+  tema        Tema                @relation(fields: [temaId], references: [id])
+  criterios   CriterioAvaliacao[]
+  resposta    String
+  correcao    String?
+  status      StatusAvaliacao     @default(ENVIADA)
+  notaFinal   Int
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
 }
 
 model CriterioAvaliacao {
@@ -108,6 +112,7 @@ model Horario {
   slot        SlotHorario @relation(fields: [slotId], references: [id])
   diaSemanaId Int
   diaSemana   DiaSemana   @relation(fields: [diaSemanaId], references: [id])
+  updatedAt   DateTime    @updatedAt
 
   // Índices para otimizar consultas de disponibilidade
   // Otimiza busca por data+slot com status
@@ -118,16 +123,18 @@ model Horario {
 }
 
 model Mentoria {
-  id        Int            @id @default(autoincrement())
-  alunoId   String
-  aluno     User           @relation(fields: [alunoId], references: [id])
-  horarioId Int
-  horario   Horario        @relation(fields: [horarioId], references: [id])
-  status    StatusMentoria @default(AGENDADA)
-  duracao   Int            @default(20) // Duração em minutos
-  feedback  String?
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  id          Int            @id @default(autoincrement())
+  alunoId     String
+  aluno       User           @relation("MentoriasAluno", fields: [alunoId], references: [id])
+  professorId String?
+  professor   User?          @relation("MentoriasProfessor", fields: [professorId], references: [id])
+  horarioId   Int
+  horario     Horario        @relation(fields: [horarioId], references: [id])
+  status      StatusMentoria @default(AGENDADA)
+  duracao     Int            @default(20) // Duração em minutos
+  feedback    String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   // Garante que um aluno só possa ter uma mentoria por horário
   // Índices para otimizar consultas
@@ -139,29 +146,46 @@ model Mentoria {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean
-  image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
-  sessions      Session[]
-  accounts      Account[]
+  id                      String      @id
+  name                    String
+  email                   String
+  emailVerified           Boolean
+  image                   String?
+  createdAt               DateTime
+  updatedAt               DateTime
+  sessions                Session[]
+  accounts                Account[]
+  role                    String?
+  banned                  Boolean?    @default(false)
+  banReason               String?
+  banExpires              DateTime?
+  avaliacoesComoAluno     Avaliacao[] @relation("AvaliacoesAluno")
+  avaliacoesComoProfessor Avaliacao[] @relation("AvaliacoesProfessor")
+  mentoriasComoAluno      Mentoria[]  @relation("MentoriasAluno")
+  mentoriasComoProfessor  Mentoria[]  @relation("MentoriasProfessor")
+  especialidade           String?
+  telefone                String?
+  bio                     String?
 
-  role       String?
-  banned     Boolean?    @default(false)
-  banReason  String?
-  banExpires DateTime?
-  Avaliacao  Avaliacao[]
-  Mentorias  Mentoria[]
-
-  especialidade String?
-  telefone      String?
-  bio           String?
+  fcmTokens FcmToken[] // Relação com tokens FCM
+  temas     Tema[]     @relation("AvaliacoesProfessor")
 
   @@unique([email])
   @@map("user")
+}
+
+model FcmToken {
+  id         String   @id @default(cuid())
+  token      String
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceInfo String? // Informações sobre o dispositivo
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, token])
+  @@index([token])
+  @@map("fcm_token")
 }
 
 model Session {
@@ -178,8 +202,8 @@ model Session {
   impersonatedBy String?
 
   @@unique([token])
-  @@map("session")
   @@index([userId])
+  @@map("session")
 }
 
 model Account {
@@ -198,8 +222,8 @@ model Account {
   createdAt             DateTime
   updatedAt             DateTime
 
-  @@map("account")
   @@index([userId])
+  @@map("account")
 }
 
 model Verification {
@@ -210,6 +234,6 @@ model Verification {
   createdAt  DateTime?
   updatedAt  DateTime?
 
-  @@map("verification")
   @@index([identifier])
+  @@map("verification")
 }
