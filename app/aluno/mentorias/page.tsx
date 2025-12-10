@@ -25,6 +25,26 @@ export default async function Page() {
         obterProfessor()
     ])
 
+    if (!professor) {
+        return (
+            <div className="w-full">
+                <main className="flex flex-col gap-4 p-5 pb-20">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-primary font-semibold">Suas Mentorias</h2>
+                    </div>
+                    <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
+                        <p className="text-muted-foreground">
+                            Nenhum professor disponível no momento.
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                            Entre em contato com o administrador do sistema.
+                        </p>
+                    </div>
+                </main>
+            </div>
+        )
+    }
+
     // Get today's date in Brazil timezone
     const hoje = new Date()
     const brasilTime = new Date(hoje.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
@@ -55,7 +75,7 @@ export default async function Page() {
                 <div className="flex items-center justify-between">
                     <h2 className="text-primary font-semibold">Suas Mentorias</h2>
                 </div>
-                <AgendarMentoriaAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professorId={professor?.id!} />
+                <AgendarMentoriaAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professorId={professor.id} />
                 <Tabs defaultValue="agendada">
                     <TabsList>
                         <TabsTrigger value="agendada" className="text-foreground max-sm:text-xs">Agendadas</TabsTrigger>
