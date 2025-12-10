@@ -23,7 +23,7 @@ export default async function Page() {
       <div className="w-full">
         <main className="flex flex-col gap-4 p-5 pb-20">
           <div className="flex items-center justify-between">
-            <h2 className="text-primary font-semibold">Suas Redações</h2>
+            <h2 className="text-primary font-semibold">Suas Avaliações</h2>
           </div>
 
           <Tabs defaultValue="pendentes">

@@ -1,14 +1,6 @@
-import admin from "firebase-admin";
+import admin from "@/lib/firebase-admin";
 import { Message, MulticastMessage } from "firebase-admin/messaging";
 import { NextRequest, NextResponse } from "next/server";
-
-// Initialize Firebase Admin SDK
-if (!admin.apps.length) {
-    const serviceAccount = require("@/service_key.json");
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-    });
-}
 
 export async function POST(request: NextRequest) {
     const { token, tokens, title, message, link } = await request.json();

@@ -20,7 +20,7 @@ import { FileText, Paperclip, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input"
 import { z } from "zod"
 import { useRef, useState } from "react";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { authClient } from "@/lib/auth-client";
 import { Tema } from "@/app/generated/prisma";
@@ -28,11 +28,8 @@ import { toast } from "sonner";
 import { Label } from "./ui/label";
 import { EnviarRespoastaAvaliacao } from "@/actions/avaliacao";
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
+import clsx from "clsx";
 
-
-const formSchema = z.object({
-    username: z.string().min(2).max(50),
-})
 
 interface ModalEnviarRedacaoProps {
     tema: Tema;
@@ -42,7 +39,7 @@ interface ModalEnviarRedacaoProps {
 export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
     const { data: session } = authClient.useSession();
     const [arquivo, setArquivo] = useState<File | null>(null);
-    const [progress, setProgress] = useState(0)
+    const [carregando, setCarregando] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
 
     // Referência para o input
@@ -60,7 +57,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
     };
 
     async function enviarRespostaExercicio() {
-
+        setCarregando(true)
         if (!arquivo || !session?.user?.email || !session?.user?.name) return;
 
         const storageRef = ref(storage, `avaliacoes/${tema.id}/${session.user.email}`);
@@ -76,6 +73,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
             toast.success('Redação enviada com sucesso!');
             setArquivo(null);
             setIsOpen(false);
+            setCarregando(false)
             await enviarNotificacaoParaUsuario(
                 tema.professorId,
                 'Nova redação recebida!',
@@ -91,7 +89,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
 
     function cancelar() {
         setArquivo(null);
-        setProgress(0);
+        setCarregando(false);
         setIsOpen(false);
     }
 
@@ -140,10 +138,19 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                     )}
                 </Button>
                 <div className="grid grid-cols-2 gap-4">
-                    <Button type="button" variant="ghost" className="min-w-[100px]" onClick={cancelar}>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        className={clsx("min-w-[100px]", carregando ? 'hidden' : '')}
+                        onClick={cancelar}>
                         Cancelar
                     </Button>
-                    <Button type="button" className="min-w-[100px]" onClick={enviarRespostaExercicio}>
+                    <Button
+                        type="button"
+                        className={clsx("min-w-[100px]", carregando ? 'col-span-2' : '')}
+                        disabled={carregando}
+                        onClick={enviarRespostaExercicio}
+                    >
                         Enviar
                     </Button>
                 </div>
