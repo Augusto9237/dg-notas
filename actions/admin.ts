@@ -23,6 +23,7 @@ export async function obterProfessor() {
       }
     })
     return {
+      id: resultado[0].id,
       nome: resultado[0].name,
       email: resultado[0].email,
       telefone: resultado[0].telefone,

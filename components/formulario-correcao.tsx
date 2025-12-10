@@ -24,6 +24,7 @@ import clsx from "clsx"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 import { ref, uploadBytes } from "firebase/storage"
 import { storage } from "@/lib/firebase"
+import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes"
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -123,7 +124,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const storageRef = ref(storage, `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`);
+    const storageRef = ref(storage, `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.pdf`);
     try {
       if (!values.tema || !values.criterios) {
         throw new Error('Tema e critérios são obrigatórios');
@@ -140,7 +141,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
         status: 'CORRIGIDA' as const,
       };
 
-      const correcaoUrl = `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`;
+      const correcaoUrl = `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.pdf`;
 
       if (arquivo) {
         await uploadBytes(storageRef, arquivo);
@@ -151,6 +152,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
 
       setIsOpen(false);
       form.reset();
+      await enviarNotificacaoParaUsuario(avaliacao.alunoId, 'Correção', `Sua redação foi corrigida! Sua nota final: ${notaFinal}`, `/aluno/avaliacoes`)
 
     } catch (error) {
       toast.error('Erro ao salvar a avaliação, tente novamente!')
@@ -238,6 +240,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
             <Input
               placeholder="shadcn"
               type="file"
+              accept="application/pdf"
               className="hidden"
               ref={inputRef}
               onChange={carregarArquivo}

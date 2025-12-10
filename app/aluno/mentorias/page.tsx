@@ -55,7 +55,7 @@ export default async function Page() {
                 <div className="flex items-center justify-between">
                     <h2 className="text-primary font-semibold">Suas Mentorias</h2>
                 </div>
-                <AgendarMentoriaAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} />
+                <AgendarMentoriaAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professorId={professor?.id!} />
                 <Tabs defaultValue="agendada">
                     <TabsList>
                         <TabsTrigger value="agendada" className="text-foreground max-sm:text-xs">Agendadas</TabsTrigger>

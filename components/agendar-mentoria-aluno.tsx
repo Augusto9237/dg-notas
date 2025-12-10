@@ -24,11 +24,12 @@ import { CalendarPlus, CalendarSync, Loader2 } from "lucide-react"
 import { useState, useEffect, useMemo, useCallback, Dispatch, SetStateAction, useRef } from "react"
 import { ptBR } from "date-fns/locale"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { adicionarMentoria, editarMentoria, verificarDisponibilidadeMultiplosSlots} from "@/actions/mentoria"
+import { adicionarMentoria, editarMentoria, verificarDisponibilidadeMultiplosSlots } from "@/actions/mentoria"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma"
 import clsx from "clsx"
+import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes"
 
 const formSchema = z.object({
     data: z.date({
@@ -54,6 +55,7 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 interface AgendarMentoriaAlunoProps {
     diasSemana: DiaSemana[]
     slotsHorario: SlotHorario[]
+    professorId: string;
     mode?: 'create' | 'edit';
     mentoriaData?: Mentoria;
     size?: "default" | "sm" | "lg" | "icon" | null | undefined
@@ -74,6 +76,7 @@ function convertUTCToLocalDate(utcDate: Date): Date {
 export function AgendarMentoriaAluno({
     diasSemana,
     slotsHorario,
+    professorId,
     mode = 'create',
     mentoriaData,
     size = "sm",
@@ -224,6 +227,7 @@ export function AgendarMentoriaAluno({
             form.reset();
             setOpen(false);
             setIsOpen && setIsOpen(false)
+            await enviarNotificacaoParaUsuario(professorId, 'Mentoria agendada', `${session?.user.name} ${mode === 'edit' ? 'reagendou' : 'agendou'} uma mentoria`, `/professor/mentorias`)
         } catch (error) {
             toast.error('Algo deu errado, tente novamente');
             console.error(`Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria:`, error);

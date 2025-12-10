@@ -12,6 +12,8 @@ import { format } from "date-fns";
 import { ptBR, se } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useState } from "react";
+import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
+import { authClient } from "@/lib/auth-client";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -36,6 +38,7 @@ interface CardMentoriaProps {
 }
 
 export function CardMentoriaConfirmacao({ mentoria, professor }: CardMentoriaProps) {
+    const { data: session } = authClient.useSession();
     const [open, setOpen] = useState(false);
     const [carregando, setCarregando] = useState(false);
 
@@ -61,11 +64,16 @@ export function CardMentoriaConfirmacao({ mentoria, professor }: CardMentoriaPro
 
     async function atualizarStatusDaMentoria(status: 'CONFIRMADA') {
         setCarregando(true)
+        if (!session?.user) {
+            toast.error('Usuário não autenticado')
+            return
+        }
         try {
             await atualizarStatusMentoria(mentoria.id, status)
             setOpen(false)
             toast.success('Mentoria confimada com sucesso')
             setCarregando(false)
+            await enviarNotificacaoParaUsuario(mentoria.professorId!, 'Mentoria confirmada', `${session.user.name} confirmou a mentoria`, `/professor/mentorias`)
         } catch {
             toast.error('Erro ao atualizar status')
             setCarregando(false)
