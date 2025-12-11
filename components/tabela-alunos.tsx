@@ -116,75 +116,77 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
   };
 
   return (
-    <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4'>
+    <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4 h-full flex-1 justify-beetwen'>
       <div className="flex items-center max-w-md relative">
         <InputBusca
           placeholder='Buscar por E-mail'
         />
       </div>
-      <Table >
-        <TableHeader>
-          <TableRow >
-            <TableHead className='min-[1025px]:min-w-sm'>Aluno</TableHead>
-            <TableHead className='min-[1025px]:min-w-sm'>E-mail</TableHead>
-            <TableHead className='w-full'>Telefone</TableHead>
-            <TableHead className='w-full max-w-[100px] min-w-[100px] font-semibold'>Avaliações</TableHead>
-            <TableHead className='w-full max-w-[64px] min-w-[64px] font-semibold'>Média</TableHead>
-            <TableHead className="text-center">
-              <div className='flex justify-center w-full'>
-                <Ellipsis />
-              </div>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paginatedAlunos.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center py-8">
-                Nenhum aluno encontrado
-              </TableCell>
+      <div className='w-full h-full flex-1'>
+        <Table className='h-full'>
+          <TableHeader>
+            <TableRow >
+              <TableHead className='min-[1025px]:min-w-sm'>Aluno</TableHead>
+              <TableHead className='min-[1025px]:min-w-sm'>E-mail</TableHead>
+              <TableHead className='w-full'>Telefone</TableHead>
+              <TableHead className='w-full max-w-[100px] min-w-[100px] font-semibold'>Avaliações</TableHead>
+              <TableHead className='w-full max-w-[64px] min-w-[64px] font-semibold'>Média</TableHead>
+              <TableHead className="text-center">
+                <div className='flex justify-center w-full'>
+                  <Ellipsis />
+                </div>
+              </TableHead>
             </TableRow>
-          ) : (
-            paginatedAlunos.map((aluno) => (
-              <TableRow key={aluno.id}>
-                <TableCell className='flex gap-2 items-center min-[1025px]:min-w-sm'>
-                  <Avatar>
-                    <AvatarImage src={aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
-                    <AvatarFallback>{aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <span className='mt-1'>
-                    {aluno.name}
-                  </span>
-                </TableCell>
-                <TableCell className='min-[1025px]:min-w-sm'>{aluno.email}</TableCell>
-                <TableCell className='w-full'>{aluno.telefone}</TableCell>
-                <TableCell className='w-full max-w-[100px] min-w-[100px] font-semibold text-center'>
-                  {aluno.avaliacoesComoAluno.length}
-                </TableCell>
-                <TableCell className='w-full max-w-[64px] min-w-[64px] font-semibold text-center'>
-                  {calcularMedia(aluno.avaliacoesComoAluno)}
-                </TableCell>
-                <TableCell className="text-center space-x-4">
-                  <Link href={`/professor/alunos/${aluno.id}`} passHref>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button size="icon">
-                          <FileCheck2 />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent className='text-card'>
-                        <p>Avaliações</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </Link>
-                  <DeleteButton onClick={() => excluirAluno(aluno.id)} />
+          </TableHeader>
+          <TableBody>
+            {paginatedAlunos.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8">
+                  Nenhum aluno encontrado
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-      <div className="flex justify-between items-center mt-4">
+            ) : (
+              paginatedAlunos.map((aluno) => (
+                <TableRow key={aluno.id}>
+                  <TableCell className='flex gap-2 items-center min-[1025px]:min-w-sm'>
+                    <Avatar>
+                      <AvatarImage src={aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
+                      <AvatarFallback>{aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <span className='mt-1'>
+                      {aluno.name}
+                    </span>
+                  </TableCell>
+                  <TableCell className='min-[1025px]:min-w-sm'>{aluno.email}</TableCell>
+                  <TableCell className='w-full'>{aluno.telefone}</TableCell>
+                  <TableCell className='w-full max-w-[100px] min-w-[100px] font-semibold text-center'>
+                    {aluno.avaliacoesComoAluno.length}
+                  </TableCell>
+                  <TableCell className='w-full max-w-[64px] min-w-[64px] font-semibold text-center'>
+                    {calcularMedia(aluno.avaliacoesComoAluno)}
+                  </TableCell>
+                  <TableCell className="text-center space-x-4">
+                    <Link href={`/professor/alunos/${aluno.id}`} passHref>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button size="icon">
+                            <FileCheck2 />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent className='text-card'>
+                          <p>Avaliações</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </Link>
+                    <DeleteButton onClick={() => excluirAluno(aluno.id)} />
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex justify-between items-center">
         <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
           {startIndex + 1} -{' '}
           {Math.min(endIndex, listaAlunos.length)} de {listaAlunos.length} resultados

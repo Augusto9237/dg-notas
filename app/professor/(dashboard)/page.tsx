@@ -77,15 +77,18 @@ export default async function Page({
     ]
 
     return (
-        <div className="w-full h-full min-h-screen">
+        <div className="w-full h-full min-h-screen relative pt-14 overflow-y-auto">
             <HeaderProfessor>
-                <h1 className="text-xl max-sm:text-lg font-bold max-[1025px]:ml-10">
-                    Olá, {session?.user.name}!
-                </h1>
+                <div className="flex flex-col max-[1025px]:ml-10">
+                    <h1 className="text-lg font-bold ">
+                        Olá, {session?.user.name}!
+                    </h1>
+                    <p className="text-xs text-muted-foreground leading-none">Dados de {mes && ano ? `${meses[Number(mes) - 1]} de ${ano}` : 'este mês'}</p>
+                </div>
                 <SeletorData />
             </HeaderProfessor>
 
-            <main className="flex flex-col gap-4 p-5">
+            <main className="flex flex-col gap-4 p-5 h-full">
                 <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
                     <CardDashboard
                         description="Média Geral"
@@ -116,7 +119,7 @@ export default async function Page({
                     />
                 </div>
 
-                <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1">
+                <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
                     <UltimasAvaliacoes temasMes={temasMes} avaliacoes={avaliacoes} />
                     <TabelaTopAlunos alunos={top10} />
                 </div>

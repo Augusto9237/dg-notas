@@ -18,9 +18,9 @@ export function AppSidebar() {
   const path = usePathname()
 
   return (
-    <Sidebar className="bg-primary">
-      <SidebarHeader>
-        <Link href="/professor" className="w-full pt-1">
+    <Sidebar className="bg-primary border-none">
+      <SidebarHeader className="max-h-16">
+        <Link href="/professor" className="w-full">
           <Logo />
         </Link>
       </SidebarHeader>

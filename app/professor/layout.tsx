@@ -54,10 +54,8 @@ export default async function RootLayout({
           <div suppressHydrationWarning>
             <AppSidebar />
           </div>
-          <SidebarInset>
-            <div className="relative">
-              {children}
-            </div>
+          <SidebarInset className="relative">
+            {children}
           </SidebarInset>
         </SidebarProvider>
         <Toaster richColors theme="light" />
