@@ -112,7 +112,7 @@ export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasPro
     try {
       await DeletarTema(id);
       setTemas(temasAnteriores => temasAnteriores.filter(tema => tema.id !== id));
-      toast.success("O tema foi excluído com sucesso");
+      toast.error("O tema foi excluído");
     } catch (error) {
       console.error("Erro ao excluir o tema:", error);
       toast.error("Ocorreu um erro ao excluir o tema");

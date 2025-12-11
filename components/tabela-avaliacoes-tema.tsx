@@ -203,7 +203,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                 )
                 }
                 <TableCell className="text-center font-semibold w-full min-w-[68px] max-w-[68px]">
-                  {avaliacao.notaFinal}
+                  {avaliacao.notaFinal.toFixed(2).replace('.', ',')}
                 </TableCell>
                 <TableCell className="w-[100px]">
                   <div className="flex gap-4 justify-center">

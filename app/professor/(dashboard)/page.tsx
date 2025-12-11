@@ -12,11 +12,8 @@ import { TabelaTopAlunos } from "@/components/tabela-top-alunos";
 import { SeletorData } from "@/components/seletor-data";
 import { calcularMediaGeral, rankearMelhoresAlunos } from "@/lib/dashboard-utils";
 import { Prisma } from "@/app/generated/prisma";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { format } from "date-fns";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { UltimasAvaliacoes } from "@/components/ultimas-avaliacoes";
+import { HeaderProfessor } from "@/components/header-professor";
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
     include: {
@@ -80,34 +77,28 @@ export default async function Page({
     ]
 
     return (
-        <div className="w-full">
-            <div className='flex justify-between items-center h-14 p-5 mt-3 gap-2 relative'>
-                <SidebarTrigger className='absolute' />
-                <div className='max-[1025px]:ml-10 overflow-hidden'>
-                    <h1 className="text-xl max-sm:text-lg font-bold">
-                        Olá, {session?.user.name}!
-                    </h1>
-                    <p className="text-xs text-muted-foreground truncate">
-                        {mes && ano ? `Dados de ${meses[Number(mes) - 1]} de ${ano}` : 'Dados do mês atual'}
-                    </p>
-                </div>
+        <div className="w-full h-full min-h-screen">
+            <HeaderProfessor>
+                <h1 className="text-xl max-sm:text-lg font-bold max-[1025px]:ml-10">
+                    Olá, {session?.user.name}!
+                </h1>
                 <SeletorData />
-            </div>
+            </HeaderProfessor>
 
             <main className="flex flex-col gap-4 p-5">
                 <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
                     <CardDashboard
                         description="Média Geral"
-                        value={mediaGeral}
+                        value={mediaGeral.toFixed(2).replace('.', ',')}
                         icon={<FaChartLine size={26} />}
-                        footerText="Média geral de todos os alunos"
+                        footerText={`Média geral de ${meses[Number(mes) - 1]}`}
                     />
 
                     <CardDashboard
                         description="Total de Alunos"
                         value={alunos.length}
                         icon={<Users size={26} />}
-                        footerText="Alunos cadastrados"
+                        footerText={`Cadastrados até ${meses[Number(mes) - 1]}`}
                     />
 
                     <CardDashboard

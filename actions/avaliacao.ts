@@ -207,6 +207,8 @@ export async function DeletarTema(id: number) {
         });
 
         revalidatePath('/professor/avaliacoes')
+        revalidatePath('/professor')
+        revalidatePath('/aluno/avaliacoes')
     } catch (error) {
         console.error("Erro ao deletar tema:", error);
         throw error;

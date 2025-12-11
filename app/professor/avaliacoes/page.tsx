@@ -7,9 +7,11 @@ import Loading from './loading';
 import { ModalCompetencias } from '@/components/modal-competencias';
 
 export default async function Page() {
-  const temas = await ListarTemas()
-  const criterios = await ListarCriterios()
-  const avaliacoes = await ListarAvaliacoes()
+  const [temas, criterios, avaliacoes] = await Promise.all([
+    ListarTemas(),
+    ListarCriterios(),
+    ListarAvaliacoes()
+  ]);
 
   return (
     <Suspense fallback={<Loading />}>
@@ -33,4 +35,3 @@ export default async function Page() {
     </Suspense>
   );
 }
-
