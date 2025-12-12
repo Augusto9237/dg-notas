@@ -3,14 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { CalendarX, ChevronDown, Loader2 } from "lucide-react";
+import { CalendarX } from "lucide-react";
 import { DiaSemana, Prisma, SlotHorario, User } from "@/app/generated/prisma";
 import { AgendarMentoriaAluno } from "./agendar-mentoria-aluno";
 import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useState } from "react";
 import { ModalFeedbackMentoria } from "./modal-feedback-mentoria";
 
@@ -20,26 +19,18 @@ type Mentoria = Prisma.MentoriaGetPayload<{
             include: {
                 slot: true
             }
-        }
+        },
+        professor: true
     };
 }>;
 
 interface CardMentoriaProps {
     mentoria: Mentoria;
-    aluno?: User | null;
     diasSemana: DiaSemana[]
     slotsHorario: SlotHorario[]
-    professor: {
-        nome: string;
-        email: string;
-        telefone: string | null;
-        especialidade: string | null;
-        bio: string | null;
-        image: string | null;
-    } | null
 }
 
-export function CardMentoria({ diasSemana, slotsHorario, mentoria, aluno, professor }: CardMentoriaProps) {
+export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentoriaProps) {
     const [open, setOpen] = useState(false);
     const [carregando, setCarregando] = useState(false);
 
@@ -83,12 +74,12 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria, aluno, profes
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <Avatar className="border-2 border-primary size-10">
-                                <AvatarImage src={professor?.image || ''} style={{ objectFit: 'cover' }} />
-                                <AvatarFallback>{professor?.nome?.slice(0, 2)}</AvatarFallback>
+                                <AvatarImage src={mentoria.professor?.image || ''} style={{ objectFit: 'cover' }} />
+                                <AvatarFallback>{mentoria.professor?.name?.slice(0, 2)}</AvatarFallback>
                             </Avatar>
                             <div className="space-y-1">
                                 <h3 className="font-medium text-sm">
-                                    {professor?.nome}
+                                    {mentoria.professor?.name}
                                 </h3>
                                 <p className="text-xs text-muted-foreground">
                                     {formartarData(mentoria.horario.data)} - {mentoria.horario.slot.nome}
@@ -114,7 +105,7 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria, aluno, profes
                     <ModalFeedbackMentoria feedback={mentoria.feedback ?? ''} />
                 ) : (
                     <div className="gap-5 overflow-hidden grid grid-cols-2 w-full">
-                        <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" diasSemana={diasSemana} slotsHorario={slotsHorario} />
+                        <AgendarMentoriaAluno professorId={mentoria.professorId || ''} mentoriaData={mentoria} mode="edit" diasSemana={diasSemana} slotsHorario={slotsHorario} />
                         <Button
                             size="sm"
                             variant='ghost'
