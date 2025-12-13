@@ -204,7 +204,7 @@ export function AgendarMentoriaAluno({
 
     // Memoizar função de submit
     const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
-        if (!professorId && !session?.user.id) return
+        if (!professorId || !session?.user.id) return
         try {
             if (mode === 'edit' && mentoriaData) {
                 await editarMentoria({
@@ -218,7 +218,7 @@ export function AgendarMentoriaAluno({
                 const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === values.data.getDay())?.id || 0;
                 await adicionarMentoria({
                     professorId,
-                    alunoId: session?.user.id!,
+                    alunoId: session.user.id,
                     data: values.data,
                     slotId: Number(values.horario),
                     diaSemanaId: diaSemanaIdCalculado,
@@ -228,13 +228,13 @@ export function AgendarMentoriaAluno({
             toast.success(message);
             form.reset();
             setOpen(false);
-            setIsOpen && setIsOpen(false)
+            setIsOpen?.(false)
             await enviarNotificacaoParaUsuario(professorId, 'Mentoria agendada', `${session?.user.name} ${mode === 'edit' ? 'reagendou' : 'agendou'} uma mentoria`, `/professor/mentorias`)
         } catch (error) {
             toast.error('Algo deu errado, tente novamente');
             console.error(`Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria:`, error);
         }
-    }, [mode, mentoriaData, session?.user.id, diasSemana, form, setIsOpen]);
+    }, [mode, mentoriaData, session?.user.id, session?.user.name, diasSemana, form, setIsOpen, professorId]);
 
     return (
         <Dialog open={open} onOpenChange={setOpen} >
