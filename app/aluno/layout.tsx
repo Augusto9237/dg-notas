@@ -11,7 +11,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ProvedorAluno } from '@/context/provedor-aluno';
 import { FormularioTelefone } from '@/components/formulario-telefone';
-import { NotificationInitializer } from '@/components/notification-initializer';
+import { IncializarNotificacoes } from '@/components/inicializar-notificacoes';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -50,7 +50,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 className={`${poppins.className} antialiased`}
             >
                 <ProvedorAluno>
-                    <NotificationInitializer />
+                    <IncializarNotificacoes />
                     <FormularioTelefone user={session.user} />
                     <main>{children}</main>
                     <FooterAluno />

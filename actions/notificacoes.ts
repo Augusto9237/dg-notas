@@ -1,5 +1,6 @@
 'use server'
 import { prisma } from "@/lib/prisma";
+import { sendNotifications } from "@/lib/fcm-helper";
 
 /**
  * Salva ou atualiza um token FCM para um usuário
@@ -117,27 +118,9 @@ export async function enviarNotificacaoParaTodos(
             return { successCount: 0, failureCount: 0, totalTokens: 0 };
         }
 
-        // Envia notificação para a API
-        const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/send-notification`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                tokens: tokens,
-                title: title,
-                message: message,
-                link: link,
-            }),
-        });
+        const result = await sendNotifications(tokens, title, message, link);
 
-        if (!response.ok) {
-            throw new Error('Falha ao enviar notificações');
-        }
-
-        const result = await response.json();
-
-        // Remove tokens inválidos se retornados pela API
+        // Remove tokens inválidos se retornados
         if (result.invalidTokens && result.invalidTokens.length > 0) {
             await prisma.fcmToken.deleteMany({
                 where: {
@@ -149,9 +132,9 @@ export async function enviarNotificacaoParaTodos(
         }
 
         return {
-            successCount: result.successCount || 0,
-            failureCount: result.failureCount || 0,
-            totalTokens: tokens.length,
+            successCount: result.successCount,
+            failureCount: result.failureCount,
+            totalTokens: result.totalTokens,
         };
     } catch (error) {
         console.error('Erro ao enviar notificações:', error);
@@ -177,27 +160,9 @@ export async function enviarNotificacaoParaUsuario(
             return { successCount: 0, failureCount: 0, totalTokens: 0 };
         }
 
-        // Envia notificação para a API
-        const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/send-notification`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                tokens: tokens,
-                title: title,
-                message: message,
-                link: link,
-            }),
-        });
+        const result = await sendNotifications(tokens, title, message, link);
 
-        if (!response.ok) {
-            throw new Error('Falha ao enviar notificações');
-        }
-
-        const result = await response.json();
-
-        // Remove tokens inválidos se retornados pela API
+        // Remove tokens inválidos se retornados
         if (result.invalidTokens && result.invalidTokens.length > 0) {
             await prisma.fcmToken.deleteMany({
                 where: {
@@ -209,9 +174,9 @@ export async function enviarNotificacaoParaUsuario(
         }
 
         return {
-            successCount: result.successCount || 0,
-            failureCount: result.failureCount || 0,
-            totalTokens: tokens.length,
+            successCount: result.successCount,
+            failureCount: result.failureCount,
+            totalTokens: result.totalTokens,
         };
     } catch (error) {
         console.error('Erro ao enviar notificações para usuário:', error);

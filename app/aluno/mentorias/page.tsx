@@ -25,6 +25,8 @@ export default async function Page() {
         obterProfessor()
     ])
 
+    console.log("mentorias", mentorias)
+
     if (!professor) {
         return (
             <div className="w-full">

@@ -10,6 +10,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
+import { IncializarNotificacoes } from "@/components/inicializar-notificacoes";
 
 const poppins = Poppins({
   weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -50,6 +51,7 @@ export default async function RootLayout({
       <body
         className={`${poppins.className} antialiased`}
       >
+        <IncializarNotificacoes />
         <SidebarProvider>
           <div suppressHydrationWarning>
             <AppSidebar />

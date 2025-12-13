@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 
 // Tipos para os parâmetros da função
 interface AdicionarMentoriaParams {
+  professorId: string;
   alunoId: string;
   data: Date;
   slotId: number; // ID do SlotHorario
@@ -78,7 +79,7 @@ export async function editarSlotsHorario(id: number, status: boolean) {
 export async function adicionarMentoria(
   params: AdicionarMentoriaParams
 ): Promise<AdicionarMentoriaResult> {
-  const { alunoId, data, slotId, diaSemanaId, duracao = 20 } = params;
+  const { professorId, alunoId, data, slotId, diaSemanaId, duracao = 20 } = params;
 
   try {
     // Normalizar a data para evitar problemas com fuso horário
@@ -110,7 +111,7 @@ export async function adicionarMentoria(
       include: {
         mentorias: {
           where: {
-            status: StatusMentoria.AGENDADA // Só contar mentorias ativas
+            status: StatusMentoria.AGENDADA || StatusMentoria.CONFIRMADA // Só contar mentorias ativas
           }
         }
       }
@@ -164,6 +165,7 @@ export async function adicionarMentoria(
     // Criar a nova mentoria
     const novaMentoria = await prisma.mentoria.create({
       data: {
+        professorId: professorId,
         alunoId: alunoId,
         horarioId: horario.id,
         duracao: duracao,
@@ -434,9 +436,10 @@ export async function listarMentoriasAluno(alunoId: string) {
       include: {
         horario: {
           include: {
-            slot: true
+            slot: true // Garante que o objeto slot completo seja incluído
           }
-        }
+        },
+        professor: true // Garante que o objeto professor completo seja incluído, se professorId não for nulo
       },
       orderBy: {
         createdAt: 'asc'

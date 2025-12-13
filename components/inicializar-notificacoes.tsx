@@ -9,7 +9,7 @@ import useFcmToken from "@/hooks/useFcmToken"
  * 2. Obtém o token FCM do Firebase
  * 3. Salva o token no banco de dados com informações do dispositivo
  */
-export function NotificationInitializer() {
+export function IncializarNotificacoes() {
     // O hook cuida de tudo automaticamente!
     // Você não precisa fazer nada com o retorno, a menos que queira mostrar o status
     const { token, notificationPermissionStatus } = useFcmToken()

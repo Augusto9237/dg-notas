@@ -12,7 +12,8 @@ type Mentoria = Prisma.MentoriaGetPayload<{
             include: {
                 slot: true
             }
-        }
+        },
+        professor: true
     };
 }>;
 
@@ -50,7 +51,7 @@ export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorari
                 </div>
             ) : (
                 mentorias.map((mentoria) => (
-                    <CardMentoria key={mentoria.id} mentoria={mentoria} diasSemana={diasSemana} slotsHorario={slotsHorario} professor={professor} />
+                    <CardMentoria key={mentoria.id} mentoria={mentoria} diasSemana={diasSemana} slotsHorario={slotsHorario} />
                 ))
             )}
         </div>

@@ -204,6 +204,7 @@ export function AgendarMentoriaAluno({
 
     // Memoizar função de submit
     const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
+        if (!professorId && !session?.user.id) return
         try {
             if (mode === 'edit' && mentoriaData) {
                 await editarMentoria({
@@ -216,7 +217,8 @@ export function AgendarMentoriaAluno({
             } else {
                 const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === values.data.getDay())?.id || 0;
                 await adicionarMentoria({
-                    alunoId: session?.user.id || "user_123",
+                    professorId,
+                    alunoId: session?.user.id!,
                     data: values.data,
                     slotId: Number(values.horario),
                     diaSemanaId: diaSemanaIdCalculado,
