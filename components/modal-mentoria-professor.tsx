@@ -278,7 +278,14 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
                                                 </div>
                                             ) : (
                                                 <div className="grid grid-cols-2 gap-4 w-full">
-                                                    <AgendarMentoriaAluno mentoriaData={mentoria} mode="edit" size='default' diasSemana={diasSemana} slotsHorario={slotsHorario} />
+                                                    <AgendarMentoriaAluno
+                                                        mentoriaData={mentoria}
+                                                        mode="edit"
+                                                        size='default'
+                                                        diasSemana={diasSemana}
+                                                        slotsHorario={slotsHorario}
+                                                        professorId={mentoria.professorId ?? ''}
+                                                    />
                                                     <Button
                                                         variant="destructive"
                                                         className="w-full"
