@@ -8,135 +8,168 @@ import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { salvarFcmToken } from "@/actions/notificacoes";
 
-async function getNotificationPermissionAndToken() {
-  // Step 1: Check if Notifications are supported in the browser.
+async function obterPermissaoETokenNotificacao() {
+  // Passo 1: Verificar se as notificações são suportadas no navegador
   if (!("Notification" in window)) {
-    console.info("This browser does not support desktop notification");
+    console.info("Este navegador não suporta notificações desktop");
     return null;
   }
 
-  // Step 2: Check if permission is already granted.
+  // Passo 2: Verificar se a permissão já foi concedida
   if (Notification.permission === "granted") {
+    console.log("✅ Permissão já concedida, buscando token...");
     return await fetchToken();
   }
 
-  // Step 3: If permission is not denied, request permission from the user.
+  // Passo 3: Se a permissão não foi negada, solicitar permissão do usuário
   if (Notification.permission !== "denied") {
-    const permission = await Notification.requestPermission();
-    if (permission === "granted") {
+    console.log("🔔 Solicitando permissão de notificação...");
+    const permissao = await Notification.requestPermission();
+    if (permissao === "granted") {
+      console.log("✅ Permissão concedida, buscando token...");
       return await fetchToken();
     }
   }
 
-  console.log("Notification permission not granted.");
+  console.log("❌ Permissão de notificação não concedida.");
   return null;
 }
 
-const useFcmToken = () => {
-  const router = useRouter(); // Initialize the router for navigation.
-  const { data: session } = authClient.useSession(); // Get user session for saving token to DB
-  const [notificationPermissionStatus, setNotificationPermissionStatus] =
-    useState<NotificationPermission | null>(null); // State to store the notification permission status.
-  const [token, setToken] = useState<string | null>(null); // State to store the FCM token.
-  const retryLoadToken = useRef(0); // Ref to keep track of retry attempts.
-  const isLoading = useRef(false); // Ref to keep track if a token fetch is currently in progress.
-  const tokenSaved = useRef(false); // Track if token was saved to prevent duplicate saves
+const useTokenFcm = () => {
+  const roteador = useRouter();
+  const { data: sessao } = authClient.useSession();
+  const [statusPermissaoNotificacao, setStatusPermissaoNotificacao] =
+    useState<NotificationPermission | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const tentativasCarregarToken = useRef(0);
+  const estaCarregando = useRef(false);
+  const tokenSalvo = useRef(false);
 
-  const loadToken = async () => {
-    // Step 4: Prevent multiple fetches if already fetched or in progress.
-    if (isLoading.current) return;
-
-    isLoading.current = true; // Mark loading as in progress.
-    const token = await getNotificationPermissionAndToken(); // Fetch the token.
-
-    // Step 5: Handle the case where permission is denied.
-    if (Notification.permission === "denied") {
-      setNotificationPermissionStatus("denied");
-      console.info(
-        "%cPush Notifications issue - permission denied",
-        "color: green; background: #c7c7c7; padding: 8px; font-size: 20px"
-      );
-      isLoading.current = false;
+  const carregarToken = async () => {
+    // Passo 4: Prevenir múltiplas buscas se já foi buscado ou está em progresso
+    if (estaCarregando.current) {
+      console.log("⏳ Já existe uma requisição de token em andamento...");
       return;
     }
 
-    // Step 6: Retry fetching the token if necessary. (up to 3 times)
-    // This step is typical initially as the service worker may not be ready/installed yet.
+    estaCarregando.current = true;
+    console.log("🔄 Iniciando busca de token FCM...");
+
+    const token = await obterPermissaoETokenNotificacao();
+
+    // Passo 5: Tratar o caso onde a permissão foi negada
+    if (Notification.permission === "denied") {
+      setStatusPermissaoNotificacao("denied");
+      console.info(
+        "%cProblema com Notificações Push - permissão negada",
+        "color: red; background: #ffcccc; padding: 8px; font-size: 16px"
+      );
+      estaCarregando.current = false;
+      return;
+    }
+
+    // Passo 6: Tentar buscar o token novamente se necessário (até 3 vezes)
+    // Este passo é típico inicialmente pois o service worker pode não estar pronto/instalado ainda
     if (!token) {
-      if (retryLoadToken.current >= 3) {
-        alert("Unable to load token, refresh the browser");
-        console.info(
-          "%cPush Notifications issue - unable to load token after 3 retries",
-          "color: green; background: #c7c7c7; padding: 8px; font-size: 20px"
+      if (tentativasCarregarToken.current >= 3) {
+        console.error(
+          "%cProblema com Notificações Push - impossível carregar token após 3 tentativas",
+          "color: red; background: #ffcccc; padding: 8px; font-size: 16px"
         );
-        isLoading.current = false;
+        toast.error("Não foi possível obter token de notificação. Recarregue a página.");
+        estaCarregando.current = false;
         return;
       }
 
-      retryLoadToken.current += 1;
-      console.error("An error occurred while retrieving token. Retrying...");
-      isLoading.current = false;
-      await loadToken();
+      tentativasCarregarToken.current += 1;
+      console.error(`❌ Erro ao obter token. Tentativa ${tentativasCarregarToken.current} de 3...`);
+      estaCarregando.current = false;
+
+      // Aguarda 2 segundos antes de tentar novamente
+      await new Promise(resolver => setTimeout(resolver, 2000));
+      await carregarToken();
       return;
     }
 
-    // Step 7: Set the fetched token and mark as fetched.
-    setNotificationPermissionStatus(Notification.permission);
+    // Passo 7: Definir o token buscado e marcar como buscado
+    console.log("✅ Token FCM obtido com sucesso:", token.substring(0, 20) + "...");
+    setStatusPermissaoNotificacao(Notification.permission);
     setToken(token);
-    isLoading.current = false;
+    estaCarregando.current = false;
   };
 
   useEffect(() => {
-    // Step 8: Initialize token loading when the component mounts.
+    // Passo 8: Inicializar o carregamento do token quando o componente montar
     if ("Notification" in window) {
-      loadToken();
+      console.log("🚀 Iniciando configuração de notificações...");
+      carregarToken();
     }
   }, []);
 
-  // Step 8.5: Save token to database when available and user is authenticated
+  // Passo 8.5: Salvar token no banco de dados quando disponível e usuário estiver autenticado
   useEffect(() => {
-    const saveTokenToDatabase = async () => {
-      if (token && session?.user && !tokenSaved.current) {
-        try {
-          const deviceInfo = typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
-          await salvarFcmToken(session.user.id, token, deviceInfo);
-          tokenSaved.current = true;
-          console.log('FCM token saved to database successfully');
-        } catch (error) {
-          console.error('Failed to save FCM token to database:', error);
-          // Don't block the UI if saving fails
-        }
+    const salvarTokenNoBancoDados = async () => {
+      // Aguarda tanto o token quanto a sessão estarem disponíveis
+      if (!token) {
+        console.log("⏳ Aguardando token FCM...");
+        return;
+      }
+
+      if (!sessao?.user) {
+        console.log("⏳ Aguardando autenticação do usuário...");
+        return;
+      }
+
+      if (tokenSalvo.current) {
+        console.log("ℹ️ Token já foi salvo anteriormente");
+        return;
+      }
+
+      try {
+        console.log("💾 Salvando token FCM no banco de dados...");
+
+        const infoDispositivo = typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
+
+        await salvarFcmToken(sessao.user.id, token, infoDispositivo);
+
+        tokenSalvo.current = true;
+        console.log("✅ Token FCM salvo no banco de dados com sucesso!");
+        toast.success("Notificações ativadas com sucesso!");
+
+      } catch (erro) {
+        console.error("❌ Falha ao salvar token FCM:", erro);
+        toast.error("Erro ao ativar notificações. Tente novamente.");
       }
     };
 
-    saveTokenToDatabase();
-  }, [token, session]);
+    salvarTokenNoBancoDados();
+  }, [token, sessao]);
 
   useEffect(() => {
-    const setupListener = async () => {
-      if (!token) return; // Exit if no token is available.
+    const configurarListener = async () => {
+      if (!token) return; // Sai se nenhum token estiver disponível
 
-      console.log(`onMessage registered with token ${token}`);
-      const m = await messaging();
-      if (!m) return;
+      console.log(`👂 Listener de mensagens registrado com token`);
+      const mensageria = await messaging();
+      if (!mensageria) return;
 
-      // Step 9: Register a listener for incoming FCM messages.
-      const unsubscribe = onMessage(m, (payload) => {
+      // Passo 9: Registrar um listener para mensagens FCM recebidas
+      const cancelarInscricao = onMessage(mensageria, (cargaUtil) => {
         if (Notification.permission !== "granted") return;
 
-        console.log("Foreground push notification received:", payload);
-        const link = payload.fcmOptions?.link || payload.data?.link;
+        console.log("📬 Notificação push recebida em primeiro plano:", cargaUtil);
+        const link = cargaUtil.fcmOptions?.link || cargaUtil.data?.link;
 
         if (link) {
           toast.info(
-            `${payload.notification?.title}: ${payload.notification?.body}`,
+            `${cargaUtil.notification?.title}: ${cargaUtil.notification?.body}`,
             {
               action: {
-                label: "Visit",
+                label: "Visitar",
                 onClick: () => {
-                  const link = payload.fcmOptions?.link || payload.data?.link;
+                  const link = cargaUtil.fcmOptions?.link || cargaUtil.data?.link;
                   if (link) {
-                    router.push(link);
+                    roteador.push(link);
                   }
                 },
               },
@@ -144,49 +177,49 @@ const useFcmToken = () => {
           );
         } else {
           toast.info(
-            `${payload.notification?.title}: ${payload.notification?.body}`
+            `${cargaUtil.notification?.title}: ${cargaUtil.notification?.body}`
           );
         }
 
         // --------------------------------------------
-        // Disable this if you only want toast notifications.
-        const n = new Notification(
-          payload.notification?.title || "New message",
+        // Desabilite isso se você quiser apenas notificações toast
+        const notificacao = new Notification(
+          cargaUtil.notification?.title || "Nova mensagem",
           {
-            body: payload.notification?.body || "This is a new message",
+            body: cargaUtil.notification?.body || "Você tem uma nova mensagem",
             data: link ? { url: link } : undefined,
           }
         );
 
-        // Step 10: Handle notification click event to navigate to a link if present.
-        n.onclick = (event) => {
-          event.preventDefault();
-          const link = (event.target as any)?.data?.url;
+        // Passo 10: Tratar evento de clique na notificação para navegar para um link se presente
+        notificacao.onclick = (evento) => {
+          evento.preventDefault();
+          const link = (evento.target as any)?.data?.url;
           if (link) {
-            router.push(link);
+            roteador.push(link);
           } else {
-            console.log("No link found in the notification payload");
+            console.log("Nenhum link encontrado na carga útil da notificação");
           }
         };
         // --------------------------------------------
       });
 
-      return unsubscribe;
+      return cancelarInscricao;
     };
 
-    let unsubscribe: Unsubscribe | null = null;
+    let cancelarInscricao: Unsubscribe | null = null;
 
-    setupListener().then((unsub) => {
-      if (unsub) {
-        unsubscribe = unsub;
+    configurarListener().then((cancelar) => {
+      if (cancelar) {
+        cancelarInscricao = cancelar;
       }
     });
 
-    // Step 11: Cleanup the listener when the component unmounts.
-    return () => unsubscribe?.();
-  }, [token, router, toast]);
+    // Passo 11: Limpar o listener quando o componente desmontar
+    return () => cancelarInscricao?.();
+  }, [token, roteador]);
 
-  return { token, notificationPermissionStatus }; // Return the token and permission status.
+  return { token, statusPermissaoNotificacao }; // Retorna o token e o status da permissão
 };
 
-export default useFcmToken;
+export default useTokenFcm;

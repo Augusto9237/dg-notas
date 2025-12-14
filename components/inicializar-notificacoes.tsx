@@ -1,24 +1,22 @@
-'use client'
+// components/inicializar-notificacoes.tsx
+'use client';
 
-import useFcmToken from "@/hooks/useFcmToken"
 
-/**
- * Componente que inicializa notificações push para o aluno
- * O hook useFcmToken automaticamente:
- * 1. Solicita permissão de notificações ao usuário
- * 2. Obtém o token FCM do Firebase
- * 3. Salva o token no banco de dados com informações do dispositivo
- */
+import useTokenFcm from '@/hooks/useFcmToken';
+import { useEffect } from 'react';
+
 export function IncializarNotificacoes() {
-    // O hook cuida de tudo automaticamente!
-    // Você não precisa fazer nada com o retorno, a menos que queira mostrar o status
-    const { token, notificationPermissionStatus } = useFcmToken()
+    const { token, statusPermissaoNotificacao } = useTokenFcm();
 
-    // Opcional: Mostrar algum indicador visual
-    // if (notificationPermissionStatus === 'denied') {
-    //   return <div className="text-xs text-muted-foreground">Notificações desabilitadas</div>
-    // }
+    useEffect(() => {
+        if (token) {
+            console.log('✅ Notificações inicializadas com token:', token.substring(0, 20) + '...');
+        }
 
-    // Este componente não renderiza nada visualmente, apenas inicializa o sistema
-    return null
+        if (statusPermissaoNotificacao === 'denied') {
+            console.warn('⚠️ Usuário negou permissão para notificações');
+        }
+    }, [token, statusPermissaoNotificacao]);
+
+    return null; // Componente invisível
 }
