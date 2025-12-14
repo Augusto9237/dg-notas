@@ -134,8 +134,6 @@ const useTokenFcm = () => {
 
         tokenSalvo.current = true;
         console.log("✅ Token FCM salvo no banco de dados com sucesso!");
-        toast.success("Notificações ativadas com sucesso!");
-
       } catch (erro) {
         console.error("❌ Falha ao salvar token FCM:", erro);
         toast.error("Erro ao ativar notificações. Tente novamente.");
