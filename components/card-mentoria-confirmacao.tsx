@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useState } from "react";
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
 import { authClient } from "@/lib/auth-client";
+import clsx from "clsx";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -82,7 +83,10 @@ export function CardMentoriaConfirmacao({ mentoria, professor }: CardMentoriaPro
 
     return (
         <Card
-            className="cursor-pointer bg-secondary/10 border-secondary hover:shadow-md transition-shadow p-0 gap-2 relative"
+            className={clsx(
+                "cursor-pointer  border-secondary hover:shadow-md transition-shadow p-0 gap-2 relative",
+                mentoria.status === "CONFIRMADA" ? "bg-primary/5 border-primary/5" : 'bg-secondary/10'
+            )}
         >
             <CardContent className="p-4">
                 <div className="flex justify-between items-start">
@@ -103,7 +107,7 @@ export function CardMentoriaConfirmacao({ mentoria, professor }: CardMentoriaPro
                         </div>
                     </div>
                     <Badge
-                        variant='secondary'
+                        variant={mentoria.status === "CONFIRMADA" ? "default" : "secondary"}
                     >
                         Hoje
                     </Badge>
@@ -117,12 +121,12 @@ export function CardMentoriaConfirmacao({ mentoria, professor }: CardMentoriaPro
                     size="sm"
                     className="w-full"
                     onClick={() => atualizarStatusDaMentoria('CONFIRMADA')}
-                    disabled={carregando}
+                    disabled={carregando || mentoria.status === "CONFIRMADA"}
                     variant={carregando ? 'outline' : 'default'}
                 >
 
                     <CalendarCheck />
-                    Confirmar
+                    {mentoria.status === "CONFIRMADA" ? "Confirmada" : "Confirmar"}
                 </Button>
             </CardFooter>
         </Card >

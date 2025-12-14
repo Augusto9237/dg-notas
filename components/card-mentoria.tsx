@@ -10,8 +10,9 @@ import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/ment
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ModalFeedbackMentoria } from "./modal-feedback-mentoria";
+import { obterUrlImagem } from "@/lib/obter-imagem";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -33,6 +34,22 @@ interface CardMentoriaProps {
 export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentoriaProps) {
     const [open, setOpen] = useState(false);
     const [carregando, setCarregando] = useState(false);
+
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function fetchImage() {
+            if (mentoria.professor?.image) {
+                try {
+                    const url = await obterUrlImagem(mentoria.professor.image)
+                    setAvatarUrl(url)
+                } catch (error) {
+                    console.error("Erro ao carregar imagem:", error)
+                }
+            }
+        }
+        fetchImage()
+    }, [mentoria.professor?.image])
 
     async function excluirMentoria(id: number) {
         try {
@@ -74,7 +91,7 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentori
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <Avatar className="border-2 border-primary size-10">
-                                <AvatarImage src={mentoria.professor?.image || ''} style={{ objectFit: 'cover' }} />
+                                <AvatarImage src={avatarUrl || ''} style={{ objectFit: 'cover' }} />
                                 <AvatarFallback>{mentoria.professor?.name?.slice(0, 2)}</AvatarFallback>
                             </Avatar>
                             <div className="space-y-1">

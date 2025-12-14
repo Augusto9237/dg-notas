@@ -55,7 +55,7 @@ export default async function Page() {
     const hojeDia = brasilTime.getDate()
 
     const mentoriasDoDia = mentorias.filter((mentoria) => {
-        if (mentoria.status !== "AGENDADA") return false
+        if (mentoria.status !== "AGENDADA" && mentoria.status !== 'CONFIRMADA') return false
 
         // Database stores dates at midnight UTC, which represents the correct day
         // So we compare using UTC date components, not local time
