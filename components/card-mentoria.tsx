@@ -13,6 +13,8 @@ import { ptBR } from "date-fns/locale";
 import { useState, useEffect } from "react";
 import { ModalFeedbackMentoria } from "./modal-feedback-mentoria";
 import { obterUrlImagem } from "@/lib/obter-imagem";
+import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
+import { authClient } from "@/lib/auth-client";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -32,6 +34,7 @@ interface CardMentoriaProps {
 }
 
 export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentoriaProps) {
+    const { data: session } = authClient.useSession();
     const [open, setOpen] = useState(false);
     const [carregando, setCarregando] = useState(false);
 
@@ -52,9 +55,16 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentori
     }, [mentoria.professor?.image])
 
     async function excluirMentoria(id: number) {
+        const aluno = session?.user
+
+        if (!aluno) {
+            toast.error('Erro ao excluir mentoria')
+            return
+        }
         try {
             await excluirMentoriaECascata(id)
-            toast.success('Mentoria excluída com sucesso')
+            toast.error('Mentoria cancelada')
+            await enviarNotificacaoParaUsuario(mentoria.professorId!, 'Mentoria cancelada', `${aluno.name} cancelou a mentoria marcada para ${formartarData(mentoria.horario.data)} às ${mentoria.horario.slot.nome}`)
         } catch {
             toast.error('Erro ao excluir mentoria')
         }
@@ -71,18 +81,6 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentori
         return format(dataLocal, "dd/MM/yyyy", { locale: ptBR });
     }
 
-    async function atualizarStatusDaMentoria(status: "AGENDADA" | "REALIZADA") {
-        setCarregando(true)
-        try {
-            await atualizarStatusMentoria(mentoria.id, status)
-            setOpen(false)
-            toast.success('Status atualizado com sucesso')
-            setCarregando(false)
-        } catch {
-            toast.error('Erro ao atualizar status')
-            setCarregando(false)
-        }
-    }
 
     return (
         <Card className="p-0 gap-2">

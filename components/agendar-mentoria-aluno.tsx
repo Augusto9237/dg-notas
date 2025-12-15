@@ -30,6 +30,7 @@ import { toast } from "sonner"
 import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma"
 import clsx from "clsx"
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes"
+import { format } from "date-fns"
 
 const formSchema = z.object({
     data: z.date({
@@ -202,6 +203,17 @@ export function AgendarMentoriaAluno({
         return !diasPermitidos.includes(dayOfWeek)
     }, [diasPermitidos]);
 
+    function formartarData(data: Date) {
+        // Converter a data UTC para uma data local sem problemas de fuso horário
+        const dataUTC = new Date(data);
+        const dataLocal = new Date(
+            dataUTC.getUTCFullYear(),
+            dataUTC.getUTCMonth(),
+            dataUTC.getUTCDate()
+        );
+        return format(dataLocal, "dd/MM/yyyy", { locale: ptBR });
+    }
+
     // Memoizar função de submit
     const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
         if (!professorId || !session?.user.id) return
@@ -229,7 +241,7 @@ export function AgendarMentoriaAluno({
             form.reset();
             setOpen(false);
             setIsOpen?.(false)
-            await enviarNotificacaoParaUsuario(professorId, 'Mentoria agendada', `${session?.user.name} ${mode === 'edit' ? 'reagendou' : 'agendou'} uma mentoria`, `/professor/mentorias`)
+            await enviarNotificacaoParaUsuario(professorId, 'Mentoria agendada', `${session?.user.name} ${mode === 'edit' ? 'reagendou' : 'agendou'} uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `/professor/mentorias`)
         } catch (error) {
             toast.error('Algo deu errado, tente novamente');
             console.error(`Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria:`, error);

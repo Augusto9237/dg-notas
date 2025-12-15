@@ -8,6 +8,7 @@ interface NotificationResult {
     totalTokens: number;
     error?: string;
     responses?: admin.messaging.SendResponse[];
+    invalidTokens?: string[];
 }
 
 export async function sendNotifications(
@@ -83,12 +84,28 @@ export async function sendNotifications(
             total: tokens.length,
         });
 
+        // Identifica tokens inválidos para remoção
+        const invalidTokens: string[] = [];
+        if (response.responses && response.responses.length > 0) {
+            response.responses.forEach((resp, index) => {
+                if (!resp.success && resp.error && (
+                    resp.error.code === 'messaging/registration-token-not-registered' ||
+                    resp.error.code === 'messaging/invalid-registration-token'
+                )) {
+                    if (tokens[index]) {
+                        invalidTokens.push(tokens[index]);
+                    }
+                }
+            });
+        }
+
         return {
             success: response.failureCount === 0,
             successCount: response.successCount,
             failureCount: response.failureCount,
             totalTokens: tokens.length,
             responses: response.responses,
+            invalidTokens: invalidTokens,
         };
     } catch (error) {
         console.error('❌ Erro ao enviar notificações:', error);
