@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import Loading from './loading';
 import { ModalCompetencias } from '@/components/modal-competencias';
+import { HeaderProfessor } from '@/components/header-professor';
 
 export default async function Page() {
   const [temas, criterios, avaliacoes] = await Promise.all([
@@ -15,9 +16,8 @@ export default async function Page() {
 
   return (
     <Suspense fallback={<Loading />}>
-      <div className="w-full">
-        <div className='flex justify-between items-center h-14 p-5 mt-3 relative'>
-          <SidebarTrigger className='absolute' />
+      <div className="w-full h-full min-h-screen relative pt-14 overflow-y-auto">
+        <HeaderProfessor>
           <div className="max-[1025px]:pl-10">
             <h1 className=" text-xl font-bold">Avaliações</h1>
             <p className="text-xs text-muted-foreground max-sm:leading-none">Lista de avaliações</p>
@@ -26,9 +26,9 @@ export default async function Page() {
             <ModalCompetencias criterios={criterios} />
             <FormularioTema />
           </div>
-        </div>
+        </HeaderProfessor>
 
-        <main className="flex flex-col p-5">
+        <main className="flex flex-col p-5 h-full">
           <TabelaTemas temas={temas} avaliacoes={avaliacoes} />
         </main>
       </div>

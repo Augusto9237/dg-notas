@@ -6,6 +6,7 @@ import Loading from './loading';
 import { InputBusca } from '@/components/input-busca';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { calcularMedia } from '@/lib/media-geral';
+import { HeaderProfessor } from '@/components/header-professor';
 
 export default async function Page({
   params,
@@ -42,9 +43,8 @@ export default async function Page({
 
   return (
     <Suspense fallback={<Loading />}>
-      <div className="w-full">
-        <div className='flex justify-between items-center h-14 p-5 mt-3 gap-2 relative'>
-          <SidebarTrigger className='absolute' />
+      <div className="w-full h-full min-h-screen relative pt-14 overflow-y-auto">
+        <HeaderProfessor>
           <div className='max-[1025px]:ml-10 overflow-hidden'>
             <h1 className="text-xl max-sm:text-lg font-bold">{aluno.name}</h1>
             <p className="text-xs text-muted-foreground truncate">{aluno.email}</p>
@@ -55,7 +55,7 @@ export default async function Page({
               <p className="text-xs text-muted-foreground truncate">Média Geral</p>
             </div>
           </div>
-        </div>
+        </HeaderProfessor>
         <main className="flex flex-col gap-4 p-5">
           <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
             <InputBusca placeholder='Buscar por Tema' />

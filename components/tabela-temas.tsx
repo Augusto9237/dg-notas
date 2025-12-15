@@ -120,7 +120,7 @@ export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasPro
   }
 
   return (
-    <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
+    <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4 h-full'>
       <div className="flex items-center max-w-md relative">
         <InputBusca placeholder='Buscar por Tema' />
       </div>
