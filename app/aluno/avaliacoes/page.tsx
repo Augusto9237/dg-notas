@@ -15,9 +15,11 @@ export default async function Page() {
 
   if (session?.user) {
 
-    const avaliacoes = await ListarAvaliacoesAlunoId(session.user.id)
-    const criterios = await ListarCriterios()
-    const novosTemas = await ListarTemasDisponiveis(session.user.id)
+    const [avaliacoes, criterios, novosTemas] = await Promise.all([
+      ListarAvaliacoesAlunoId(session.user.id),
+      ListarCriterios(),
+      ListarTemasDisponiveis(session.user.id),
+    ])
 
     return (
       <div className="w-full">

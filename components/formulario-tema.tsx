@@ -73,7 +73,7 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
           const resultado = await enviarNotificacaoParaTodos(
             'user',
             'Novo tema disponível!',
-            `O tema "${novoTema.nome}" foi adicionado`,
+            `${novoTema.nome}`,
             '/aluno/avaliacoes'
           )
 

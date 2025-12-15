@@ -56,7 +56,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
         const storageRef = ref(storage, `avaliacoes/${tema.id}/${session.user.email}`);
 
         try {
-            const res = await uploadBytes(storageRef, arquivo);
+            await uploadBytes(storageRef, arquivo);
 
             await EnviarRespoastaAvaliacao(
                 session.user.id,
@@ -70,7 +70,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
             await enviarNotificacaoParaUsuario(
                 tema.professorId,
                 'Nova redação recebida!',
-                `A redação sobre o tema "${tema.nome}" foi recebida!`,
+                `Uma redação sobre o tema "${tema.nome}" foi recebida!`,
                 '/professor/avaliacoes'
             )
 
