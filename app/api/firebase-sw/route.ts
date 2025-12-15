@@ -27,7 +27,8 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: "./logo.png",
+    icon: "/Símbolo1.png", // ✅ Caminho absoluto a partir da raiz
+    badge: "/Símbolo1.png", // ✅ Badge pequeno (opcional)
     data: { url: link },
   };
   self.registration.showNotification(notificationTitle, notificationOptions);

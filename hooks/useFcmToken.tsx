@@ -145,19 +145,19 @@ const useTokenFcm = () => {
 
   useEffect(() => {
     const configurarListener = async () => {
-      if (!token) return; // Sai se nenhum token estiver disponível
+      if (!token) return;
 
       console.log(`👂 Listener de mensagens registrado com token`);
       const mensageria = await messaging();
       if (!mensageria) return;
 
-      // Passo 9: Registrar um listener para mensagens FCM recebidas
       const cancelarInscricao = onMessage(mensageria, (cargaUtil) => {
         if (Notification.permission !== "granted") return;
 
         console.log("📬 Notificação push recebida em primeiro plano:", cargaUtil);
         const link = cargaUtil.fcmOptions?.link || cargaUtil.data?.link;
 
+        // Toast do Sonner
         if (link) {
           toast.info(
             `${cargaUtil.notification?.title}: ${cargaUtil.notification?.body}`,
@@ -165,10 +165,7 @@ const useTokenFcm = () => {
               action: {
                 label: "Visitar",
                 onClick: () => {
-                  const link = cargaUtil.fcmOptions?.link || cargaUtil.data?.link;
-                  if (link) {
-                    roteador.push(link);
-                  }
+                  roteador.push(link);
                 },
               },
             }
@@ -179,27 +176,24 @@ const useTokenFcm = () => {
           );
         }
 
-        // --------------------------------------------
-        // Desabilite isso se você quiser apenas notificações toast
+        // Notificação nativa do navegador
         const notificacao = new Notification(
           cargaUtil.notification?.title || "Nova mensagem",
           {
             body: cargaUtil.notification?.body || "Você tem uma nova mensagem",
+            icon: "/Símbolo1.png", // ✅ Caminho absoluto a partir da raiz
+            badge: "/Símbolo1.png",
             data: link ? { url: link } : undefined,
           }
         );
 
-        // Passo 10: Tratar evento de clique na notificação para navegar para um link se presente
         notificacao.onclick = (evento) => {
           evento.preventDefault();
           const link = (evento.target as any)?.data?.url;
           if (link) {
             roteador.push(link);
-          } else {
-            console.log("Nenhum link encontrado na carga útil da notificação");
           }
         };
-        // --------------------------------------------
       });
 
       return cancelarInscricao;
@@ -213,7 +207,6 @@ const useTokenFcm = () => {
       }
     });
 
-    // Passo 11: Limpar o listener quando o componente desmontar
     return () => cancelarInscricao?.();
   }, [token, roteador]);
 

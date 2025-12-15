@@ -1,128 +1,117 @@
-import admin from "@/lib/firebase-admin";
-import { Message, MulticastMessage } from "firebase-admin/messaging";
+import admin from 'firebase-admin';
 
-export interface NotificationResult {
+
+interface NotificationResult {
     success: boolean;
     successCount: number;
     failureCount: number;
     totalTokens: number;
-    invalidTokens: string[];
     error?: string;
+    responses?: admin.messaging.SendResponse[];
 }
 
-/**
- * Sends FCM notifications to one or multiple tokens.
- * Handles batching and invalid token detection.
- */
 export async function sendNotifications(
-    tokens: string | string[],
+    tokens: string[],
     title: string,
-    message: string,
-    link?: string
+    body: string,
+    link?: string,
+    imageUrl?: string
 ): Promise<NotificationResult> {
-    // Normalize tokens to array
-    const targetTokens = Array.isArray(tokens) ? tokens : [tokens];
-
-    if (!targetTokens || targetTokens.length === 0) {
+    if (!tokens || tokens.length === 0) {
         return {
             success: false,
             successCount: 0,
             failureCount: 0,
             totalTokens: 0,
-            invalidTokens: [],
-            error: "No tokens provided"
+            error: 'No tokens provided',
         };
     }
 
     try {
-        // Optimization for single token
-        if (targetTokens.length === 1) {
-            const payload: Message = {
-                token: targetTokens[0],
+        // ✅ Estrutura correta conforme o TypeScript do Firebase Admin
+        const message: admin.messaging.MulticastMessage = {
+            tokens: tokens,
+            notification: {
+                title: title,
+                body: body,
+                imageUrl: imageUrl, // Imagem grande (funciona em notification)
+            },
+            data: {
+                link: link || '',
+            },
+            webpush: {
                 notification: {
-                    title: title,
-                    body: message,
+                    icon: "/Símbolo1.png", // ✅ Ícone vai aqui (webpush.notification)
+                    badge: "/Símbolo1.png", // ✅ Badge vai aqui
+                    requireInteraction: false,
+                    tag: `notification-${Date.now()}`,
                 },
-                webpush: link ? {
-                    fcmOptions: {
-                        link,
-                    },
-                } : undefined,
-            };
-
-            await admin.messaging().send(payload);
-
-            return {
-                success: true,
-                successCount: 1,
-                failureCount: 0,
-                totalTokens: 1,
-                invalidTokens: []
-            };
-        }
-
-        // For multiple tokens, use sendEachForMulticast
-        // Note: verify if batching > 500 is needed if the list is huge, 
-        // but for now relying on the caller or basic usage. 
-        // If > 500 logic is needed, we can implement chunking here.
-        // Let's implement basic chunking for safety.
-
-        const CHUNK_SIZE = 500;
-        let successCount = 0;
-        let failureCount = 0;
-        const invalidTokens: string[] = [];
-
-        for (let i = 0; i < targetTokens.length; i += CHUNK_SIZE) {
-            const chunk = targetTokens.slice(i, i + CHUNK_SIZE);
-
-            const multicastPayload: MulticastMessage = {
-                tokens: chunk,
+                fcmOptions: {
+                    link: link || undefined,
+                },
+            },
+            android: {
                 notification: {
-                    title: title,
-                    body: message,
+                    imageUrl: imageUrl,
+                    defaultSound: true,
+                    defaultVibrateTimings: true,
+                    // Android aceita icon como uma string de recurso do app
+                    // Para web não precisa especificar aqui
                 },
-                webpush: link ? {
-                    fcmOptions: {
-                        link,
+            },
+            apns: {
+                payload: {
+                    aps: {
+                        alert: {
+                            title: title,
+                            body: body,
+                        },
+                        sound: 'default',
                     },
-                } : undefined,
-            };
-
-            const response = await admin.messaging().sendEachForMulticast(multicastPayload);
-
-            successCount += response.successCount;
-            failureCount += response.failureCount;
-
-            response.responses.forEach((resp, idx) => {
-                if (!resp.success) {
-                    const errorCode = resp.error?.code;
-                    if (
-                        errorCode === 'messaging/invalid-registration-token' ||
-                        errorCode === 'messaging/registration-token-not-registered'
-                    ) {
-                        invalidTokens.push(chunk[idx]);
-                    }
-                }
-            });
-        }
-
-        return {
-            success: true,
-            successCount,
-            failureCount,
-            totalTokens: targetTokens.length,
-            invalidTokens,
+                },
+                fcmOptions: {
+                    imageUrl: imageUrl,
+                },
+            },
         };
 
+        const response = await admin.messaging().sendEachForMulticast(message);
+
+        console.log('✅ Notificações enviadas:', {
+            success: response.successCount,
+            failure: response.failureCount,
+            total: tokens.length,
+        });
+
+        return {
+            success: response.failureCount === 0,
+            successCount: response.successCount,
+            failureCount: response.failureCount,
+            totalTokens: tokens.length,
+            responses: response.responses,
+        };
     } catch (error) {
-        console.error('Error sending notification:', error);
+        console.error('❌ Erro ao enviar notificações:', error);
         return {
             success: false,
             successCount: 0,
-            failureCount: targetTokens.length,
-            totalTokens: targetTokens.length,
-            invalidTokens: [],
-            error: error instanceof Error ? error.message : 'Unknown error'
+            failureCount: tokens.length,
+            totalTokens: tokens.length,
+            error: error instanceof Error ? error.message : 'Unknown error',
         };
     }
+}
+
+export async function sendNotificationToToken(
+    token: string,
+    title: string,
+    body: string,
+    link?: string,
+    imageUrl?: string
+): Promise<{ success: boolean; error?: string }> {
+    const result = await sendNotifications([token], title, body, link, imageUrl);
+    return {
+        success: result.success,
+        error: result.error,
+    };
 }
