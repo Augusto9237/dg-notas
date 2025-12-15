@@ -22,9 +22,9 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { EditarCriterio} from "@/actions/avaliacao"
+import { EditarCriterio } from "@/actions/avaliacao"
 import { toast } from "sonner"
-import { Criterio, Tema } from "@/app/generated/prisma"
+import { Criterio } from "@/app/generated/prisma"
 import { EditButton } from "./ui/edit-button"
 
 
@@ -159,7 +159,7 @@ export function FormularioCriterio({ criterio }: FormularioCriterioProps) {
             <div className="flex justify-center gap-4 pt-4">
               <Button
                 type="button"
-                variant="outline"
+                variant='ghost'
                 onClick={() => {
                   form.reset()
                   setOpen(false)

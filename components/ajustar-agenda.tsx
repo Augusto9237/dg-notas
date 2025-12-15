@@ -269,7 +269,7 @@ export function AjustarAgenda({
             <div className="flex justify-center gap-4 pt-4">
               <Button
                 type="button"
-                variant="outline"
+                variant='ghost'
                 className="min-w-[100px]"
                 onClick={handleCancel}
               >

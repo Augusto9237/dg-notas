@@ -137,7 +137,7 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
             <div className="flex justify-center gap-4 pt-4">
               <Button
                 type="button"
-                variant="outline"
+                variant='ghost'
                 onClick={() => {
                   formulario.reset()
                   setEstaAberto(false)

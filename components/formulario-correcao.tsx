@@ -274,7 +274,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
               <div className="flex justify-center gap-4">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   onClick={() => setIsOpen(false)}
                   className={clsx(form.formState.isSubmitting ? 'animate-fade-left animate-once hidden' : "min-w-[100px]")}
                 >

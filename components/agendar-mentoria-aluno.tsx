@@ -331,7 +331,7 @@ export function AgendarMentoriaAluno({
                             <div className={clsx(form.formState.isSubmitting ? 'animate-fade-left animate-once hidden' : "w-full flex md:justify-end")}>
                                 <Button
                                     type="button"
-                                    variant="outline"
+                                    variant='ghost'
                                     className="w-full md:max-w-[100px]"
                                     onClick={() => {
                                         form.reset()
