@@ -278,7 +278,7 @@ export function CalendarioGrande({
   return (
     <Card className="flex flex-col p-5 gap-4 h-full flex-1">
       <CardHeader className="grid grid-cols-3 p-0">
-        <div className="bg-red-500">
+        <div>
           <Button
             variant='ghost'
             onClick={irParaSemanaAtual}
@@ -289,7 +289,7 @@ export function CalendarioGrande({
           </Button>
         </div>
 
-        <div className="flex justify-center items-center gap-4 bg-blue-500">
+        <div className="flex justify-center items-center gap-4">
           <Button
             variant="ghost"
             size="icon"
@@ -311,7 +311,7 @@ export function CalendarioGrande({
           </Button>
         </div>
 
-        <div className="bg-yellow-500 flex justify-end">
+        <div className="flex justify-end">
           <Select value={statusSelecionado} onValueChange={alterarStatus}>
             <SelectTrigger className="w-full md:min-w-fit max-w-[100px] max-md:max-w-[120px]">
               <SelectValue placeholder="Filtrar por Status" />
