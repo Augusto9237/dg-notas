@@ -29,6 +29,7 @@ import React from "react"
 import { ModalMentoriaProfessor } from "./modal-mentoria-professor"
 import { excluirMentoriaECascata } from "@/actions/mentoria"
 import { toast } from "sonner"
+import { array } from "zod"
 
 // Types
 type Mentoria = Prisma.MentoriaGetPayload<{
@@ -127,7 +128,7 @@ const CelulaHorario = React.memo(
     return (
       <div
         className={cn(
-          "h-44 max-[1025px]:h-80 max-sm:h-42 p-2 bg-card hover:bg-muted/20 transition-colors",
+          "p-2 hover:bg-muted/20 transition-colors",
           "grid grid-cols-2 max-[1025px]:grid-cols-1 grid-rows-2 max-[1025px]:grid-rows-4 gap-2 max-sm:gap-1",
           "overflow-hidden",
           eSegunda && "border-r border-border",
@@ -138,11 +139,10 @@ const CelulaHorario = React.memo(
           <Skeleton className="w-full h-full col-span-full row-span-full bg-background" />
         ) : (
           <>
-            {mentoriasDoSlot.length === 0 && (
-              <div className="col-span-full flex items-center justify-center text-muted-foreground text-xs">
-                Livre
+            {mentoriasDoSlot.length === 0 && Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="flex items-center justify-center text-muted-foreground text-xs max-sm:h-9 sm:min-h-[50px] h-full bg-background/30 rounded-lg">
               </div>
-            )}
+            ))}
             {mentoriasDoSlot.map((mentoria) => (
               <ModalMentoriaProfessor key={mentoria.id} mentoria={mentoria} setListaMentorias={setListaMentorias} diasSemana={diasSemana} slotsHorario={slotsHorario} />
             ))}
@@ -165,13 +165,9 @@ export function CalendarioGrande({
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>(mentorias)
   const [carregando, setCarregando] = useState(false)
 
-  // Constante para horário limite de exclusão automática
+
   const HORA_LIMITE_EXCLUSAO = 17
 
-  /**
-   * Exclui automaticamente mentorias agendadas do dia atual após o horário limite
-   * Executa quando o componente é montado ou quando as mentorias mudam
-   */
   useEffect(() => {
     const agora = new Date()
 
@@ -266,19 +262,34 @@ export function CalendarioGrande({
     setStatusSelecionado(valor)
   }
 
+  const gridColsClass = useMemo(() => {
+    const classMap: { [key: number]: string } = {
+      1: 'grid-cols-[80px_1fr]',
+      2: 'grid-cols-[80px_1fr_1fr]',
+      3: 'grid-cols-[80px_1fr_1fr_1fr]',
+      4: 'grid-cols-[80px_1fr_1fr_1fr_1fr]',
+      5: 'grid-cols-[80px_1fr_1fr_1fr_1fr_1fr]',
+      6: 'grid-cols-[80px_1fr_1fr_1fr_1fr_1fr_1fr]',
+      7: 'grid-cols-[80px_1fr_1fr_1fr_1fr_1fr_1fr_1fr]',
+    };
+    return classMap[diasSemanaAtivos.length] || '';
+  }, [diasSemanaAtivos.length]);
+
   return (
     <Card className="flex flex-col p-5 gap-4 h-full flex-1">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
-        <Button
-          variant='ghost'
-          onClick={irParaSemanaAtual}
-          className="text-xs max-sm:hidden"
-          disabled={eSemanaAtual}
-        >
-          Semana Atual
-        </Button>
+      <CardHeader className="grid grid-cols-3 p-0">
+        <div className="bg-red-500">
+          <Button
+            variant='ghost'
+            onClick={irParaSemanaAtual}
+            className="text-xs max-sm:hidden"
+            disabled={eSemanaAtual}
+          >
+            Semana Atual
+          </Button>
+        </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex justify-center items-center gap-4 bg-blue-500">
           <Button
             variant="ghost"
             size="icon"
@@ -287,7 +298,7 @@ export function CalendarioGrande({
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <CardTitle className="capitalize text-lg max-md:text-base max-sm:text-sm">
+          <CardTitle className="capitalize max-md:text-base max-sm:text-sm">
             {formatarMesAno(Object.values(diasDaSemana)[0] || semanaAtual)}
           </CardTitle>
           <Button
@@ -300,23 +311,24 @@ export function CalendarioGrande({
           </Button>
         </div>
 
-        <Select value={statusSelecionado} onValueChange={alterarStatus}>
-          <SelectTrigger className="w-full md:min-w-fit max-w-[200px] max-md:max-w-[120px]">
-            <SelectValue placeholder="Filtrar por Status" />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPCOES.map((status) => (
-              <SelectItem key={status.value} value={status.value}>
-                {status.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="bg-yellow-500 flex justify-end">
+          <Select value={statusSelecionado} onValueChange={alterarStatus}>
+            <SelectTrigger className="w-full md:min-w-fit max-w-[100px] max-md:max-w-[120px]">
+              <SelectValue placeholder="Filtrar por Status" />
+            </SelectTrigger>
+            <SelectContent>
+              {STATUS_OPCOES.map((status) => (
+                <SelectItem key={status.value} value={status.value}>
+                  {status.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
 
       <CardContent className="h-full flex-1 overflow-hidden p-0 pb-22">
-        <div className={`grid gap-0 lg:pr-3.5 border border-border rounded-t-lg bg-background/30`}
-          style={{ gridTemplateColumns: `80px ${'1fr '.repeat(diasSemanaAtivos.length)}`.trim() }}>
+        <div className={cn('grid gap-0 border border-border rounded-t-lg bg-background/30', gridColsClass)}>
           <div className="border-r border-border p-4 px-2 text-center text-sm max-md:text-xs font-medium text-muted-foreground">
             Horário
           </div>
@@ -335,19 +347,18 @@ export function CalendarioGrande({
           ))}
         </div>
 
-        <div className={`grid gap-0 border border-border border-t-0 rounded-b-lg overflow-auto h-full flex-1`}
-          style={{ gridTemplateColumns: `80px ${'1fr '.repeat(diasSemanaAtivos.length)}`.trim() }}>
+        <div className={cn('grid gap-0 border border-border border-t-0 rounded-b-lg overflow-auto h-full flex-1', gridColsClass)}>
           {slotsHorarioAtivos.map((slot, index) => {
             const eUltimo = index === slotsHorarioAtivos.length - 1
             return (
               <React.Fragment key={slot.id}>
                 <div
                   className={cn(
-                    "border-r border-border p-2 text-sm max-md:text-xs text-muted-foreground bg-background/10 text-center flex flex-col justify-center",
+                    "border-r border-border p-2 text-sm max-md:text-xs bg-background/30 text-muted-foreground  text-center flex flex-col justify-center",
                     !eUltimo && "border-b"
                   )}
                 >
-                  <div className="font-medium">{slot.nome.split(" ")[0]}</div>
+                  <p className="font-medium">{slot.nome.split(" ")[0]}</p>
                 </div>
                 {diasSemanaAtivos.map((dia, diaIndex) => (
                   <CelulaHorario
