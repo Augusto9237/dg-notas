@@ -1,3 +1,4 @@
+import '@/lib/firebase-admin'; // Garante inicialização
 import admin from 'firebase-admin';
 
 

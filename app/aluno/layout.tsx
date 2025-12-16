@@ -50,7 +50,6 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 className={`${poppins.className} antialiased`}
             >
                 <ProvedorAluno>
-                    <IncializarNotificacoes />
                     <FormularioTelefone user={session.user} />
                     <main>{children}</main>
                     <FooterAluno />

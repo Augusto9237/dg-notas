@@ -5,6 +5,7 @@ import { ContextoAluno } from "./contexto-aluno";
 import { authClient } from "@/lib/auth-client";
 import { ListarAvaliacoesAlunoId } from "@/actions/avaliacao";
 import { listarMentoriasAluno } from "@/actions/mentoria";
+import { IncializarNotificacoes } from "@/components/inicializar-notificacoes";
 
 interface AlunoProviderProps {
     children: ReactNode
@@ -43,17 +44,18 @@ export const ProvedorAluno = ({ children }: AlunoProviderProps) => {
         }
     }, [session?.user.id]);
 
-        return (
-            <ContextoAluno.Provider value={
-                {
-                    isLoading,
-                    mediaGeral,
-                    totalRedacoes,
-                    totalMentorias,
-                    fetchAvaliacoes
-                }
-            }>
-                {children}
-            </ContextoAluno.Provider>
-        )
+    return (
+        <ContextoAluno.Provider value={
+            {
+                isLoading,
+                mediaGeral,
+                totalRedacoes,
+                totalMentorias,
+                fetchAvaliacoes
+            }
+        }>
+            <IncializarNotificacoes />
+            {children}
+        </ContextoAluno.Provider>
+    )
 }

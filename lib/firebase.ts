@@ -38,8 +38,10 @@ export const fetchToken = async () => {
       return null;
     }
 
-    // ✅ CORREÇÃO: Registra sem especificar scope (usa o padrão)
-    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    // ✅ Registra usando a API Route para injetar vars de ambiente
+    const registration = await navigator.serviceWorker.register('/api/firebase-sw', {
+      scope: '/', // Necessário pois o arquivo está em /api/
+    });
 
     console.log('✅ Service Worker registrado:', registration);
     console.log('   Scope:', registration.scope);
