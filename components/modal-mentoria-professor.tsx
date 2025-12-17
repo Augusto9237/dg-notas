@@ -269,7 +269,7 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
                                         {mentoria.status !== mentoriaData?.status ?
                                             (
                                                 <div className="grid grid-cols-2 gap-5 w-full">
-                                                    <Button variant='outline' onClick={() => setIsOpen(false)}>
+                                                    <Button variant='ghost' onClick={() => setIsOpen(false)}>
                                                         Cancelar
                                                     </Button>
                                                     <Button onClick={() => mentoriaData && atualizarStatusDaMentoria(mentoriaData.status)}>
