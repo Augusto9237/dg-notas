@@ -1,210 +1,226 @@
-'use server'
+"use server";
 import { prisma } from "@/lib/prisma";
-import { sendNotifications } from "@/lib/fcm-helper";
+import { sendWebPushNotifications } from "@/lib/webpush";
+import type { PushSubscriptionData, NotificationPayload } from "@/lib/webpush";
 
 /**
- * Salva ou atualiza um token FCM para um usuário
- * Suporta múltiplos tokens por usuário (múltiplos dispositivos)
+ * Salva ou atualiza uma subscription Web Push para um usuário
  */
-export async function salvarFcmToken(
-    userId: string,
-    token: string,
-    deviceInfo?: string
+export async function salvarPushSubscription(
+  userId: string,
+  subscription: PushSubscriptionData,
+  deviceInfo?: string,
 ): Promise<void> {
-    try {
-        // Usa upsert para criar ou atualizar o token
-        // A chave única @@unique([userId, token]) garante que não haverá duplicatas
-        await prisma.fcmToken.upsert({
-            where: {
-                userId_token: {
-                    userId: userId,
-                    token: token,
-                },
-            },
-            update: {
-                deviceInfo: deviceInfo,
-                updatedAt: new Date(),
-            },
-            create: {
-                userId: userId,
-                token: token,
-                deviceInfo: deviceInfo,
-            },
-        });
-    } catch (error) {
-        console.error('Erro ao salvar token FCM:', error);
-        throw new Error('Falha ao salvar token FCM');
-    }
+  try {
+    await prisma.pushSubscription.upsert({
+      where: {
+        userId_endpoint: {
+          userId: userId,
+          endpoint: subscription.endpoint,
+        },
+      },
+      update: {
+        p256dh: subscription.keys.p256dh,
+        auth: subscription.keys.auth,
+        deviceInfo: deviceInfo,
+        updatedAt: new Date(),
+      },
+      create: {
+        userId: userId,
+        endpoint: subscription.endpoint,
+        p256dh: subscription.keys.p256dh,
+        auth: subscription.keys.auth,
+        deviceInfo: deviceInfo,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Erro ao salvar subscription:", error);
+    throw new Error("Falha ao salvar subscription");
+  }
 }
 
 /**
- * Remove um token FCM específico
- * Útil quando usuário faz logout ou revoga permissão
+ * Remove uma subscription específica
  */
-export async function removerFcmToken(token: string): Promise<void> {
-    try {
-        await prisma.fcmToken.deleteMany({
-            where: {
-                token: token,
-            },
-        });
-    } catch (error) {
-        console.error('Erro ao remover token FCM:', error);
-        // Não lança erro pois a remoção é não crítica
-    }
+export async function removerPushSubscription(endpoint: string): Promise<void> {
+  try {
+    await prisma.pushSubscription.deleteMany({
+      where: { endpoint },
+    });
+  } catch (error) {
+    console.error("❌ Erro ao remover subscription:", error);
+  }
 }
 
 /**
- * Busca todos os tokens FCM de usuários com um determinado role
- * Retorna um array de tokens para envio de notificações
+ * Busca subscriptions por role do usuário
  */
-export async function buscarTokensPorRole(role: string): Promise<string[]> {
-    try {
-        const tokens = await prisma.fcmToken.findMany({
-            where: {
-                user: {
-                    role: role,
-                },
-            },
-            select: {
-                token: true,
-            },
-        });
+export async function buscarSubscriptionsPorRole(
+  role: string,
+): Promise<PushSubscriptionData[]> {
+  try {
+    const subs = await prisma.pushSubscription.findMany({
+      where: {
+        user: { role },
+      },
+      select: {
+        endpoint: true,
+        p256dh: true,
+        auth: true,
+      },
+    });
 
-        return tokens.map(t => t.token);
-    } catch (error) {
-        console.error('Erro ao buscar tokens por role:', error);
-        return [];
-    }
+    return subs.map((sub) => ({
+      endpoint: sub.endpoint,
+      keys: {
+        p256dh: sub.p256dh,
+        auth: sub.auth,
+      },
+    }));
+  } catch (error) {
+    console.error("❌ Erro ao buscar subscriptions por role:", error);
+    return [];
+  }
 }
 
 /**
- * Busca todos os tokens FCM de um usuário específico
- * Retorna um array de tokens para envio de notificações
+ * Busca subscriptions de um usuário específico
  */
-export async function buscarTokensPorUsuario(userId: string): Promise<string[]> {
-    try {
-        const tokens = await prisma.fcmToken.findMany({
-            where: {
-                userId: userId,
-            },
-            select: {
-                token: true,
-            },
-        });
+export async function buscarSubscriptionsPorUsuario(
+  userId: string,
+): Promise<PushSubscriptionData[]> {
+  try {
+    const subs = await prisma.pushSubscription.findMany({
+      where: { userId },
+      select: {
+        endpoint: true,
+        p256dh: true,
+        auth: true,
+      },
+    });
 
-        return tokens.map(t => t.token);
-    } catch (error) {
-        console.error('Erro ao buscar tokens por usuário:', error);
-        return [];
-    }
+    return subs.map((sub) => ({
+      endpoint: sub.endpoint,
+      keys: {
+        p256dh: sub.p256dh,
+        auth: sub.auth,
+      },
+    }));
+  } catch (error) {
+    console.error("❌ Erro ao buscar subscriptions por usuário:", error);
+    return [];
+  }
 }
 
 /**
- * Envia notificações para todos os usuários de um determinado role
- * Retorna estatísticas de envio
+ * Envia notificações para todos os usuários de um role
  */
 export async function enviarNotificacaoParaTodos(
-    role: string,
-    title: string,
-    message: string,
-    link?: string
-): Promise<{ successCount: number; failureCount: number; totalTokens: number }> {
-    try {
-        // Busca todos os tokens do role especificado
-        const tokens = await buscarTokensPorRole(role);
+  role: string,
+  title: string,
+  message: string,
+  link?: string,
+) {
+  try {
+    const subscriptions = await buscarSubscriptionsPorRole(role);
 
-        if (tokens.length === 0) {
-            return { successCount: 0, failureCount: 0, totalTokens: 0 };
-        }
-
-        const result = await sendNotifications(tokens, title, message, link);
-
-        // Remove tokens inválidos se retornados
-        if (result.invalidTokens && result.invalidTokens.length > 0) {
-            await prisma.fcmToken.deleteMany({
-                where: {
-                    token: {
-                        in: result.invalidTokens,
-                    },
-                },
-            });
-        }
-
-        return {
-            successCount: result.successCount,
-            failureCount: result.failureCount,
-            totalTokens: result.totalTokens,
-        };
-    } catch (error) {
-        console.error('Erro ao enviar notificações:', error);
-        throw new Error('Falha ao enviar notificações');
+    if (subscriptions.length === 0) {
+      return { successCount: 0, failureCount: 0, totalSubscriptions: 0 };
     }
+
+    const payload: NotificationPayload = {
+      title,
+      body: message,
+      url: link,
+      icon: "/Símbolo1.png",
+      badge: "/Símbolo1.png",
+    };
+
+    const result = await sendWebPushNotifications(subscriptions, payload);
+
+    // Remove subscriptions inválidas
+    if (result.invalidEndpoints && result.invalidEndpoints.length > 0) {
+      await prisma.pushSubscription.deleteMany({
+        where: {
+          endpoint: { in: result.invalidEndpoints },
+        },
+      });
+    }
+
+    return {
+      successCount: result.successCount,
+      failureCount: result.failureCount,
+      totalSubscriptions: result.totalSubscriptions,
+    };
+  } catch (error) {
+    console.error("❌ Erro ao enviar notificações:", error);
+    throw new Error("Falha ao enviar notificações");
+  }
 }
 
 /**
- * Envia notificações para um usuário específico (todos os seus dispositivos)
- * Retorna estatísticas de envio
+ * Envia notificações para um usuário específico
  */
 export async function enviarNotificacaoParaUsuario(
-    userId: string,
-    title: string,
-    message: string,
-    link?: string
-): Promise<{ successCount: number; failureCount: number; totalTokens: number }> {
-    try {
-        // Busca todos os tokens do usuário específico
-        const tokens = await buscarTokensPorUsuario(userId);
+  userId: string,
+  title: string,
+  message: string,
+  link?: string,
+) {
+  try {
+    const subscriptions = await buscarSubscriptionsPorUsuario(userId);
 
-        if (tokens.length === 0) {
-            return { successCount: 0, failureCount: 0, totalTokens: 0 };
-        }
-
-        const result = await sendNotifications(tokens, title, message, link);
-
-        // Remove tokens inválidos se retornados
-        if (result.invalidTokens && result.invalidTokens.length > 0) {
-            await prisma.fcmToken.deleteMany({
-                where: {
-                    token: {
-                        in: result.invalidTokens,
-                    },
-                },
-            });
-        }
-
-        return {
-            successCount: result.successCount,
-            failureCount: result.failureCount,
-            totalTokens: result.totalTokens,
-        };
-    } catch (error) {
-        console.error('Erro ao enviar notificações para usuário:', error);
-        throw new Error('Falha ao enviar notificações');
+    if (subscriptions.length === 0) {
+      return { successCount: 0, failureCount: 0, totalSubscriptions: 0 };
     }
+
+    const payload: NotificationPayload = {
+      title,
+      body: message,
+      url: link,
+      icon: "/Símbolo1.png",
+      badge: "/Símbolo1.png",
+    };
+
+    const result = await sendWebPushNotifications(subscriptions, payload);
+
+    // Remove subscriptions inválidas
+    if (result.invalidEndpoints && result.invalidEndpoints.length > 0) {
+      await prisma.pushSubscription.deleteMany({
+        where: {
+          endpoint: { in: result.invalidEndpoints },
+        },
+      });
+    }
+
+    return {
+      successCount: result.successCount,
+      failureCount: result.failureCount,
+      totalSubscriptions: result.totalSubscriptions,
+    };
+  } catch (error) {
+    console.error("❌ Erro ao enviar notificações para usuário:", error);
+    throw new Error("Falha ao enviar notificações");
+  }
 }
 
-
 /**
- * Remove tokens FCM não utilizados há mais de 90 dias
- * Função de manutenção para limpeza do banco
+ * Limpa subscriptions antigas (>90 dias)
  */
-export async function limparTokensAntigos(): Promise<number> {
-    try {
-        const threeMonthsAgo = new Date();
-        threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
+export async function limparSubscriptionsAntigas(): Promise<number> {
+  try {
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
 
-        const result = await prisma.fcmToken.deleteMany({
-            where: {
-                updatedAt: {
-                    lt: threeMonthsAgo,
-                },
-            },
-        });
+    const result = await prisma.pushSubscription.deleteMany({
+      where: {
+        updatedAt: { lt: threeMonthsAgo },
+      },
+    });
 
-        return result.count;
-    } catch (error) {
-        console.error('Erro ao limpar tokens antigos:', error);
-        return 0;
-    }
+    return result.count;
+  } catch (error) {
+    console.error("❌ Erro ao limpar subscriptions antigas:", error);
+    return 0;
+  }
 }

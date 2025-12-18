@@ -12,7 +12,6 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Loading from "../(dashboard)/loading";
 import { HeaderProfessor } from "@/components/header-professor";
-import { FormularioFotoPerfil } from "@/components/formulario-foto-perfil";
 
 export default async function Page() {
     const session = await auth.api.getSession({
@@ -40,7 +39,6 @@ export default async function Page() {
 
                 <main className="grid grid-cols-3 max-[1025px]:grid-rows-2 max-[1025px]:grid-cols-1 p-5 max-[1025px]:gap-y-5 min-[1025px]:gap-x-5 w-full h-full">
                     <Card className="w-full items-center">
-                        <FormularioFotoPerfil />
                         <div className="flex flex-col items-center gap-4 justify-center  flex-1">
                             <Avatar className="size-56 border-2 border-primary">
                                 <AvatarImage

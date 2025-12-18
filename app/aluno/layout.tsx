@@ -44,11 +44,14 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         redirect('/')
     }
 
+    const userId = session.user.id;
+
     return (
         <html lang="pt-BR">
             <body
                 className={`${poppins.className} antialiased`}
             >
+                <IncializarNotificacoes userId={userId} />
                 <ProvedorAluno>
                     <FormularioTelefone user={session.user} />
                     <main>{children}</main>

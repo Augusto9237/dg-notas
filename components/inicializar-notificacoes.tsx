@@ -1,22 +1,32 @@
-// components/inicializar-notificacoes.tsx
 'use client';
 
-
-import useTokenFcm from '@/hooks/useFcmToken';
+import useWebPush from '@/hooks/useWebPush';
 import { useEffect } from 'react';
+export function IncializarNotificacoes({ userId }: { userId: string }) {
+  const { isSupported, permission, isSubscribed, subscribe } = useWebPush({
+    userId,
+  });
 
-export function IncializarNotificacoes() {
-    const { token, statusPermissaoNotificacao } = useTokenFcm();
+  useEffect(() => {
+    if (!isSupported) {
+      console.log('ℹ️ Web Push não é suportado neste navegador');
+      return;
+    }
 
-    useEffect(() => {
-        if (token) {
-            console.log('✅ Notificações inicializadas com token:', token.substring(0, 20) + '...');
-        }
+    if (permission === 'granted' && !isSubscribed) {
+      console.log('🔔 Permissão concedida, criando subscription...');
+      subscribe();
+    }
 
-        if (statusPermissaoNotificacao === 'denied') {
-            console.warn('⚠️ Usuário negou permissão para notificações');
-        }
-    }, [token, statusPermissaoNotificacao]);
+    if (permission === 'denied') {
+      console.warn('⚠️ Usuário negou permissão para notificações');
+    }
 
-    return null; // Componente invisível
+    if (isSubscribed) {
+      console.log('✅ Notificações já estão ativas');
+    }
+  }, [isSupported, permission, isSubscribed]);
+
+  return null;
 }
+

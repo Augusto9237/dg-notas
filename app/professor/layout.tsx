@@ -46,12 +46,13 @@ export default async function RootLayout({
     redirect('/')
   }
 
+  const userId = session.user.id;
   return (
     <html lang="pt-BR">
       <body
         className={`${poppins.className} antialiased`}
       >
-        <IncializarNotificacoes />
+        <IncializarNotificacoes userId={userId} />
         <SidebarProvider>
           <div suppressHydrationWarning>
             <AppSidebar />

@@ -169,6 +169,7 @@ model User {
 
   fcmTokens FcmToken[] // Relação com tokens FCM
   temas     Tema[]     @relation("AvaliacoesProfessor")
+  pushSubscriptions PushSubscription[]
 
   @@unique([email])
   @@map("user")
@@ -186,6 +187,22 @@ model FcmToken {
   @@unique([userId, token])
   @@index([token])
   @@map("fcm_token")
+}
+
+model PushSubscription {
+  id         String   @id @default(cuid())
+  endpoint   String   @unique
+  p256dh     String   // Chave pública de encriptação
+  auth       String   // Segredo de autenticação
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceInfo String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, endpoint])
+  @@index([endpoint])
+  @@map("push_subscription")
 }
 
 model Session {
