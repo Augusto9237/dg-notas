@@ -89,13 +89,35 @@ export default function useWebPush({ userId }: { userId: string }) {
       // Registra Service Worker
       const registration = await registerServiceWorker();
 
-      // Cria subscription
-      const sub = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(
-          process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-        ),
-      });
+      // Funcao auxiliar para realizar a inscricao
+      const subscribeToPush = async () => {
+        return await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(
+            process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+          ),
+        });
+      };
+
+      // Tenta criar subscription
+      let sub;
+      try {
+        sub = await subscribeToPush();
+      } catch (error: any) {
+        // Se houver conflito de chaves (InvalidStateError), remove a anterior e tenta de novo
+        if (error.name === 'InvalidStateError') {
+          console.warn('⚠️ Subscription com chave diferente detectada. Renovando...');
+          const existingSub = await registration.pushManager.getSubscription();
+          if (existingSub) {
+            await existingSub.unsubscribe();
+            sub = await subscribeToPush();
+          } else {
+            throw error;
+          }
+        } else {
+          throw error;
+        }
+      }
 
       console.log('✅ Subscription criada:', sub.endpoint);
       setSubscription(sub);

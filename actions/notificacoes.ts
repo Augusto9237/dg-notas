@@ -1,4 +1,4 @@
-"use server";
+'use server'
 import { prisma } from "@/lib/prisma";
 import { sendWebPushNotifications } from "@/lib/webpush";
 import type { PushSubscriptionData, NotificationPayload } from "@/lib/webpush";
@@ -9,7 +9,7 @@ import type { PushSubscriptionData, NotificationPayload } from "@/lib/webpush";
 export async function salvarPushSubscription(
   userId: string,
   subscription: PushSubscriptionData,
-  deviceInfo?: string,
+  deviceInfo?: string
 ): Promise<void> {
   try {
     await prisma.pushSubscription.upsert({
@@ -34,8 +34,8 @@ export async function salvarPushSubscription(
       },
     });
   } catch (error) {
-    console.error("❌ Erro ao salvar subscription:", error);
-    throw new Error("Falha ao salvar subscription");
+    console.error('❌ Erro ao salvar subscription:', error);
+    throw new Error('Falha ao salvar subscription');
   }
 }
 
@@ -48,16 +48,14 @@ export async function removerPushSubscription(endpoint: string): Promise<void> {
       where: { endpoint },
     });
   } catch (error) {
-    console.error("❌ Erro ao remover subscription:", error);
+    console.error('❌ Erro ao remover subscription:', error);
   }
 }
 
 /**
  * Busca subscriptions por role do usuário
  */
-export async function buscarSubscriptionsPorRole(
-  role: string,
-): Promise<PushSubscriptionData[]> {
+export async function buscarSubscriptionsPorRole(role: string): Promise<PushSubscriptionData[]> {
   try {
     const subs = await prisma.pushSubscription.findMany({
       where: {
@@ -70,7 +68,7 @@ export async function buscarSubscriptionsPorRole(
       },
     });
 
-    return subs.map((sub) => ({
+    return subs.map(sub => ({
       endpoint: sub.endpoint,
       keys: {
         p256dh: sub.p256dh,
@@ -78,7 +76,7 @@ export async function buscarSubscriptionsPorRole(
       },
     }));
   } catch (error) {
-    console.error("❌ Erro ao buscar subscriptions por role:", error);
+    console.error('❌ Erro ao buscar subscriptions por role:', error);
     return [];
   }
 }
@@ -86,9 +84,7 @@ export async function buscarSubscriptionsPorRole(
 /**
  * Busca subscriptions de um usuário específico
  */
-export async function buscarSubscriptionsPorUsuario(
-  userId: string,
-): Promise<PushSubscriptionData[]> {
+export async function buscarSubscriptionsPorUsuario(userId: string): Promise<PushSubscriptionData[]> {
   try {
     const subs = await prisma.pushSubscription.findMany({
       where: { userId },
@@ -99,7 +95,7 @@ export async function buscarSubscriptionsPorUsuario(
       },
     });
 
-    return subs.map((sub) => ({
+    return subs.map(sub => ({
       endpoint: sub.endpoint,
       keys: {
         p256dh: sub.p256dh,
@@ -107,7 +103,7 @@ export async function buscarSubscriptionsPorUsuario(
       },
     }));
   } catch (error) {
-    console.error("❌ Erro ao buscar subscriptions por usuário:", error);
+    console.error('❌ Erro ao buscar subscriptions por usuário:', error);
     return [];
   }
 }
@@ -119,7 +115,7 @@ export async function enviarNotificacaoParaTodos(
   role: string,
   title: string,
   message: string,
-  link?: string,
+  link?: string
 ) {
   try {
     const subscriptions = await buscarSubscriptionsPorRole(role);
@@ -132,8 +128,8 @@ export async function enviarNotificacaoParaTodos(
       title,
       body: message,
       url: link,
-      icon: "/Símbolo1.png",
-      badge: "/Símbolo1.png",
+      icon: '/Símbolo1.png',
+      badge: '/Símbolo1.png',
     };
 
     const result = await sendWebPushNotifications(subscriptions, payload);
@@ -153,8 +149,8 @@ export async function enviarNotificacaoParaTodos(
       totalSubscriptions: result.totalSubscriptions,
     };
   } catch (error) {
-    console.error("❌ Erro ao enviar notificações:", error);
-    throw new Error("Falha ao enviar notificações");
+    console.error('❌ Erro ao enviar notificações:', error);
+    throw new Error('Falha ao enviar notificações');
   }
 }
 
@@ -165,7 +161,7 @@ export async function enviarNotificacaoParaUsuario(
   userId: string,
   title: string,
   message: string,
-  link?: string,
+  link?: string
 ) {
   try {
     const subscriptions = await buscarSubscriptionsPorUsuario(userId);
@@ -178,8 +174,8 @@ export async function enviarNotificacaoParaUsuario(
       title,
       body: message,
       url: link,
-      icon: "/Símbolo1.png",
-      badge: "/Símbolo1.png",
+      icon: '/Símbolo1.png',
+      badge: '/Símbolo1.png',
     };
 
     const result = await sendWebPushNotifications(subscriptions, payload);
@@ -199,8 +195,8 @@ export async function enviarNotificacaoParaUsuario(
       totalSubscriptions: result.totalSubscriptions,
     };
   } catch (error) {
-    console.error("❌ Erro ao enviar notificações para usuário:", error);
-    throw new Error("Falha ao enviar notificações");
+    console.error('❌ Erro ao enviar notificações para usuário:', error);
+    throw new Error('Falha ao enviar notificações');
   }
 }
 
@@ -220,7 +216,7 @@ export async function limparSubscriptionsAntigas(): Promise<number> {
 
     return result.count;
   } catch (error) {
-    console.error("❌ Erro ao limpar subscriptions antigas:", error);
+    console.error('❌ Erro ao limpar subscriptions antigas:', error);
     return 0;
   }
 }
