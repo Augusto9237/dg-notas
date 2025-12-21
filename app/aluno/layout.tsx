@@ -12,6 +12,7 @@ import { redirect } from 'next/navigation';
 import { ProvedorAluno } from '@/context/provedor-aluno';
 import { FormularioTelefone } from '@/components/formulario-telefone';
 import { IncializarNotificacoes } from '@/components/inicializar-notificacoes';
+import { EdgePollingProvider } from '@/components/edge-polling-provider';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -27,6 +28,7 @@ export const metadata: Metadata = {
 interface RootLayoutProps {
     children: ReactNode
 }
+
 
 export default async function RootLayout({ children }: RootLayoutProps) {
     const session = await auth.api.getSession({
@@ -52,6 +54,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 className={`${poppins.className} antialiased`}
             >
                 <IncializarNotificacoes userId={userId} />
+                <EdgePollingProvider userId={userId} />
                 <ProvedorAluno>
                     <FormularioTelefone user={session.user} />
                     <main>{children}</main>

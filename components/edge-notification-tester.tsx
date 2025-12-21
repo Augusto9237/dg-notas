@@ -145,6 +145,41 @@ export function EdgeNotificationTester() {
         }
     }
 
+    const testForcedNotification = async () => {
+        if (permission !== 'granted') {
+            addLog('❌ Permissão não concedida')
+            return
+        }
+
+        try {
+            addLog('🔔 Forçando notificação (mesmo com janela aberta)...')
+            const reg = await navigator.serviceWorker.ready
+
+            const tag = 'forced-test-' + Date.now()
+            addLog(`📋 Tag: ${tag}`)
+
+            await reg.showNotification('🪟 Teste Forçado Edge', {
+                body: 'Esta notificação deve aparecer SEMPRE, mesmo com a janela aberta',
+                icon: '/Símbolo1.png',
+                badge: '/Símbolo1.png',
+                tag: tag,
+                requireInteraction: true,
+                renotify: true,
+                silent: false,
+                timestamp: Date.now(),
+                data: { url: '/', test: true, forced: true }
+            } as NotificationOptions)
+
+            addLog('✅ Notificação forçada enviada!')
+            addLog('⚠️ Se não apareceu, verifique:')
+            addLog('  1. Configurações do Windows > Notificações')
+            addLog('  2. Foco Assistido (Focus Assist) desativado')
+            addLog('  3. Permissões do Edge para este site')
+        } catch (error) {
+            addLog(`❌ Erro ao forçar notificação: ${error}`)
+        }
+    }
+
     const checkSwVersion = async () => {
         try {
             const reg = await navigator.serviceWorker.ready
@@ -252,6 +287,81 @@ export function EdgeNotificationTester() {
         }
     }
 
+    const checkSwState = async () => {
+        try {
+            addLog('🔍 Verificando estado do Service Worker...')
+
+            if (!('serviceWorker' in navigator)) {
+                addLog('❌ Service Worker não suportado')
+                return
+            }
+
+            const reg = await navigator.serviceWorker.ready
+            addLog(`✅ Registration ready: ${!!reg}`)
+
+            if (reg.active) {
+                addLog(`✅ SW ativo: ${reg.active.state}`)
+                addLog(`   Script URL: ${reg.active.scriptURL}`)
+            } else {
+                addLog('❌ Nenhum SW ativo!')
+            }
+
+            if (reg.installing) {
+                addLog(`⏳ SW instalando: ${reg.installing.state}`)
+            }
+
+            if (reg.waiting) {
+                addLog(`⏸️ SW esperando: ${reg.waiting.state}`)
+            }
+
+            // Verifica se está controlando a página
+            if (navigator.serviceWorker.controller) {
+                addLog('✅ SW está controlando esta página')
+                addLog(`   Controller: ${navigator.serviceWorker.controller.scriptURL}`)
+            } else {
+                addLog('⚠️ SW NÃO está controlando esta página!')
+                addLog('   Recarregue a página para ativar controle')
+            }
+
+            // Verifica subscription
+            const sub = await reg.pushManager.getSubscription()
+            if (sub) {
+                addLog('✅ Push subscription ativa')
+                addLog(`   Endpoint: ${sub.endpoint.substring(0, 60)}...`)
+                const isWNS = sub.endpoint.includes('notify.windows.com')
+                addLog(`   Tipo: ${isWNS ? '🪟 WNS (Edge)' : '🌐 Outro'}`)
+            } else {
+                addLog('❌ Nenhuma push subscription!')
+            }
+
+            // Testa comunicação com SW
+            if (reg.active) {
+                addLog('📤 Testando comunicação com SW...')
+                reg.active.postMessage({ type: 'PING', timestamp: Date.now() })
+
+                // Aguarda resposta
+                await new Promise((resolve) => {
+                    const timeout = setTimeout(() => {
+                        addLog('⚠️ SW não respondeu ao PING em 2s')
+                        resolve(null)
+                    }, 2000)
+
+                    navigator.serviceWorker.addEventListener('message', function handler(event) {
+                        if (event.data.type === 'PONG') {
+                            clearTimeout(timeout)
+                            addLog('✅ SW respondeu ao PING!')
+                            navigator.serviceWorker.removeEventListener('message', handler)
+                            resolve(event.data)
+                        }
+                    })
+                })
+            }
+
+        } catch (error) {
+            addLog(`❌ Erro: ${error}`)
+        }
+    }
+
     function urlBase64ToUint8Array(base64String: string) {
         const padding = '='.repeat((4 - base64String.length % 4) % 4);
         const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
@@ -313,8 +423,14 @@ export function EdgeNotificationTester() {
                     <Button onClick={testPushSimulation} variant="outline" size="sm">
                         📤 Simular Push
                     </Button>
+                    <Button onClick={testForcedNotification} variant="default" size="sm">
+                        🔔 Teste Forçado
+                    </Button>
                     <Button onClick={testRealPush} variant="default" size="sm">
                         🚀 Push Real (API)
+                    </Button>
+                    <Button onClick={checkSwState} variant="secondary" size="sm">
+                        🔍 Estado do SW
                     </Button>
                     <Button onClick={checkSubscriptions} variant="outline" size="sm">
                         🔍 Ver Subscriptions
@@ -353,10 +469,16 @@ export function EdgeNotificationTester() {
                         <li>Verifique se a permissão está "granted"</li>
                         <li>Clique em "Teste Local" - deve aparecer notificação</li>
                         <li>Clique em "Simular Push" - deve aparecer notificação via SW</li>
+                        <li><strong>IMPORTANTE:</strong> Para "Push Real", minimize o Edge ou mude de aba</li>
+                        <li>Use "Teste Forçado" para tentar forçar notificação com janela aberta</li>
                         <li>Se não funcionar, clique em "Remover SW" e recarregue</li>
                         <li>Abra DevTools (F12) → Console para ver logs do SW</li>
                         <li>Verifique Application → Service Workers → versão v1.0.4</li>
                     </ol>
+                    <div className="mt-2 p-2 bg-yellow-100 dark:bg-yellow-900 rounded text-xs">
+                        <strong>⚠️ Comportamento do Edge:</strong> Notificações push NÃO aparecem quando a aba está em foco.
+                        Minimize a janela ou mude de aba antes de testar push real.
+                    </div>
                 </div>
             </CardContent>
         </Card>

@@ -55,7 +55,7 @@ export async function removerPushSubscription(endpoint: string): Promise<void> {
 /**
  * Busca subscriptions por role do usuário
  */
-export async function buscarSubscriptionsPorRole(role: string): Promise<PushSubscriptionData[]> {
+export async function buscarSubscriptionsPorRole(role: string): Promise<(PushSubscriptionData & { userId: string })[]> {
   try {
     const subs = await prisma.pushSubscription.findMany({
       where: {
@@ -65,6 +65,7 @@ export async function buscarSubscriptionsPorRole(role: string): Promise<PushSubs
         endpoint: true,
         p256dh: true,
         auth: true,
+        userId: true,
       },
     });
 
@@ -74,6 +75,7 @@ export async function buscarSubscriptionsPorRole(role: string): Promise<PushSubs
         p256dh: sub.p256dh,
         auth: sub.auth,
       },
+      userId: sub.userId,
     }));
   } catch (error) {
     console.error('❌ Erro ao buscar subscriptions por role:', error);
@@ -84,7 +86,7 @@ export async function buscarSubscriptionsPorRole(role: string): Promise<PushSubs
 /**
  * Busca subscriptions de um usuário específico
  */
-export async function buscarSubscriptionsPorUsuario(userId: string): Promise<PushSubscriptionData[]> {
+export async function buscarSubscriptionsPorUsuario(userId: string): Promise<(PushSubscriptionData & { userId: string })[]> {
   try {
     const subs = await prisma.pushSubscription.findMany({
       where: { userId },
@@ -92,6 +94,7 @@ export async function buscarSubscriptionsPorUsuario(userId: string): Promise<Pus
         endpoint: true,
         p256dh: true,
         auth: true,
+        userId: true,
       },
     });
 
@@ -101,6 +104,7 @@ export async function buscarSubscriptionsPorUsuario(userId: string): Promise<Pus
         p256dh: sub.p256dh,
         auth: sub.auth,
       },
+      userId: sub.userId,
     }));
   } catch (error) {
     console.error('❌ Erro ao buscar subscriptions por usuário:', error);

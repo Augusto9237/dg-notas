@@ -38,46 +38,87 @@ export interface NotificationPayload {
   }>;
 }
 
+
+/**
+ * Detecta o navegador baseado no endpoint da subscription
+ */
+function detectBrowserFromEndpoint(endpoint: string): 'Chrome' | 'Edge' | 'Safari' | 'Other' {
+  if (endpoint.includes('fcm.googleapis.com')) return 'Chrome';
+  if (endpoint.includes('notify.windows.com')) return 'Edge';
+  if (endpoint.includes('web.push.apple.com')) return 'Safari';
+  return 'Other';
+}
+
 export async function sendWebPushNotification(
-  subscription: PushSubscriptionData,
+  subscription: PushSubscriptionData & { userId?: string },
   payload: NotificationPayload
 ) {
   try {
     const uniqueTag = payload.tag || `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const browser = detectBrowserFromEndpoint(subscription.endpoint);
     
-    // Detecta se é WNS (Edge)
-    const isWNS = subscription.endpoint.includes('notify.windows.com');
-    
-    // Payload simplificado para WNS - remove campos não suportados
-    const finalPayload = isWNS ? {
-      title: payload.title,
-      body: payload.body,
-      icon: payload.icon,
-      badge: payload.badge,
-      url: payload.url || payload.link || '/',
-      tag: uniqueTag,
-      requireInteraction: payload.requireInteraction ?? true,
-      silent: payload.silent ?? false,
-    } : {
-      // Payload completo para outros browsers (Chrome, Firefox)
-      ...payload,
-      url: payload.url || payload.link || '/',
-      tag: uniqueTag,
-      requireInteraction: payload.requireInteraction ?? true,
-      vibrate: payload.vibrate || [300, 100, 300],
-      silent: payload.silent ?? false,
-      renotify: payload.renotify ?? true,
-    };
-
     console.log('📤 Enviando notificação:', {
       endpoint: subscription.endpoint.substring(0, 50) + '...',
-      title: finalPayload.title,
+      title: payload.title,
       tag: uniqueTag,
-      requireInteraction: finalPayload.requireInteraction,
-      isWNS
+      browser
     });
 
+    // Para Edge: adiciona à fila de polling como fallback
+    if (browser === 'Edge' && subscription.userId) {
+      const { queueNotificationForPolling } = await import('@/lib/notification-queue');
+      await queueNotificationForPolling(subscription.userId, {
+        title: payload.title,
+        body: payload.body,
+        icon: payload.icon,
+        badge: payload.badge,
+        url: payload.url || payload.link || '/',
+        tag: uniqueTag
+      });
+      console.log('📥 Notificação adicionada à fila de polling (Edge fallback)');
+    }
+    
+    // Constrói payload otimizado por navegador
+    let finalPayload: any;
+    
+    if (browser === 'Safari') {
+      // Safari: apenas opções básicas
+      finalPayload = {
+        title: payload.title,
+        body: payload.body,
+        icon: payload.icon,
+        badge: payload.badge,
+        url: payload.url || payload.link || '/',
+        tag: uniqueTag,
+        silent: payload.silent ?? false
+      };
+    } else if (browser === 'Edge') {
+      // Edge/WNS: sem vibrate, actions limitadas
+      finalPayload = {
+        title: payload.title,
+        body: payload.body,
+        icon: payload.icon,
+        badge: payload.badge,
+        url: payload.url || payload.link || '/',
+        tag: uniqueTag,
+        requireInteraction: payload.requireInteraction ?? true,
+        silent: payload.silent ?? false,
+        renotify: payload.renotify ?? true
+      };
+    } else {
+      // Chrome/Firefox: suporte completo
+      finalPayload = {
+        ...payload,
+        url: payload.url || payload.link || '/',
+        tag: uniqueTag,
+        requireInteraction: payload.requireInteraction ?? true,
+        vibrate: payload.vibrate || [300, 100, 300],
+        silent: payload.silent ?? false,
+        renotify: payload.renotify ?? true,
+      };
+    }
 
+    // Tenta enviar via Web Push Protocol
     const result = await webpush.sendNotification(
       subscription as any,
       JSON.stringify(finalPayload),
@@ -87,29 +128,34 @@ export async function sendWebPushNotification(
       }
     );
     
-    // Log detalhado para WNS (Edge)
-    if (isWNS) {
+    // Log específico por navegador
+    if (browser === 'Edge') {
       console.log('🪟 WNS Response:', {
         statusCode: result.statusCode,
-        headers: result.headers,
-        body: result.body?.toString().substring(0, 200)
+        headers: result.headers
       });
     }
-
     
     console.log('✅ Notificação enviada com sucesso');
-    return { success: true };
+    return { 
+      success: true,
+      browser,
+      fallback: browser === 'Edge' ? 'polling' : undefined
+    };
   } catch (error: any) {
     console.error('❌ Erro ao enviar notificação:', error);
     
-    // Log detalhado do erro WNS
-    if (subscription.endpoint.includes('notify.windows.com')) {
-      console.error('🪟 WNS Error Details:', {
-        statusCode: error.statusCode,
-        body: error.body,
-        message: error.message,
-        headers: error.headers
-      });
+    const browser = detectBrowserFromEndpoint(subscription.endpoint);
+    
+    // Para Edge, o fallback de polling já foi configurado
+    if (browser === 'Edge' && subscription.userId) {
+      console.log('⚠️ Push falhou, mas polling está ativo como fallback');
+      return {
+        success: true, // Considera sucesso porque polling vai entregar
+        browser,
+        fallback: 'polling',
+        pushFailed: true
+      };
     }
     
     const isInvalid = 
@@ -124,7 +170,8 @@ export async function sendWebPushNotification(
     return { 
       success: false, 
       error: error.message,
-      isInvalid 
+      isInvalid,
+      browser
     };
   }
 }

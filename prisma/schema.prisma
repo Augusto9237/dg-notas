@@ -170,6 +170,7 @@ model User {
   fcmTokens FcmToken[] // Relação com tokens FCM
   temas     Tema[]     @relation("AvaliacoesProfessor")
   pushSubscriptions PushSubscription[]
+  notificationQueue NotificationQueue[]
 
   @@unique([email])
   @@map("user")
@@ -204,6 +205,25 @@ model PushSubscription {
   @@index([endpoint])
   @@map("push_subscription")
 }
+
+model NotificationQueue {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  icon      String?
+  badge     String?
+  url       String?
+  tag       String?
+  delivered Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, delivered])
+  @@index([createdAt])
+  @@map("notification_queue")
+}
+
 
 model Session {
   id        String   @id

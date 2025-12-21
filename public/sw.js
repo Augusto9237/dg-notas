@@ -1,87 +1,120 @@
-// Service Worker otimizado para Microsoft Edge
-const SW_VERSION = 'v1.0.4';
-const isEdge = /Edg/.test(self.navigator.userAgent);
+// Service Worker Universal - Suporte para Chrome, Edge e Safari
+const SW_VERSION = 'v2.0.0';
 
-console.log('[SW] Iniciando Service Worker', SW_VERSION);
-console.log('[SW] Navegador Edge:', isEdge);
+// Detecção de navegador
+const userAgent = self.navigator.userAgent;
+const isChrome = /Chrome/.test(userAgent) && !/Edg/.test(userAgent);
+const isEdge = /Edg/.test(userAgent);
+const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
+
+const browser = isChrome ? 'Chrome' : isEdge ? 'Edge' : isSafari ? 'Safari' : 'Other';
+
+console.log('[SW] 🚀 Iniciando Service Worker', SW_VERSION);
+console.log('[SW] 🌐 Navegador detectado:', browser);
+
+// Função para gerar tag única
+function generateUniqueTag() {
+  return 'notif-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+}
+
+// Função para construir opções de notificação específicas por navegador
+function buildNotificationOptions(data, browserType) {
+  const baseOptions = {
+    body: data.body || data.message || 'Você tem uma nova notificação',
+    icon: data.icon || '/Simbolo1.png',
+    badge: data.badge || '/Simbolo1.png',
+    tag: data.tag || generateUniqueTag(),
+    data: {
+      url: data.url || data.link || '/',
+      timestamp: Date.now(),
+      notificationId: Date.now()
+    }
+  };
+
+  // Chrome e Edge suportam mais opções
+  if (browserType === 'Chrome' || browserType === 'Edge') {
+    return {
+      ...baseOptions,
+      requireInteraction: data.requireInteraction !== undefined ? data.requireInteraction : true,
+      vibrate: data.vibrate || [200, 100, 200],
+      renotify: data.renotify !== undefined ? data.renotify : true,
+      silent: data.silent !== undefined ? data.silent : false,
+      timestamp: Date.now(),
+      actions: data.actions || []
+    };
+  } 
+  
+  // Safari tem suporte limitado
+  if (browserType === 'Safari') {
+    return {
+      ...baseOptions,
+      silent: data.silent !== undefined ? data.silent : false
+      // Safari não suporta: vibrate, renotify, requireInteraction, actions
+    };
+  }
+
+  // Fallback para outros navegadores
+  return baseOptions;
+}
 
 // Handler para eventos PUSH
 self.addEventListener('push', function(event) {
-  console.log('[SW] Push recebido', new Date().toISOString());
+  console.log('[SW] ========================================');
+  console.log('[SW] 🔔 PUSH EVENT RECEBIDO', new Date().toISOString());
+  console.log('[SW] 🌐 Browser:', browser);
+  console.log('[SW] ========================================');
   
   if (!event.data) {
-    console.log('[SW] Evento push sem dados');
+    console.error('[SW] ❌ Evento push SEM DADOS');
     return;
   }
 
   try {
     const data = event.data.json();
-    console.log('[SW] Dados parseados:', JSON.stringify(data));
+    console.log('[SW] ✅ Dados recebidos:', JSON.stringify(data, null, 2));
     
-    const title = data.title || 'Nova Notificacao';
-    const notificationTag = data.tag || 'notification-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    const title = data.title || 'Nova Notificação';
+    const options = buildNotificationOptions(data, browser);
     
-    const options = {
-      body: data.body || data.message || 'Voce tem uma nova notificacao',
-      icon: data.icon || '/Simbolo1.png',
-      badge: data.badge || '/Simbolo1.png',
-      vibrate: data.vibrate || [200, 100, 200],
-      data: {
-        dateOfArrival: Date.now(),
-        url: data.url || data.link || '/',
-        notificationId: Date.now()
-      },
-      tag: notificationTag,
-      renotify: data.renotify !== undefined ? data.renotify : true,
-      requireInteraction: data.requireInteraction !== undefined ? data.requireInteraction : true, // CRÍTICO: Respeita o valor do servidor
-      silent: data.silent !== undefined ? data.silent : false,
-      timestamp: Date.now(),
-      actions: data.actions || []
-    };
-
-    console.log('[SW] Mostrando notificacao:', title);
-    console.log('[SW] Opcoes completas:', JSON.stringify({
-      requireInteraction: options.requireInteraction,
-      renotify: options.renotify,
-      silent: options.silent,
-      tag: options.tag,
-      vibrate: options.vibrate
-    }));
+    console.log('[SW] 📋 Title:', title);
+    console.log('[SW] 🎨 Options:', JSON.stringify(options, null, 2));
+    console.log('[SW] 🚀 Chamando showNotification...');
 
     event.waitUntil(
       self.registration.showNotification(title, options)
         .then(() => {
-          console.log('[SW] Notificacao exibida com sucesso');
-          console.log('[SW] Tag usada:', notificationTag);
+          console.log('[SW] ✅✅✅ NOTIFICAÇÃO EXIBIDA COM SUCESSO!');
+          console.log('[SW] ========================================');
         })
         .catch(err => {
-          console.error('[SW] Erro ao exibir notificacao:', err.message);
-          console.error('[SW] Erro completo:', err);
+          console.error('[SW] ❌ ERRO ao exibir notificação:', err);
           
-          // Fallback simplificado para Edge
+          // Fallback ultra-simplificado
+          console.log('[SW] 🔄 Tentando fallback simplificado...');
           return self.registration.showNotification(title, {
             body: options.body,
             icon: options.icon,
-            tag: notificationTag,
+            tag: options.tag,
             data: options.data
+          }).then(() => {
+            console.log('[SW] ✅ Fallback funcionou!');
           }).catch(err2 => {
-            console.error('[SW] Erro no fallback:', err2.message);
+            console.error('[SW] ❌ Erro no fallback:', err2);
           });
         })
     );
   } catch (error) {
-    console.error('[SW] Erro ao processar notificacao:', error.message);
+    console.error('[SW] ❌ ERRO FATAL ao processar push:', error);
     
     // Fallback genérico
-    const fallbackTag = 'fallback-' + Date.now();
     event.waitUntil(
-      self.registration.showNotification('Nova Notificacao', {
-        body: 'Voce tem uma nova notificacao',
+      self.registration.showNotification('Nova Notificação', {
+        body: 'Você tem uma nova notificação',
         icon: '/Simbolo1.png',
-        tag: fallbackTag,
+        tag: generateUniqueTag(),
         data: { url: '/' }
       }).catch(err => {
-        console.error('[SW] Erro fatal na notificacao:', err.message);
+        console.error('[SW] ❌ Erro fatal no fallback genérico:', err);
       })
     );
   }
@@ -89,11 +122,11 @@ self.addEventListener('push', function(event) {
 
 // Handler para cliques em notificações
 self.addEventListener('notificationclick', function(event) {
-  console.log('[SW] Notificacao clicada:', event.notification.tag);
+  console.log('[SW] 🖱️ Notificação clicada:', event.notification.tag);
   event.notification.close();
   
   const url = event.notification.data?.url || '/';
-  console.log('[SW] Abrindo URL:', url);
+  console.log('[SW] 🔗 Abrindo URL:', url);
   
   event.waitUntil(
     clients.matchAll({ 
@@ -101,56 +134,57 @@ self.addEventListener('notificationclick', function(event) {
       includeUncontrolled: true 
     })
       .then(function(clientList) {
-        console.log('[SW] Clientes encontrados:', clientList.length);
+        console.log('[SW] 👥 Clientes encontrados:', clientList.length);
         
         // Tenta focar janela existente
         for (const client of clientList) {
-          if ('focus' in client) {
-            console.log('[SW] Focando janela existente');
+          if (client.url === url && 'focus' in client) {
+            console.log('[SW] 🎯 Focando janela existente');
             return client.focus();
           }
         }
         
         // Abre nova janela
         if (clients.openWindow) {
-          console.log('[SW] Abrindo nova janela');
+          console.log('[SW] 🪟 Abrindo nova janela');
           const fullUrl = url.startsWith('http') ? url : self.location.origin + url;
           return clients.openWindow(fullUrl);
         }
       })
-      .catch(err => console.error('[SW] Erro ao abrir janela:', err.message))
+      .catch(err => console.error('[SW] ❌ Erro ao abrir janela:', err))
   );
 });
 
 // Handler para fechamento de notificações
 self.addEventListener('notificationclose', function(event) {
-  console.log('[SW] Notificacao fechada:', event.notification.tag);
+  console.log('[SW] 🚫 Notificação fechada:', event.notification.tag);
 });
 
 // Handler para instalação
 self.addEventListener('install', function(event) {
-  console.log('[SW] Service Worker instalando', SW_VERSION);
+  console.log('[SW] 📦 Service Worker instalando', SW_VERSION);
   event.waitUntil(
     self.skipWaiting().then(() => {
-      console.log('[SW] Skip waiting executado');
+      console.log('[SW] ⏭️ Skip waiting executado');
     })
   );
 });
 
 // Handler para ativação
 self.addEventListener('activate', function(event) {
-  console.log('[SW] Service Worker ativando', SW_VERSION);
+  console.log('[SW] ⚡ Service Worker ativando', SW_VERSION);
   event.waitUntil(
     self.clients.claim().then(() => {
-      console.log('[SW] Service Worker assumiu controle');
+      console.log('[SW] 👑 Service Worker assumiu controle');
       
       // Notifica todos os clientes
       return self.clients.matchAll().then(clients => {
-        console.log('[SW] Notificando', clients.length, 'clientes');
+        console.log('[SW] 📢 Notificando', clients.length, 'clientes');
         clients.forEach(client => {
           client.postMessage({ 
             type: 'SW_ACTIVATED',
-            version: SW_VERSION
+            version: SW_VERSION,
+            browser: browser
           });
         });
       });
@@ -160,41 +194,46 @@ self.addEventListener('activate', function(event) {
 
 // Handler para mensagens dos clientes
 self.addEventListener('message', function(event) {
-  console.log('[SW] Mensagem recebida:', event.data);
+  console.log('[SW] 📨 Mensagem recebida:', event.data);
   
   if (!event.data) return;
 
+  // PING/PONG para teste de comunicação
+  if (event.data.type === 'PING') {
+    console.log('[SW] 🏓 PING recebido, enviando PONG...');
+    event.source.postMessage({
+      type: 'PONG',
+      timestamp: Date.now(),
+      swVersion: SW_VERSION,
+      browser: browser
+    });
+    return;
+  }
+
   // Skip waiting
   if (event.data.type === 'SKIP_WAITING') {
-    console.log('[SW] Executando skip waiting via mensagem');
+    console.log('[SW] ⏭️ Executando skip waiting via mensagem');
     self.skipWaiting();
   }
   
   // Teste de push simulado
   if (event.data.type === 'TEST_PUSH') {
-    console.log('[SW] Simulando push com dados:', event.data.data);
+    console.log('[SW] 🧪 Simulando push com dados:', event.data.data);
     
     const data = event.data.data || {};
     const title = data.title || 'Teste Push Simulado';
+    const options = buildNotificationOptions(data, browser);
     
-    self.registration.showNotification(title, {
-      body: data.body || 'Notificacao de teste via mensagem',
-      icon: data.icon || '/Simbolo1.png',
-      badge: '/Simbolo1.png',
-      tag: 'test-message-' + Date.now(),
-      requireInteraction: true,
-      data: { url: '/', test: true }
-    })
+    self.registration.showNotification(title, options)
       .then(() => {
-        console.log('[SW] Notificacao de teste exibida');
-        // Envia confirmação de volta
+        console.log('[SW] ✅ Notificação de teste exibida');
         event.source.postMessage({
           type: 'TEST_PUSH_SUCCESS',
-          message: 'Notificacao exibida com sucesso'
+          message: 'Notificação exibida com sucesso'
         });
       })
       .catch(err => {
-        console.error('[SW] Erro ao exibir notificacao de teste:', err.message);
+        console.error('[SW] ❌ Erro ao exibir notificação de teste:', err);
         event.source.postMessage({
           type: 'TEST_PUSH_ERROR',
           error: err.message
@@ -203,5 +242,6 @@ self.addEventListener('message', function(event) {
   }
 });
 
-// Log de inicialização
-console.log('[SW] Service Worker carregado completamente', SW_VERSION);
+// Log de inicialização completa
+console.log('[SW] ✅ Service Worker carregado completamente', SW_VERSION);
+console.log('[SW] 🌐 Otimizado para:', browser);
