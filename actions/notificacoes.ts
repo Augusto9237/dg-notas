@@ -108,9 +108,6 @@ export async function buscarSubscriptionsPorUsuario(userId: string): Promise<Pus
   }
 }
 
-/**
- * Envia notificações para todos os usuários de um role
- */
 export async function enviarNotificacaoParaTodos(
   role: string,
   title: string,
@@ -130,12 +127,26 @@ export async function enviarNotificacaoParaTodos(
       url: link,
       icon: '/Símbolo1.png',
       badge: '/Símbolo1.png',
+      
+      // CRÍTICO: Força notificação aparecer no Edge
+      requireInteraction: true,
+      
+      // Configurações adicionais para melhor visibilidade
+      vibrate: [300, 100, 300],
+      silent: false,
+      renotify: true,
     };
+
+    console.log('📤 Enviando notificações para', subscriptions.length, 'usuários');
+    console.log('📋 Payload:', { title, body: message, requireInteraction: true });
 
     const result = await sendWebPushNotifications(subscriptions, payload);
 
+    console.log('✅ Resultado do envio:', result);
+
     // Remove subscriptions inválidas
     if (result.invalidEndpoints && result.invalidEndpoints.length > 0) {
+      console.log('🗑️ Removendo', result.invalidEndpoints.length, 'subscriptions inválidas');
       await prisma.pushSubscription.deleteMany({
         where: {
           endpoint: { in: result.invalidEndpoints },
@@ -154,9 +165,7 @@ export async function enviarNotificacaoParaTodos(
   }
 }
 
-/**
- * Envia notificações para um usuário específico
- */
+// Função específica para enviar para um usuário
 export async function enviarNotificacaoParaUsuario(
   userId: string,
   title: string,
@@ -167,6 +176,7 @@ export async function enviarNotificacaoParaUsuario(
     const subscriptions = await buscarSubscriptionsPorUsuario(userId);
 
     if (subscriptions.length === 0) {
+      console.log('⚠️ Usuário não tem subscriptions ativas');
       return { successCount: 0, failureCount: 0, totalSubscriptions: 0 };
     }
 
@@ -176,6 +186,10 @@ export async function enviarNotificacaoParaUsuario(
       url: link,
       icon: '/Símbolo1.png',
       badge: '/Símbolo1.png',
+      requireInteraction: true, // CRÍTICO
+      vibrate: [300, 100, 300],
+      silent: false,
+      renotify: true,
     };
 
     const result = await sendWebPushNotifications(subscriptions, payload);
