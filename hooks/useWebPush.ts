@@ -131,11 +131,11 @@ export default function useWebPush({ userId }: { userId: string }) {
       );
 
       subscriptionSaved.current = true;
-      toast.success('Notificações ativadas com sucesso!');
+      console.log('Notificações ativadas com sucesso!');
       return true;
     } catch (error) {
       console.error('❌ Erro ao criar subscription:', error);
-      toast.error('Erro ao ativar notificações');
+      console.error('Erro ao ativar notificações');
       return false;
     } finally {
       setIsLoading(false);

@@ -21,6 +21,8 @@ export default async function Page() {
       ListarTemasDisponiveis(session.user.id),
     ])
 
+    const pendingAvaliacoes = avaliacoes.filter((avaliacao) => avaliacao.status === "ENVIADA");
+
     return (
       <div className="w-full">
         <main className="flex flex-col gap-4 p-5 pb-20">
@@ -34,30 +36,15 @@ export default async function Page() {
               <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">Corrigidas</TabsTrigger>
             </TabsList>
             <TabsContent value='pendentes' className="flex flex-col gap-4">
-              {(() => {
-                const pendingAvaliacoes = avaliacoes.filter((avaliacao) => avaliacao.status === "ENVIADA");
+              {novosTemas.map((tema) => (
+                <CardNovoTema key={tema.id} tema={tema} />
+              ))}
+              <ListaAvaliacoes avaliacoesIniciais={pendingAvaliacoes} criteriosIniciais={criterios} />
 
-                if (pendingAvaliacoes.length > 0) {
-                  return (
-                    <ListaAvaliacoes avaliacoesIniciais={pendingAvaliacoes} criteriosIniciais={criterios} />
-                  );
-                } else if (novosTemas.length > 0) {
-                  return (
-                    <div className='space-y-4'>
-                      {novosTemas.map((tema) => (
-                        <CardNovoTema key={tema.id} tema={tema} />
-                      ))}
-                    </div>
-                  );
-                } else {
-                  return (
-                    <div className="w-full h-full flex flex-col flex-1 items-center justify-center gap-2 text-muted-foreground pt-5">
-                      <FileX className="size-10" />
-                      <span className="text-foreground font-semibold">Nenhuma avaliação pendente</span>
-                    </div>
-                  );
-                }
-              })()}
+              <div className="w-full h-full flex flex-col flex-1 items-center justify-center gap-2 text-muted-foreground pt-5">
+                <FileX className="size-10" />
+                <span className="text-foreground font-semibold">Nenhuma avaliação pendente</span>
+              </div>
             </TabsContent>
             <TabsContent value='corrigidas' className="flex flex-col gap-4">
               <ListaAvaliacoes avaliacoesIniciais={avaliacoes.filter((avaliacao) => avaliacao.status === "CORRIGIDA")} criteriosIniciais={criterios} />
