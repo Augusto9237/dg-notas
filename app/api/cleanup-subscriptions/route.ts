@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendWebPushNotification } from '@/lib/webpush';
 
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   try {
     console.log('🧹 Iniciando limpeza de subscriptions...');
 
@@ -67,8 +67,9 @@ export async function POST(req: NextRequest) {
       removed: invalidEndpoints.length,
       message: `Limpeza concluída: ${invalidEndpoints.length} subscription(s) removida(s)`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erro na limpeza:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

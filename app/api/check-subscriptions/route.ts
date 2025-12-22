@@ -35,8 +35,9 @@ export async function POST(req: NextRequest) {
         deviceInfo: sub.deviceInfo?.substring(0, 50)
       }))
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erro ao verificar subscriptions:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

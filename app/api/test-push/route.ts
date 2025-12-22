@@ -76,8 +76,9 @@ export async function POST(req: NextRequest) {
       invalidEndpoints,
       cleanedUp: invalidEndpoints.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erro no teste:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

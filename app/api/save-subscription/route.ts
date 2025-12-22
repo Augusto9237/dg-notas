@@ -9,11 +9,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'userId and subscription required' }, { status: 400 });
     }
 
-    await salvarPushSubscription(userId, subscription, navigator?.userAgent || 'Unknown');
+    const userAgent = req.headers.get('user-agent') || 'Unknown';
+    await salvarPushSubscription(userId, subscription, userAgent);
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erro ao salvar subscription:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

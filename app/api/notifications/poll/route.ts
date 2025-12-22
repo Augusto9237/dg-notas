@@ -7,7 +7,7 @@ import { getPendingNotifications, markNotificationsAsDelivered } from '@/lib/not
  * API de polling para Edge/Safari
  * Permite que navegadores que não recebem push events busquem notificações pendentes
  */
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     // Autentica o usuário
     const session = await auth.api.getSession({
@@ -47,10 +47,11 @@ export async function GET(req: NextRequest) {
         timestamp: n.createdAt.getTime()
       }))
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erro no polling de notificações:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: error.message },
+      { error: errorMessage },
       { status: 500 }
     );
   }
