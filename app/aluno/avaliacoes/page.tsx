@@ -36,15 +36,22 @@ export default async function Page() {
               <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">Corrigidas</TabsTrigger>
             </TabsList>
             <TabsContent value='pendentes' className="flex flex-col gap-4">
-              {novosTemas.map((tema) => (
-                <CardNovoTema key={tema.id} tema={tema} />
-              ))}
-              <ListaAvaliacoes avaliacoesIniciais={pendingAvaliacoes} criteriosIniciais={criterios} />
+              {novosTemas.length > 0 && (
+                <>
+                  {novosTemas.map((tema) => (
+                    <CardNovoTema key={tema.id} tema={tema} />
+                  ))}
+                </>
+              )}
 
-              <div className="w-full h-full flex flex-col flex-1 items-center justify-center gap-2 text-muted-foreground pt-5">
-                <FileX className="size-10" />
-                <span className="text-foreground font-semibold">Nenhuma avaliação pendente</span>
-              </div>
+              {pendingAvaliacoes.length > 0 ? (
+                <ListaAvaliacoes avaliacoesIniciais={pendingAvaliacoes} criteriosIniciais={criterios} />
+              ) : (
+                <div className="w-full h-full flex flex-col flex-1 items-center justify-center gap-2 text-muted-foreground pt-5">
+                  <FileX className="size-10" />
+                  <span className="text-foreground font-semibold">Nenhuma avaliação pendente</span>
+                </div>
+              )}
             </TabsContent>
             <TabsContent value='corrigidas' className="flex flex-col gap-4">
               <ListaAvaliacoes avaliacoesIniciais={avaliacoes.filter((avaliacao) => avaliacao.status === "CORRIGIDA")} criteriosIniciais={criterios} />
