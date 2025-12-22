@@ -1,21 +1,51 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+
+interface SystemStatus {
+    isSecure?: boolean;
+    hasSW?: boolean;
+    hasPush?: boolean;
+    hasNotification?: boolean;
+    permission?: NotificationPermission | 'N/A';
+    userAgent?: string;
+    https?: boolean;
+    swSupported?: boolean;
+    pushSupported?: boolean;
+    notificationSupported?: boolean;
+    swRegistered?: boolean;
+    swActive?: boolean;
+    hasSubscription?: boolean;
+    isEdge?: boolean;
+}
+
+interface TestResults {
+    teste1?: string;
+    teste2?: string;
+    teste3?: string;
+    teste4?: string;
+    [key: string]: string | undefined;
+}
+
+interface LogEntry {
+    msg: string;
+    type: string;
+}
 
 export default function DiagnosticoCompleto() {
-    const [status, setStatus] = useState<any>({});
-    const [logs, setLogs] = useState<{ msg: string; type: string }[]>([]);
-    const [testResults, setTestResults] = useState<any>({});
+    const [status, setStatus] = useState<SystemStatus>({});
+    const [logs, setLogs] = useState<LogEntry[]>([]);
+    const [testResults, setTestResults] = useState<TestResults>({});
 
     const log = (msg: string, type: string = 'info') => {
         setLogs(prev => [{ msg: `${new Date().toLocaleTimeString()} - ${msg}`, type }, ...prev]);
         console.log(`[${type}] ${msg}`);
     };
 
-    const checkStatus = async () => {
+    const checkStatus = useCallback(async () => {
         if (typeof window === 'undefined') return;
 
-        const info = {
+        const info: SystemStatus = {
             isSecure: window.isSecureContext,
             hasSW: 'serviceWorker' in navigator,
             hasPush: 'PushManager' in window,
@@ -43,24 +73,27 @@ export default function DiagnosticoCompleto() {
                     info.hasSubscription = !!sub;
                 }
             }
-        } catch (e: any) {
-            log(`Erro ao verificar status: ${e.message}`, 'error');
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            log(`Erro ao verificar status: ${errMsg}`, 'error');
         }
 
         setStatus(info);
         log('Status verificad');
-    };
+    }, []); // Empty dependency array as log is stable (though ideally log should be wrapped too or ignored)
 
     useEffect(() => {
         checkStatus();
 
         // Listen for SW messages
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.addEventListener('message', (event) => {
+            const messageHandler = (event: MessageEvent) => {
                 log(`SW Message: ${JSON.stringify(event.data)}`);
-            });
+            };
+            navigator.serviceWorker.addEventListener('message', messageHandler);
+            return () => navigator.serviceWorker.removeEventListener('message', messageHandler);
         }
-    }, []);
+    }, [checkStatus]);
 
     const teste1_NotificacaoDireta = async () => {
         log('=== TESTE 1: Notification API Direta ===', 'info');
@@ -76,7 +109,7 @@ export default function DiagnosticoCompleto() {
                 const perm = await Notification.requestPermission();
                 if (perm !== 'granted') {
                     log('Permissão negada!', 'error');
-                    setTestResults((prev: any) => ({ ...prev, teste1: 'FALHOU' }));
+                    setTestResults(prev => ({ ...prev, teste1: 'FALHOU' }));
                     return;
                 }
             }
@@ -91,24 +124,29 @@ export default function DiagnosticoCompleto() {
 
             notification.onshow = () => {
                 log('✅ TESTE 1: PASSOU - Notificação exibida!', 'success');
-                setTestResults((prev: any) => ({ ...prev, teste1: 'PASSOU' }));
+                setTestResults(prev => ({ ...prev, teste1: 'PASSOU' }));
             };
 
-            notification.onerror = (e) => {
+            notification.onerror = () => {
                 log('❌ TESTE 1: FALHOU - Erro ao exibir', 'error');
-                setTestResults((prev: any) => ({ ...prev, teste1: 'FALHOU' }));
+                setTestResults(prev => ({ ...prev, teste1: 'FALHOU' }));
             };
 
             // Timeout para verificar
             setTimeout(() => {
-                if (!testResults.teste1) {
-                    log('⚠️ TESTE 1: Não confirmado em 2s', 'warning');
-                }
+                // Check current results carefully - relying on closure here might be stale but intent is check existence
+                setTestResults(current => {
+                    if (!current.teste1) {
+                        log('⚠️ TESTE 1: Não confirmado em 2s', 'warning');
+                    }
+                    return current;
+                });
             }, 2000);
 
-        } catch (error: any) {
-            log(`❌ TESTE 1: FALHOU - ${error.message}`, 'error');
-            setTestResults((prev: any) => ({ ...prev, teste1: 'FALHOU' }));
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            log(`❌ TESTE 1: FALHOU - ${errMsg}`, 'error');
+            setTestResults(prev => ({ ...prev, teste1: 'FALHOU' }));
         }
     };
 
@@ -124,7 +162,7 @@ export default function DiagnosticoCompleto() {
 
             if (!registration.active) {
                 log('❌ Service Worker não está ativo!', 'error');
-                setTestResults((prev: any) => ({ ...prev, teste2: 'FALHOU' }));
+                setTestResults(prev => ({ ...prev, teste2: 'FALHOU' }));
                 return;
             }
 
@@ -140,11 +178,12 @@ export default function DiagnosticoCompleto() {
             });
 
             log('✅ TESTE 2: PASSOU - showNotification chamado', 'success');
-            setTestResults((prev: any) => ({ ...prev, teste2: 'PASSOU' }));
+            setTestResults(prev => ({ ...prev, teste2: 'PASSOU' }));
 
-        } catch (error: any) {
-            log(`❌ TESTE 2: FALHOU - ${error.message}`, 'error');
-            setTestResults((prev: any) => ({ ...prev, teste2: 'FALHOU' }));
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            log(`❌ TESTE 2: FALHOU - ${errMsg}`, 'error');
+            setTestResults(prev => ({ ...prev, teste2: 'FALHOU' }));
         }
     };
 
@@ -157,7 +196,7 @@ export default function DiagnosticoCompleto() {
 
             if (!registration.active) {
                 log('❌ Service Worker não está ativo!', 'error');
-                setTestResults((prev: any) => ({ ...prev, teste3: 'FALHOU' }));
+                setTestResults(prev => ({ ...prev, teste3: 'FALHOU' }));
                 return;
             }
 
@@ -165,13 +204,14 @@ export default function DiagnosticoCompleto() {
 
             // Listener para resposta do SW
             const handler = (event: MessageEvent) => {
-                if (event.data?.type === 'TEST_PUSH_SUCCESS') {
+                const data = event.data;
+                if (data?.type === 'TEST_PUSH_SUCCESS') {
                     log('✅ TESTE 3: PASSOU - SW confirmou exibição', 'success');
-                    setTestResults((prev: any) => ({ ...prev, teste3: 'PASSOU' }));
+                    setTestResults(prev => ({ ...prev, teste3: 'PASSOU' }));
                     navigator.serviceWorker.removeEventListener('message', handler);
-                } else if (event.data?.type === 'TEST_PUSH_ERROR') {
-                    log(`❌ TESTE 3: FALHOU - ${event.data.error}`, 'error');
-                    setTestResults((prev: any) => ({ ...prev, teste3: 'FALHOU' }));
+                } else if (data?.type === 'TEST_PUSH_ERROR') {
+                    log(`❌ TESTE 3: FALHOU - ${data.error}`, 'error');
+                    setTestResults(prev => ({ ...prev, teste3: 'FALHOU' }));
                     navigator.serviceWorker.removeEventListener('message', handler);
                 }
             };
@@ -192,9 +232,10 @@ export default function DiagnosticoCompleto() {
                 navigator.serviceWorker.removeEventListener('message', handler);
             }, 5000);
 
-        } catch (error: any) {
-            log(`❌ TESTE 3: FALHOU - ${error.message}`, 'error');
-            setTestResults((prev: any) => ({ ...prev, teste3: 'FALHOU' }));
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            log(`❌ TESTE 3: FALHOU - ${errMsg}`, 'error');
+            setTestResults(prev => ({ ...prev, teste3: 'FALHOU' }));
         }
     };
 
@@ -208,11 +249,12 @@ export default function DiagnosticoCompleto() {
 
             if (!subscription) {
                 log('❌ Nenhuma subscription ativa!', 'error');
-                setTestResults((prev: any) => ({ ...prev, teste4: 'FALHOU' }));
+                setTestResults(prev => ({ ...prev, teste4: 'FALHOU' }));
                 return;
             }
 
             log('Enviando push via servidor...', 'info');
+            // Tipando subscription.endpoint como string, que é o que ele é.
             log(`Endpoint: ${subscription.endpoint.substring(0, 50)}...`, 'info');
 
             const response = await fetch('/api/notificacoes', {
@@ -238,15 +280,16 @@ export default function DiagnosticoCompleto() {
             if (result.successCount > 0) {
                 log('✅ TESTE 4: Servidor enviou com sucesso!', 'success');
                 log('⏳ Aguarde 2-5 segundos para notificação chegar...', 'warning');
-                setTestResults((prev: any) => ({ ...prev, teste4: 'ENVIADO' }));
+                setTestResults(prev => ({ ...prev, teste4: 'ENVIADO' }));
             } else {
                 log('❌ TESTE 4: FALHOU - Servidor não enviou', 'error');
-                setTestResults((prev: any) => ({ ...prev, teste4: 'FALHOU' }));
+                setTestResults(prev => ({ ...prev, teste4: 'FALHOU' }));
             }
 
-        } catch (error: any) {
-            log(`❌ TESTE 4: FALHOU - ${error.message}`, 'error');
-            setTestResults((prev: any) => ({ ...prev, teste4: 'FALHOU' }));
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            log(`❌ TESTE 4: FALHOU - ${errMsg}`, 'error');
+            setTestResults(prev => ({ ...prev, teste4: 'FALHOU' }));
         }
     };
 
@@ -357,7 +400,7 @@ export default function DiagnosticoCompleto() {
     );
 }
 
-const getColor = (result: string) => {
+const getColor = (result: string | undefined) => {
     if (!result) return 'gray';
     if (result === 'PASSOU') return '#51cf66';
     if (result === 'ENVIADO') return '#ffd43b';
