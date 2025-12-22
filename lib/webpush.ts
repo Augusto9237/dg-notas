@@ -39,6 +39,13 @@ export interface NotificationPayload {
 }
 
 
+export interface WebPushError extends Error {
+  statusCode: number;
+  headers: Record<string, string>;
+  body: string;
+  endpoint?: string;
+}
+
 /**
  * Detecta o navegador baseado no endpoint da subscription
  */
@@ -143,7 +150,7 @@ export async function sendWebPushNotification(
       fallback: browser === 'Edge' ? 'polling' : undefined
     };
   } catch (err: unknown) {
-    const error = err as any;
+    const error = err as WebPushError;
     console.error('❌ Erro ao enviar notificação:', error);
     
     const browser = detectBrowserFromEndpoint(subscription.endpoint);
