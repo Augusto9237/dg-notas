@@ -79,7 +79,7 @@ export async function sendWebPushNotification(
     }
     
     // Constrói payload otimizado por navegador
-    let finalPayload: any;
+    let finalPayload: NotificationPayload;
     
     if (browser === 'Safari') {
       // Safari: apenas opções básicas
@@ -120,7 +120,7 @@ export async function sendWebPushNotification(
 
     // Tenta enviar via Web Push Protocol
     const result = await webpush.sendNotification(
-      subscription as any,
+      subscription as webpush.PushSubscription,
       JSON.stringify(finalPayload),
       {
         TTL: 60 * 60 * 24,
@@ -142,7 +142,8 @@ export async function sendWebPushNotification(
       browser,
       fallback: browser === 'Edge' ? 'polling' : undefined
     };
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as any;
     console.error('❌ Erro ao enviar notificação:', error);
     
     const browser = detectBrowserFromEndpoint(subscription.endpoint);
