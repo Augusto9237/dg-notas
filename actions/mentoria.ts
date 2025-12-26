@@ -439,7 +439,8 @@ export async function listarMentoriasAluno(alunoId: string) {
             slot: true // Garante que o objeto slot completo seja incluído
           }
         },
-        professor: true // Garante que o objeto professor completo seja incluído, se professorId não for nulo
+        professor: true, // Garante que o objeto professor completo seja incluído, se professorId não for nulo
+        aluno: true
       },
       orderBy: {
         createdAt: 'asc'

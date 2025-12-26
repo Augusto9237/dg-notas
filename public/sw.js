@@ -75,32 +75,39 @@ self.addEventListener('push', function(event) {
     
     const title = data.title || 'Nova Notificação';
     const options = buildNotificationOptions(data, browser);
-    
-    console.log('[SW] 📋 Title:', title);
-    console.log('[SW] 🎨 Options:', JSON.stringify(options, null, 2));
-    console.log('[SW] 🚀 Chamando showNotification...');
-
+  
     event.waitUntil(
-      self.registration.showNotification(title, options)
-        .then(() => {
-          console.log('[SW] ✅✅✅ NOTIFICAÇÃO EXIBIDA COM SUCESSO!');
-          console.log('[SW] ========================================');
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+        .then(clientList => {
+          // Check if there's at least one focused/visible client
+          const focusedClient = clientList.find(client => client.visibilityState === 'visible');
+
+          if (focusedClient) {
+            console.log('[SW] 👁️ App está aberta e visível. Enviando mensagem para o cliente...');
+            focusedClient.postMessage({
+              type: 'PUSH_NOTIFICATION_FOREGROUND',
+              data: {
+                title,
+                body: options.body,
+                icon: options.icon,
+                image: options.image,
+                data: options.data
+              }
+            });
+            return Promise.resolve(); // Não exibe notificação do sistema
+          }
+
+          console.log('[SW] 💤 App em background. Exibindo notificação do sistema...');
+          return self.registration.showNotification(title, options)
+            .then(() => {
+              console.log('[SW] ✅✅✅ NOTIFICAÇÃO EXIBIDA COM SUCESSO!');
+              console.log('[SW] ========================================');
+            });
         })
         .catch(err => {
-          console.error('[SW] ❌ ERRO ao exibir notificação:', err);
-          
-          // Fallback ultra-simplificado
-          console.log('[SW] 🔄 Tentando fallback simplificado...');
-          return self.registration.showNotification(title, {
-            body: options.body,
-            icon: options.icon,
-            tag: options.tag,
-            data: options.data
-          }).then(() => {
-            console.log('[SW] ✅ Fallback funcionou!');
-          }).catch(err2 => {
-            console.error('[SW] ❌ Erro no fallback:', err2);
-          });
+          console.error('[SW] ❌ ERRO ao processar notificação:', err);
+          // Em caso de erro, tenta exibir a notificação mesmo assim
+          return self.registration.showNotification(title, options);
         })
     );
   } catch (error) {

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
 import { salvarPushSubscription } from "@/actions/notificacoes";
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -19,11 +18,11 @@ function urlBase64ToUint8Array(base64String: string) {
 
 export default function useWebPush({ userId }: { userId: string }) {
   const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
   const [permission, setPermission] = useState<NotificationPermission | null>(null);
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const subscriptionSaved = useRef(false);
+  const [notificacoes, setNotificacoes] = useState<{ title: string; body: any; data: any } | null>(null);
 
   // Verifica suporte e permissão inicial
   useEffect(() => {
@@ -34,6 +33,30 @@ export default function useWebPush({ userId }: { userId: string }) {
 
     setPermission(Notification.permission);
     checkExistingSubscription();
+
+    // Listener para mensagens do Service Worker (Foreground Push)
+    const messageHandler = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'PUSH_NOTIFICATION_FOREGROUND') {
+        const { title, body, data } = event.data.data;
+        console.log('🔔 Notificação recebida em primeiro plano:', title);
+        setNotificacoes({ title, body, data });
+
+        toast.info(title, {
+          description: body,
+          action: data?.url ? {
+            label: "Ver",
+            onClick: () => router.push(data.url)
+          } : undefined,
+          duration: 5000,
+        });
+      }
+    };
+
+    navigator.serviceWorker.addEventListener('message', messageHandler);
+
+    return () => {
+      navigator.serviceWorker.removeEventListener('message', messageHandler);
+    };
   }, []);
 
   // Verifica subscription existente
@@ -166,6 +189,7 @@ export default function useWebPush({ userId }: { userId: string }) {
     isLoading,
     subscribe,
     unsubscribe,
+    notificacoes,
     isSupported: 'serviceWorker' in navigator && 'PushManager' in window,
   };
 }

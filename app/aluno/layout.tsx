@@ -13,6 +13,8 @@ import { ProvedorAluno } from '@/context/provedor-aluno';
 import { FormularioTelefone } from '@/components/formulario-telefone';
 import { IncializarNotificacoes } from '@/components/inicializar-notificacoes';
 import { EdgePollingProvider } from '@/components/edge-polling-provider';
+import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from '@/actions/avaliacao';
+import { listarMentoriasAluno } from '@/actions/mentoria';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -48,6 +50,12 @@ export default async function RootLayout({ children }: RootLayoutProps) {
 
     const userId = session.user.id;
 
+    const [avaliacoes, mentorias, temas] = await Promise.all([
+        ListarAvaliacoesAlunoId(userId),
+        listarMentoriasAluno(userId),
+        ListarTemasDisponiveis(userId),
+    ])
+
     return (
         <html lang="pt-BR">
             <body
@@ -55,7 +63,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             >
                 <IncializarNotificacoes userId={userId} />
                 <EdgePollingProvider userId={userId} />
-                <ProvedorAluno>
+                <ProvedorAluno userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas}>
                     <FormularioTelefone user={session.user} />
                     <main>{children}</main>
                     <FooterAluno />
