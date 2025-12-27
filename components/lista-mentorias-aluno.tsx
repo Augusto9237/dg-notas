@@ -13,7 +13,8 @@ type Mentoria = Prisma.MentoriaGetPayload<{
                 slot: true
             }
         },
-        professor: true
+        professor: true;
+        aluno: true;
     };
 }>;
 
@@ -32,12 +33,10 @@ interface ListMentoriasAlunosProps {
 }
 
 export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorario, professor }: ListMentoriasAlunosProps) {
-    const { fetchAvaliacoes } = useContext(ContextoAluno);
     const [mentorias, setMentorias] = useState<Mentoria[]>(mentoriasIniciais)
 
     useEffect(() => {
         setMentorias(mentoriasIniciais);
-        fetchAvaliacoes();
     }, [mentoriasIniciais])
 
 

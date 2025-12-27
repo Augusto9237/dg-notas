@@ -41,7 +41,6 @@ const formSchema = z.object({
     horario: z.string({ message: "Selecione um horario" }).min(1)
 })
 
-
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
         horario: {

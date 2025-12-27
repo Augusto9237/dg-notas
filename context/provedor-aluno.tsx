@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode, useEffect, useState } from "react";
-import { ContextoAluno } from "./contexto-aluno";
+import { ContextoAluno, Mentoria } from "./contexto-aluno";
 import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from "@/actions/avaliacao";
 import { listarMentoriasAluno } from "@/actions/mentoria";
 import { Prisma } from "@/app/generated/prisma";
@@ -15,12 +15,7 @@ type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
     }
 }>
 
-type Mentoria = Prisma.MentoriaGetPayload<{
-    include: {
-        aluno: true,
-        professor: true,
-    }
-}>
+
 
 type Tema = Prisma.TemaGetPayload<{
     include: {

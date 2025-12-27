@@ -30,7 +30,7 @@ export function TabelaAvaliacoesAluno({ criterios }: TabelaAvaliacoesAlunoProps)
                     </>
                 )}
 
-                {pendingAvaliacoes.length > 0 ? (
+                {pendingAvaliacoes.length > 0 || listaTemas.length > 0 ? (
                     <ListaAvaliacoes avaliacoesIniciais={pendingAvaliacoes} criteriosIniciais={criterios} />
                 ) : (
                     <div className="w-full h-full flex flex-col flex-1 items-center justify-center gap-2 text-muted-foreground pt-5">

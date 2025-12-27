@@ -23,6 +23,8 @@ type Mentoria = Prisma.MentoriaGetPayload<{
                 slot: true
             }
         }
+        aluno: true;
+        professor: true;
     };
 }>;
 

@@ -10,10 +10,15 @@ type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
     }
 }>
 
-type Mentoria = Prisma.MentoriaGetPayload<{
+export type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
         aluno: true,
         professor: true,
+        horario: {
+            include: {
+                slot: true
+            }
+        }
     }
 }>
 
