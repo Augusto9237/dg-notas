@@ -20,6 +20,8 @@ import { Textarea } from "./ui/textarea";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { CardMentoriaProfessor } from "./card-mentoria-professor";
 import { Label } from "./ui/label";
+import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
+import { useSession } from "@/lib/auth-client";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -40,6 +42,7 @@ interface ModalMentoriaProfessorProps {
 }
 
 export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: ModalMentoriaProfessorProps) {
+    const { data: session } = useSession()
     const [isOpen, setIsOpen] = useState(false);
     const [mentoriaData, setMentoriaData] = useState<Mentoria | null>(null);
     const [feedback, setFeedback] = useState('')
@@ -88,9 +91,11 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
                 await atualizarStatusMentoria(id, status, feedbackValido);
                 toast.success(MENSAGENS.REALIZADO_SUCESSO);
                 setFeedbackTouched(false);
+                await enviarNotificacaoParaUsuario(mentoria.aluno.id, 'Mentoria realizada com sucesso', `${session?.user.name} finalizou a mentoria e enviou o seu feedback`, `/aluno/mentorias`)
             } else {
                 await atualizarStatusMentoria(id, status);
                 toast.success(MENSAGENS.STATUS_ATUALIZADO);
+                await enviarNotificacaoParaUsuario(mentoria.aluno.id, 'Mentoria atualizada', `${session?.user.name} atualizou o status da mentoria para ${status}`, `/aluno/mentorias`)
             }
 
             setIsOpen(false);
@@ -106,6 +111,7 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
         try {
             await excluirMentoriaECascata(id)
             toast.error('Mentoria excluída com sucesso')
+            await enviarNotificacaoParaUsuario(mentoria.aluno.id, 'Mentoria cancelada', `${session?.user.name} cancelou a mentoria`, `/aluno/mentorias`)
         } catch {
             toast.error('Erro ao excluir mentoria')
         }
