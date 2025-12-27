@@ -1,25 +1,26 @@
-import { ReactNode } from 'react'
+import { ReactNode } from 'react';
 import type { Metadata } from "next";
 import { Poppins } from 'next/font/google';
-
-import "../globals.css";
-import { FooterAluno } from '@/components/ui/footer-aluno';
-import Header from '@/components/ui/header';
-import { Toaster } from "@/components/ui/sonner"
-import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { ProvedorAluno } from '@/context/provedor-aluno';
+
+import "../globals.css";
+
+import { FooterAluno } from '@/components/ui/footer-aluno';
+import { Toaster } from "@/components/ui/sonner";
 import { FormularioTelefone } from '@/components/formulario-telefone';
-import { IncializarNotificacoes } from '@/components/inicializar-notificacoes';
+import { InicializarNotificacoes } from '@/components/inicializar-notificacoes';
 import { EdgePollingProvider } from '@/components/edge-polling-provider';
+
+import { auth } from '@/lib/auth';
 import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from '@/actions/avaliacao';
 import { listarMentoriasAluno } from '@/actions/mentoria';
+import { ProvedorAluno } from '@/context/provedor-aluno';
 
 const poppins = Poppins({
-    weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
+    weight: ['200', '300', '400', '500', '600', '700', '800', '900'],
     subsets: ['latin'],
-    display: 'swap', // Or 'fallback' or 'optional'
+    display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -31,39 +32,42 @@ interface RootLayoutProps {
     children: ReactNode
 }
 
-
 export default async function RootLayout({ children }: RootLayoutProps) {
     const session = await auth.api.getSession({
-        headers: await headers() // you need to pass the headers object.
-    })
+        headers: await headers()
+    });
 
     if (!session?.user) {
-        redirect('/')
+        redirect('/');
     }
 
     if (session.user.role !== 'user') {
         await auth.api.signOut({
             headers: await headers()
-        })
-        redirect('/')
+        });
+        redirect('/');
     }
 
     const userId = session.user.id;
 
+    // Parallel data fetching for performance
     const [avaliacoes, mentorias, temas] = await Promise.all([
         ListarAvaliacoesAlunoId(userId),
         listarMentoriasAluno(userId),
         ListarTemasDisponiveis(userId),
-    ])
+    ]);
 
     return (
         <html lang="pt-BR">
-            <body
-                className={`${poppins.className} antialiased`}
-            >
-                <IncializarNotificacoes userId={userId} />
+            <body className={`${poppins.className} antialiased`}>
+                <InicializarNotificacoes userId={userId} />
                 <EdgePollingProvider userId={userId} />
-                <ProvedorAluno userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas}>
+                <ProvedorAluno
+                    userId={userId}
+                    avaliacoes={avaliacoes}
+                    mentorias={mentorias}
+                    temas={temas}
+                >
                     <FormularioTelefone user={session.user} />
                     <main>{children}</main>
                     <FooterAluno />

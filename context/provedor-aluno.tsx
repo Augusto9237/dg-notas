@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { ContextoAluno, Mentoria } from "./contexto-aluno";
 import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from "@/actions/avaliacao";
 import { listarMentoriasAluno } from "@/actions/mentoria";
@@ -15,14 +15,11 @@ type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
     }
 }>
 
-
-
 type Tema = Prisma.TemaGetPayload<{
     include: {
         professor: true
     }
 }>
-
 
 interface AlunoProviderProps {
     children: ReactNode
@@ -33,64 +30,74 @@ interface AlunoProviderProps {
 }
 
 export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas }: AlunoProviderProps) => {
-    const { notificacoes } = useWebPush({ userId: userId as string });
+    const { notificacoes } = useWebPush({ userId });
     const [isLoading, setIsLoading] = useState(false);
-    const [mediaGeral, setMediaGeral] = useState(0)
-    const [listaAvaliacoes, setListaAvaliacoes] = useState<AvaliacaoTema[]>(avaliacoes || [])
-    const [listaMentorias, setListaMentorias] = useState<Mentoria[]>(mentorias || [])
-    const [listaTemas, setListaTemas] = useState<Tema[]>(temas || [])
-    const [totalRedacoes, setTotalRedacoes] = useState(0);
-    const [totalMentorias, setTotalMentorias] = useState(0);
 
+    const [listaAvaliacoes, setListaAvaliacoes] = useState<AvaliacaoTema[]>(avaliacoes || []);
+    const [listaMentorias, setListaMentorias] = useState<Mentoria[]>(mentorias || []);
+    const [listaTemas, setListaTemas] = useState<Tema[]>(temas || []);
 
+    // Atualiza o estado se as props mudarem (ex: revalidação do servidor)
     useEffect(() => {
-        const updateAvaliacoes = async () => {
-            if (userId && (avaliacoes.length > 0 || notificacoes?.data?.url === '/aluno/avaliacoes')) {
-                const data = await ListarAvaliacoesAlunoId(userId);
-                setListaAvaliacoes(data);
-                const somaNotas = data.reduce((acc, avaliacao) => acc + avaliacao.notaFinal, 0);
-                const media = data.length > 0 ? somaNotas / data.length : 0;
-                setMediaGeral(media);
-                setTotalRedacoes(data.length);
-            }
-        };
-        const atualizarTemas = async () => {
-            if (userId && (temas.length > 0 || notificacoes?.data?.url === '/aluno/avaliacoes')) {
-                const data = await ListarTemasDisponiveis(userId);
-                setListaTemas(data);
-                setTotalMentorias(data.length);
-            }
-        };
+        setListaAvaliacoes(avaliacoes || []);
+        setListaMentorias(mentorias || []);
+        setListaTemas(temas || []);
+    }, [avaliacoes, mentorias, temas]);
 
-        atualizarTemas();
-        updateAvaliacoes();
-    }, [userId, avaliacoes, notificacoes, temas]);
+    // Cálculos derivados otimizados
+    const { mediaGeral, totalRedacoes } = useMemo(() => {
+        const total = listaAvaliacoes.length;
+        const soma = listaAvaliacoes.reduce((acc, curr) => acc + curr.notaFinal, 0);
+        return {
+            mediaGeral: total > 0 ? soma / total : 0,
+            totalRedacoes: total
+        };
+    }, [listaAvaliacoes]);
 
+    const totalMentorias = useMemo(() => listaMentorias.length, [listaMentorias]);
+
+    // Gerenciamento de Notificações
     useEffect(() => {
-        const updateMentorias = async () => {
-            if (userId && (mentorias.length > 0 || notificacoes?.data?.url === '/aluno/mentorias')) {
-                const data = await listarMentoriasAluno(userId);
-                setListaMentorias(data);
-                setTotalMentorias(data.length);
+        const handleNotification = async () => {
+            if (!notificacoes?.data?.url) return;
+
+            const url = notificacoes.data.url;
+            setIsLoading(true);
+
+            try {
+                if (url === '/aluno/avaliacoes') {
+                    const [novasAvaliacoes, novosTemas] = await Promise.all([
+                        ListarAvaliacoesAlunoId(userId),
+                        ListarTemasDisponiveis(userId)
+                    ]);
+                    setListaAvaliacoes(novasAvaliacoes);
+                    setListaTemas(novosTemas);
+                }
+
+                if (url === '/aluno/mentorias') {
+                    const novasMentorias = await listarMentoriasAluno(userId);
+                    setListaMentorias(novasMentorias);
+                }
+            } catch (error) {
+                console.error("Erro ao atualizar dados via notificação:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        updateMentorias();
-    }, [userId, mentorias, notificacoes]);
+        handleNotification();
+    }, [notificacoes, userId]);
 
     return (
-        <ContextoAluno.Provider value={
-            {
-                isLoading,
-                mediaGeral,
-                totalRedacoes,
-                totalMentorias,
-                listaAvaliacoes,
-                listaMentorias,
-                listaTemas
-            }
-        }>
-
+        <ContextoAluno.Provider value={{
+            isLoading,
+            mediaGeral,
+            totalRedacoes,
+            totalMentorias,
+            listaAvaliacoes,
+            listaMentorias,
+            listaTemas
+        }}>
             {children}
         </ContextoAluno.Provider>
     )

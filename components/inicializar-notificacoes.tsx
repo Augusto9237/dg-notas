@@ -2,7 +2,7 @@
 
 import useWebPush from '@/hooks/useWebPush';
 import { useEffect } from 'react';
-export function IncializarNotificacoes({ userId }: { userId: string }) {
+export function InicializarNotificacoes({ userId }: { userId: string }) {
   const { isSupported, permission, isSubscribed, subscribe } = useWebPush({
     userId,
   });
