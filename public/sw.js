@@ -1,3 +1,5 @@
+const { revalidatePath } = require("next/cache");
+
 // Service Worker Universal - Suporte para Chrome, Edge e Safari
 const SW_VERSION = 'v2.0.0';
 
@@ -75,6 +77,8 @@ self.addEventListener('push', function(event) {
     
     const title = data.title || 'Nova Notificação';
     const options = buildNotificationOptions(data, browser);
+
+    revalidatePath(`${options.data.url}`);
   
     event.waitUntil(
       self.clients.matchAll({ type: 'window', includeUncontrolled: true })

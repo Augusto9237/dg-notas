@@ -17,6 +17,7 @@ import { FormularioTema } from "./formulario-tema"
 import { InputBusca } from "./input-busca"
 import { Button } from "./ui/button"
 import { Switch } from "./ui/switch"
+import { enviarNotificacaoParaTodos } from "@/actions/notificacoes"
 
 
 type Tema = Prisma.TemaGetPayload<{
@@ -113,6 +114,12 @@ export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasPro
       await DeletarTema(id);
       setTemas(temasAnteriores => temasAnteriores.filter(tema => tema.id !== id));
       toast.error("O tema foi excluído");
+      await enviarNotificacaoParaTodos(
+        'user',
+        'Tema excluído',
+        `O Tema teste foi excluído`,
+        '/aluno/avaliacoes'
+      )
     } catch (error) {
       console.error("Erro ao excluir o tema:", error);
       toast.error("Ocorreu um erro ao excluir o tema");

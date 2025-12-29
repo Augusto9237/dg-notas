@@ -33,9 +33,9 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas }
     const { notificacoes } = useWebPush({ userId });
     const [isLoading, setIsLoading] = useState(false);
 
-    const [listaAvaliacoes, setListaAvaliacoes] = useState<AvaliacaoTema[]>(avaliacoes || []);
-    const [listaMentorias, setListaMentorias] = useState<Mentoria[]>(mentorias || []);
-    const [listaTemas, setListaTemas] = useState<Tema[]>(temas || []);
+    const [listaAvaliacoes, setListaAvaliacoes] = useState<AvaliacaoTema[]>([]);
+    const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
+    const [listaTemas, setListaTemas] = useState<Tema[]>([]);
 
     // Atualiza o estado se as props mudarem (ex: revalidação do servidor)
     useEffect(() => {
