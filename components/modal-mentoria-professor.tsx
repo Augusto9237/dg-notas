@@ -287,6 +287,7 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
                                                     <AgendarMentoriaAluno
                                                         mentoriaData={mentoria}
                                                         mode="edit"
+                                                        usuario="professor"
                                                         size='default'
                                                         diasSemana={diasSemana}
                                                         slotsHorario={slotsHorario}
