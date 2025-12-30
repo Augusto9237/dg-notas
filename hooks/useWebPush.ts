@@ -39,6 +39,7 @@ export default function useWebPush({ userId }: { userId: string }) {
       if (event.data && event.data.type === 'PUSH_NOTIFICATION_FOREGROUND') {
         const { title, body, data } = event.data.data;
         console.log('🔔 Notificação recebida em primeiro plano:', title);
+
         setNotificacoes({ title, body, data });
 
         toast.info(title, {
@@ -47,8 +48,14 @@ export default function useWebPush({ userId }: { userId: string }) {
             label: "Ver",
             onClick: () => router.push(data.url)
           } : undefined,
-          duration: 5000,
+          duration: 2000,
         });
+      }
+
+      // Handler para revalidação de dados quando notificação chega em background
+      if (event.data && event.data.type === 'REVALIDATE_DATA') {
+        console.log('🔄 Revalidando dados após notificação em background');
+        router.refresh();
       }
     };
 

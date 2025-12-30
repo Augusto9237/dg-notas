@@ -56,7 +56,7 @@ export function useEdgePolling(userId: string | undefined) {
 
     // Poll imediatamente e depois a cada 30 segundos
     pollNotifications();
-    intervalRef.current = setInterval(pollNotifications, 30000);
+    intervalRef.current = setInterval(pollNotifications, 60000);
 
     return () => {
       if (intervalRef.current) {
