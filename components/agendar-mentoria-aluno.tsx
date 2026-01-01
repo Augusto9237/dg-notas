@@ -242,12 +242,12 @@ export function AgendarMentoriaAluno({
             form.reset();
             setOpen(false);
             setIsOpen?.(false)
-            await enviarNotificacaoParaUsuario(usuario === 'aluno' && mode === 'edit' ? professorId : mentoriaData?.alunoId!, 'Mentoria agendada', `${session?.user.name} ${mode === 'edit' ? 'reagendou' : 'agendou'} uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
+            await enviarNotificacaoParaUsuario(usuario === 'aluno' ? professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria agendada', `${session?.user.name} ${mode === 'edit' ? 'reagendou' : 'agendou'} uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
         } catch (error) {
             toast.error('Algo deu errado, tente novamente');
             console.error(`Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria:`, error);
         }
-    }, [mode, mentoriaData, session?.user.id, session?.user.name, diasSemana, form, setIsOpen, professorId]);
+    }, [mode, mentoriaData, session?.user.id, session?.user.name, diasSemana, form, setIsOpen, professorId, slotsHorario, usuario]);
 
     return (
         <Dialog open={open} onOpenChange={setOpen} >
