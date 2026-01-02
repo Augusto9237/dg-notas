@@ -130,7 +130,6 @@ const CelulaHorario = React.memo(
         className={cn(
           "p-2 hover:bg-muted/20 transition-colors",
           "grid grid-cols-2 max-[1025px]:grid-cols-1 grid-rows-2 max-[1025px]:grid-rows-4 gap-2 max-sm:gap-1",
-          "overflow-hidden",
           eSegunda && "border-r border-border",
           !eUltimo && "border-b"
         )}
@@ -140,7 +139,7 @@ const CelulaHorario = React.memo(
         ) : (
           <>
             {mentoriasDoSlot.length === 0 && Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="flex items-center justify-center text-muted-foreground text-xs max-sm:h-9 sm:min-h-[50px] h-full bg-background/30 rounded-lg">
+              <div key={index} className="flex items-center justify-center text-muted-foreground text-xs max-sm:h-9 sm:min-h-[50px] md:min-h-[60px] h-full bg-background/30 rounded-lg">
               </div>
             ))}
             {mentoriasDoSlot.map((mentoria) => (
@@ -328,7 +327,7 @@ export function CalendarioGrande({
       </CardHeader>
 
       <CardContent className="h-full flex-1 overflow-hidden p-0 pb-22">
-        <div className={cn('grid gap-0 border border-border rounded-t-lg bg-background/30', gridColsClass)}>
+        <div className={cn('grid gap-0 border border-border rounded-t-lg bg-background/30 lg:pr-3.5', gridColsClass)}>
           <div className="border-r border-border p-4 px-2 text-center text-sm max-md:text-xs font-medium text-muted-foreground">
             Horário
           </div>
@@ -347,7 +346,7 @@ export function CalendarioGrande({
           ))}
         </div>
 
-        <div className={cn('grid gap-0 border border-border border-t-0 rounded-b-lg overflow-auto h-full flex-1', gridColsClass)}>
+        <div className={cn('grid gap-0 border border-border border-t-0 rounded-b-lg overflow-y-auto h-full flex-1', gridColsClass)}>
           {slotsHorarioAtivos.map((slot, index) => {
             const eUltimo = index === slotsHorarioAtivos.length - 1
             return (
