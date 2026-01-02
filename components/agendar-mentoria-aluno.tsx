@@ -31,6 +31,7 @@ import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma"
 import clsx from "clsx"
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes"
 import { format } from "date-fns"
+import { CalendarioAgendarMentoria } from "./calendario-agendar-mentoria"
 
 const formSchema = z.object({
     data: z.date({
@@ -283,12 +284,11 @@ export function AgendarMentoriaAluno({
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
                                     <FormLabel>Data</FormLabel>
-                                    <Calendar
-                                        mode="single"
+                                    <CalendarioAgendarMentoria
+                                        primeiroDia={diasSemana[0].dia}
+                                        segundoDia={diasSemana[1].dia}
                                         selected={field.value}
                                         onSelect={field.onChange}
-                                        locale={ptBR}
-                                        disabled={isDateDisabled}
                                         className="rounded-md border w-full"
                                     />
                                     <FormMessage />
