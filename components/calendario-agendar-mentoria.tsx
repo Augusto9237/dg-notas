@@ -93,35 +93,35 @@ export function CalendarioAgendarMentoria({
 
     // Combina e itera sobre todas as datas relevantes para popular o mapa da semana
     [...diasPrimeiroDiaSemana, ...diasSegundoDiaSemana].forEach(data => {
-        const dataTemp = new Date(data);
-        // Normaliza para o início da semana (Domingo) para criar uma chave única de semana
-        dataTemp.setDate(dataTemp.getDate() - dataTemp.getDay());
-        const chaveDaSemana = `${dataTemp.getFullYear()}-${dataTemp.getMonth()}-${dataTemp.getDate()}`;
+      const dataTemp = new Date(data);
+      // Normaliza para o início da semana (Domingo) para criar uma chave única de semana
+      dataTemp.setDate(dataTemp.getDate() - dataTemp.getDay());
+      const chaveDaSemana = `${dataTemp.getFullYear()}-${dataTemp.getMonth()}-${dataTemp.getDate()}`;
 
-        if (!mapaSemana.has(chaveDaSemana)) {
-            mapaSemana.set(chaveDaSemana, {});
-        }
-        const entradaSemana = mapaSemana.get(chaveDaSemana)!;
+      if (!mapaSemana.has(chaveDaSemana)) {
+        mapaSemana.set(chaveDaSemana, {});
+      }
+      const entradaSemana = mapaSemana.get(chaveDaSemana)!;
 
-        // Atribui a data ao slot correto (primeiro ou segundo dia da semana)
-        if (data.getDay() === primeiroDiaSemana) {
-            entradaSemana.primeiro = data;
-        } else if (data.getDay() === segundoDiaSemana) {
-            entradaSemana.segundo = data;
-        }
+      // Atribui a data ao slot correto (primeiro ou segundo dia da semana)
+      if (data.getDay() === primeiroDiaSemana) {
+        entradaSemana.primeiro = data;
+      } else if (data.getDay() === segundoDiaSemana) {
+        entradaSemana.segundo = data;
+      }
     });
 
     // Ordena as chaves das semanas cronologicamente para garantir o fluxo correto do mês
     const chavesDeSemanasOrdenadas = Array.from(mapaSemana.keys()).sort((a, b) => {
-        const [ay, am, ad] = a.split('-').map(Number);
-        const [by, bm, bd] = b.split('-').map(Number);
-        return new Date(ay, am, ad).getTime() - new Date(by, bm, bd).getTime();
+      const [ay, am, ad] = a.split('-').map(Number);
+      const [by, bm, bd] = b.split('-').map(Number);
+      return new Date(ay, am, ad).getTime() - new Date(by, bm, bd).getTime();
     });
 
     // Constrói o array final de pares de datas
     chavesDeSemanasOrdenadas.forEach(chaveDaSemana => {
-        const entrada = mapaSemana.get(chaveDaSemana)!;
-        paresDeDatas.push([entrada.primeiro || null, entrada.segundo || null]);
+      const entrada = mapaSemana.get(chaveDaSemana)!;
+      paresDeDatas.push([entrada.primeiro || null, entrada.segundo || null]);
     });
 
     return paresDeDatas
@@ -190,7 +190,7 @@ export function CalendarioAgendarMentoria({
   const renderizarBotaoData = (data: Date | null) => {
     if (!data) {
       // Renderiza um div vazio para manter a estrutura do grid
-      return <div key={`vazio-${Math.random()}`} className="h-11 w-full"></div>
+      return <div key={`vazio-${Math.random()}`} className="h-11 w-full bg-muted rounded-sm"></div>
     }
 
     return (

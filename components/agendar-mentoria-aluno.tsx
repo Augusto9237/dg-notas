@@ -288,8 +288,7 @@ export function AgendarMentoriaAluno({
                                         primeiroDiaSemana={diasSemana[0].dia}
                                         segundoDiaSemana={diasSemana[1].dia}
                                         selecionado={field.value}
-                                        onSelect={field.onChange}
-                                        className="rounded-md border w-full"
+                                        aoSelecionar={field.onChange}
                                     />
                                     <FormMessage />
                                 </FormItem>
