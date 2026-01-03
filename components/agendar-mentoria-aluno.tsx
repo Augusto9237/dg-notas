@@ -285,9 +285,9 @@ export function AgendarMentoriaAluno({
                                 <FormItem className="flex flex-col">
                                     <FormLabel>Data</FormLabel>
                                     <CalendarioAgendarMentoria
-                                        primeiroDia={diasSemana[0].dia}
-                                        segundoDia={diasSemana[1].dia}
-                                        selected={field.value}
+                                        primeiroDiaSemana={diasSemana[0].dia}
+                                        segundoDiaSemana={diasSemana[1].dia}
+                                        selecionado={field.value}
                                         onSelect={field.onChange}
                                         className="rounded-md border w-full"
                                     />
