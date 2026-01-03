@@ -12,25 +12,35 @@ export async function salvarPushSubscription(
   deviceInfo?: string
 ): Promise<void> {
   try {
-    await prisma.pushSubscription.upsert({
-      where: {
-        userId_endpoint: {
-          userId: userId,
-          endpoint: subscription.endpoint,
+    const existingSub = await prisma.pushSubscription.findUnique({
+      where: { endpoint: subscription.endpoint },
+    });
+
+    if (existingSub) {
+      if (existingSub.userId === userId && existingSub.deviceInfo === deviceInfo) {
+        return;
+      }
+
+      await prisma.pushSubscription.update({
+        where: { endpoint: subscription.endpoint },
+        data: {
+          userId,
+          deviceInfo,
+          p256dh: subscription.keys.p256dh,
+          auth: subscription.keys.auth,
+          updatedAt: new Date(),
         },
-      },
-      update: {
-        p256dh: subscription.keys.p256dh,
-        auth: subscription.keys.auth,
-        deviceInfo: deviceInfo,
-        updatedAt: new Date(),
-      },
-      create: {
-        userId: userId,
+      });
+      return;
+    }
+
+    await prisma.pushSubscription.create({
+      data: {
+        userId,
         endpoint: subscription.endpoint,
         p256dh: subscription.keys.p256dh,
         auth: subscription.keys.auth,
-        deviceInfo: deviceInfo,
+        deviceInfo,
       },
     });
   } catch (error) {
