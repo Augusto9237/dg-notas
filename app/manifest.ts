@@ -7,11 +7,11 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'A plataforma de curso de redação',
     start_url: '/',
     orientation: 'portrait',
-    display: 'fullscreen',
+    display: 'standalone',
     dir: 'auto',
     lang: 'pt-BR',
     background_color: '#003d8b',
-    theme_color: '#f4efe3',
+    theme_color: '#003d8b',
     icons: [
       {
        sizes: '512x512',
