@@ -9,6 +9,7 @@ import Loading from './loading';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
+import { InstalarIos } from '@/hooks/instalar-ios';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             <body
                 className={`${poppins.className} antialiased`}
             >
+                <InstalarIos />
                 <Suspense fallback={<Loading />}>
                     <div className="grid min-h-svh lg:grid-cols-2">
                         <div className="flex items-center justify-center bg-primary">
