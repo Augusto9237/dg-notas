@@ -1,41 +1,39 @@
 'use server'
+import { Prisma } from "@/app/generated/prisma";
 import { prisma } from "@/lib/prisma";
 import { sendWebPushNotifications } from "@/lib/webpush";
 import type { PushSubscriptionData, NotificationPayload } from "@/lib/webpush";
 
+
 /**
  * Salva ou atualiza uma subscription Web Push para um usuário
+ * @param userId - ID do usuário
+ * @param subscription - Dados da subscription Web Push
+ * @param deviceInfo - Informações opcionais do dispositivo (navegador, SO, etc)
+ * @throws {Error} Se houver erro na operação com o banco de dados
  */
 export async function salvarPushSubscription(
   userId: string,
   subscription: PushSubscriptionData,
   deviceInfo?: string
 ): Promise<void> {
+  // Validação de entrada
+  if (!userId || !subscription?.endpoint || !subscription?.keys) {
+    throw new Error('Parâmetros inválidos: userId e subscription são obrigatórios');
+  }
+
   try {
-    const existingSub = await prisma.pushSubscription.findUnique({
+    // Usa upsert para simplificar lógica (create ou update em uma operação)
+    await prisma.pushSubscription.upsert({
       where: { endpoint: subscription.endpoint },
-    });
-
-    if (existingSub) {
-      if (existingSub.userId === userId && existingSub.deviceInfo === deviceInfo) {
-        return;
-      }
-
-      await prisma.pushSubscription.update({
-        where: { endpoint: subscription.endpoint },
-        data: {
-          userId,
-          deviceInfo,
-          p256dh: subscription.keys.p256dh,
-          auth: subscription.keys.auth,
-          updatedAt: new Date(),
-        },
-      });
-      return;
-    }
-
-    await prisma.pushSubscription.create({
-      data: {
+      update: {
+        userId,
+        deviceInfo,
+        p256dh: subscription.keys.p256dh,
+        auth: subscription.keys.auth,
+        updatedAt: new Date(),
+      },
+      create: {
         userId,
         endpoint: subscription.endpoint,
         p256dh: subscription.keys.p256dh,
@@ -44,8 +42,26 @@ export async function salvarPushSubscription(
       },
     });
   } catch (error) {
-    console.error('❌ Erro ao salvar subscription:', error);
-    throw new Error('Falha ao salvar subscription');
+    // Log mais detalhado do erro
+    console.error('❌ Erro ao salvar subscription:', {
+      userId,
+      endpoint: subscription.endpoint,
+      error: error instanceof Error ? error.message : error,
+    });
+
+    // Tratamento específico para erros conhecidos
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        throw new Error('Subscription duplicada');
+      }
+      if (error.code === 'P2025') {
+        throw new Error('Registro não encontrado');
+      }
+    }
+
+    throw new Error(
+      `Falha ao salvar subscription: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+    );
   }
 }
 
