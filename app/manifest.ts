@@ -1,21 +1,23 @@
 import type { MetadataRoute } from 'next'
- 
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'DG - Curso de Redação',
     short_name: 'DG - Redação',
     description: 'A plataforma de curso de redação',
     start_url: '/',
-    orientation: 'portrait',
+    scope: '/',
+    orientation: 'portrait-primary',
     display: 'standalone',
-    dir: 'auto',
+    dir: 'ltr',
     lang: 'pt-BR',
     background_color: '#003d8b',
     theme_color: '#003d8b',
+    categories: ['education', 'productivity'],
     icons: [
       {
-       sizes: '512x512',
         src: '/icon512_maskable.png',
+        sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable',
       },
@@ -24,6 +26,18 @@ export default function manifest(): MetadataRoute.Manifest {
         sizes: '512x512',
         type: 'image/png',
         purpose: 'any',
+      },
+      {
+        src: '/icon192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icon192_maskable.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'maskable',
       },
     ],
   }
