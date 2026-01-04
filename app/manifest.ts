@@ -13,6 +13,13 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: 'pt-BR',
     background_color: '#003d8b',
     theme_color: '#003d8b',
+    screenshots: [
+      {
+        src: '/windows11/SmallTile.scale-100.png',
+        sizes: '71x71',
+        type: 'image/png',
+      },
+    ],
     icons: [
       {
         src: '/windows11/SmallTile.scale-100.png',

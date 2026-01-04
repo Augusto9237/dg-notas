@@ -4,6 +4,7 @@ import { useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import clsx from "clsx"
 
 // Nomes dos dias da semana para exibição
 const DIAS_DA_SEMANA = [
@@ -52,20 +53,11 @@ export function CalendarioAgendarMentoria({
   selecionado,
   aoSelecionar,
 }: PropsCalendarioDoisDiasDaSemana) {
-  // Estado para a data atual exibida no calendário
   const [dataAtual, setDataAtual] = useState(new Date())
 
-  // Obtém o ano e mês da data atual
   const ano = dataAtual.getFullYear()
   const mes = dataAtual.getMonth()
 
-  /**
-   * Gera pares de datas filtradas para os dois dias da semana configurados no mês atual.
-   * As datas são agrupadas por semana, garantindo que o primeiro dia da semana apareça na primeira coluna
-   * e o segundo na segunda coluna do grid.
-   * @returns Um array de tuplas, onde cada tupla contém [dataPrimeiroDiaSemana, dataSegundoDiaSemana],
-   *          com null se o dia não existir na semana.
-   */
   const obterParesDeDatasFiltradas = (): Array<[Date | null, Date | null]> => {
     const paresDeDatas: Array<[Date | null, Date | null]> = []
     const diasNoMes = new Date(ano, mes + 1, 0).getDate() // Último dia do mês
@@ -158,6 +150,15 @@ export function CalendarioAgendarMentoria({
     )
   }
 
+  const desabilitarData = (data: Date) => {
+    const hoje = new Date()
+    hoje.setHours(0, 0, 0, 0)
+    const dataComparacao = new Date(data)
+    dataComparacao.setHours(0, 0, 0, 0)
+    return dataComparacao < hoje
+  }
+
+
   /**
    * Verifica se a data fornecida está selecionada.
    * @param data A data a ser verificada.
@@ -198,17 +199,12 @@ export function CalendarioAgendarMentoria({
         key={data.toISOString()}
         type="button"
         onClick={() => handleCliqueNaData(data)}
-        className={`
-          relative h-11 rounded-lg border-1 transition-all
-          hover:border-foreground hover:bg-accent
-          flex flex-col items-center justify-center
-          ${estaSelecionado(data)
-            ? "border-primary bg-primary/5 text-primary"
-            : ehHoje(data)
-              ? "border-primary/50 bg-accent"
-              : "border-border bg-card"
-          }
-        `}
+        disabled={desabilitarData(data)}
+        className={clsx('relative h-11 rounded-lg border-border bg-card border-1 transition-all hover:border-foreground hover:bg-accent flex flex-col items-center justify-center',
+          estaSelecionado(data) && "border-primary bg-primary/5 text-primary",
+          ehHoje(data) && "border-primary/50 bg-accent",
+          desabilitarData(data) && "cursor-not-allowed hover:border-border hover:bg-muted opacity-50"
+        )}
       >
         <span className="text-sm font-bold">{data.getDate()}</span>
         <span className="text-xs opacity-70">{DIAS_DA_SEMANA[data.getDay()].label}</span>

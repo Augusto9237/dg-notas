@@ -19,11 +19,9 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Calendar } from "./ui/calendar"
 import { CalendarPlus, CalendarSync, Loader2 } from "lucide-react"
 import { useState, useEffect, useMemo, useCallback, Dispatch, SetStateAction, useRef } from "react"
 import { ptBR } from "date-fns/locale"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { adicionarMentoria, editarMentoria, verificarDisponibilidadeMultiplosSlots } from "@/actions/mentoria"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
@@ -101,11 +99,6 @@ export function AgendarMentoriaAluno({
 
     // Memoizar IDs dos slots para evitar recriação de arrays
     const slotIds = useMemo(() => slotsHorario.map(slot => slot.id), [slotsHorario]);
-
-    // Memoizar dias permitidos para o calendário
-    const diasPermitidos = useMemo(() => {
-        return diasSemana.map(dia => dia.dia);
-    }, [diasSemana]);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -198,12 +191,6 @@ export function AgendarMentoriaAluno({
         };
     }, [watchedData, verificarVagas]);
 
-    // Memoizar função disabled do calendário
-    const isDateDisabled = useCallback((date: Date) => {
-        if (date < new Date()) return true
-        const dayOfWeek = date.getDay()
-        return !diasPermitidos.includes(dayOfWeek)
-    }, [diasPermitidos]);
 
     function formartarData(data: Date) {
         // Converter a data UTC para uma data local sem problemas de fuso horário
@@ -302,7 +289,22 @@ export function AgendarMentoriaAluno({
                                 <FormItem>
                                     <FormLabel>Horário</FormLabel>
                                     <FormControl>
-                                        <Select onValueChange={field.onChange} value={String(field.value) ?? ""}>
+                                        <div className="grid grid-cols-3 gap-4 max-h-48 overflow-y-auto ">
+                                            {slotsHorario.map((slot) => (
+                                                <Button
+                                                    key={slot.id}
+                                                    size="sm"
+                                                    variant={field.value === String(slot.id) ? "outline" : "ghost"}
+                                                    className={clsx(field.value === String(slot.id) && "bg-primary/5")}
+                                                    onClick={() => field.onChange(String(slot.id))}
+                                                    disabled={vagas[slot.id] === 0}
+                                                    type="button"
+                                                >
+                                                    {slot.nome}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                        {/* <Select onValueChange={field.onChange} value={String(field.value) ?? ""}>
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder={!watchedData ? "Selecione uma data primeiro" : "Selecione um horário"} />
                                             </SelectTrigger>
@@ -320,14 +322,14 @@ export function AgendarMentoriaAluno({
                                                     )
                                                 })}
                                             </SelectContent>
-                                        </Select>
+                                        </Select> */}
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-4 pt-4">
                             <div className={clsx(form.formState.isSubmitting ? 'animate-fade-left animate-once hidden' : "w-full flex md:justify-end")}>
                                 <Button
                                     type="button"

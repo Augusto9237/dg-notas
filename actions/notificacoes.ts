@@ -1,5 +1,5 @@
 'use server'
-import { Prisma } from "@/app/generated/prisma";
+import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { sendWebPushNotifications } from "@/lib/webpush";
 import type { PushSubscriptionData, NotificationPayload } from "@/lib/webpush";
