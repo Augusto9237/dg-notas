@@ -295,7 +295,7 @@ export function AgendarMentoriaAluno({
                                                     key={slot.id}
                                                     size="sm"
                                                     variant={field.value === String(slot.id) ? "outline" : "ghost"}
-                                                    className={clsx(field.value === String(slot.id) && "bg-primary/5")}
+                                                    className={clsx('text-xs', field.value === String(slot.id) && "bg-primary/5")}
                                                     onClick={() => field.onChange(String(slot.id))}
                                                     disabled={vagas[slot.id] === 0}
                                                     type="button"
@@ -304,25 +304,6 @@ export function AgendarMentoriaAluno({
                                                 </Button>
                                             ))}
                                         </div>
-                                        {/* <Select onValueChange={field.onChange} value={String(field.value) ?? ""}>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder={!watchedData ? "Selecione uma data primeiro" : "Selecione um horário"} />
-                                            </SelectTrigger>
-                                            <SelectContent className="space-y-4">
-                                                {isLoading && <div className="flex items-center justify-center p-2"><Loader2 className="h-4 w-4 animate-spin" /></div>}
-                                                {!isLoading && Object.keys(vagas).length > 0 && slotsHorario.map((horario) => {
-                                                    const vagasDisponiveis = vagas[horario.id];
-                                                    const isAvailable = vagasDisponiveis > 0;
-
-                                                    return (
-                                                        <SelectItem key={horario.id} value={String(horario.id)} disabled={!isAvailable} className={!isAvailable ? 'opacity-45 text-foreground hover:text-foreground' : 'text-primary hover:text-primary'}>
-                                                            {horario.nome} - {isAvailable ? `${vagasDisponiveis} ${vagasDisponiveis === 1 ? 'vaga disponível' : 'vagas disponíveis'}` :
-                                                                'Reservado'}
-                                                        </SelectItem>
-                                                    )
-                                                })}
-                                            </SelectContent>
-                                        </Select> */}
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
