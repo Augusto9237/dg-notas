@@ -1,55 +1,74 @@
-# Plataforma de Mentoria e Correção de Redações
+# DG - Plataforma de Mentoria e Correção de Redações
 
-## Visão Geral
+Bem-vindo ao **DG - Plataforma de Mentoria**, uma solução web completa e moderna desenvolvida para conectar alunos e professores, facilitando o processo de correção de redações e agendamento de mentorias. Este projeto utiliza as tecnologias mais recentes do ecossistema React/Next.js para oferecer uma experiência de usuário fluida, responsiva e engajadora.
 
-Uma plataforma web completa para conectar alunos e professores, facilitando mentorias e a correção detalhada de redações. O sistema oferece ferramentas avançadas para agendamento, avaliação por competências, acompanhamento de progresso e rankings de desempenho.
+## 🚀 Visão Geral
 
-## Funcionalidades
+A plataforma visa otimizar o aprendizado e o ensino da redação, oferecendo ferramentas robustas para:
+- **Correção detalhada** baseada em competências.
+- **Acompanhamento de progresso** com métricas visuais.
+- **Agendamento simplificado** de mentorias individuais.
+- **Notificações em tempo real** para manter todos atualizados.
+- **Experiência nativa** através de suporte PWA (Progressive Web App).
 
-### Para Alunos:
+## ✨ Funcionalidades Principais
 
-- **Autenticação Segura:** Cadastro e login de usuários.
-- **Submissão de Redações:** Envio de redações para correção e feedback detalhado.
-- **Dashboard de Competências:** Visualização de desempenho por competência (C1 a C5) com gráficos interativos.
-- **Ranking:** Acompanhamento da posição no ranking geral de alunos.
-- **Agendamento de Mentorias:** Visualização e agendamento de horários com professores.
-- **Histórico:** Acesso a todas as avaliações e mentorias passadas.
-- **Perfil:** Gerenciamento de dados pessoais.
+### 🎓 Para Alunos
+- **Dashboard Personalizado:** Visão geral do desempenho, últimas correções e próximas mentorias.
+- **Submissão de Redações:** Interface intuitiva para envio de textos (imagem ou texto).
+- **Feedback Detalhado:** Receba correções com notas por competência (C1-C5) e comentários específicos.
+- **Gráficos de Evolução:** Acompanhe seu progresso ao longo do tempo com gráficos interativos.
+- **Ranking:** Veja sua posição em relação a outros alunos.
+- **Agendamento de Mentorias:** Reserve horários com professores através de um calendário interativo.
+- **Notificações Push:** Receba alertas instantâneos sobre correções finalizadas e lembretes de mentoria (Web Push).
+- **PWA Instalável:** Instale o app no seu dispositivo (desktop ou mobile) para acesso rápido e offline-ready.
 
-### Para Professores:
+### 👨‍🏫 Para Professores
+- **Gestão de Alunos:** Acesso fácil ao histórico e perfil de cada aluno.
+- **Fila de Correção:** Organização eficiente das redações pendentes.
+- **Ferramenta de Correção:** Interface otimizada para atribuir notas e comentários por competência com agilidade.
+- **Gestão de Agenda:** Defina seus horários disponíveis para mentoria.
+- **Painel Administrativo:** Visão macro do engajamento e desempenho da plataforma.
+- **Criação de Temas:** Gerencie os temas de redação disponíveis para prática.
 
-- **Dashboard Administrativo:** Visão geral dos alunos, avaliações recentes e estatísticas.
-- **Correção de Redações:** Interface otimizada para avaliar redações com base em critérios específicos.
-- **Gestão de Temas:** Criação e gerenciamento de temas de redação disponíveis para os alunos.
-- **Ranking de Alunos:** Visualização dos alunos com melhor desempenho (Top 5).
-- **Gerenciamento de Agenda:** Controle total sobre a disponibilidade para mentorias.
-- **Detalhes do Aluno:** Acesso ao histórico completo e evolução de cada aluno.
+### 🛠️ Diferenciais Técnicos
+- **Real-Time Notifications:** Sistema de notificações Web Push integrado, garantindo que os usuários não percam atualizações importantes, mesmo com o app fechado.
+- **Progressive Web App (PWA):** Manifesto completo com ícones adaptáveis para Windows, iOS e Android. Suporte a instalação na home screen e funcionamento similar a app nativo.
+- **Design System Moderno:** Interface polida construída com **Shadcn/UI** e **Tailwind CSS**, com suporte a modo escuro (Dark Mode).
+- **Performance:** Renderização otimizada com Next.js App Router e Server Actions.
 
-### Gerais:
+## 💻 Tecnologias Utilizadas
 
-- **Controle de Acesso Baseado em Função:** Permissões específicas para Alunos e Professores/Admins.
-- **Design Responsivo:** Interface moderna e adaptável para qualquer dispositivo.
-- **Dark/Light Mode:** Suporte a temas visuais.
+O projeto foi construído com uma stack moderna e robusta:
 
-## Tecnologias Utilizadas
-
-- **Framework:** [Next.js](https://nextjs.org/) (App Router)
+- **Framework:** [Next.js 14+](https://nextjs.org/) (App Router & Server Components)
 - **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
-- **Banco de Dados:** [Prisma ORM](https://www.prisma.io/)
-- **Autenticação:** [BetterAuth](https://www.better-auth.com/)
+- **Banco de Dados:** [PostgreSQL](https://www.postgresql.org/) com [Prisma ORM](https://www.prisma.io/)
 - **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
-- **Componentes:** [shadcn/ui](https://ui.shadcn.com/)
+- **Componentes:** [shadcn/ui](https://ui.shadcn.com/) (Radix UI)
 - **Gráficos:** [Recharts](https://recharts.org/)
-- **Validação:** [Zod](https://zod.dev/)
-- **Formulários:** [React Hook Form](https://react-hook-form.com/)
+- **Validação:** [Zod](https://zod.dev/) e [React Hook Form](https://react-hook-form.com/)
+- **Notificações:** Web Push API & Service Workers
+- **Autenticação:** [BetterAuth](https://www.better-auth.com/) (ou NextAuth, conforme configuração)
 
-## Começando
+## 📂 Estrutura do Projeto
 
-Siga os passos abaixo para configurar e executar o projeto localmente.
+- **/app**: Rotas e layouts do Next.js (App Router).
+  - `(login)`: Fluxos de autenticação.
+  - `aluno`: Área restrita do aluno.
+  - `professor`: Área restrita do professor.
+  - `api`: Rotas de API (Webhooks, etc).
+- **/components**: Biblioteca de componentes reutilizáveis.
+- **/actions**: Server Actions para mutação de dados segura.
+- **/lib**: Configurações de serviços (Prisma, Auth, Utils).
+- **/public**: Assets estáticos e configurações de PWA (manifest, icons, sw.js).
+- **/prisma**: Schema do banco de dados.
+
+## 🚀 Como Executar
 
 1. **Clone o repositório:**
    ```bash
-   git clone <URL_DO_REPOSITORIO>
+   git clone <url-do-repositorio>
    ```
 
 2. **Instale as dependências:**
@@ -58,17 +77,12 @@ Siga os passos abaixo para configurar e executar o projeto localmente.
    ```
 
 3. **Configure as variáveis de ambiente:**
-   - Crie um arquivo `.env` na raiz do projeto.
-   - Adicione a string de conexão do banco de dados e outros segredos necessários.
-     ```
-     DATABASE_URL="sua_string_de_conexao"
-     NEXTAUTH_URL="http://localhost:3000"
-     NEXTAUTH_SECRET="seu_segredo_aqui"
-     ```
+   Crie um arquivo `.env` na raiz com as chaves necessárias (DATABASE_URL, chaves VAPID para push, secrets de auth).
 
-4. **Execute as migrações do banco de dados:**
+4. **Prepare o banco de dados:**
    ```bash
-   npx prisma migrate dev
+   npx prisma generate
+   npx prisma db push
    ```
 
 5. **Inicie o servidor de desenvolvimento:**
@@ -76,16 +90,8 @@ Siga os passos abaixo para configurar e executar o projeto localmente.
    npm run dev
    ```
 
-6. Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
+6. Acesse `http://localhost:3000` no seu navegador.
 
-## Estrutura do Projeto
+---
 
-- **/app**: Diretório principal (App Router).
-  - `/(login)`: Rotas de autenticação.
-  - `/aluno`: Dashboard e funcionalidades do aluno.
-  - `/professor`: Dashboard e ferramentas do professor.
-- **/actions**: Server Actions para lógica de negócios e mutações.
-- **/components**: Componentes React modulares.
-  - `/ui`: Componentes base do shadcn/ui.
-- **/lib**: Utilitários, configurações (auth, prisma) e helpers.
-- **/prisma**: Schema do banco de dados e migrações.
+Desenvolvido com foco em **Performance**, **Usabilidade** e **Código Limpo**.
