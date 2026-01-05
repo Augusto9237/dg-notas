@@ -2,7 +2,6 @@ import { ListarAvaliacoes, ListarCriterios, ListarTemas } from '@/actions/avalia
 import { FormularioTema } from '@/components/formulario-tema';
 import { TabelaTemas } from '@/components/tabela-temas';
 import { Suspense } from 'react';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import Loading from './loading';
 import { ModalCompetencias } from '@/components/modal-competencias';
 import { HeaderProfessor } from '@/components/header-professor';

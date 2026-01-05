@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useMemo, useEffect, useCallback } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useState, useMemo, useEffect, useCallback, useContext } from "react"
+import { CheckCircle, ChevronLeft, ChevronRight, Clock2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -29,7 +29,9 @@ import React from "react"
 import { ModalMentoriaProfessor } from "./modal-mentoria-professor"
 import { excluirMentoriaECascata } from "@/actions/mentoria"
 import { toast } from "sonner"
-import { array } from "zod"
+import { TbClockCheck } from "react-icons/tb"
+import { RiUserStarLine } from "react-icons/ri"
+import { ContextoProfessor } from "@/context/contexto-professor"
 
 // Types
 type Mentoria = Prisma.MentoriaGetPayload<{
@@ -44,7 +46,6 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 }>
 
 interface CalendarioGrandeProps {
-  mentorias: Mentoria[]
   diasSemana: DiaSemana[]
   slotsHorario: SlotHorario[]
 }
@@ -155,46 +156,15 @@ CelulaHorario.displayName = "CelulaHorario"
 
 // Componente Principal
 export function CalendarioGrande({
-  mentorias,
+  // mentorias,
   diasSemana,
   slotsHorario
 }: CalendarioGrandeProps) {
+  const { listaMentorias: mentorias } = useContext(ContextoProfessor)
   const [statusSelecionado, setStatusSelecionado] = useState<string>("TODAS")
   const [semanaAtual, setSemanaAtual] = useState(obterInicioSemanaAtual)
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>(mentorias)
   const [carregando, setCarregando] = useState(false)
-
-
-  const HORA_LIMITE_EXCLUSAO = 17
-
-  useEffect(() => {
-    const agora = new Date()
-
-    // Verifica se a hora atual é depois do horário limite
-    if (agora.getHours() >= HORA_LIMITE_EXCLUSAO) {
-      const mentoriasParaRemover = mentorias.filter(mentoria => {
-        // Verifica se a mentoria é do dia de hoje
-        const ehHoje = saoMesmaDataUTC(mentoria.horario.data, agora)
-        const estaAgendada = mentoria.status === 'AGENDADA'
-
-        return ehHoje && estaAgendada
-      })
-
-      // Exclui todas as mentorias em paralelo e exibe uma única notificação
-      if (mentoriasParaRemover.length > 0) {
-        Promise.all(
-          mentoriasParaRemover.map(mentoria => excluirMentoriaECascata(mentoria.id))
-        ).then(() => {
-          toast.error(
-            `${mentoriasParaRemover.length} mentoria${mentoriasParaRemover.length > 1 ? 's' : ''} não confirmada${mentoriasParaRemover.length > 1 ? 's foram' : ' foi'} excluída${mentoriasParaRemover.length > 1 ? 's' : ''} automaticamente`
-          )
-        }).catch((erro) => {
-          console.error('Erro ao excluir mentorias:', erro)
-          toast.error('Erro ao excluir mentorias não confirmadas')
-        })
-      }
-    }
-  }, [mentorias]);
 
 
   const diasSemanaAtivos = useMemo(() =>
@@ -326,20 +296,20 @@ export function CalendarioGrande({
         </div>
       </CardHeader>
 
-      <CardContent className="h-full flex-1 overflow-hidden p-0 pb-22">
+      <CardContent className="h-full flex-1 overflow-hidden p-0 pb-16.5">
         <div className={cn('grid gap-0 border border-border rounded-t-lg bg-background/30 lg:pr-3.5', gridColsClass)}>
-          <div className="border-r border-border p-4 px-2 text-center text-sm max-md:text-xs font-medium text-muted-foreground">
+          <div className="border-r border-border p-2 text-center text-sm max-md:text-xs font-medium text-muted-foreground">
             Horário
           </div>
           {diasSemanaAtivos.map((dia, index) => (
             <div
               key={dia.id}
-              className={`p-4 text-center ${index < diasSemanaAtivos.length - 1 ? 'border-r border-border' : ''}`}
+              className={`p-2 text-center ${index < diasSemanaAtivos.length - 1 ? 'border-r border-border' : ''}`}
             >
               <div className="text-sm max-md:text-xs font-medium text-muted-foreground">
                 {dia.nome}
               </div>
-              <div className="text-xl max-md:text-lg max-sm:text-base font-bold">
+              <div className="text-lg max-md:text-base max-sm:text-base font-bold">
                 {formatarData(diasDaSemana[dia.nome.toLowerCase()])}
               </div>
             </div>
@@ -379,13 +349,20 @@ export function CalendarioGrande({
         </div>
       </CardContent>
 
-      <CardFooter>
-        <CardDescription className="text-center w-full">
+      <CardFooter className="px-0">
+        <div className="w-full text-sm flex items-center gap-5">
           {mentoriasDaSemana.length > 0
-            ? `${mentoriasDaSemana.length} mentoria${mentoriasDaSemana.length !== 1 ? "s" : ""
-            } esta semana`
+            ?
+            (
+              <>
+                {mentoriasDaSemana.length > 0 && <p className="text-muted-foreground flex items-center gap-1">{mentoriasDaSemana.length} <RiUserStarLine size={12} /> {`Mentoria${mentoriasDaSemana.length > 1 ? "s" : ""} para esta semana`}</p>}
+                {mentoriasDaSemana.filter(mentoria => mentoria.status === 'AGENDADA').length > 0 && <p className="text-secondary flex items-center gap-1">{mentoriasDaSemana.filter(mentoria => mentoria.status === 'AGENDADA').length} <Clock2 size={12} /> {`Agendada${mentoriasDaSemana.filter(mentoria => mentoria.status === 'AGENDADA').length > 1 ? "s" : ""}`}</p>}
+                {mentoriasDaSemana.filter(mentoria => mentoria.status === 'CONFIRMADA').length > 0 && <p className="text-primary-foreground flex items-center gap-1">{mentoriasDaSemana.filter(mentoria => mentoria.status === 'CONFIRMADA').length} <TbClockCheck size={12} /> {`Confirmada${mentoriasDaSemana.filter(mentoria => mentoria.status === 'CONFIRMADA').length > 1 ? "s" : ""}`}</p>}
+                {mentoriasDaSemana.filter(mentoria => mentoria.status === 'REALIZADA').length > 0 && <p className="text-primary flex items-center gap-1">{mentoriasDaSemana.filter(mentoria => mentoria.status === 'REALIZADA').length} <CheckCircle size={12} /> {`Realizada${mentoriasDaSemana.filter(mentoria => mentoria.status === 'REALIZADA').length > 1 ? "s" : ""}`}</p>}
+              </>
+            )
             : "Nenhuma mentoria esta semana"}
-        </CardDescription>
+        </div>
       </CardFooter>
     </Card>
   )
