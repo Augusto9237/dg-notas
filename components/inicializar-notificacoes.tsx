@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import useWebPush from "@/hooks/useWebPush";
 import { Button } from "@/components/ui/button";
-import { Bell, BellOff, Download, X } from "lucide-react";
+import { Bell, Download, X } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -61,9 +61,7 @@ export function InicializarNotificacoes({ userId }: InicializarNotificacoesProps
     }
   };
 
-  const handleUnsubscribe = async () => {
-    await unsubscribe();
-  };
+
 
   // Não mostra nada se não for suportado
   if (!isSupported && !needsInstall) {
@@ -99,8 +97,8 @@ export function InicializarNotificacoes({ userId }: InicializarNotificacoesProps
               <p className="font-medium">Como instalar:</p>
               <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
                 <li>Toque no botão <span className="font-semibold">Compartilhar</span> (⎋)</li>
-                <li>Role para baixo e toque em <span className="font-semibold">"Adicionar à Tela Inicial"</span> (➕)</li>
-                <li>Toque em <span className="font-semibold">"Adicionar"</span></li>
+                <li>Role para baixo e toque em <span className="font-semibold">&quot;Adicionar à Tela Inicial&quot;</span> (➕)</li>
+                <li>Toque em <span className="font-semibold">&quot;Adicionar&quot;</span></li>
                 <li>Abra o app pela tela inicial</li>
                 <li>Ative as notificações dentro do app</li>
               </ol>
