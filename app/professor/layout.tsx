@@ -11,6 +11,10 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 import { InicializarNotificacoes } from "@/components/inicializar-notificacoes";
+import { ProverdorProfessor } from "@/context/provider-professor";
+import { ListarAvaliacoes, listarTemasMes } from "@/actions/avaliacao";
+import { listarMentoriasMes } from "@/actions/mentoria";
+import { listarAlunosGoogle } from "@/actions/alunos";
 
 const poppins = Poppins({
   weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -55,6 +59,14 @@ export default async function RootLayout({
   }
 
   const userId = session.user.id;
+
+  // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
+  const [avaliacoes, mentorias, temasMes, alunos] = await Promise.all([
+    ListarAvaliacoes(),
+    listarMentoriasMes(),
+    listarTemasMes(),
+    listarAlunosGoogle()
+  ]);
   return (
     <html lang="pt-BR">
       <head>
@@ -72,15 +84,17 @@ export default async function RootLayout({
         className={`${poppins.className} antialiased`}
       >
         <InicializarNotificacoes userId={userId} />
-        <SidebarProvider>
-          <div suppressHydrationWarning>
-            <AppSidebar />
-          </div>
-          <SidebarInset className="relative">
-            {children}
-          </SidebarInset>
-        </SidebarProvider>
-        <Toaster richColors theme="light" />
+        <ProverdorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temasMes} alunos={alunos}>
+          <SidebarProvider>
+            <div suppressHydrationWarning>
+              <AppSidebar />
+            </div>
+            <SidebarInset className="relative">
+              {children}
+            </SidebarInset>
+          </SidebarProvider>
+          <Toaster richColors theme="light" />
+        </ProverdorProfessor>
       </body>
     </html>
   );

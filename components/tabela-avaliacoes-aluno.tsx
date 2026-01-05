@@ -14,8 +14,6 @@ interface TabelaAvaliacoesAlunoProps {
 export function TabelaAvaliacoesAluno({ criterios }: TabelaAvaliacoesAlunoProps) {
     const { listaAvaliacoes, listaTemas, } = useContext(ContextoAluno);
 
-    console.log('teste', listaTemas);
-
     const pendingAvaliacoes = listaAvaliacoes.filter((avaliacao) => avaliacao.status === "ENVIADA");
     return (
         <Tabs defaultValue="pendentes">
