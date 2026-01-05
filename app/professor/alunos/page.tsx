@@ -5,7 +5,6 @@ import { Suspense } from 'react';
 import { HeaderProfessor } from '@/components/header-professor';
 
 export default async function Page() {
-  const alunos = await listarAlunosGoogle();
 
   return (
     <Suspense fallback={<Loading />}>
@@ -18,7 +17,7 @@ export default async function Page() {
         </HeaderProfessor>
 
         <main className="flex flex-col p-5 h-full">
-          <TabelaAlunos alunos={alunos} />
+          <TabelaAlunos />
         </main>
       </div>
     </Suspense>

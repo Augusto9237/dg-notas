@@ -29,7 +29,7 @@ type Tema = Prisma.TemaGetPayload<{
     }
 }>
 
-type Aluno = Prisma.UserGetPayload<{
+export type Aluno = Prisma.UserGetPayload<{
     include: {
         avaliacoesComoAluno: true,
     }

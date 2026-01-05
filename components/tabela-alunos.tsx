@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useContext } from 'react';
 import {
   Table,
   TableBody,
@@ -30,6 +30,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { banirUsuario } from '@/actions/admin';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
+import { ContextoProfessor } from '@/context/contexto-professor';
 
 type Aluno = Prisma.UserGetPayload<{
   include: {
@@ -38,13 +39,10 @@ type Aluno = Prisma.UserGetPayload<{
 }>
 
 
-interface TabelaAlunosProps {
-  alunos: Aluno[]
-}
-
-export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
+export function TabelaAlunos() {
+  const { listaAlunos } = useContext(ContextoProfessor)
   const [carregando, setCarregando] = useState(false)
-  const [listaAlunos, setListaAlunos] = useState<TabelaAlunosProps['alunos']>([])
+  const [alunos, setAlunos] = useState<Aluno[]>([])
   const searchParams = useSearchParams()
   const busca = searchParams.get('busca')
 
@@ -53,11 +51,11 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
 
   useEffect(() => {
     setCarregando(true);
-    if (alunos.length > 0) {
-      setListaAlunos(alunos)
+    if (listaAlunos.length > 0) {
+      setAlunos(listaAlunos)
     }
     setCarregando(false);
-  }, [alunos]);
+  }, [listaAlunos]);
 
   useEffect(() => {
     let isMounted = true;
@@ -68,7 +66,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
         const resultadoBusca = await listarAlunosGoogle(busca)
 
         if (isMounted) {
-          setListaAlunos(resultadoBusca);
+          setAlunos(resultadoBusca);
           setCarregando(false);
         }
       }
@@ -92,10 +90,10 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
   }
 
   // Calcular paginação
-  const totalPages = Math.ceil(listaAlunos.length / pageSize);
+  const totalPages = Math.ceil(alunos.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  const paginatedAlunos = listaAlunos.slice(startIndex, endIndex);
+  const paginatedAlunos = alunos.slice(startIndex, endIndex);
 
 
 
@@ -189,7 +187,7 @@ export function TabelaAlunos({ alunos }: TabelaAlunosProps) {
       <div className="flex justify-between items-center">
         <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
           {startIndex + 1} -{' '}
-          {Math.min(endIndex, listaAlunos.length)} de {listaAlunos.length} resultados
+          {Math.min(endIndex, alunos.length)} de {alunos.length} resultados
         </div>
         <Pagination>
           <PaginationContent>
