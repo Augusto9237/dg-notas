@@ -46,6 +46,8 @@ export function TabelaAlunos() {
   const searchParams = useSearchParams()
   const busca = searchParams.get('busca')
 
+  console.log('teste input', busca)
+
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
 
@@ -58,27 +60,38 @@ export function TabelaAlunos() {
   }, [listaAlunos]);
 
   useEffect(() => {
-    let isMounted = true;
+    // Se não houver termo de busca, exibimos a lista completa (cacheada no contexto)
+    // Isso evita requisições desnecessárias e restaura o estado instantaneamente
+    if (!busca) {
+      setAlunos(listaAlunos);
+      return;
+    }
 
-    const buscarAvaliacoes = async () => {
-      if (busca) {
-        setCarregando(true);
-        const resultadoBusca = await listarAlunosGoogle(busca)
+    let isMounted = true;
+    setCarregando(true);
+
+    const buscarAlunos = async () => {
+      try {
+        const resultadoBusca = await listarAlunosGoogle(busca);
 
         if (isMounted) {
           setAlunos(resultadoBusca);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar alunos:", error);
+      } finally {
+        if (isMounted) {
           setCarregando(false);
         }
       }
     };
 
-    buscarAvaliacoes()
+    buscarAlunos();
 
     return () => {
       isMounted = false;
     };
-
-  }, [busca])
+  }, [busca]);
 
   async function excluirAluno(alundoId: string) {
     try {

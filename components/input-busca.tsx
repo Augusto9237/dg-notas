@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Search } from 'lucide-react';
@@ -13,6 +13,7 @@ export function InputBusca({ placeholder }: InputBuscaProps) {
     const [termoBusca, setTermoBusca] = useState('');
     const searchParams = useSearchParams()
     const router = useRouter()
+    const path = usePathname()
     const busca = searchParams.get('busca')
 
 
