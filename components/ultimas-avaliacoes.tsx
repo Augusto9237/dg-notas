@@ -45,7 +45,9 @@ export function UltimasAvaliacoes({ temasMes, avaliacoes }: { temasMes: TemasMes
                                     <TableCell>{tema.nome}</TableCell>
                                     <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
                                     <TableCell className="w-[20px] text-center">
-                                        <Badge>
+                                        <Badge
+                                           variant={avaliacoes.filter((avaliacao) => avaliacao.temaId === tema.id && avaliacao.resposta.length > 0).length > 0 ? 'default' : 'outline'}
+                                        >
                                             {avaliacoes.filter((avaliacao) => avaliacao.temaId === tema.id && avaliacao.resposta.length > 0).length}
                                         </Badge>
                                     </TableCell>

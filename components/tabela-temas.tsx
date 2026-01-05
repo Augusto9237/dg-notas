@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState, useMemo, useContext } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
@@ -18,6 +18,7 @@ import { InputBusca } from "./input-busca"
 import { Button } from "./ui/button"
 import { Switch } from "./ui/switch"
 import { enviarNotificacaoParaTodos } from "@/actions/notificacoes"
+import { ContextoProfessor } from "@/context/contexto-professor"
 
 
 type Tema = Prisma.TemaGetPayload<{
@@ -33,7 +34,6 @@ interface respostasPorTema {
 
 
 interface TabelaTemasProps {
-  temas: Tema[];
   avaliacoes: Avaliacao[];
 }
 
@@ -70,7 +70,8 @@ function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRes
   );
 }
 
-export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasProps) {
+export function TabelaTemas() {
+  const { listaTemas, listaAvaliacoes } = useContext(ContextoProfessor)
   const [temas, setTemas] = useState<Tema[]>([]);
   const searchParams = useSearchParams();
   const busca = searchParams.get('busca');
@@ -82,22 +83,21 @@ export function TabelaTemas({ temas: temasIniciais, avaliacoes }: TabelaTemasPro
         const resultadoBusca = await ListarTemas(busca);
         setTemas(resultadoBusca);
       } else {
-        // Se a busca for removida, volta a exibir os temas iniciais
-        setTemas(temasIniciais);
+        setTemas(listaTemas);
       }
     };
 
     buscarTemas();
-  }, [busca, temasIniciais]);
+  }, [busca, listaTemas]);
 
   // Memoiza a contagem de respostas para cada tema, evitando recálculos desnecessários
   const respostasPorTema = useMemo(() => (temaId: number) => {
-    const respostas = avaliacoes.filter(avaliacao => avaliacao.temaId === temaId && avaliacao.resposta);
+    const respostas = listaAvaliacoes.filter(avaliacao => avaliacao.temaId === temaId && avaliacao.resposta);
     return {
       total: respostas.length,
       enviadas: respostas.filter(avaliacao => avaliacao.status === 'ENVIADA').length
     };
-  }, [avaliacoes]);
+  }, [listaAvaliacoes]);
 
   async function atualizarDisponibilidadeTema(temaId: number, status: boolean) {
     try {

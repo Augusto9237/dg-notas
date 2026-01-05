@@ -7,8 +7,7 @@ import { ModalCompetencias } from '@/components/modal-competencias';
 import { HeaderProfessor } from '@/components/header-professor';
 
 export default async function Page() {
-  const [temas, criterios, avaliacoes] = await Promise.all([
-    ListarTemas(),
+  const [criterios, avaliacoes] = await Promise.all([
     ListarCriterios(),
     ListarAvaliacoes()
   ]);
@@ -28,7 +27,7 @@ export default async function Page() {
         </HeaderProfessor>
 
         <main className="flex flex-col p-5 h-full">
-          <TabelaTemas temas={temas} avaliacoes={avaliacoes} />
+          <TabelaTemas/>
         </main>
       </div>
     </Suspense>
