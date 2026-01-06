@@ -156,7 +156,7 @@ export default function InputFotoPerfil({
 
     return (
         <Card className="w-full items-center overflow-hidden">
-            <CardHeader className="w-full justify-center">
+            <CardHeader className="w-full justify-center mt-2">
                 <CardTitle>Perfil</CardTitle>
             </CardHeader>
             <CardContent className="h-full p-0">
@@ -170,7 +170,7 @@ export default function InputFotoPerfil({
                         aria-label="Selecionar foto de perfil"
                     />
                     <div className="relative group w-full">
-                        <Avatar className="size-full min-size-full min-h-full border-2 border-primary">
+                        <Avatar className="size-full min-size-full min-h-full border-4 border-primary shadow-md shadow-foreground/20">
                             <AvatarImage
                                 src={urlImagemExibida}
                                 alt={nomeProfessor || "Avatar"}
@@ -197,7 +197,7 @@ export default function InputFotoPerfil({
                         </div>
                     </div>
 
-                    <div className="text-center space-y-2">
+                    <div className="text-center space-y-2 p-2">
                         <CardTitle className="text-primary">
                             {nomeProfessor}
                         </CardTitle>
