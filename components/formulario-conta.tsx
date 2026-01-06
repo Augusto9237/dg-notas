@@ -25,19 +25,9 @@ import { ref, uploadBytes } from "firebase/storage"
 import { storage } from "@/lib/firebase"
 import { obterUrlImagem } from "@/lib/obter-imagem"
 import { authClient } from "@/lib/auth-client"
+import clsx from "clsx"
 
 export const contaSchema = z.object({
-    image: z
-        .instanceof(File)
-        .optional()
-        .refine(
-            (file) => !file || file.size <= 5 * 1024 * 1024,
-            "Imagem deve ter no máximo 5MB"
-        )
-        .refine(
-            (file) => !file || file.type.startsWith("image/"),
-            "Arquivo deve ser uma imagem"
-        ),
     name: z
         .string()
         .min(2, "Nome deve ter pelo menos 2 caracteres")
@@ -122,15 +112,7 @@ export function FormularioConta({ professor }: FormularioContaProps) {
     }
 
     const onSubmit = async (data: SignUpFormData) => {
-        const storageRef = ref(storage, `perfil/${professor.id}.jpg`);
         try {
-            let image = undefined;
-
-            if (data.image?.name) {
-                await uploadBytes(storageRef, data.image);
-
-                image = `perfil/${professor.id}.jpg`
-            }
 
             const resultado = await atualizarContaProfessor(
                 professor.id,
@@ -140,7 +122,6 @@ export function FormularioConta({ professor }: FormularioContaProps) {
                     telefone: data.telefone,
                     especialidade: data.especialidade,
                     bio: data.bio,
-                    image: image
                 },
                 // Envia undefined se string vazia
                 data.currentPassword && data.currentPassword.trim() !== '' ? data.currentPassword : undefined,
@@ -172,76 +153,9 @@ export function FormularioConta({ professor }: FormularioContaProps) {
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle className="text-center">Editar Conta</DialogTitle>
-                    <DialogDescription>
-                        Faça as suas alterações e clique em salvar para confirmar.
-                    </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="image"
-                            render={({ field: { onChange, value, ...field } }) => (
-                                <FormItem>
-                                    <FormLabel>Foto de Perfil (opcional)</FormLabel>
-                                    <FormControl>
-                                        <div className="flex items-center gap-2">
-                                            {professor.image && !imagePreview && (
-                                                <Avatar className="h-12 w-12 border-2 border-secondary">
-                                                    <AvatarImage
-                                                        src={currentAvatarUrl || ""}
-                                                        style={{ objectFit: "cover" }}
-                                                    />
-                                                    <AvatarFallback className="bg-background text-primary font-medium">
-                                                        DG
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                            )}
-
-                                            {imagePreview && (
-                                                <Avatar className="h-12 w-12 border-2 border-secondary">
-                                                    <AvatarImage
-                                                        src={URL.createObjectURL(imagePreview)}
-                                                        style={{ objectFit: "cover" }}
-                                                    />
-                                                    <AvatarFallback className="bg-background text-primary font-medium">
-                                                        DG
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                            )}
-                                            <div className="flex items-center gap-2 w-full">
-                                                <Input
-                                                    type="file"
-                                                    accept=".jpg, .jpeg"
-                                                    onChange={(e) => {
-                                                        const file = e.target.files?.[0]
-                                                        onChange(file)
-                                                        handleImageChange(file)
-                                                    }}
-                                                    className="w-full bg-background"
-                                                    disabled={form.formState.isSubmitting}
-                                                />
-                                                {imagePreview && (
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            onChange(undefined)
-                                                            setImagePreview(null)
-                                                        }}
-                                                        disabled={form.formState.isSubmitting}
-                                                    >
-                                                        <X className="h-4 w-4" />
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                         <FormField
                             control={form.control}
                             name="name"
@@ -490,15 +404,16 @@ export function FormularioConta({ professor }: FormularioContaProps) {
                             <Button
                                 type="reset"
                                 disabled={form.formState.isSubmitting}
-                                variant="outline"
+                                variant="ghost"
                                 onClick={cancelar}
+                                className={clsx(form.formState.isSubmitting ? 'animate-fade-left animate-once hidden' : 'w-full')}
                             >
                                 Cancelar
                             </Button>
 
                             <Button
                                 type="submit"
-                                className="w-full"
+                                className={clsx(form.formState.isSubmitting ? 'animate-width-transition animate-once w-full col-span-2' : 'w-full')}
                                 disabled={form.formState.isSubmitting}
 
                             >

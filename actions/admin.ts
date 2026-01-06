@@ -80,7 +80,6 @@ export async function atualizarContaProfessor(userId: string, data: AtualizarCon
             telefone: data.telefone,
             especialidade: data.especialidade,
             bio: data.bio,
-            image: data.image
           }
         })
 

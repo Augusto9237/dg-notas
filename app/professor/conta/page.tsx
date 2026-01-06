@@ -12,6 +12,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Loading from "../(dashboard)/loading";
 import { HeaderProfessor } from "@/components/header-professor";
+import InputFotoPerfil from "@/components/input-foto-perfil";
 
 export default async function Page() {
     const session = await auth.api.getSession({
@@ -28,7 +29,7 @@ export default async function Page() {
 
     return (
         <Suspense fallback={<Loading />}>
-            <div className="w-full h-full min-h-screen relative pt-14 overflow-y-auto">
+            <div className="w-full h-full min-h-screen max-h-screen relative pt-14 overflow-hidden">
                 <HeaderProfessor>
                     <div className="max-[1025px]:pl-10">
                         <h1 className="text-xl font-bold">Sua Conta</h1>
@@ -36,35 +37,8 @@ export default async function Page() {
                     </div>
                 </HeaderProfessor>
 
-                <main className="grid grid-cols-3 max-[1025px]:grid-rows-2 max-[1025px]:grid-cols-1 p-5 max-[1025px]:gap-y-5 min-[1025px]:gap-x-5 w-full h-full">
-                    <Card className="w-full items-center">
-                        <div className="flex flex-col items-center gap-4 justify-center  flex-1">
-                            <Avatar className="size-56 min-[1025px]:size-64 border-2 border-primary">
-                                <AvatarImage
-                                    src={fotoPerfil || ''}
-                                    alt={professor?.name || 'Avatar'}
-                                    className="object-cover"
-                                />
-                                <AvatarFallback className='text-xs'>
-                                    {professor?.name
-                                        .split(" ")
-                                        .map(word => word.charAt(0))
-                                        .join("")
-                                        .toUpperCase()
-                                        .slice(0, 2)}
-                                </AvatarFallback>
-                            </Avatar>
-
-                            <div className="text-center space-y-2">
-                                <CardTitle className="text-primary">
-                                    {professor?.name}
-                                </CardTitle>
-                                <Badge variant={'secondary'}>
-                                    {professor?.especialidade}
-                                </Badge>
-                            </div>
-                        </div>
-                    </Card>
+                <main className="grid grid-cols-3 max-[1025px]:grid-rows-2 max-md:grid-cols-1 p-5 max-[1025px]:gap-y-5 min-md:gap-x-5 w-full h-full">
+                   <InputFotoPerfil professor={professor!} fotoPerfil={fotoPerfil}/>
 
                     <Card className="col-span-2 max-sm:gap-4">
                         <CardHeader className="flex justify-between items-center py-0">
