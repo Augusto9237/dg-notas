@@ -40,7 +40,7 @@ export function InicializarNotificacoes({ userId }: InicializarNotificacoesProps
     if (isSupported && permission === "default" && !isSubscribed) {
       const timer = setTimeout(() => {
         setShowPrompt(true);
-      }, 3000);
+      }, 1500);
       return () => clearTimeout(timer);
     }
 
