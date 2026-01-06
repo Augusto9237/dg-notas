@@ -34,7 +34,6 @@ export default async function Page() {
                         <h1 className="text-xl font-bold">Sua Conta</h1>
                         <p className="text-xs text-muted-foreground max-sm:leading-none max-sm:truncate">Gerencie suas informações</p>
                     </div>
-                    <FormularioConta professor={professor!} />
                 </HeaderProfessor>
 
                 <main className="grid grid-cols-3 max-[1025px]:grid-rows-2 max-[1025px]:grid-cols-1 p-5 max-[1025px]:gap-y-5 min-[1025px]:gap-x-5 w-full h-full">
@@ -68,8 +67,9 @@ export default async function Page() {
                     </Card>
 
                     <Card className="col-span-2 max-sm:gap-4">
-                        <CardHeader>
+                        <CardHeader className="flex justify-between items-center py-0">
                             <CardTitle>Informações Pessoais</CardTitle>
+                            <FormularioConta professor={professor!} />
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-4">

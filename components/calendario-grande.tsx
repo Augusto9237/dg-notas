@@ -296,7 +296,7 @@ export function CalendarioGrande({
         </div>
       </CardHeader>
 
-      <CardContent className="h-full flex-1 overflow-hidden p-0 pb-16.5">
+      <CardContent className="h-full flex-1 overflow-hidden p-0 pb-14.5">
         <div className={cn('grid gap-0 border border-border rounded-t-lg bg-background/30 lg:pr-3.5', gridColsClass)}>
           <div className="border-r border-border p-2 text-center text-sm max-md:text-xs font-medium text-muted-foreground">
             Horário
@@ -350,7 +350,7 @@ export function CalendarioGrande({
       </CardContent>
 
       <CardFooter className="px-0">
-        <div className="w-full text-sm flex items-center gap-5">
+        <div className="w-full text-xs flex items-center gap-5">
           {mentoriasDaSemana.length > 0
             ?
             (

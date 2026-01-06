@@ -7,10 +7,7 @@ import { ModalCompetencias } from '@/components/modal-competencias';
 import { HeaderProfessor } from '@/components/header-professor';
 
 export default async function Page() {
-  const [criterios, avaliacoes] = await Promise.all([
-    ListarCriterios(),
-    ListarAvaliacoes()
-  ]);
+  const criterios = await ListarCriterios()
 
   return (
     <Suspense fallback={<Loading />}>
