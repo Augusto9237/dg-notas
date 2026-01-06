@@ -20,6 +20,9 @@ export default async function Page() {
     })
 
     if (!session?.user) {
+        await auth.api.signOut({
+            headers: await headers()
+        })
         return redirect('/login')
     }
 
@@ -38,7 +41,7 @@ export default async function Page() {
                 </HeaderProfessor>
 
                 <main className="grid grid-cols-3 max-[1025px]:grid-rows-2 max-md:grid-cols-1 p-5 max-[1025px]:gap-y-5 min-md:gap-x-5 w-full h-full">
-                   <InputFotoPerfil professor={professor!} fotoPerfil={fotoPerfil}/>
+                    <InputFotoPerfil professor={professor!} fotoPerfil={fotoPerfil} />
 
                     <Card className="col-span-2 max-sm:gap-4">
                         <CardHeader className="flex justify-between items-center py-0">

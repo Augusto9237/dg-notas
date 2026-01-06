@@ -155,12 +155,12 @@ export default function InputFotoPerfil({
     const temPreviewPendente = Boolean(urlPreview && imagemSelecionada)
 
     return (
-        <Card className="w-full items-center overflow-hidden">
+        <Card className="w-full items-center overflow-hidden max-md:gap-3 relative">
             <CardHeader className="w-full justify-center mt-2">
                 <CardTitle>Perfil</CardTitle>
             </CardHeader>
-            <CardContent className="h-full p-0">
-                <div className="flex flex-col items-center gap-5 justify-center flex-1 p-8 relative">
+            <CardContent className="h-full p-0 flex flex-col w-full items-center max-sm:gap-2">
+                <div className="flex flex-col items-center gap-5 justify-center flex-1 p-8 max-md:p-0 relative ">
                     <input
                         type="file"
                         ref={referenciaInputArquivo}
@@ -170,7 +170,7 @@ export default function InputFotoPerfil({
                         aria-label="Selecionar foto de perfil"
                     />
                     <div className="relative group w-full">
-                        <Avatar className="size-full min-size-full min-h-full border-4 border-primary shadow-md shadow-foreground/20">
+                        <Avatar className="size-full max-md:size-52 min-size-full min-h-full border-4 border-primary shadow-md shadow-foreground/20">
                             <AvatarImage
                                 src={urlImagemExibida}
                                 alt={nomeProfessor || "Avatar"}
@@ -197,7 +197,7 @@ export default function InputFotoPerfil({
                         </div>
                     </div>
 
-                    <div className="text-center space-y-2 p-2">
+                    <div className="text-center space-y-2 p-2 max-sm:p-0">
                         <CardTitle className="text-primary">
                             {nomeProfessor}
                         </CardTitle>
@@ -207,12 +207,11 @@ export default function InputFotoPerfil({
                     </div>
                 </div>
             </CardContent>
-            <CardFooter className="w-full">
-                {temPreviewPendente && (
+            <CardFooter className="w-full p">
+                {temPreviewPendente ? (
                     <div
-                        className={`grid gap-5 w-full ${
-                            carregando ? "grid-cols-1" : "grid-cols-2"
-                        }`}
+                        className={`grid gap-5 w-full ${carregando ? "grid-cols-1" : "grid-cols-2"
+                            }`}
                     >
                         {!carregando && (
                             <Button variant="ghost" onClick={aoCancelar}>
@@ -227,7 +226,7 @@ export default function InputFotoPerfil({
                             {carregando ? "Salvando..." : "Salvar"}
                         </Button>
                     </div>
-                )}
+                ) : (<div className="h-9"></div>)}
             </CardFooter>
         </Card>
     )
