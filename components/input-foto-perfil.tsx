@@ -149,7 +149,7 @@ export default function InputFotoPerfil({
         }
     }
 
-    const urlImagemExibida = urlPreview || fotoPerfil || ""
+    const urlImagemExibida = urlPreview || fotoPerfil || "https://lancedb.com/assets/authors/avatar.jpg"
     const nomeProfessor = professor?.name || ""
     const iniciais = obterIniciaisNome(nomeProfessor)
     const temPreviewPendente = Boolean(urlPreview && imagemSelecionada)
