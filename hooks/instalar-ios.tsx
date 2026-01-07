@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
+interface WindowMSStream extends Window {
+  MSStream?: unknown;
+}
+
 export function InstalarIos() {
   const [isIOS, setIsIOS] = useState(false)
   const [isStandalone, setIsStandalone] = useState(false)
@@ -10,15 +14,11 @@ export function InstalarIos() {
 
   useEffect(() => {
     setIsIOS(
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as WindowMSStream).MSStream
     )
 
     setIsStandalone(window.matchMedia('(display-mode: standalone)').matches)
   }, [])
-
-  if (isStandalone) {
-    return null // Don't show install button if already installed
-  }
 
   useEffect(() => {
     if (!isIOS) return
@@ -49,6 +49,10 @@ export function InstalarIos() {
       mql.removeEventListener('change', onChange)
     }
   }, [isIOS, isStandalone, hasPrompted])
+
+  if (isStandalone) {
+    return null // Don't show install button if already installed
+  }
 
   return (
     <div className="hidden"></div>
