@@ -32,7 +32,6 @@ interface AlunoProviderProps {
 export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas }: AlunoProviderProps) => {
     const { notificacoes } = useWebPush({ userId });
     const [isLoading, setIsLoading] = useState(false);
-
     const [listaAvaliacoes, setListaAvaliacoes] = useState<AvaliacaoTema[]>([]);
     const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
     const [listaTemas, setListaTemas] = useState<Tema[]>([]);
