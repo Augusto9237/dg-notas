@@ -9,12 +9,17 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform?: string }>;
 }
 
+// Extensão do Navigator para iOS standalone (Safari)
+interface NavigatorStandalone extends Navigator {
+  standalone?: boolean;
+}
+
 // Função helper para detectar modo standalone
 function isStandaloneMode(): boolean {
   if (typeof window === "undefined") return false;
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
-    (window.navigator as any).standalone === true ||
+    (window.navigator as NavigatorStandalone).standalone === true ||
     document.referrer.includes("android-app://")
   );
 }
