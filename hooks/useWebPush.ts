@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { salvarPushSubscription } from "@/actions/notificacoes";
+import { salvarPushSubscription, removerPushSubscription } from "@/actions/notificacoes";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -50,10 +50,20 @@ export default function useWebPush({ userId }: { userId: string }) {
     if (!subscription) return false;
     setIsLoading(true);
     try {
+      const endpoint = subscription.endpoint;
       await subscription.unsubscribe();
-      console.log('✅ Subscription cancelada');
+      console.log('✅ Subscription cancelada localmente');
+      
+      // Remove do banco de dados
+      try {
+        await removerPushSubscription(endpoint);
+        console.log('✅ Subscription removida do banco de dados');
+      } catch (dbError) {
+        console.error('⚠️ Erro ao remover subscription do banco:', dbError);
+        // Não falha a operação se não conseguir remover do banco
+      }
+      
       setSubscription(null);
-      // Here you might want to call a server action to remove the subscription from the DB
       toast.success('Notificações desativadas');
       return true;
     } catch (error) {
@@ -113,6 +123,32 @@ export default function useWebPush({ userId }: { userId: string }) {
             return false;
         }
 
+        // Limpar subscriptions antigas/inválidas antes de criar nova
+        try {
+            const existingSub = await registration.pushManager.getSubscription();
+            if (existingSub) {
+                console.log('🔄 Subscription existente encontrada. Verificando validade...');
+                // Se a subscription existente não é válida ou está inconsistente, remove
+                try {
+                    // Tenta obter novamente para verificar se está válida
+                    const testSub = await registration.pushManager.getSubscription();
+                    if (testSub && testSub.endpoint !== existingSub.endpoint) {
+                        console.warn('⚠️ Endpoint inconsistente. Removendo subscription antiga...');
+                        await existingSub.unsubscribe();
+                        await removerPushSubscription(existingSub.endpoint).catch(() => {});
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                    }
+                } catch (checkError) {
+                    console.warn('⚠️ Subscription existente pode estar inválida. Removendo...');
+                    await existingSub.unsubscribe().catch(() => {});
+                    await removerPushSubscription(existingSub.endpoint).catch(() => {});
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+            }
+        } catch (cleanupError) {
+            console.warn('⚠️ Erro ao limpar subscriptions antigas:', cleanupError);
+        }
+
         // Get or create subscription
         let sub = await registration.pushManager.getSubscription();
         if (!sub) {
@@ -123,16 +159,34 @@ export default function useWebPush({ userId }: { userId: string }) {
                     applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
                 });
             } catch (error: any) {
-                if (error.name === 'InvalidStateError') {
-                    console.warn('⚠️ Subscription com chave inválida. Removendo a antiga...');
-                    const oldSub = await registration.pushManager.getSubscription();
-                    if (oldSub) await oldSub.unsubscribe();
-                    // Delay to allow unsub to process
-                    await new Promise(resolve => setTimeout(resolve, 250)); 
-                    sub = await registration.pushManager.subscribe({
-                        userVisibleOnly: true,
-                        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
-                    });
+                if (error.name === 'InvalidStateError' || error.name === 'AbortError') {
+                    console.warn('⚠️ Subscription com chave inválida ou estado inconsistente. Limpando...');
+                    // Tenta obter e remover todas as subscriptions existentes
+                    try {
+                        const oldSub = await registration.pushManager.getSubscription();
+                        if (oldSub) {
+                            const oldEndpoint = oldSub.endpoint;
+                            await oldSub.unsubscribe();
+                            await removerPushSubscription(oldEndpoint).catch(() => {});
+                        }
+                    } catch (cleanupErr) {
+                        console.warn('⚠️ Erro ao limpar subscription inválida:', cleanupErr);
+                    }
+                    
+                    // Delay para garantir que a limpeza foi processada
+                    await new Promise(resolve => setTimeout(resolve, 500)); 
+                    
+                    // Tenta criar nova subscription
+                    try {
+                        sub = await registration.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
+                        });
+                        console.log('✅ Nova subscription criada após limpeza');
+                    } catch (retryError) {
+                        console.error('❌ Erro ao criar subscription após limpeza:', retryError);
+                        throw retryError;
+                    }
                 } else {
                     throw error;
                 }
@@ -160,6 +214,15 @@ export default function useWebPush({ userId }: { userId: string }) {
   }, [userId, needsInstall]);
 
 
+  // Ref para evitar loop infinito
+  const isSyncingRef = useRef(false);
+  const subscribeRef = useRef(subscribe);
+  
+  // Atualiza ref quando subscribe muda
+  useEffect(() => {
+    subscribeRef.current = subscribe;
+  }, [subscribe]);
+
   // Main effect for initialization and synchronization
   useEffect(() => {
     // 1. Check basic support
@@ -173,21 +236,42 @@ export default function useWebPush({ userId }: { userId: string }) {
       return;
     }
 
-    // 2. Sync state function
+    // 2. Sync state function - evitando loops com ref
     const syncSubscriptionState = async () => {
+      // Previne múltiplas execuções simultâneas
+      if (isSyncingRef.current) {
+        console.log('⏸️ Sincronização já em andamento, ignorando...');
+        return;
+      }
+
+      isSyncingRef.current = true;
       console.log('🔄 Sincronizando estado da subscription...');
       setIsLoading(true);
+      
       try {
+        // Garantir que o Service Worker está registrado
+        let registration: ServiceWorkerRegistration;
+        try {
+          registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+          await navigator.serviceWorker.ready;
+          console.log('✅ Service Worker registrado e pronto');
+        } catch (swError) {
+          console.error('❌ Erro ao registrar Service Worker:', swError);
+          setIsLoading(false);
+          isSyncingRef.current = false;
+          return;
+        }
+
         const currentPermission = Notification.permission;
         setPermission(currentPermission);
         
-        const registration = await navigator.serviceWorker.ready;
         const currentSub = await registration.pushManager.getSubscription();
 
         if (currentPermission === 'granted') {
           if (!currentSub) {
             console.log('✅ Permissão concedida, mas sem subscription. Tentando inscrever...');
-            await subscribe();
+            // Usa a ref para evitar dependência circular
+            await subscribeRef.current();
           } else {
             console.log('✅ Permissão e subscription estão OK.');
             setSubscription(currentSub);
@@ -195,9 +279,22 @@ export default function useWebPush({ userId }: { userId: string }) {
         } else if (currentPermission === 'denied') {
           if (currentSub) {
             console.warn('⚠️ Permissão negada, mas uma subscription antiga existe. Removendo...');
-            await currentSub.unsubscribe();
+            const endpoint = currentSub.endpoint;
+            try {
+              await currentSub.unsubscribe();
+              console.log('✅ Subscription cancelada localmente');
+              
+              // Remove do banco de dados
+              try {
+                await removerPushSubscription(endpoint);
+                console.log('✅ Subscription removida do banco de dados');
+              } catch (dbError) {
+                console.error('⚠️ Erro ao remover subscription do banco:', dbError);
+              }
+            } catch (unsubError) {
+              console.error('⚠️ Erro ao cancelar subscription:', unsubError);
+            }
             setSubscription(null);
-            // Optional: notify server to remove the subscription
           } else {
              console.log('✅ Permissão negada e sem subscription. Estado consistente.');
           }
@@ -209,13 +306,20 @@ export default function useWebPush({ userId }: { userId: string }) {
         console.error('❌ Erro ao sincronizar estado:', error);
       } finally {
         setIsLoading(false);
+        isSyncingRef.current = false;
       }
     };
     
     syncSubscriptionState();
 
-    // 3. Listen for app focus to re-sync
-    window.addEventListener('focus', syncSubscriptionState);
+    // 3. Listen for app focus to re-sync (com debounce)
+    let focusTimeout: NodeJS.Timeout;
+    const handleFocus = () => {
+      clearTimeout(focusTimeout);
+      focusTimeout = setTimeout(syncSubscriptionState, 500); // Debounce de 500ms
+    };
+    
+    window.addEventListener('focus', handleFocus);
     
     // 4. Listen for messages from SW
     const messageHandler = (event: MessageEvent) => {
@@ -239,10 +343,12 @@ export default function useWebPush({ userId }: { userId: string }) {
 
     // 5. Cleanup
     return () => {
-      window.removeEventListener('focus', syncSubscriptionState);
+      clearTimeout(focusTimeout);
+      window.removeEventListener('focus', handleFocus);
       navigator.serviceWorker.removeEventListener('message', messageHandler);
+      isSyncingRef.current = false;
     };
-  }, [router, subscribe, userId]); // Dependency on subscribe and userId is important
+  }, [router, userId]); // Removido 'subscribe' das dependências para evitar loop
 
   return {
     permission,
