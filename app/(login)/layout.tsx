@@ -10,6 +10,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { InstalarIos } from '@/hooks/instalar-ios';
+import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -65,6 +66,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 className={`${poppins.className} antialiased`}
             >
                 <InstalarIos />
+                <PwaInstallPrompt />
                 <Suspense fallback={<Loading />}>
                     <div className="grid min-h-svh lg:grid-cols-2">
                         <div className="flex items-center justify-center bg-primary">

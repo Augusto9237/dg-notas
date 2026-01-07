@@ -15,6 +15,8 @@ import { ProverdorProfessor } from "@/context/provider-professor";
 import { ListarAvaliacoes, listarTemasMes } from "@/actions/avaliacao";
 import { listarMentoriasMes } from "@/actions/mentoria";
 import { listarAlunosGoogle } from "@/actions/alunos";
+import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
+import { InstalarIos } from "@/hooks/instalar-ios";
 
 const poppins = Poppins({
   weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -82,6 +84,8 @@ export default async function RootLayout({
       <body
         className={`${poppins.className} antialiased`}
       >
+        <InstalarIos />
+        <PwaInstallPrompt />
         <InicializarNotificacoes userId={userId} />
         <ProverdorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temasMes} alunos={alunos}>
           <SidebarProvider>

@@ -11,6 +11,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { FormularioTelefone } from '@/components/formulario-telefone';
 import { InicializarNotificacoes } from '@/components/inicializar-notificacoes';
 import { EdgePollingProvider } from '@/components/edge-polling-provider';
+import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
+import { InstalarIos } from '@/hooks/instalar-ios';
 
 import { auth } from '@/lib/auth';
 import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from '@/actions/avaliacao';
@@ -79,6 +81,8 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 />
             </head>
             <body className={`${poppins.className} antialiased`}>
+                <InstalarIos />
+                <PwaInstallPrompt />
                 <InicializarNotificacoes userId={userId} />
                 <EdgePollingProvider userId={userId} />
                 <ProvedorAluno
