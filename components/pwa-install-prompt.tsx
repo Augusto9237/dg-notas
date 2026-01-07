@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
-
+import { RiInstallFill } from "react-icons/ri";
 // Evento não é padronizado no TS DOM lib; tipamos localmente.
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -43,7 +43,8 @@ export function PwaInstallPrompt() {
       if (hasShownRef.current) return;
       hasShownRef.current = true;
 
-      toastIdRef.current = toast.info("Instale o app para acesso mais rápido", {
+      toastIdRef.current = toast.warning("Instale o app para acesso mais rápido", {
+        icon: <RiInstallFill />,
         duration: 12000,
         action: {
           label: "Instalar",
