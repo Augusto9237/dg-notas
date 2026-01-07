@@ -1,5 +1,5 @@
 
-import { listarDiasSemana, listarMentoriasHorario, listarSlotsHorario } from "@/actions/mentoria";
+import { listarDiasSemana, listarSlotsHorario } from "@/actions/mentoria";
 import { Suspense } from "react";
 import Loading from "./loading";
 import { CalendarioGrande } from "@/components/calendario-grande";

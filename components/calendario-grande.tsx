@@ -163,8 +163,11 @@ export function CalendarioGrande({
   const { listaMentorias: mentorias } = useContext(ContextoProfessor)
   const [statusSelecionado, setStatusSelecionado] = useState<string>("TODAS")
   const [semanaAtual, setSemanaAtual] = useState(obterInicioSemanaAtual)
-  const [listaMentorias, setListaMentorias] = useState<Mentoria[]>(mentorias)
+  const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([])
   const [carregando, setCarregando] = useState(false)
+
+  console.log('mentorias', mentorias)
+  console.log('lista de mentorias', listaMentorias)
 
 
   const diasSemanaAtivos = useMemo(() =>
@@ -176,6 +179,10 @@ export function CalendarioGrande({
     slotsHorario.filter(slot => slot.status),
     [slotsHorario]
   )
+
+  useEffect(() => {
+    setListaMentorias(mentorias)
+  }, [mentorias])
 
   useEffect(() => {
     setCarregando(true)
