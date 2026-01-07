@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { salvarPushSubscription, removerPushSubscription } from "@/actions/notificacoes";
+import { salvarPushSubscription, removerPushSubscription, buscarSubscriptionsPorUsuario } from "@/actions/notificacoes";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -78,6 +78,12 @@ export default function useWebPush({ userId }: { userId: string }) {
 
   // Subscribe function
   const subscribe = useCallback(async () => {
+    // Previne múltiplas execuções simultâneas
+    if (isSubscribingRef.current) {
+      console.log('⏸️ Subscribe já em andamento, ignorando...');
+      return false;
+    }
+
     if (!userId) {
         toast.error('Você precisa estar autenticado para ativar as notificações.');
         return false;
@@ -104,6 +110,7 @@ export default function useWebPush({ userId }: { userId: string }) {
         return false;
     }
 
+    isSubscribingRef.current = true;
     setIsLoading(true);
 
     try {
@@ -151,6 +158,39 @@ export default function useWebPush({ userId }: { userId: string }) {
 
         // Get or create subscription
         let sub = await registration.pushManager.getSubscription();
+        
+        // Verificar se já existe uma subscription válida no banco para este usuário
+        if (sub) {
+            console.log('✅ Subscription local encontrada:', sub.endpoint);
+            const subsNoBanco = await buscarSubscriptionsPorUsuario(userId);
+            const jaExisteNoBanco = subsNoBanco.some(s => s.endpoint === sub!.endpoint);
+            
+            if (jaExisteNoBanco) {
+                console.log('✅ Subscription já existe no banco de dados. Usando existente.');
+                setSubscription(sub);
+                
+                // Limpar outras subscriptions antigas do mesmo usuário (manter apenas a atual)
+                const outrasSubs = subsNoBanco.filter(s => s.endpoint !== sub!.endpoint);
+                if (outrasSubs.length > 0) {
+                    console.log(`🧹 Removendo ${outrasSubs.length} subscription(s) antiga(s) do banco...`);
+                    for (const oldSub of outrasSubs) {
+                        try {
+                            await removerPushSubscription(oldSub.endpoint);
+                            console.log('✅ Subscription antiga removida:', oldSub.endpoint.substring(0, 50));
+                        } catch (err) {
+                            console.warn('⚠️ Erro ao remover subscription antiga:', err);
+                        }
+                    }
+                }
+                
+                isSubscribingRef.current = false;
+                setIsLoading(false);
+                return true;
+            } else {
+                console.log('⚠️ Subscription local existe mas não está no banco. Salvando...');
+            }
+        }
+        
         if (!sub) {
             console.log('🔄 Criando nova subscription...');
             try {
@@ -196,9 +236,32 @@ export default function useWebPush({ userId }: { userId: string }) {
         console.log('✅ Subscription obtida:', sub.endpoint);
         setSubscription(sub);
         
+        // Limpar subscriptions antigas do mesmo usuário antes de salvar a nova
+        try {
+            const subsNoBanco = await buscarSubscriptionsPorUsuario(userId);
+            if (subsNoBanco.length > 0) {
+                console.log(`🧹 Removendo ${subsNoBanco.length} subscription(s) antiga(s) do banco...`);
+                for (const oldSub of subsNoBanco) {
+                    // Não remove a subscription atual se já existir
+                    if (oldSub.endpoint !== sub.endpoint) {
+                        try {
+                            await removerPushSubscription(oldSub.endpoint);
+                            console.log('✅ Subscription antiga removida:', oldSub.endpoint.substring(0, 50));
+                        } catch (err) {
+                            console.warn('⚠️ Erro ao remover subscription antiga:', err);
+                        }
+                    }
+                }
+            }
+        } catch (cleanupError) {
+            console.warn('⚠️ Erro ao limpar subscriptions antigas:', cleanupError);
+            // Continua mesmo se não conseguir limpar
+        }
+        
         // Save to DB
         const deviceInfo = `${navigator.userAgent} | Standalone: ${isStandalone()} | iOS: ${isIOS()}`;
         await salvarPushSubscription(userId, sub.toJSON() as any, deviceInfo);
+        console.log('✅ Subscription salva no banco de dados');
 
         toast.success('Notificações ativadas com sucesso!');
         return true;
@@ -210,12 +273,14 @@ export default function useWebPush({ userId }: { userId: string }) {
         return false;
     } finally {
         setIsLoading(false);
+        isSubscribingRef.current = false;
     }
   }, [userId, needsInstall]);
 
 
-  // Ref para evitar loop infinito
+  // Refs para evitar loop infinito e race conditions
   const isSyncingRef = useRef(false);
+  const isSubscribingRef = useRef(false);
   const subscribeRef = useRef(subscribe);
   
   // Atualiza ref quando subscribe muda
@@ -273,7 +338,50 @@ export default function useWebPush({ userId }: { userId: string }) {
             // Usa a ref para evitar dependência circular
             await subscribeRef.current();
           } else {
-            console.log('✅ Permissão e subscription estão OK.');
+            console.log('✅ Permissão e subscription local estão OK.');
+            // Verificar se está no banco e limpar duplicatas
+            try {
+              const subsNoBanco = await buscarSubscriptionsPorUsuario(userId);
+              const jaExisteNoBanco = subsNoBanco.some(s => s.endpoint === currentSub.endpoint);
+              
+              if (jaExisteNoBanco) {
+                console.log('✅ Subscription também existe no banco de dados.');
+                // Limpar outras subscriptions antigas
+                const outrasSubs = subsNoBanco.filter(s => s.endpoint !== currentSub.endpoint);
+                if (outrasSubs.length > 0) {
+                  console.log(`🧹 Removendo ${outrasSubs.length} subscription(s) duplicada(s)...`);
+                  for (const oldSub of outrasSubs) {
+                    try {
+                      await removerPushSubscription(oldSub.endpoint);
+                      console.log('✅ Subscription duplicada removida:', oldSub.endpoint.substring(0, 50));
+                    } catch (err) {
+                      console.warn('⚠️ Erro ao remover subscription duplicada:', err);
+                    }
+                  }
+                }
+              } else {
+                console.log('⚠️ Subscription local existe mas não está no banco. Salvando...');
+                // Salvar no banco
+                const deviceInfo = `${navigator.userAgent} | Standalone: ${isStandalone()} | iOS: ${isIOS()}`;
+                await salvarPushSubscription(userId, currentSub.toJSON() as any, deviceInfo);
+                console.log('✅ Subscription salva no banco de dados');
+                
+                // Limpar outras subscriptions antigas
+                if (subsNoBanco.length > 0) {
+                  console.log(`🧹 Removendo ${subsNoBanco.length} subscription(s) antiga(s)...`);
+                  for (const oldSub of subsNoBanco) {
+                    try {
+                      await removerPushSubscription(oldSub.endpoint);
+                      console.log('✅ Subscription antiga removida:', oldSub.endpoint.substring(0, 50));
+                    } catch (err) {
+                      console.warn('⚠️ Erro ao remover subscription antiga:', err);
+                    }
+                  }
+                }
+              }
+            } catch (dbError) {
+              console.warn('⚠️ Erro ao verificar/limpar subscriptions no banco:', dbError);
+            }
             setSubscription(currentSub);
           }
         } else if (currentPermission === 'denied') {
