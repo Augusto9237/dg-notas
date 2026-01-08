@@ -53,7 +53,7 @@ export default function useWebPush({ userId }: { userId: string }) {
       const endpoint = subscription.endpoint;
       await subscription.unsubscribe();
       console.log('✅ Subscription cancelada localmente');
-      
+
       // Remove do banco de dados
       try {
         await removerPushSubscription(endpoint);
@@ -62,7 +62,7 @@ export default function useWebPush({ userId }: { userId: string }) {
         console.error('⚠️ Erro ao remover subscription do banco:', dbError);
         // Não falha a operação se não conseguir remover do banco
       }
-      
+
       setSubscription(null);
       toast.success('Notificações desativadas');
       return true;
@@ -85,195 +85,195 @@ export default function useWebPush({ userId }: { userId: string }) {
     }
 
     if (!userId) {
-        toast.error('Você precisa estar autenticado para ativar as notificações.');
-        return false;
+      toast.error('Você precisa estar autenticado para ativar as notificações.');
+      return false;
     }
-    
+
     if (needsInstall) {
-        toast.error('Instale o app na tela inicial primeiro', {
-            description: 'Toque no botão compartilhar e depois em "Adicionar à Tela Inicial"'
-        });
-        return false;
+      toast.error('Instale o app na tela inicial primeiro', {
+        description: 'Toque no botão compartilhar e depois em "Adicionar à Tela Inicial"'
+      });
+      return false;
     }
 
     if (!isPushSupported()) {
-        toast.error('Notificações não são suportadas neste navegador/modo.');
-        return false;
+      toast.error('Notificações não são suportadas neste navegador/modo.');
+      return false;
     }
-    
+
     // Check permission status before requesting
     const currentPermission = Notification.permission;
     if (currentPermission === 'denied') {
-        toast.error('As notificações estão bloqueadas.', {
-            description: 'Você precisa permitir as notificações nas configurações do seu navegador.'
-        });
-        return false;
+      toast.error('As notificações estão bloqueadas.', {
+        description: 'Você precisa permitir as notificações nas configurações do seu navegador.'
+      });
+      return false;
     }
 
     isSubscribingRef.current = true;
     setIsLoading(true);
 
     try {
-        const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-        await navigator.serviceWorker.ready;
-        console.log('✅ Service Worker pronto');
+      const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      await navigator.serviceWorker.ready;
+      console.log('✅ Service Worker pronto');
 
-        // Request permission if not granted
-        let perm: NotificationPermission = currentPermission;
-        if (perm === 'default') {
-            perm = await Notification.requestPermission();
-        }
-        setPermission(perm);
+      // Request permission if not granted
+      let perm: NotificationPermission = currentPermission;
+      if (perm === 'default') {
+        perm = await Notification.requestPermission();
+      }
+      setPermission(perm);
 
-        if (perm !== 'granted') {
-            toast.error('Permissão para notificações não foi concedida.');
-            return false;
-        }
-
-        // Limpar subscriptions antigas/inválidas antes de criar nova
-        try {
-            const existingSub = await registration.pushManager.getSubscription();
-            if (existingSub) {
-                console.log('🔄 Subscription existente encontrada. Verificando validade...');
-                // Se a subscription existente não é válida ou está inconsistente, remove
-                try {
-                    // Tenta obter novamente para verificar se está válida
-                    const testSub = await registration.pushManager.getSubscription();
-                    if (testSub && testSub.endpoint !== existingSub.endpoint) {
-                        console.warn('⚠️ Endpoint inconsistente. Removendo subscription antiga...');
-                        await existingSub.unsubscribe();
-                        await removerPushSubscription(existingSub.endpoint).catch(() => {});
-                        await new Promise(resolve => setTimeout(resolve, 300));
-                    }
-                } catch (checkError) {
-                    console.warn('⚠️ Subscription existente pode estar inválida. Removendo...');
-                    await existingSub.unsubscribe().catch(() => {});
-                    await removerPushSubscription(existingSub.endpoint).catch(() => {});
-                    await new Promise(resolve => setTimeout(resolve, 300));
-                }
-            }
-        } catch (cleanupError) {
-            console.warn('⚠️ Erro ao limpar subscriptions antigas:', cleanupError);
-        }
-
-        // Get or create subscription
-        let sub = await registration.pushManager.getSubscription();
-        
-        // Verificar se já existe uma subscription válida no banco para este usuário
-        if (sub) {
-            console.log('✅ Subscription local encontrada:', sub.endpoint);
-            const subsNoBanco = await buscarSubscriptionsPorUsuario(userId);
-            const jaExisteNoBanco = subsNoBanco.some(s => s.endpoint === sub!.endpoint);
-            
-            if (jaExisteNoBanco) {
-                console.log('✅ Subscription já existe no banco de dados. Usando existente.');
-                setSubscription(sub);
-                
-                // Limpar outras subscriptions antigas do mesmo usuário (manter apenas a atual)
-                const outrasSubs = subsNoBanco.filter(s => s.endpoint !== sub!.endpoint);
-                if (outrasSubs.length > 0) {
-                    console.log(`🧹 Removendo ${outrasSubs.length} subscription(s) antiga(s) do banco...`);
-                    for (const oldSub of outrasSubs) {
-                        try {
-                            await removerPushSubscription(oldSub.endpoint);
-                            console.log('✅ Subscription antiga removida:', oldSub.endpoint.substring(0, 50));
-                        } catch (err) {
-                            console.warn('⚠️ Erro ao remover subscription antiga:', err);
-                        }
-                    }
-                }
-                
-                isSubscribingRef.current = false;
-                setIsLoading(false);
-                return true;
-            } else {
-                console.log('⚠️ Subscription local existe mas não está no banco. Salvando...');
-            }
-        }
-        
-        if (!sub) {
-            console.log('🔄 Criando nova subscription...');
-            try {
-                sub = await registration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
-                });
-            } catch (error: any) {
-                if (error.name === 'InvalidStateError' || error.name === 'AbortError') {
-                    console.warn('⚠️ Subscription com chave inválida ou estado inconsistente. Limpando...');
-                    // Tenta obter e remover todas as subscriptions existentes
-                    try {
-                        const oldSub = await registration.pushManager.getSubscription();
-                        if (oldSub) {
-                            const oldEndpoint = oldSub.endpoint;
-                            await oldSub.unsubscribe();
-                            await removerPushSubscription(oldEndpoint).catch(() => {});
-                        }
-                    } catch (cleanupErr) {
-                        console.warn('⚠️ Erro ao limpar subscription inválida:', cleanupErr);
-                    }
-                    
-                    // Delay para garantir que a limpeza foi processada
-                    await new Promise(resolve => setTimeout(resolve, 500)); 
-                    
-                    // Tenta criar nova subscription
-                    try {
-                        sub = await registration.pushManager.subscribe({
-                            userVisibleOnly: true,
-                            applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
-                        });
-                        console.log('✅ Nova subscription criada após limpeza');
-                    } catch (retryError) {
-                        console.error('❌ Erro ao criar subscription após limpeza:', retryError);
-                        throw retryError;
-                    }
-                } else {
-                    throw error;
-                }
-            }
-        }
-        
-        console.log('✅ Subscription obtida:', sub.endpoint);
-        setSubscription(sub);
-        
-        // Limpar subscriptions antigas do mesmo usuário antes de salvar a nova
-        try {
-            const subsNoBanco = await buscarSubscriptionsPorUsuario(userId);
-            if (subsNoBanco.length > 0) {
-                console.log(`🧹 Removendo ${subsNoBanco.length} subscription(s) antiga(s) do banco...`);
-                for (const oldSub of subsNoBanco) {
-                    // Não remove a subscription atual se já existir
-                    if (oldSub.endpoint !== sub.endpoint) {
-                        try {
-                            await removerPushSubscription(oldSub.endpoint);
-                            console.log('✅ Subscription antiga removida:', oldSub.endpoint.substring(0, 50));
-                        } catch (err) {
-                            console.warn('⚠️ Erro ao remover subscription antiga:', err);
-                        }
-                    }
-                }
-            }
-        } catch (cleanupError) {
-            console.warn('⚠️ Erro ao limpar subscriptions antigas:', cleanupError);
-            // Continua mesmo se não conseguir limpar
-        }
-        
-        // Save to DB
-        const deviceInfo = `${navigator.userAgent} | Standalone: ${isStandalone()} | iOS: ${isIOS()}`;
-        await salvarPushSubscription(userId, sub.toJSON() as any, deviceInfo);
-        console.log('✅ Subscription salva no banco de dados');
-
-        toast.success('Notificações ativadas com sucesso!');
-        return true;
-    } catch (error) {
-        console.error('❌ Erro fatal ao inscrever:', error);
-        toast.error('Erro ao ativar notificações', {
-            description: error instanceof Error ? error.message : 'Ocorreu um problema desconhecido.'
-        });
+      if (perm !== 'granted') {
+        toast.error('Permissão para notificações não foi concedida.');
         return false;
+      }
+
+      // Limpar subscriptions antigas/inválidas antes de criar nova
+      try {
+        const existingSub = await registration.pushManager.getSubscription();
+        if (existingSub) {
+          console.log('🔄 Subscription existente encontrada. Verificando validade...');
+          // Se a subscription existente não é válida ou está inconsistente, remove
+          try {
+            // Tenta obter novamente para verificar se está válida
+            const testSub = await registration.pushManager.getSubscription();
+            if (testSub && testSub.endpoint !== existingSub.endpoint) {
+              console.warn('⚠️ Endpoint inconsistente. Removendo subscription antiga...');
+              await existingSub.unsubscribe();
+              await removerPushSubscription(existingSub.endpoint).catch(() => { });
+              await new Promise(resolve => setTimeout(resolve, 300));
+            }
+          } catch (checkError) {
+            console.warn('⚠️ Subscription existente pode estar inválida. Removendo...');
+            await existingSub.unsubscribe().catch(() => { });
+            await removerPushSubscription(existingSub.endpoint).catch(() => { });
+            await new Promise(resolve => setTimeout(resolve, 300));
+          }
+        }
+      } catch (cleanupError) {
+        console.warn('⚠️ Erro ao limpar subscriptions antigas:', cleanupError);
+      }
+
+      // Get or create subscription
+      let sub = await registration.pushManager.getSubscription();
+
+      // Verificar se já existe uma subscription válida no banco para este usuário
+      if (sub) {
+        console.log('✅ Subscription local encontrada:', sub.endpoint);
+        const subsNoBanco = await buscarSubscriptionsPorUsuario(userId);
+        const jaExisteNoBanco = subsNoBanco.some(s => s.endpoint === sub!.endpoint);
+
+        if (jaExisteNoBanco) {
+          console.log('✅ Subscription já existe no banco de dados. Usando existente.');
+          setSubscription(sub);
+
+          // Limpar outras subscriptions antigas do mesmo usuário (manter apenas a atual)
+          const outrasSubs = subsNoBanco.filter(s => s.endpoint !== sub!.endpoint);
+          if (outrasSubs.length > 0) {
+            console.log(`🧹 Removendo ${outrasSubs.length} subscription(s) antiga(s) do banco...`);
+            for (const oldSub of outrasSubs) {
+              try {
+                await removerPushSubscription(oldSub.endpoint);
+                console.log('✅ Subscription antiga removida:', oldSub.endpoint.substring(0, 50));
+              } catch (err) {
+                console.warn('⚠️ Erro ao remover subscription antiga:', err);
+              }
+            }
+          }
+
+          isSubscribingRef.current = false;
+          setIsLoading(false);
+          return true;
+        } else {
+          console.log('⚠️ Subscription local existe mas não está no banco. Salvando...');
+        }
+      }
+
+      if (!sub) {
+        console.log('🔄 Criando nova subscription...');
+        try {
+          sub = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
+          });
+        } catch (error: any) {
+          if (error.name === 'InvalidStateError' || error.name === 'AbortError') {
+            console.warn('⚠️ Subscription com chave inválida ou estado inconsistente. Limpando...');
+            // Tenta obter e remover todas as subscriptions existentes
+            try {
+              const oldSub = await registration.pushManager.getSubscription();
+              if (oldSub) {
+                const oldEndpoint = oldSub.endpoint;
+                await oldSub.unsubscribe();
+                await removerPushSubscription(oldEndpoint).catch(() => { });
+              }
+            } catch (cleanupErr) {
+              console.warn('⚠️ Erro ao limpar subscription inválida:', cleanupErr);
+            }
+
+            // Delay para garantir que a limpeza foi processada
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Tenta criar nova subscription
+            try {
+              sub = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
+              });
+              console.log('✅ Nova subscription criada após limpeza');
+            } catch (retryError) {
+              console.error('❌ Erro ao criar subscription após limpeza:', retryError);
+              throw retryError;
+            }
+          } else {
+            throw error;
+          }
+        }
+      }
+
+      console.log('✅ Subscription obtida:', sub.endpoint);
+      setSubscription(sub);
+
+      // Limpar subscriptions antigas do mesmo usuário antes de salvar a nova
+      try {
+        const subsNoBanco = await buscarSubscriptionsPorUsuario(userId);
+        if (subsNoBanco.length > 0) {
+          console.log(`🧹 Removendo ${subsNoBanco.length} subscription(s) antiga(s) do banco...`);
+          for (const oldSub of subsNoBanco) {
+            // Não remove a subscription atual se já existir
+            if (oldSub.endpoint !== sub.endpoint) {
+              try {
+                await removerPushSubscription(oldSub.endpoint);
+                console.log('✅ Subscription antiga removida:', oldSub.endpoint.substring(0, 50));
+              } catch (err) {
+                console.warn('⚠️ Erro ao remover subscription antiga:', err);
+              }
+            }
+          }
+        }
+      } catch (cleanupError) {
+        console.warn('⚠️ Erro ao limpar subscriptions antigas:', cleanupError);
+        // Continua mesmo se não conseguir limpar
+      }
+
+      // Save to DB
+      const deviceInfo = `${navigator.userAgent} | Standalone: ${isStandalone()} | iOS: ${isIOS()}`;
+      await salvarPushSubscription(userId, sub.toJSON() as any, deviceInfo);
+      console.log('✅ Subscription salva no banco de dados');
+
+      toast.success('Notificações ativadas com sucesso!');
+      return true;
+    } catch (error) {
+      console.error('❌ Erro fatal ao inscrever:', error);
+      toast.error('Erro ao ativar notificações', {
+        description: error instanceof Error ? error.message : 'Ocorreu um problema desconhecido.'
+      });
+      return false;
     } finally {
-        setIsLoading(false);
-        isSubscribingRef.current = false;
+      setIsLoading(false);
+      isSubscribingRef.current = false;
     }
   }, [userId, needsInstall]);
 
@@ -282,7 +282,7 @@ export default function useWebPush({ userId }: { userId: string }) {
   const isSyncingRef = useRef(false);
   const isSubscribingRef = useRef(false);
   const subscribeRef = useRef(subscribe);
-  
+
   // Atualiza ref quando subscribe muda
   useEffect(() => {
     subscribeRef.current = subscribe;
@@ -312,7 +312,7 @@ export default function useWebPush({ userId }: { userId: string }) {
       isSyncingRef.current = true;
       console.log('🔄 Sincronizando estado da subscription...');
       setIsLoading(true);
-      
+
       try {
         // Garantir que o Service Worker está registrado
         let registration: ServiceWorkerRegistration;
@@ -329,7 +329,7 @@ export default function useWebPush({ userId }: { userId: string }) {
 
         const currentPermission = Notification.permission;
         setPermission(currentPermission);
-        
+
         const currentSub = await registration.pushManager.getSubscription();
 
         if (currentPermission === 'granted') {
@@ -343,7 +343,7 @@ export default function useWebPush({ userId }: { userId: string }) {
             try {
               const subsNoBanco = await buscarSubscriptionsPorUsuario(userId);
               const jaExisteNoBanco = subsNoBanco.some(s => s.endpoint === currentSub.endpoint);
-              
+
               if (jaExisteNoBanco) {
                 console.log('✅ Subscription também existe no banco de dados.');
                 // Limpar outras subscriptions antigas
@@ -365,7 +365,7 @@ export default function useWebPush({ userId }: { userId: string }) {
                 const deviceInfo = `${navigator.userAgent} | Standalone: ${isStandalone()} | iOS: ${isIOS()}`;
                 await salvarPushSubscription(userId, currentSub.toJSON() as any, deviceInfo);
                 console.log('✅ Subscription salva no banco de dados');
-                
+
                 // Limpar outras subscriptions antigas
                 if (subsNoBanco.length > 0) {
                   console.log(`🧹 Removendo ${subsNoBanco.length} subscription(s) antiga(s)...`);
@@ -391,7 +391,7 @@ export default function useWebPush({ userId }: { userId: string }) {
             try {
               await currentSub.unsubscribe();
               console.log('✅ Subscription cancelada localmente');
-              
+
               // Remove do banco de dados
               try {
                 await removerPushSubscription(endpoint);
@@ -404,11 +404,11 @@ export default function useWebPush({ userId }: { userId: string }) {
             }
             setSubscription(null);
           } else {
-             console.log('✅ Permissão negada e sem subscription. Estado consistente.');
+            console.log('✅ Permissão negada e sem subscription. Estado consistente.');
           }
         } else { // default
-            console.log('🤔 Permissão pendente. Aguardando ação do usuário.');
-            setSubscription(null); // Ensure no old sub is lingering in state
+          console.log('🤔 Permissão pendente. Aguardando ação do usuário.');
+          setSubscription(null); // Ensure no old sub is lingering in state
         }
       } catch (error) {
         console.error('❌ Erro ao sincronizar estado:', error);
@@ -417,7 +417,7 @@ export default function useWebPush({ userId }: { userId: string }) {
         isSyncingRef.current = false;
       }
     };
-    
+
     syncSubscriptionState();
 
     // 3. Listen for app focus to re-sync (com debounce)
@@ -426,25 +426,26 @@ export default function useWebPush({ userId }: { userId: string }) {
       clearTimeout(focusTimeout);
       focusTimeout = setTimeout(syncSubscriptionState, 500); // Debounce de 500ms
     };
-    
+
     window.addEventListener('focus', handleFocus);
-    
+
     // 4. Listen for messages from SW
     const messageHandler = (event: MessageEvent) => {
-        if (event.data?.type === 'PUSH_NOTIFICATION_FOREGROUND') {
-            const { title, body, data } = event.data.data;
-            console.log('🔔 Notificação recebida em primeiro plano:', title);
-            setNotificacoes({ title, body, data });
-            toast.info(title, {
-                description: body,
-                action: data?.url ? { label: "Ver", onClick: () => router.push(data.url) } : undefined,
-                duration: 5000,
-            });
-        }
-        if (event.data?.type === 'REVALIDATE_DATA') {
-            console.log('🔄 Revalidando dados (solicitado pelo SW)');
-            router.refresh();
-        }
+      if (event.data?.type === 'PUSH_NOTIFICATION_FOREGROUND') {
+        const { title, body, data, tag } = event.data.data;
+        console.log('🔔 Notificação recebida em primeiro plano:', title);
+        setNotificacoes({ title, body, data });
+        toast.info(title, {
+          id: tag,
+          description: body,
+          action: data?.url ? { label: "Ver", onClick: () => router.push(data.url) } : undefined,
+          duration: 5000,
+        });
+      }
+      if (event.data?.type === 'REVALIDATE_DATA') {
+        console.log('🔄 Revalidando dados (solicitado pelo SW)');
+        router.refresh();
+      }
     };
 
     navigator.serviceWorker.addEventListener('message', messageHandler);
