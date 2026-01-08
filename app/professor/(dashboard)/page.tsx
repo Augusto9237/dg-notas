@@ -1,10 +1,7 @@
 import { listarAlunosGoogle } from "@/actions/alunos";
 import { ListarAvaliacoes, listarTemasMes } from "@/actions/avaliacao";
 import { listarMentoriasMes } from "@/actions/mentoria";
-import { FileType, Users } from "lucide-react";
-import { RiUserStarLine } from "react-icons/ri";
-import { FaChartLine } from "react-icons/fa";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { CardDashboard } from "@/components/card-dashboard";
@@ -90,33 +87,7 @@ export default async function Page({
 
             <main className="flex flex-col gap-4 p-5 h-full">
                 <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
-                    <CardDashboard
-                        description="Média Geral"
-                        value={mediaGeral.toFixed(2).replace('.', ',')}
-                        icon={<FaChartLine size={26} />}
-                        footerText={`Média geral de ${meses[Number(mes) - 1]}`}
-                    />
-
-                    <CardDashboard
-                        description="Total de Alunos"
-                        value={alunos.length}
-                        icon={<Users size={26} />}
-                        footerText={`Cadastrados até ${meses[Number(mes) - 1]}`}
-                    />
-
-                    <CardDashboard
-                        description="Total de Temas"
-                        value={temasMes.length}
-                        icon={<FileType size={26} />}
-                        footerText={mes && ano ? `Temas de ${meses[Number(mes) - 1]}` : 'Temas do mês atual'}
-                    />
-
-                    <CardDashboard
-                        description="Total de Mentorias"
-                        value={mentorias.length}
-                        icon={<RiUserStarLine size={26} />}
-                        footerText={mes && ano ? `Mentorias de ${meses[Number(mes) - 1]}` : 'Mentorias do mês atual'}
-                    />
+                 
                 </div>
 
                 <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">

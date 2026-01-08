@@ -33,12 +33,19 @@ type Aluno = Prisma.UserGetPayload<{
     }
 }>
 
+export type Notificacoes = {
+    title: string;
+    body: any;
+    data: any;
+} | null
+
 interface ContextoProfessorProps {
     userId: string
     listaAvaliacoes: AvaliacaoTema[]
     listaMentorias: Mentoria[]
     listaTemas: Tema[]
     listaAlunos: Aluno[]
+    notificacoes: Notificacoes
 }
 
 export const ContextoProfessor = createContext<ContextoProfessorProps>(null!);

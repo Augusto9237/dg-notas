@@ -98,7 +98,8 @@ export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, te
             listaAvaliacoes,
             listaMentorias,
             listaTemas,
-            listaAlunos
+            listaAlunos,
+            notificacoes
         }}>
             {children}
         </ContextoProfessor.Provider>

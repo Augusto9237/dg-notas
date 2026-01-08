@@ -69,6 +69,7 @@ export default async function RootLayout({
     listarTemasMes(),
     listarAlunosGoogle()
   ]);
+  
   return (
     <html lang="pt-BR">
       <head>
