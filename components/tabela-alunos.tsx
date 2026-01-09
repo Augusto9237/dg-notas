@@ -46,7 +46,6 @@ export function TabelaAlunos() {
   const searchParams = useSearchParams()
   const busca = searchParams.get('busca')
 
-  console.log('teste input', busca)
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;

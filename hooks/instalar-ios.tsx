@@ -30,12 +30,6 @@ export function InstalarIos() {
       'No iPhone/iPad, instale o app na Tela Inicial para habilitar tudo',
       {
         duration: 6000,
-        action: {
-          label: 'Como fazer',
-          onClick: () => {
-            // Apenas mantém o aviso; instruções mais completas já existem em outras telas.
-          },
-        },
       }
     )
 

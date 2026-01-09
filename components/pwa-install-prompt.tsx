@@ -1,5 +1,6 @@
 "use client";
 
+import { HardDriveDownload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -82,6 +83,7 @@ export function PwaInstallPrompt() {
         hasShownRef.current = true;
 
         toastIdRef.current = toast.warning("Instale o app para acesso mais rápido", {
+          icon: <HardDriveDownload  size={18}/>,
           duration: 12000,
           action: {
             label: "Instalar",

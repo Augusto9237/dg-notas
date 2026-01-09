@@ -54,8 +54,6 @@ export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, te
     const [listaTemas, setListaTemas] = useState<Tema[]>([]);
     const [listaAlunos, setListaAlunos] = useState<Aluno[]>([]);
 
-    console.log('mentorias contexto', listaMentorias)
-
     const [carregamento, setCarregamento] = useState(false);
 
     useEffect(() => {
