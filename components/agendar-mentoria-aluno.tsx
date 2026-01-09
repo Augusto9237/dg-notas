@@ -241,7 +241,7 @@ export function AgendarMentoriaAluno({
         <Dialog open={open} onOpenChange={setOpen} >
             <DialogTrigger asChild disabled={mentoriaData?.status === 'REALIZADA'} >
                 {mode === 'edit' ?
-                    <Button size={size} variant={mentoriaData?.status === 'REALIZADA' ? 'ghost' : "outline"} className="w-full">
+                    <Button size={size} variant={mentoriaData?.status === 'REALIZADA' ? 'ghost' : 'default'} className="w-full">
                         <CalendarSync />
                         Reagendar
                     </Button>

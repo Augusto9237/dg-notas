@@ -124,7 +124,7 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentori
                         <Button
                             size="sm"
                             variant='ghost'
-                            className="w-full text-red-500 hover:text-card hover:bg-red-500  border border-red-500"
+                            className="w-full text-red-500 hover:text-card hover:bg-red-500 "
                             onClick={() => excluirMentoria(mentoria.id)}
                         >
                             <CalendarX />
