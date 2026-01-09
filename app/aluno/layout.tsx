@@ -70,7 +70,6 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     return (
         <html lang="pt-BR">
             <head>
-                {/* ↓↓↓ ADICIONE ISTO ↓↓↓ */}
                 <meta name="apple-mobile-web-app-capable" content="yes" />
                 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
                 <meta name="apple-mobile-web-app-title" content="DG - Redação" />

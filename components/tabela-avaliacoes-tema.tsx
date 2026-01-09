@@ -136,7 +136,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
   }
 
   return (
-    <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4'>
+    <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4 h-full'>
       <div className="flex items-center max-w-md relative">
         <InputBusca
           placeholder='Buscar por E-mail'
