@@ -11,21 +11,7 @@ import { calcularMediaGeral, rankearMelhoresAlunos } from "@/lib/dashboard-utils
 import { Prisma } from "@/app/generated/prisma";
 import { UltimasAvaliacoes } from "@/components/ultimas-avaliacoes";
 import { HeaderProfessor } from "@/components/header-professor";
-
-type Avaliacao = Prisma.AvaliacaoGetPayload<{
-    include: {
-        aluno: true,
-        criterios: true,
-        tema: true,
-    }
-}>
-
-type Mentoria = Prisma.MentoriaGetPayload<{
-    include: {
-        aluno: true,
-        horario: true,
-    }
-}>
+import { ListaCardsDashboard } from "@/components/lista-cards-dashbord";
 
 
 // Helper para normalizar os parâmetros
@@ -64,8 +50,6 @@ export default async function Page({
         listarAlunosGoogle()
     ]);
 
-    // Cálculos após receber os dados
-    const mediaGeral = calcularMediaGeral(avaliacoes);
     const top10 = rankearMelhoresAlunos(avaliacoes);
 
     const meses = [
@@ -86,9 +70,7 @@ export default async function Page({
             </HeaderProfessor>
 
             <main className="flex flex-col gap-4 p-5 h-full">
-                <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
-                 
-                </div>
+                <ListaCardsDashboard />
 
                 <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
                     <UltimasAvaliacoes temasMes={temasMes} avaliacoes={avaliacoes} />
