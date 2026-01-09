@@ -1,3 +1,4 @@
+'use client'
 import Link from 'next/link';
 import {
   Table,
@@ -13,13 +14,54 @@ import { ChevronRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from './ui/card';
 import { Progress } from './ui/progress';
 import { Badge } from './ui/badge';
-import { AlunoRanking } from '@/lib/dashboard-utils';
+import { AlunoRanking, rankearMelhoresAlunos } from '@/lib/dashboard-utils';
+import { Prisma } from '@/app/generated/prisma';
+import { useContext, useEffect, useState } from 'react';
+import { ContextoProfessor } from '@/context/contexto-professor';
+import { ListarAvaliacoes } from '@/actions/avaliacao';
+import { useSearchParams } from 'next/navigation';
+
+type Avaliacao = Prisma.AvaliacaoGetPayload<{
+  include: {
+    aluno: true,
+    criterios: true,
+    tema: true,
+  }
+}>
+
 
 interface TabelaAlunosProps {
-  alunos: AlunoRanking[]
+  avaliacoes: Avaliacao[]
 }
 
-export function TabelaTopAlunos({ alunos }: TabelaAlunosProps) {
+export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
+  const { notificacoes } = useContext(ContextoProfessor)
+  const [alunos, setAlunos] = useState<AlunoRanking[]>([])
+
+  const params = useSearchParams();
+  const mes = params.get('mes');
+  const ano = params.get('ano')
+
+  useEffect(() => {
+    const top10 = rankearMelhoresAlunos(avaliacoes);
+    setAlunos(top10)
+  }, [avaliacoes])
+
+  useEffect(() => {
+    const handleNotification = async () => {
+      if (!notificacoes?.data?.url) return;
+      const url = notificacoes.data.url;
+
+      if (url === '/professor/avaliacoes') {
+        const novasAvaliacoes = await ListarAvaliacoes(Number(mes), Number(ano))
+        const top10 = rankearMelhoresAlunos(novasAvaliacoes);
+        setAlunos(top10)
+      }
+    }
+
+    handleNotification();
+  }, [notificacoes])
+
   return (
     <Card className='p-5 gap-5'>
       <CardHeader className='flex w-full justify-between items-start p-0'>

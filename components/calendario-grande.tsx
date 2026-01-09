@@ -166,10 +166,6 @@ export function CalendarioGrande({
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([])
   const [carregando, setCarregando] = useState(false)
 
-  console.log('mentorias', mentorias)
-  console.log('lista de mentorias', listaMentorias)
-
-
   const diasSemanaAtivos = useMemo(() =>
     diasSemana.filter(dia => dia.status),
     [diasSemana]

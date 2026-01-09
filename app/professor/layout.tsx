@@ -17,6 +17,7 @@ import { listarMentoriasMes } from "@/actions/mentoria";
 import { listarAlunosGoogle } from "@/actions/alunos";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { InstalarIos } from "@/hooks/instalar-ios";
+import { ProvedorTemas } from "@/context/provedor-temas";
 
 const poppins = Poppins({
   weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -69,9 +70,9 @@ export default async function RootLayout({
     listarTemasMes(),
     listarAlunosGoogle()
   ]);
-  
+
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -85,20 +86,27 @@ export default async function RootLayout({
       <body
         className={`${poppins.className} antialiased`}
       >
-        <InstalarIos />
-        <PwaInstallPrompt />
-        <InicializarNotificacoes userId={userId} />
-        <ProverdorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temasMes} alunos={alunos}>
-          <SidebarProvider>
-            <div suppressHydrationWarning>
-              <AppSidebar />
-            </div>
-            <SidebarInset className="relative">
-              {children}
-            </SidebarInset>
-          </SidebarProvider>
-          <Toaster richColors theme="light" />
-        </ProverdorProfessor>
+        <ProvedorTemas
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <InstalarIos />
+          <PwaInstallPrompt />
+          <InicializarNotificacoes userId={userId} />
+          <ProverdorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temasMes} alunos={alunos}>
+            <SidebarProvider>
+              <div>
+                <AppSidebar />
+              </div>
+              <SidebarInset className="relative">
+                {children}
+              </SidebarInset>
+            </SidebarProvider>
+            <Toaster richColors theme="light" />
+          </ProverdorProfessor>
+        </ProvedorTemas>
       </body>
     </html>
   );

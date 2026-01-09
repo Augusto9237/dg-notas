@@ -50,8 +50,6 @@ export default async function Page({
         listarAlunosGoogle()
     ]);
 
-    const top10 = rankearMelhoresAlunos(avaliacoes);
-
     const meses = [
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
@@ -74,7 +72,7 @@ export default async function Page({
 
                 <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
                     <UltimasAvaliacoes temasMes={temasMes} avaliacoes={avaliacoes} />
-                    <TabelaTopAlunos alunos={top10} />
+                    <TabelaTopAlunos avaliacoes={avaliacoes} />
                 </div>
             </main >
         </div >
