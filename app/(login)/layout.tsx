@@ -11,6 +11,7 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { InstalarIos } from '@/hooks/instalar-ios';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -92,6 +93,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                     </div>
                 </Suspense>
                 <Toaster richColors theme="light" />
+                <SpeedInsights />
             </body>
         </html >
     )

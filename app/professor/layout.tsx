@@ -18,6 +18,7 @@ import { listarAlunosGoogle } from "@/actions/alunos";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { ProvedorTemas } from "@/context/provedor-temas";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const poppins = Poppins({
   weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -107,6 +108,7 @@ export default async function RootLayout({
             <Toaster richColors theme="light" />
           </ProverdorProfessor>
         </ProvedorTemas>
+        <SpeedInsights />
       </body>
     </html>
   );

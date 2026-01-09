@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Poppins } from 'next/font/google';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import "../globals.css";
 
@@ -10,7 +11,6 @@ import { FooterAluno } from '@/components/ui/footer-aluno';
 import { Toaster } from "@/components/ui/sonner";
 import { FormularioTelefone } from '@/components/formulario-telefone';
 import { InicializarNotificacoes } from '@/components/inicializar-notificacoes';
-import { EdgePollingProvider } from '@/components/edge-polling-provider';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 import { InstalarIos } from '@/hooks/instalar-ios';
 
@@ -84,7 +84,6 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 <InstalarIos />
                 <PwaInstallPrompt />
                 <InicializarNotificacoes userId={userId} />
-                <EdgePollingProvider userId={userId} />
                 <ProvedorAluno
                     userId={userId}
                     avaliacoes={avaliacoes}
@@ -92,10 +91,13 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                     temas={temas}
                 >
                     <FormularioTelefone user={session.user} />
-                    <main>{children}</main>
+                    <main>
+                        {children}
+                    </main>
                     <FooterAluno />
                     <Toaster richColors theme="light" />
                 </ProvedorAluno>
+                <SpeedInsights />
             </body>
         </html>
     )
