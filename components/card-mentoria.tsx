@@ -64,7 +64,7 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentori
         try {
             await excluirMentoriaECascata(id)
             toast.error('Mentoria cancelada')
-            await enviarNotificacaoParaUsuario(mentoria.professorId!, 'Mentoria cancelada', `${aluno.name} cancelou a mentoria marcada para ${formartarData(mentoria.horario.data)} às ${mentoria.horario.slot.nome}`)
+            await enviarNotificacaoParaUsuario(mentoria.professorId!, 'Mentoria cancelada', `${aluno.name} cancelou a mentoria marcada para ${formartarData(mentoria.horario.data)} às ${mentoria.horario.slot.nome}`, '/professor/mentorias')
         } catch {
             toast.error('Erro ao excluir mentoria')
         }
