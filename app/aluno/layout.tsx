@@ -18,6 +18,7 @@ import { auth } from '@/lib/auth';
 import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from '@/actions/avaliacao';
 import { listarMentoriasAluno } from '@/actions/mentoria';
 import { ProvedorAluno } from '@/context/provedor-aluno';
+import { ProvedorTemas } from '@/context/provedor-temas';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'],
@@ -68,7 +69,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     ]);
 
     return (
-        <html lang="pt-BR">
+        <html lang="pt-BR" suppressHydrationWarning>
             <head>
                 <meta name="apple-mobile-web-app-capable" content="yes" />
                 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -80,22 +81,29 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 />
             </head>
             <body className={`${poppins.className} antialiased`}>
-                <InstalarIos />
-                <PwaInstallPrompt />
-                <InicializarNotificacoes userId={userId} />
-                <ProvedorAluno
-                    userId={userId}
-                    avaliacoes={avaliacoes}
-                    mentorias={mentorias}
-                    temas={temas}
+                <ProvedorTemas
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
                 >
-                    <FormularioTelefone user={session.user} />
-                    <main>
-                        {children}
-                    </main>
-                    <FooterAluno />
-                    <Toaster richColors theme="light" />
-                </ProvedorAluno>
+                    <InstalarIos />
+                    <PwaInstallPrompt />
+                    <InicializarNotificacoes userId={userId} />
+                    <ProvedorAluno
+                        userId={userId}
+                        avaliacoes={avaliacoes}
+                        mentorias={mentorias}
+                        temas={temas}
+                    >
+                        <FormularioTelefone user={session.user} />
+                        <main>
+                            {children}
+                        </main>
+                        <FooterAluno />
+                        <Toaster richColors theme="light" />
+                    </ProvedorAluno>
+                </ProvedorTemas>
                 <SpeedInsights />
             </body>
         </html>

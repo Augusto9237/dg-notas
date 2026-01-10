@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -170,7 +165,6 @@ model User {
   fcmTokens FcmToken[] // Relação com tokens FCM
   temas     Tema[]     @relation("AvaliacoesProfessor")
   pushSubscriptions PushSubscription[]
-  notificationQueue NotificationQueue[]
 
   @@unique([email])
   @@map("user")
@@ -204,24 +198,6 @@ model PushSubscription {
   @@unique([userId, endpoint])
   @@index([endpoint])
   @@map("push_subscription")
-}
-
-model NotificationQueue {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title     String
-  body      String
-  icon      String?
-  badge     String?
-  url       String?
-  tag       String?
-  delivered Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@index([userId, delivered])
-  @@index([createdAt])
-  @@map("notification_queue")
 }
 
 

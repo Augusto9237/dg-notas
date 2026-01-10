@@ -46,7 +46,7 @@ export default function Header() {
   }
   else {
     return (
-      <div className="bg-primary text-card px-5 py-4 h-[159px] overflow-hidden rounded-b-2xl">
+      <div className="bg-primary text-card dark:text-card-foreground px-5 py-4 h-[159px] overflow-hidden rounded-b-2xl">
         <div className="flex items-center gap-3 mb-4">
           <Avatar className="h-12 w-12 border-2 border-secondary">
             <AvatarImage
@@ -74,21 +74,21 @@ export default function Header() {
             <CardTitle className="text-lg font-bold text-secondary">
               {mediaGeral.toFixed(2).replace('.', ',')}
             </CardTitle>
-            <CardDescription className="text-xs opacity-90 text-card">Média Geral</CardDescription>
+            <CardDescription className="text-xs opacity-90 text-card dark:text-muted-foreground">Média Geral</CardDescription>
           </Card>
 
           <Card className="text-center bg-card/10 rounded-lg backdrop-blur-sm border-none gap-0 p-2">
             <CardTitle className="text-lg font-bold text-secondary">
               {totalRedacoes}
             </CardTitle>
-            <CardDescription className="text-xs opacity-90 text-card">Redações</CardDescription>
+            <CardDescription className="text-xs opacity-90 text-card dark:text-muted-foreground">Redações</CardDescription>
           </Card>
 
           <Card className="text-center bg-card/10 rounded-lg backdrop-blur-sm border-none gap-0 p-2">
             <CardTitle className="text-lg font-bold text-secondary">
               {totalMentorias}
             </CardTitle>
-            <CardDescription className="text-xs opacity-90 text-card">Mentorias</CardDescription>
+            <CardDescription className="text-xs opacity-90 text-card dark:text-muted-foreground">Mentorias</CardDescription>
           </Card>
         </div>
       </div>

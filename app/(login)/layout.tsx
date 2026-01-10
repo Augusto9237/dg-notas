@@ -12,6 +12,7 @@ import { headers } from 'next/headers';
 import { InstalarIos } from '@/hooks/instalar-ios';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { ProvedorTemas } from '@/context/provedor-temas';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -49,9 +50,8 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         }
     }
 
-
     return (
-        <html lang="pt-BR">
+        <html lang="pt-BR" suppressHydrationWarning>
             <head>
                 {/* ↓↓↓ ADICIONE ISTO ↓↓↓ */}
                 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -66,33 +66,40 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             <body
                 className={`${poppins.className} antialiased`}
             >
-                <InstalarIos />
-                <PwaInstallPrompt />
-                <Suspense fallback={<Loading />}>
-                    <div className="grid min-h-svh lg:grid-cols-2">
-                        <div className="flex items-center justify-center bg-primary">
-                            <div className="w-full max-w-md flex flex-col items-center justify-items-center">
+                <ProvedorTemas
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <InstalarIos />
+                    <PwaInstallPrompt />
+                    <Suspense fallback={<Loading />}>
+                        <div className="grid min-h-svh lg:grid-cols-2">
+                            <div className="flex items-center justify-center bg-primary">
+                                <div className="w-full max-w-md flex flex-col items-center justify-items-center">
+                                    <Image
+                                        src="/Sublogo4.svg"
+                                        alt="Logo"
+                                        width={488}
+                                        height={400}
+                                        className="h-[80px] max-sm:h-[88px] w-[360px] max-sm:w-[280px] object-cover"
+                                    />
+                                    {children}
+                                </div>
+                            </div>
+                            <div className="bg-muted relative hidden lg:block">
                                 <Image
-                                    src="/Sublogo4.svg"
-                                    alt="Logo"
-                                    width={488}
-                                    height={400}
-                                    className="h-[80px] max-sm:h-[88px] w-[360px] max-sm:w-[280px] object-cover"
+                                    src="/foto-1.jpeg"
+                                    alt="Image"
+                                    fill
+                                    className="object-cover"
                                 />
-                                {children}
                             </div>
                         </div>
-                        <div className="bg-muted relative hidden lg:block">
-                            <Image
-                                src="/foto-1.jpeg"
-                                alt="Image"
-                                fill
-                                className="object-cover dark:brightness-[0.2] dark:grayscale"
-                            />
-                        </div>
-                    </div>
-                </Suspense>
-                <Toaster richColors theme="light" />
+                    </Suspense>
+                    <Toaster richColors theme="light" />
+                </ProvedorTemas>
                 <SpeedInsights />
             </body>
         </html >
