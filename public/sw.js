@@ -78,17 +78,30 @@ function findVisibleClient(clients) {
 }
 
 /**
- * Broadcasts message to all clients
+ * Broadcasts message to all clients (only if clients exist)
  * @param {string} type - Message type
  * @param {Object} data - Message data
  */
 async function broadcastToClients(type, data = {}) {
   const clients = await getAllClients();
-  console.log(`[SW] 📨 Broadcasting ${type} to ${clients.length} clients`);
   
-  clients.forEach(client => {
-    client.postMessage({ type, data });
-  });
+  // Early return se não houver clientes (evita operações desnecessárias)
+  if (clients.length === 0) {
+    return;
+  }
+  
+  console.log(`[SW] 📨 Broadcasting ${type} to ${clients.length} client(s)`);
+  
+  // Usa Promise.allSettled para evitar que um erro em um cliente impeça os outros
+  await Promise.allSettled(
+    clients.map(client => {
+      try {
+        client.postMessage({ type, data });
+      } catch (err) {
+        console.warn('[SW] ⚠️ Erro ao enviar mensagem para cliente:', err);
+      }
+    })
+  );
 }
 
 /**
@@ -238,9 +251,7 @@ async function openNewWindow(targetUrl) {
  * Handles push notification events
  */
 self.addEventListener('push', async (event) => {
-  console.log('[SW] ========================================');
   console.log('[SW] 🔔 PUSH recebido:', new Date().toISOString());
-  console.log('[SW] ========================================');
 
   if (!event.data) {
     console.error('[SW] ❌ Push sem dados');
@@ -249,29 +260,31 @@ self.addEventListener('push', async (event) => {
 
   try {
     const data = event.data.json();
-    console.log('[SW] ✅ Dados:', JSON.stringify(data, null, 2));
-
     const title = data.title || 'Nova Notificação';
     const options = buildNotificationOptions(data);
 
     event.waitUntil(
       (async () => {
-        const clients = await getAllClients();
-        const visibleClient = findVisibleClient(clients);
+        try {
+          const clients = await getAllClients();
+          const visibleClient = findVisibleClient(clients);
 
-        if (visibleClient) {
-          handleForegroundNotification(visibleClient, title, options);
-        } else {
-          await handleBackgroundNotification(title, options);
+          if (visibleClient) {
+            handleForegroundNotification(visibleClient, title, options);
+          } else {
+            await handleBackgroundNotification(title, options);
+          }
+        } catch (err) {
+          console.error('[SW] ❌ Erro ao processar notificação:', err);
+          // Fallback: show notification anyway
+          return self.registration.showNotification(title, options).catch(fallbackErr => {
+            console.error('[SW] ❌ Erro no fallback:', fallbackErr);
+          });
         }
-      })().catch(err => {
-        console.error('[SW] ❌ Erro ao processar notificação:', err);
-        // Fallback: show notification anyway
-        return self.registration.showNotification(title, options);
-      })
+      })()
     );
   } catch (error) {
-    console.error('[SW] ❌ Erro fatal:', error);
+    console.error('[SW] ❌ Erro fatal ao processar push:', error);
 
     // Generic fallback notification
     event.waitUntil(
@@ -289,28 +302,35 @@ self.addEventListener('push', async (event) => {
  * Handles notification click events
  */
 self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] 🖱️ Notificação clicada:', event.notification.tag);
   event.notification.close();
 
   const targetUrl = normalizeUrl(event.notification.data?.url);
-  console.log('[SW] 🔗 URL de destino:', targetUrl);
 
   event.waitUntil(
     (async () => {
-      const clients = await getAllClients();
-      console.log('[SW] 👥 Clientes encontrados:', clients.length);
+      try {
+        const clients = await getAllClients();
 
-      // Strategy 1: Focus exact URL match
-      const exactMatch = await focusExactMatch(clients, targetUrl);
-      if (exactMatch) return exactMatch;
+        // Strategy 1: Focus exact URL match
+        const exactMatch = await focusExactMatch(clients, targetUrl);
+        if (exactMatch) return;
 
-      // Strategy 2: Reuse any app window
-      const reusedWindow = await reuseAppWindow(clients, targetUrl);
-      if (reusedWindow) return reusedWindow;
+        // Strategy 2: Reuse any app window
+        const reusedWindow = await reuseAppWindow(clients, targetUrl);
+        if (reusedWindow) return;
 
-      // Strategy 3: Open new window
-      return openNewWindow(targetUrl);
-    })().catch(err => console.error('[SW] ❌ Erro ao abrir janela:', err))
+        // Strategy 3: Open new window
+        await openNewWindow(targetUrl);
+      } catch (err) {
+        console.error('[SW] ❌ Erro ao abrir janela:', err);
+        // Fallback: tenta abrir janela mesmo com erro
+        try {
+          await self.clients.openWindow(targetUrl);
+        } catch (fallbackErr) {
+          console.error('[SW] ❌ Erro no fallback de abertura:', fallbackErr);
+        }
+      }
+    })()
   );
 });
 
