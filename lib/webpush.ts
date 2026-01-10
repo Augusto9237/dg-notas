@@ -71,19 +71,6 @@ export async function sendWebPushNotification(
       browser
     });
 
-    // Para Edge: adiciona à fila de polling como fallback
-    if (browser === 'Edge' && subscription.userId) {
-      const { queueNotificationForPolling } = await import('@/lib/notification-queue');
-      await queueNotificationForPolling(subscription.userId, {
-        title: payload.title,
-        body: payload.body,
-        icon: payload.icon,
-        badge: payload.badge,
-        url: payload.url || payload.link || '/',
-        tag: uniqueTag
-      });
-      console.log('📥 Notificação adicionada à fila de polling (Edge fallback)');
-    }
     
     // Constrói payload otimizado por navegador
     let finalPayload: NotificationPayload;
