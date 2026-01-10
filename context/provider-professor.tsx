@@ -56,7 +56,6 @@ export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, te
 
     const [carregamento, setCarregamento] = useState(false);
 
-    console.log('teste de carregamento', {alunos, avaliacoes, mentorias, temas})
 
     useEffect(() => {
         setListaAvaliacoes(avaliacoes);

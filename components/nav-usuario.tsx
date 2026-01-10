@@ -22,11 +22,17 @@ import { authClient } from "@/lib/auth-client"
 import { Skeleton } from "./ui/skeleton"
 import { useEffect, useState } from "react"
 import { obterUrlImagem } from "@/lib/obter-imagem";
+import Image from "next/image"
+import { Switch } from "./ui/switch"
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
+import { Sub } from "@radix-ui/react-dropdown-menu"
 
 export function NavUsuario() {
     const [isClient, setIsClient] = useState(false)
     const { data: session, isPending } = authClient.useSession();
     const [avatarImagem, setAvatarImagem] = useState<string | null>(null);
+    const { setTheme, theme } = useTheme()
 
     const router = useRouter()
 
@@ -71,8 +77,11 @@ export function NavUsuario() {
             <DropdownMenuTrigger asChild>
                 <div className="flex items-center gap-2 cursor-pointer text-muted">
                     <Avatar className="border-2 border-secondary size-10">
-                        <AvatarImage src={avatarImagem ? avatarImagem : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} className="object-cover" />
-                        <AvatarFallback>DG</AvatarFallback>
+                        {avatarImagem ? (
+                            <Image alt={session?.user.name || ''} src={avatarImagem} height={60} width={60} className="object-cover" />
+                        ) : (
+                            <Skeleton className="size-full" />
+                        )}
                     </Avatar>
 
                     <div className="grid flex-1 text-left text-sm leading-tight gap-1">
@@ -87,14 +96,23 @@ export function NavUsuario() {
                 align="start"
                 sideOffset={4}
             >
-                <DropdownMenuItem onClick={() => router.push("/professor/conta")} className="text-primary hover:text-primary">
-                    <UserCog className="stroke-primary" />
+                <div className="text-primary dark:text-foreground flex gap-2 w-full items-center hover:text-primary text-sm px-2 py-1.5">
+                    <Moon size={16} />
+                    <Switch
+                        checked={theme === 'light' ? true : false}
+                        onCheckedChange={(checked) => setTheme(checked === true ? "light" : "dark")}
+                    />
+                    <Sun size={16} />
+                </div>
+
+                <DropdownMenuItem onClick={() => router.push("/professor/conta")} className="text-primary dark:text-foreground hover:text-primary">
+                    <UserCog className="stroke-primary dark:stroke-foreground" />
                     Sua conta
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={sair} className="text-primary hover:text-primary">
-                    <LogOut className="stroke-primary" />
+                <DropdownMenuItem onClick={sair} className="text-primary dark:text-foreground hover:text-primary">
+                    <LogOut className="stroke-primary dark:stroke-foreground" />
                     Sair
                 </DropdownMenuItem>
             </DropdownMenuContent>

@@ -98,9 +98,7 @@ export default async function RootLayout({
           <InicializarNotificacoes userId={userId} />
           <ProverdorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temasMes} alunos={alunos}>
             <SidebarProvider>
-              <div>
-                <AppSidebar />
-              </div>
+              <AppSidebar />
               <SidebarInset className="relative">
                 {children}
               </SidebarInset>

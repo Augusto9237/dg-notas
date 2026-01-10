@@ -27,7 +27,7 @@ export function AppSidebar() {
       <SidebarContent className="p-4 gap-4">
         <SidebarMenuButton
           asChild
-          className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
+          className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
           isActive={path === '/professor' ? true : false}
         >
 
@@ -39,7 +39,7 @@ export function AppSidebar() {
 
         <SidebarMenuButton
           asChild
-          className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
+          className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
           isActive={path === '/professor/alunos' ? true : false}
         >
 
@@ -51,7 +51,7 @@ export function AppSidebar() {
 
         <SidebarMenuButton
           asChild
-          className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
+          className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
           isActive={path === '/professor/avaliacoes' ? true : false}
         >
           <Link href="/professor/avaliacoes" className="flex gap-2 items-center">
@@ -62,7 +62,7 @@ export function AppSidebar() {
 
         <SidebarMenuButton
           asChild
-          className="text-base text-muted hover:text-muted font-semibold hover:bg-background/5"
+          className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
           isActive={path === '/professor/mentorias' ? true : false}
         >
           <Link href="/professor/mentorias " className="flex gap-2 items-center">
