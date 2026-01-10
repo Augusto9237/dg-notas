@@ -46,7 +46,6 @@ export default async function Page() {
     const diasAtivos = diasSemana.filter((dia) => dia.status)
     const horariosAtivos = slotsHorario.filter((horario) => horario.status)
 
-
     return (
         <div className="w-full">
             <main className="flex flex-col gap-4 p-5 pb-20">

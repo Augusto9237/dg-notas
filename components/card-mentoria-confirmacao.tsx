@@ -15,6 +15,8 @@ import { useState } from "react";
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
 import { authClient } from "@/lib/auth-client";
 import clsx from "clsx";
+import Image from "next/image";
+import { Skeleton } from "./ui/skeleton";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -95,8 +97,11 @@ export function CardMentoriaConfirmacao({ mentoria, professor }: CardMentoriaPro
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <Avatar className="border-2 border-primary size-10">
-                                <AvatarImage src={professor?.image || ""} style={{ objectFit: 'cover' }} />
-                                <AvatarFallback>{professor?.nome?.slice(0, 2)}</AvatarFallback>
+                                {professor?.image ? (
+                                    <Image alt={professor?.nome || ''} src={professor.image} height={40} width={40} className="object-cover" />
+                                ) : (
+                                    <Skeleton className="size-full" />
+                                )}
                             </Avatar>
                             <div className="space-y-1">
                                 <h3 className="font-medium text-sm">

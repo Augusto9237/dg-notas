@@ -15,6 +15,8 @@ import { ModalFeedbackMentoria } from "./modal-feedback-mentoria";
 import { obterUrlImagem } from "@/lib/obter-imagem";
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
 import { authClient } from "@/lib/auth-client";
+import Image from "next/image";
+import { Skeleton } from "./ui/skeleton";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -89,8 +91,11 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentori
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <Avatar className="border-2 border-primary size-10">
-                                <AvatarImage src={avatarUrl || ''} style={{ objectFit: 'cover' }} />
-                                <AvatarFallback>{mentoria.professor?.name?.slice(0, 2)}</AvatarFallback>
+                                {avatarUrl ? (
+                                    <Image alt={mentoria.professor?.name || '/avatar-placeholder'} src={avatarUrl} height={60} width={60} className="object-cover" />
+                                ) : (
+                                    <Skeleton className="size-full"/>
+                                )}
                             </Avatar>
                             <div className="space-y-1">
                                 <h3 className="font-medium text-sm">
