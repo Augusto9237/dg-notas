@@ -125,7 +125,7 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
         })}
         <Separator />
         <div className="flex flex-col justify-between items-center pt-4 gap-4 border-t">
-          <div className="flex justify-between font-semibold w-full text-primary">
+          <div className="flex justify-between font-semibold w-full text-primary dark:text-foreground">
             <span>Nota Final:</span>
             <span>{avaliacao.notaFinal}/1000</span>
           </div>

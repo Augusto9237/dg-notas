@@ -172,7 +172,7 @@ export default function InputFotoPerfil({
                     <div className="relative group w-full">
                         <Avatar className="size-full max-md:size-52 min-size-full min-h-full border-4 border-primary shadow-lg">
                             <AvatarImage
-                                src={urlImagemExibida}
+                                src={urlImagemExibida || '/avatar-placeholder.png'}
                                 alt={nomeProfessor || "Avatar"}
                                 className="object-cover"
                             />
