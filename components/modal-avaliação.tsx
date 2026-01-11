@@ -82,7 +82,7 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
   return (
     <Dialog open={avaliacao.status === "ENVIADA" ? false : isOpen} onOpenChange={() => setIsOpen(open => !open)}>
       <DialogTrigger asChild>
-        <Button className="w-full relative bg-primary/10" size="sm" variant="outline" disabled={avaliacao.status === 'ENVIADA'}>
+        <Button className="w-full relative bg-primary/10 dark:bg-primary/10" size="sm" variant="outline" disabled={avaliacao.status === 'ENVIADA'}>
           {avaliacao.status === 'ENVIADA' ?
             <>
               <FileClock />

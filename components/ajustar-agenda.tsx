@@ -185,7 +185,7 @@ export function AjustarAgenda({
                     <FormLabel >
                       Dias da Semana
                     </FormLabel>
-                    <FormDescription className="max-sm:text-xs">
+                    <FormDescription className="text-xs">
                       Selecione 2 dias da semana.
                     </FormDescription>
                   </div>
@@ -226,7 +226,7 @@ export function AjustarAgenda({
                     <FormLabel className="flex items-center gap-2">
                       Horários Disponíveis
                     </FormLabel>
-                    <FormDescription className="max-sm:text-xs">
+                    <FormDescription className="text-xs">
                       Selecione os horários de 15h às 17h (slots de 20min)
                     </FormDescription>
                   </div>

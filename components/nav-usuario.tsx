@@ -84,11 +84,11 @@ export function NavUsuario() {
                         )}
                     </Avatar>
 
-                    <div className="grid flex-1 text-left text-sm leading-tight gap-1">
+                    <div className="grid flex-1 text-left text-sm dark:text-foreground leading-tight gap-1">
                         <span className="truncate font-semibold">{session?.user.name}</span>
-                        <span className="truncate text-xs text-muted">Administrador(a)</span>
+                        <span className="truncate text-xs text-muted dark:text-accent-foreground">Administrador(a)</span>
                     </div>
-                    <ChevronDown className="ml-auto size-4" />
+                    <ChevronDown className="ml-auto size-4 dark:stroke-accent-foreground" />
                 </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
