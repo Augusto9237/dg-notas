@@ -30,7 +30,7 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
     ];
 
     return (
-        <footer className={cn("fixed inset-x-0 bottom-0", className)}>
+        <footer className={cn("fixed inset-x-0 bottom-0 min-[1025px]:hidden", className)}>
             <Card className="backdrop-blur-lg p-0 border-none bg-card rounded-t-xl rounded-b-none shadow-[1px_1px_15px_6px_rgba(0,_0,_0,_0.1)]">
                 <nav className="flex justify-between w-full px-5 relative">
                     <Link href="/aluno" className="absolute top-0 left-1/2 transform -translate-x-1/2 object-cover">

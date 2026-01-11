@@ -14,13 +14,13 @@ export function EditButton({ onClick}: EditButtonProps) {
                 <Button
                     size="icon"
                     variant='ghost'
-                    className="hover:cursor-pointer hover:bg-primary text-primary hover:text-background"
+                    className="hover:cursor-pointer hover:bg-primary dark:hover:bg-primary text-primary hover:text-background dark:hover:text-accent-foreground"
                     onClick={onClick}
                 >
                     <Pencil />
                 </Button>
             </TooltipTrigger>
-            <TooltipContent className="text-background">
+            <TooltipContent className="text-background dark:text-accent-foreground">
                 <p>Editar</p>
             </TooltipContent>
         </Tooltip>

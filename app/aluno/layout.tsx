@@ -19,6 +19,8 @@ import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from '@/actions/avali
 import { listarMentoriasAluno } from '@/actions/mentoria';
 import { ProvedorAluno } from '@/context/provedor-aluno';
 import { ProvedorTemas } from '@/context/provedor-temas';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebarAluno } from '@/components/app-sidebar-aluno';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'],
@@ -83,7 +85,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             <body className={`${poppins.className} antialiased`}>
                 <ProvedorTemas
                     attribute="class"
-                    defaultTheme="system"
+                    defaultTheme="light"
                     enableSystem
                     disableTransitionOnChange
                 >
@@ -96,11 +98,16 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                         mentorias={mentorias}
                         temas={temas}
                     >
-                        <FormularioTelefone user={session.user} />
-                        <main>
-                            {children}
-                        </main>
-                        <FooterAluno />
+                        <SidebarProvider>
+                            <AppSidebarAluno />
+                            <SidebarInset className="relative">
+                                <FormularioTelefone user={session.user} />
+                                <main>
+                                    {children}
+                                </main>
+                                <FooterAluno />
+                            </SidebarInset>
+                        </SidebarProvider>
                         <Toaster richColors theme="light" />
                     </ProvedorAluno>
                 </ProvedorTemas>
