@@ -40,7 +40,7 @@ export function ListaAvaliacoes({ avaliacoesIniciais, criteriosIniciais }: Lista
 
     if (carregando) {
         return (
-            <div className="space-y-4">
+            <div className="gap-4 min-[1025px]:grid min-[1025px]:grid-cols-3">
                 {[1, 2, 3].map((index) => (
                     <Card
                         className="cursor-pointer hover:shadow-md transition-shadow p-0 min-h-[164px] h-full max-h-[164px] gap-0 relative"
@@ -63,7 +63,7 @@ export function ListaAvaliacoes({ avaliacoesIniciais, criteriosIniciais }: Lista
     }
 
     return (
-        <div className="space-y-4">
+        <div className="gap-4 min-[1025px]:grid min-[1025px]:grid-cols-3">
             {avaliacoes.map((avaliacao) => (
                 <CardAvaliacao
                     key={avaliacao.id}

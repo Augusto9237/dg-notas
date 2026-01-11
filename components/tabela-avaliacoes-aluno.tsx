@@ -23,11 +23,11 @@ export function TabelaAvaliacoesAluno({ criterios }: TabelaAvaliacoesAlunoProps)
             </TabsList>
             <TabsContent value='pendentes' className="flex flex-col gap-4">
                 {listaTemas.length > 0 && (
-                    <>
+                    <div className="gap-4 min-[1025px]:grid min-[1025px]:grid-cols-3">
                         {listaTemas.map((tema) => (
                             <CardNovoTema key={tema.id} tema={tema} />
                         ))}
-                    </>
+                    </div>
                 )}
 
                 {pendingAvaliacoes.length > 0 || listaTemas.length > 0 ? (

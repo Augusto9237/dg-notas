@@ -23,7 +23,7 @@ export function AppSidebarAluno() {
   return (
     <Sidebar className="bg-primary border-none">
       <SidebarHeader className="max-h-16">
-        <Link href="/professor" className="w-full">
+        <Link href="/aluno" className="w-full">
           <Logo />
         </Link>
       </SidebarHeader>

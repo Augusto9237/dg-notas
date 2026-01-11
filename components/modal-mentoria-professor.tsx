@@ -294,8 +294,8 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
                                                         professorId={mentoria.professorId ?? ''}
                                                     />
                                                     <Button
-                                                        variant="destructive"
-                                                        className="w-full"
+                                                        variant='ghost'
+                                                        className="w-full text-red-500 hover:text-card hover:bg-red-500 "
                                                         onClick={() => excluirMentoria(mentoria.id)}
                                                     >
                                                         <CalendarX />
