@@ -7,6 +7,7 @@ import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useContext } from "react";
 import { ContextoAluno } from "@/context/contexto-aluno";
+import { PerfilAluno } from "../perfil-aluno";
 
 export default function Header() {
   const { data: session } = authClient.useSession();
@@ -30,7 +31,7 @@ export default function Header() {
             <div className="h-3 w-48 bg-muted animate-pulse rounded" />
           </div>
         </div>
-        <Button className="absolute top-5 right-5" size="icon" variant="outline" disabled>
+        <Button className="absolute top-5 right-5 min-[1025px]:hidden" size="icon" variant="outline" disabled>
           <LogOut />
         </Button>
         <div className="grid grid-cols-3 gap-4">
@@ -46,21 +47,14 @@ export default function Header() {
   }
   else {
     return (
-      <div className="bg-primary min-[1025px]:bg-transparent  px-5 py-4 h-[159px] overflow-hidden rounded-b-2xl">
+      <div className="bg-primary min-[1025px]:bg-transparent  p-5 h-[159px] overflow-hidden rounded-b-2xl">
         <div className="flex min-[1025px]:flex-row-reverse items-center gap-3 mb-4 min-[1025px]:justify-between">
-          <Avatar className="size-10 border-2 border-secondary">
-            <AvatarImage
-              src={session?.user.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"}
-            />
-            <AvatarFallback className="bg-background text-primary font-medium">
-              DG
-            </AvatarFallback>
-          </Avatar>
+          <PerfilAluno />
           <div>
-            <h1 className="text-lg text-card dark:text-card-foreground max-sm:text-base min-[1025px]:text-foreground min-[1025px]:font-bold">Olá, {session ? session.user.name : "Usuário"}!</h1>
-            <p className="text-xs text-muted min-[1025px]:text-muted-foreground">
-              {session ? session.user.email : "carregando..."}
+            <p className="text-xs text-muted dark:text-foreground min-[1025px]:text-muted-foreground">
+              Olá! Bem-vindo(a)👋
             </p>
+            <h1 className="text-lg text-card dark:text-card-foreground max-sm:text-base min-[1025px]:text-foreground min-[1025px]:font-bold">{session ? session.user.name : "Usuário"}</h1>
           </div>
         </div>
 

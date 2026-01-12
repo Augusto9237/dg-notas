@@ -51,7 +51,7 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
             </TabsList>
             <TabsContent value="agendada" className="flex flex-col gap-4">
                 {mentoriasDoDia.length > 0 && (
-                    <div>
+                    <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4 h-full">
                         {mentoriasDoDia.map((mentoria) => (
                             <CardMentoriaConfirmacao key={mentoria.id} mentoria={mentoria} professor={professor} />
                         ))}
