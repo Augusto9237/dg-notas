@@ -41,7 +41,7 @@ type Aluno = Prisma.UserGetPayload<{
 
 
 export function TabelaAlunos() {
-  const { listaAlunos} = useContext(ContextoProfessor)
+  const { listaAlunos } = useContext(ContextoProfessor)
   const [carregando, setCarregando] = useState(false)
   const [alunos, setAlunos] = useState<Aluno[]>([])
   const searchParams = useSearchParams()
@@ -131,7 +131,6 @@ export function TabelaAlunos() {
         <InputBusca
           placeholder='Buscar por E-mail'
         />
-        <RelatorioEvolucao/>
       </div>
       <div className='w-full h-full flex-1'>
         <Table className='h-full'>
@@ -177,6 +176,7 @@ export function TabelaAlunos() {
                     {calcularMedia(aluno.avaliacoesComoAluno)}
                   </TableCell>
                   <TableCell className="text-center space-x-4">
+                    <RelatorioEvolucao alunoId={aluno.id} />
                     <Link href={`/professor/alunos/${aluno.id}`} passHref>
                       <Tooltip>
                         <TooltipTrigger asChild>

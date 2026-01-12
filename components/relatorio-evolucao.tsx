@@ -1,6 +1,6 @@
 'use client'
 
-import { TrendingUp } from 'lucide-react'
+import { ChartNoAxesCombined, TrendingUp } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
 
 import {
@@ -44,8 +44,6 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
   }
 }>
 
-
-
 export const description = 'A multiple bar chart'
 
 const chartConfig = {
@@ -55,11 +53,13 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function RelatorioEvolucao() {
+export function RelatorioEvolucao({ alunoId }: { alunoId: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [avaliacoes, setAvaliaçoes] = useState<Avaliacao[]>([]);
   const [criterios, setCriterios] = useState<Criterio[]>([]);
   const [carregamento, setCarregamento] = useState(false);
+
+  console.log(isOpen)
 
   useEffect(() => {
     const carregarAvaliacoes = async () => {
@@ -68,7 +68,7 @@ export function RelatorioEvolucao() {
       setCarregamento(true)
       try {
         const [novasAvaliacoes, novosCriterios] = await Promise.all([
-          ListarAvaliacoesAlunoId('k8gK5fOMkhP7nkyUjkzo278B6Np4Usjs'),
+          ListarAvaliacoesAlunoId(alunoId),
           ListarCriterios()
         ]);
         setAvaliaçoes(novasAvaliacoes);
@@ -136,7 +136,9 @@ export function RelatorioEvolucao() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" onClick={() => setIsOpen(true)}>Relatorio</Button>
+        <Button variant="outline" size='icon' >
+          <ChartNoAxesCombined />
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[625px] overflow-y-auto max-h-[95vh] gap-5">
         <DialogHeader>
@@ -144,7 +146,7 @@ export function RelatorioEvolucao() {
         </DialogHeader>
         <div className='space-y-2'>
           <Label>
-            Evolução
+            Desempenho
           </Label>
           <ChartContainer config={chartConfig}>
             <BarChart accessibilityLayer data={chartData}>
