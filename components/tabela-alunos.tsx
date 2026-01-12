@@ -31,6 +31,7 @@ import { banirUsuario } from '@/actions/admin';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
 import { ContextoProfessor } from '@/context/contexto-professor';
+import { RelatorioEvolucao } from './relatorio-evolucao';
 
 type Aluno = Prisma.UserGetPayload<{
   include: {
@@ -45,7 +46,6 @@ export function TabelaAlunos() {
   const [alunos, setAlunos] = useState<Aluno[]>([])
   const searchParams = useSearchParams()
   const busca = searchParams.get('busca')
-
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
@@ -176,6 +176,7 @@ export function TabelaAlunos() {
                     {calcularMedia(aluno.avaliacoesComoAluno)}
                   </TableCell>
                   <TableCell className="text-center space-x-4">
+                    <RelatorioEvolucao alunoId={aluno.id} />
                     <Link href={`/professor/alunos/${aluno.id}`} passHref>
                       <Tooltip>
                         <TooltipTrigger asChild>

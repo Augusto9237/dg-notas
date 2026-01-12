@@ -1,8 +1,9 @@
-import { listarAlunosGoogle } from '@/actions/alunos';
+
 import { TabelaAlunos } from '@/components/tabela-alunos';
 import Loading from './loading';
 import { Suspense } from 'react';
 import { HeaderProfessor } from '@/components/header-professor';
+import { RelatorioEvolucao } from '@/components/relatorio-evolucao';
 
 export default async function Page() {
 
@@ -15,7 +16,6 @@ export default async function Page() {
             <p className="text-xs text-muted-foreground leading-none">Lista de alunos</p>
           </div>
         </HeaderProfessor>
-
         <main className="flex flex-col p-5 h-full">
           <TabelaAlunos />
         </main>
