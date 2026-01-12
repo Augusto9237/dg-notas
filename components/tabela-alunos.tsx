@@ -31,6 +31,7 @@ import { banirUsuario } from '@/actions/admin';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
 import { ContextoProfessor } from '@/context/contexto-professor';
+import { RelatorioEvolucao } from './relatorio-evolucao';
 
 type Aluno = Prisma.UserGetPayload<{
   include: {
@@ -40,12 +41,11 @@ type Aluno = Prisma.UserGetPayload<{
 
 
 export function TabelaAlunos() {
-  const { listaAlunos } = useContext(ContextoProfessor)
+  const { listaAlunos} = useContext(ContextoProfessor)
   const [carregando, setCarregando] = useState(false)
   const [alunos, setAlunos] = useState<Aluno[]>([])
   const searchParams = useSearchParams()
   const busca = searchParams.get('busca')
-
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
@@ -131,6 +131,7 @@ export function TabelaAlunos() {
         <InputBusca
           placeholder='Buscar por E-mail'
         />
+        <RelatorioEvolucao/>
       </div>
       <div className='w-full h-full flex-1'>
         <Table className='h-full'>
