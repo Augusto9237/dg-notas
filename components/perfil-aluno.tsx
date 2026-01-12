@@ -18,11 +18,15 @@ import { User } from "@/app/generated/prisma";
 import { obterProfessorPorId } from "@/actions/admin";
 import { obterUrlImagem } from "@/lib/obter-imagem";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function PerfilAluno() {
     const mobile = useIsMobile()
     const { data: session } = authClient.useSession();
     const [aluno, setAluno] = useState<User | null>(null)
+
+    const router = useRouter()
 
     useEffect(() => {
         async function fetchAluno() {
@@ -33,6 +37,11 @@ export function PerfilAluno() {
         }
         fetchAluno();
     }, [session?.user.id]);
+
+    async function sair() {
+        await authClient.signOut();
+        router.push("/");
+    }
 
     return (
         <Sheet>
@@ -46,7 +55,7 @@ export function PerfilAluno() {
                     </AvatarFallback>
                 </Avatar>
             </SheetTrigger>
-            <SheetContent className="gap-2" side={mobile === true ? 'left' : 'right'}>
+            <SheetContent className="gap-2 bg-card" side={mobile === true ? 'left' : 'right'}>
                 <SheetHeader>
                     <SheetTitle>
                         Sua Conta
@@ -76,6 +85,14 @@ export function PerfilAluno() {
                         </div>
                     </div>
                 </div>
+                <SheetFooter>
+                    <Button
+                        variant='ghost'
+                    >
+                        <LogOut />
+                        Sair
+                    </Button>
+                </SheetFooter>
             </SheetContent>
         </Sheet>
     )

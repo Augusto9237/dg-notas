@@ -76,13 +76,6 @@ export function AppSidebarAluno() {
           />
           <Sun size={16} />
         </div>
-        <Button
-          variant='ghost'
-          className="bg-background/10 text-card"
-        >
-          <LogOut />
-          Sair
-        </Button>
       </SidebarFooter>
     </Sidebar>
   )
