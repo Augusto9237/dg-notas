@@ -88,6 +88,7 @@ export function PerfilAluno() {
                 <SheetFooter>
                     <Button
                         variant='ghost'
+                        onClick={sair}
                     >
                         <LogOut />
                         Sair

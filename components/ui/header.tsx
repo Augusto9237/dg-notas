@@ -18,12 +18,6 @@ export default function Header() {
   const { mediaGeral, totalRedacoes, totalMentorias, isLoading } = useContext(ContextoAluno);
   const { setTheme, theme } = useTheme()
 
-  async function sair() {
-    await authClient.signOut();
-    router.push("/");
-  }
-
-
   // Renderizar um placeholder durante a hidratação
   if (!isLoading && !session) {
     return (
@@ -61,10 +55,6 @@ export default function Header() {
             <h1 className="text-lg text-card dark:text-card-foreground max-sm:text-base min-[1025px]:text-foreground min-[1025px]:font-bold">{session ? session.user.name : "Usuário"}</h1>
           </div>
         </div>
-
-        {/* <Button className="absolute top-5 right-5 min-[1025px]:hidden" size="icon" variant="outline" onClick={sair}>
-          <LogOut />
-        </Button> */}
 
         <Button className="absolute top-5 right-5 min-[1025px]:hidden" size='icon' variant='ghost' onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
           {theme === 'light' ? <Moon /> : <Sun />}

@@ -1,4 +1,4 @@
-import { ListarAvaliacoesAlunoId, ListarCriterios } from '@/actions/avaliacao';
+import { ListarCriterios } from '@/actions/avaliacao';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import Header from '@/components/ui/header';
