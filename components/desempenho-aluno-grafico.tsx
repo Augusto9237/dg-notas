@@ -69,7 +69,7 @@ export function DesempenhoAlunoGrafico() {
 
     return (
         <div className='h-full flex flex-col overflow-hidden p-5 pb-6 max-sm:pb-14'>
-            <h2 className="mb-3 text-primary font-semibold">Desempenho</h2>
+            <h2 className="mb-3 text-primary font-semibold">Seu Desempenho</h2>
             <ChartContainer config={chartConfig} className="flex-1 mb-2 max-sm:mb-1">
                 <BarChart accessibilityLayer data={chartData}>
                     <CartesianGrid vertical={false} />
