@@ -9,10 +9,14 @@ import { useContext } from "react";
 import { ContextoAluno } from "@/context/contexto-aluno";
 import { PerfilAluno } from "../perfil-aluno";
 
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes";
+
 export default function Header() {
   const { data: session } = authClient.useSession();
   const router = useRouter();
   const { mediaGeral, totalRedacoes, totalMentorias, isLoading } = useContext(ContextoAluno);
+  const { setTheme, theme } = useTheme()
 
   async function sair() {
     await authClient.signOut();
@@ -58,8 +62,12 @@ export default function Header() {
           </div>
         </div>
 
-        <Button className="absolute top-5 right-5 min-[1025px]:hidden" size="icon" variant="outline" onClick={sair}>
+        {/* <Button className="absolute top-5 right-5 min-[1025px]:hidden" size="icon" variant="outline" onClick={sair}>
           <LogOut />
+        </Button> */}
+
+        <Button className="absolute top-5 right-5 min-[1025px]:hidden" size='icon' variant='ghost' onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+          {theme === 'light' ? <Moon /> : <Sun />}
         </Button>
 
         {/* Stats */}

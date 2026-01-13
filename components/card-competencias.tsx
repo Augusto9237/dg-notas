@@ -63,7 +63,7 @@ export function CardCompetencia({ criterio, criterios }: CardCompetenciaProps) {
 
     return (
         <Card
-            className="hover:shadow-md transition-shadow p-0 min-h-[124px] h-full max-h-[124px] gap-0 relative"
+            className="hover:shadow-md transition-shadow p-0 min-h-[124px] h-full max-h-[124px] w-full max-sm:min-w-sm gap-0 relative"
         >
             <CardContent className="p-4 relative h-full flex w-full overflow-hidden">
                 <div className="w-[154px] h-[122px] -ml-8 -mt-4">

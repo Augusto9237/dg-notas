@@ -31,10 +31,11 @@ import {
 } from '@/components/ui/chart'
 import { Label } from './ui/label'
 import { useEffect, useState } from 'react'
-import { listarMentoriasAluno } from '@/actions/mentoria'
+
 import { Criterio, Prisma } from '@/app/generated/prisma'
 import { ListarAvaliacoesAlunoId, ListarCriterios } from '@/actions/avaliacao'
 import { CardCompetencia } from './card-competencias'
+import { Spinner } from './ui/spinner'
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -44,7 +45,6 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
   }
 }>
 
-export const description = 'A multiple bar chart'
 
 const chartConfig = {
   media: {
@@ -59,7 +59,6 @@ export function RelatorioEvolucao({ alunoId }: { alunoId: string }) {
   const [criterios, setCriterios] = useState<Criterio[]>([]);
   const [carregamento, setCarregamento] = useState(false);
 
-  console.log(isOpen)
 
   useEffect(() => {
     const carregarAvaliacoes = async () => {
@@ -144,46 +143,54 @@ export function RelatorioEvolucao({ alunoId }: { alunoId: string }) {
         <DialogHeader>
           <DialogTitle className='text-center'>Relatório</DialogTitle>
         </DialogHeader>
-        <div className='space-y-2'>
-          <Label>
-            Desempenho
-          </Label>
-          <ChartContainer config={chartConfig}>
-            <BarChart accessibilityLayer data={chartData}>
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator="dashed" />}
-              />
-              <Bar dataKey="media" fill="var(--color-media)" radius={4} />
-            </BarChart>
-          </ChartContainer>
-          <DialogDescription className="leading-none text-muted-foreground text-xs">
-            Mostrando a evolução das médias nos últimos 11 meses
-          </DialogDescription>
-        </div>
-
-        <div className='space-y-2'>
-          <Label>
-            Habilidades
-          </Label>
-          <div className='space-y-4 h-full overflow-y-auto pb-14 min-[1025px]:pb-0 scrollbar-thin scrollbar-thumb-card scrollbar-track-background'>
-            {mediasPorCriterio.map((criterio, i) => (
-              <CardCompetencia key={i} criterio={criterio} criterios={criterios} />
-            ))}
+        {carregamento === true ? (
+          <div className='w-full h-full flex items-center justify-center'>
+            <Spinner className='size-10' />
           </div>
-        </div>
+        ) : (
+          <>
+            <div className='space-y-2'>
+              <Label>
+                Desempenho
+              </Label>
+              <ChartContainer config={chartConfig}>
+                <BarChart accessibilityLayer data={chartData}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent indicator="dashed" />}
+                  />
+                  <Bar dataKey="media" fill="var(--color-media)" radius={4} />
+                </BarChart>
+              </ChartContainer>
+              <DialogDescription className="leading-none text-muted-foreground text-xs">
+                Mostrando a evolução das médias nos últimos 11 meses
+              </DialogDescription>
+            </div>
+
+            <div className='space-y-2'>
+              <Label>
+                Habilidades
+              </Label>
+              <div className='space-y-4 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-card scrollbar-track-background'>
+                {mediasPorCriterio.map((criterio, i) => (
+                  <CardCompetencia key={i} criterio={criterio} criterios={criterios} />
+                ))}
+              </div>
+            </div>
+          </>)
+        }
         <DialogFooter className="text-xs sm:justify-start">
 
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </DialogContent >
+    </Dialog >
   )
 }
