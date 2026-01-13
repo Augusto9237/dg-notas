@@ -116,7 +116,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                     type="button"
                     onClick={handleButtonClick}
                     variant={arquivo === null ? 'ghost' : 'outline'}
-                    className={arquivo === null ? "w-full bg-background border border-accent-foreground" : "w-full bg-primary/10"}
+                    className={arquivo === null ? "w-full bg-background border border-accent-foreground" : "w-full bg-primary/10 overflow-hidden truncate"}
                 >
                     {arquivo === null ? (
                         <>

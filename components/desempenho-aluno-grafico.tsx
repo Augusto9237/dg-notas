@@ -88,7 +88,7 @@ export function DesempenhoAlunoGrafico() {
                 </BarChart>
             </ChartContainer>
             <p className="leading-none text-muted-foreground text-xs">
-                Média de desempenho mensais
+                Médias de desempenho mensais
             </p>
         </div>
     )
