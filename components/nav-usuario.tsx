@@ -23,16 +23,13 @@ import { Skeleton } from "./ui/skeleton"
 import { useEffect, useState } from "react"
 import { obterUrlImagem } from "@/lib/obter-imagem";
 import Image from "next/image"
-import { Switch } from "./ui/switch"
-import { Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
-import { Sub } from "@radix-ui/react-dropdown-menu"
+
 
 export function NavUsuario() {
     const [isClient, setIsClient] = useState(false)
     const { data: session, isPending } = authClient.useSession();
     const [avatarImagem, setAvatarImagem] = useState<string | null>(null);
-    const { setTheme, theme } = useTheme()
+    
 
     const router = useRouter()
 
@@ -96,15 +93,6 @@ export function NavUsuario() {
                 align="start"
                 sideOffset={4}
             >
-                <div className="text-primary dark:text-foreground flex gap-2 w-full items-center hover:text-primary text-sm px-2 py-1.5">
-                    <Moon size={16} />
-                    <Switch
-                        checked={theme === 'light' ? true : false}
-                        onCheckedChange={(checked) => setTheme(checked === true ? "light" : "dark")}
-                    />
-                    <Sun size={16} />
-                </div>
-
                 <DropdownMenuItem onClick={() => router.push("/professor/conta")} className="text-primary dark:text-foreground hover:text-primary">
                     <UserCog className="stroke-primary dark:stroke-foreground" />
                     Sua conta

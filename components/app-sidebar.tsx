@@ -13,9 +13,13 @@ import { NavUsuario } from "./nav-usuario"
 import { usePathname } from "next/navigation"
 import { RiUserStarLine } from "react-icons/ri";
 import { MdOutlineDashboardCustomize } from "react-icons/md";
+import { Switch } from "./ui/switch"
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
 
 export function AppSidebar() {
   const path = usePathname()
+  const { setTheme, theme } = useTheme()
 
   return (
     <Sidebar className="bg-primary border-none">
@@ -72,6 +76,15 @@ export function AppSidebar() {
         </SidebarMenuButton>
       </SidebarContent>
       <SidebarFooter className="p-5">
+        <div className="text-card dark:text-foreground flex gap-2 w-full items-center justify-center text-sm p-2">
+          <Moon size={16} />
+          <Switch
+            checked={theme === 'light' ? true : false}
+            onCheckedChange={(checked) => setTheme(checked === true ? "light" : "dark")}
+            className="data-[state=checked]:bg-background/50"
+          />
+          <Sun size={16} />
+        </div>
         <NavUsuario />
       </SidebarFooter>
     </Sidebar>

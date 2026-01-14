@@ -14,7 +14,7 @@ type TemasMes = Prisma.TemaGetPayload<{
 
 export function UltimasAvaliacoes({ temasMes, avaliacoes }: { temasMes: TemasMes[]; avaliacoes: Avaliacao[] }) {
     return (
-        <Card className="gap-5 p-5 h-full">
+        <Card className="gap-5 p-5 h-full w-full overflow-hidden">
             <CardHeader className="p-0 flex justify-between items-start">
                 <CardTitle>Últimas Avaliações</CardTitle>
                 <Link href="/professor/avaliacoes" className='flex  items-center text-sm text-primary '>
@@ -23,13 +23,13 @@ export function UltimasAvaliacoes({ temasMes, avaliacoes }: { temasMes: TemasMes
                     <ChevronRight className="max-sm:size-[16px] size-[20px]" />
                 </Link>
             </CardHeader>
-            <CardContent className="p-0">
-                <Table>
+            <CardContent className="p-0 overflow-hidden w-full">
+                <Table className="w-full table-fixed">
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Tema</TableHead>
-                            <TableHead>Data</TableHead>
-                            <TableHead className="w-[20px]">Respostas</TableHead>
+                            <TableHead className="w-auto">Tema</TableHead>
+                            <TableHead className="w-[120px]">Data</TableHead>
+                            <TableHead className="w-[100px]">Respostas</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -42,9 +42,9 @@ export function UltimasAvaliacoes({ temasMes, avaliacoes }: { temasMes: TemasMes
                         ) : (
                             temasMes.map((tema) => (
                                 <TableRow key={tema.id}>
-                                    <TableCell>{tema.nome}</TableCell>
-                                    <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
-                                    <TableCell className="w-[20px] text-center">
+                                    <TableCell className="max-w-0 truncate">{tema.nome}</TableCell>
+                                    <TableCell className="w-[120px]">{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
+                                    <TableCell className="w-[100px] text-center">
                                         <Badge
                                            variant={avaliacoes.filter((avaliacao) => avaliacao.temaId === tema.id && avaliacao.resposta.length > 0).length > 0 ? 'default' : 'outline'}
                                         >
