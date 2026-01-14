@@ -151,7 +151,7 @@ export const FormularioAvaliacao = memo(function FormularioAvaliacao({ temas, cr
           </Button>
         }
       </DialogTrigger>
-      <DialogContent className="max-sm:max-h-[94vh] max-sm:overflow-y-auto overflow-x-hidden">
+      <DialogContent className="max-h-[94vh] max-sm:overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="text-center max-sm:text-base">{isEditMode ? "Editar Avaliação" : "Adicionar Avaliação"}</DialogTitle>
         </DialogHeader>

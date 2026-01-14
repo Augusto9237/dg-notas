@@ -1,6 +1,6 @@
 
 import { AgendarMentoriaAluno } from "@/components/agendar-mentoria-aluno"
-import { listarDiasSemana, listarMentoriasAluno, listarSlotsHorario } from "@/actions/mentoria"
+import { listarDiasSemana, listarSlotsHorario } from "@/actions/mentoria"
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers"
 import { obterProfessor } from "@/actions/admin";
@@ -41,7 +41,6 @@ export default async function Page() {
             </div>
         )
     }
-
 
     const diasAtivos = diasSemana.filter((dia) => dia.status)
     const horariosAtivos = slotsHorario.filter((horario) => horario.status)

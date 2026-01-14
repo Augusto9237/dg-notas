@@ -3,14 +3,7 @@
 import { ChartNoAxesCombined, TrendingUp } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -37,6 +30,7 @@ import { ListarAvaliacoesAlunoId, ListarCriterios } from '@/actions/avaliacao'
 import { CardCompetencia } from './card-competencias'
 import { Spinner } from './ui/spinner'
 import { calcularMediaMensal } from '@/lib/media-geral'
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -109,10 +103,17 @@ export function RelatorioEvolucao({ alunoId }: { alunoId: string }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size='icon' >
-          <ChartNoAxesCombined />
-        </Button>
-      </DialogTrigger>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button variant="outline" size='icon' onClick={() => setIsOpen(true)} >
+              <ChartNoAxesCombined />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent className="text-primary dark:text-accent-foreground bg-card fill-card">
+            <p>Relatorio</p>
+          </TooltipContent>
+        </Tooltip>
+      </DialogTrigger >
       <DialogContent className="sm:max-w-[625px] overflow-y-auto max-h-[95vh] gap-5">
         <DialogHeader>
           <DialogTitle className='text-center'>Relatório</DialogTitle>

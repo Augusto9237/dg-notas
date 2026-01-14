@@ -59,7 +59,9 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
                 )}
 
                 <ListMentoriasAlunos
-                    mentoriasIniciais={listaMentorias.filter((mentoria) => mentoria.status === "AGENDADA")}
+                    mentoriasIniciais={listaMentorias.filter(
+                        (mentoria) => mentoria.status === "AGENDADA" 
+                    )}
                     diasSemana={diasSemana}
                     slotsHorario={slotsHorario}
                     professor={professor}

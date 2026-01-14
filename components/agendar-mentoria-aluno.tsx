@@ -34,8 +34,6 @@ import { CalendarioAgendarMentoria } from "./calendario-agendar-mentoria"
 const formSchema = z.object({
     data: z.date({
         message: "Data é obrigatória",
-    }).min(new Date(), {
-        message: "Data deve ser no futuro",
     }),
     horario: z.string({ message: "Selecione um horario" }).min(1)
 })
@@ -143,7 +141,6 @@ export function AgendarMentoriaAluno({
             return;
         }
 
-        setIsLoading(true);
         try {
             const vagasResult = await verificarDisponibilidadeMultiplosSlots(
                 data,
@@ -161,8 +158,6 @@ export function AgendarMentoriaAluno({
         } catch (error) {
             console.error('Erro ao verificar vagas:', error);
             setVagas({});
-        } finally {
-            setIsLoading(false);
         }
     }, [slotIds, diaSemanaId]);
 
