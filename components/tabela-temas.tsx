@@ -19,6 +19,14 @@ import { Button } from "./ui/button"
 import { Switch } from "./ui/switch"
 import { enviarNotificacaoParaTodos } from "@/actions/notificacoes"
 import { ContextoProfessor } from "@/context/contexto-professor"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationLink,
+  PaginationNext,
+} from "./ui/pagination"
 
 
 type Tema = Prisma.TemaGetPayload<{
@@ -75,6 +83,8 @@ export function TabelaTemas() {
   const [temas, setTemas] = useState<Tema[]>([]);
   const searchParams = useSearchParams();
   const busca = searchParams.get('busca');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12;
 
   // Efeito para buscar temas quando o parâmetro 'busca' mudar
   useEffect(() => {
@@ -88,6 +98,7 @@ export function TabelaTemas() {
     };
 
     buscarTemas();
+    setCurrentPage(1); // Resetar para primeira página quando buscar
   }, [busca, listaTemas]);
 
   // Memoiza a contagem de respostas para cada tema, evitando recálculos desnecessários
@@ -126,48 +137,113 @@ export function TabelaTemas() {
     }
   }
 
+  // Calcular paginação
+  const totalPages = Math.ceil(temas.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedTemas = temas.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
   return (
-    <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4 h-full'>
+    <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4 h-full flex-1 justify-between'>
       <div className="flex items-center max-w-md relative">
         <InputBusca placeholder='Buscar por Tema' />
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Id</TableHead>
-            <TableHead>Tema</TableHead>
-            <TableHead>Data</TableHead>
-            <TableHead className="text-center max-w-[54px]">Disponível</TableHead>
-            <TableHead className="text-center max-w-[54px]">
-              <div className='flex justify-center w-full'>
-                <Ellipsis />
-              </div>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {temas.map((tema) => (
-            <TableRow key={tema.id}>
-              <TableCell className="w-[54px]">{tema.id}</TableCell>
-              <TableCell>{tema.nome}</TableCell>
-              <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
-              <TableCell className="text-center">
-                <Switch
-                  checked={tema.disponivel}
-                  onCheckedChange={(checked) => atualizarDisponibilidadeTema(tema.id, checked)}
-                />
-              </TableCell>
-              <TableCell className="w-[54px]">
-                <AcoesDoTema
-                  tema={tema}
-                  totalRespostas={respostasPorTema(tema.id)}
-                  aoExcluir={excluirTema}
-                />
-              </TableCell>
+      <div className='w-full h-full flex-1'>
+        <Table className='h-full'>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Id</TableHead>
+              <TableHead>Tema</TableHead>
+              <TableHead>Data</TableHead>
+              <TableHead className="text-center max-w-[54px]">Disponível</TableHead>
+              <TableHead className="text-center max-w-[54px]">
+                <div className='flex justify-center w-full'>
+                  <Ellipsis />
+                </div>
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {paginatedTemas.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8">
+                  Nenhum tema encontrado
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedTemas.map((tema) => (
+                <TableRow key={tema.id}>
+                  <TableCell className="w-[54px]">{tema.id}</TableCell>
+                  <TableCell>{tema.nome}</TableCell>
+                  <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
+                  <TableCell className="text-center">
+                    <Switch
+                      checked={tema.disponivel}
+                      onCheckedChange={(checked) => atualizarDisponibilidadeTema(tema.id, checked)}
+                    />
+                  </TableCell>
+                  <TableCell className="w-[54px]">
+                    <AcoesDoTema
+                      tema={tema}
+                      totalRespostas={respostasPorTema(tema.id)}
+                      aoExcluir={excluirTema}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex justify-between items-center">
+        <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
+          {startIndex + 1} -{' '}
+          {Math.min(endIndex, temas.length)} de {temas.length} resultados
+        </div>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={handlePreviousPage}
+                className={currentPage <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  onClick={() => handlePageChange(page)}
+                  isActive={page === currentPage}
+                  className="cursor-pointer"
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                onClick={handleNextPage}
+                className={currentPage >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
     </div>
   );
 }
