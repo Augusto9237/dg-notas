@@ -44,12 +44,12 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
             dataMentoria.getUTCDate() === hojeDia
     })
     return (
-        <Tabs defaultValue="agendada">
+        <Tabs defaultValue="agendada" className='h-full'>
             <TabsList>
                 <TabsTrigger value="agendada" className="text-foreground max-sm:text-xs">Agendadas</TabsTrigger>
                 <TabsTrigger value="realizada" className="text-foreground max-sm:text-xs">Realizadas</TabsTrigger>
             </TabsList>
-            <TabsContent value="agendada" className="flex flex-col gap-4">
+            <TabsContent value="agendada" className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-24">
                 {mentoriasDoDia.length > 0 && (
                     <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4 h-full">
                         {mentoriasDoDia.map((mentoria) => (
@@ -67,7 +67,7 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
                     professor={professor}
                 />
             </TabsContent>
-            <TabsContent value="realizada" className="flex flex-col gap-4">
+            <TabsContent value="realizada" className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-24">
                 <ListMentoriasAlunos
                     mentoriasIniciais={listaMentorias.filter((mentoria) => mentoria.status === "REALIZADA")}
                     diasSemana={diasSemana}

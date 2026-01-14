@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { FormularioAvaliacao } from '@/components/formulario-avaliação';
 import {
   Pagination,
   PaginationContent,

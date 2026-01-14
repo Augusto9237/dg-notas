@@ -16,14 +16,14 @@ export function TabelaAvaliacoesAluno({ criterios }: TabelaAvaliacoesAlunoProps)
     const pendingAvaliacoes = listaAvaliacoes.filter((avaliacao) => avaliacao.status === "ENVIADA");
     
     return (
-        <Tabs defaultValue="pendentes">
+        <Tabs defaultValue="pendentes" className='h-full'>
             <TabsList>
                 <TabsTrigger value="pendentes" className="text-foreground max-sm:text-xs">Pendentes</TabsTrigger>
                 <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">Corrigidas</TabsTrigger>
             </TabsList>
-            <TabsContent value='pendentes' className="flex flex-col gap-4">
+            <TabsContent value='pendentes' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-24">
                 {listaTemas.length > 0 && (
-                    <div className="gap-4 min-[1025px]:grid min-[1025px]:grid-cols-3">
+                    <div className="gap-4 max-[1025px]:flex flex-col min-[1025px]:grid min-[1025px]:grid-cols-3">
                         {listaTemas.map((tema) => (
                             <CardNovoTema key={tema.id} tema={tema} />
                         ))}
@@ -39,7 +39,7 @@ export function TabelaAvaliacoesAluno({ criterios }: TabelaAvaliacoesAlunoProps)
                     </div>
                 )}
             </TabsContent>
-            <TabsContent value='corrigidas' className="flex flex-col gap-4">
+            <TabsContent value='corrigidas' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-24">
                 <ListaAvaliacoes avaliacoesIniciais={listaAvaliacoes.filter((avaliacao) => avaliacao.status === "CORRIGIDA")} criteriosIniciais={criterios} />
             </TabsContent>
         </Tabs>

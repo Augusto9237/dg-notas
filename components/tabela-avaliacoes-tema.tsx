@@ -136,98 +136,100 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
   }
 
   return (
-    <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4 h-full'>
+    <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4 h-full min-h-full'>
       <div className="flex items-center max-w-md relative">
         <InputBusca
           placeholder='Buscar por E-mail'
         />
       </div>
-      <Table >
-        <TableHeader>
-          <TableRow >
-            <TableHead className='min-[1025px]:min-w-sm'>Aluno</TableHead>
-            <TableHead className='min-[1025px]:min-w-sm'>E-mail</TableHead>
-            <TableHead className='min-[1025px]:min-w-[200px]'>Data</TableHead>
-            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C1</TableHead>
-            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C2</TableHead>
-            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C3</TableHead>
-            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C4</TableHead>
-            <TableHead className='min-[1025px]:min-w-[32px] text-center'>C5</TableHead>
-            <TableHead className='min-[1025px]:min-w-[32px] text-center'>Total</TableHead>
-            <TableHead className="text-center">
-              <div className='flex justify-center'>
-                <Ellipsis />
-              </div>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paginacaoAvaliacoes.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center py-8">
-                Nenhum aluno encontrado
-              </TableCell>
+      <div className='w-full h-full flex-1'>
+        <Table className='h-full'>
+          <TableHeader>
+            <TableRow >
+              <TableHead className='min-[1025px]:min-w-sm'>Aluno</TableHead>
+              <TableHead className='min-[1025px]:min-w-sm'>E-mail</TableHead>
+              <TableHead className='min-[1025px]:min-w-[200px]'>Data</TableHead>
+              <TableHead className='min-[1025px]:min-w-[32px] text-center'>C1</TableHead>
+              <TableHead className='min-[1025px]:min-w-[32px] text-center'>C2</TableHead>
+              <TableHead className='min-[1025px]:min-w-[32px] text-center'>C3</TableHead>
+              <TableHead className='min-[1025px]:min-w-[32px] text-center'>C4</TableHead>
+              <TableHead className='min-[1025px]:min-w-[32px] text-center'>C5</TableHead>
+              <TableHead className='min-[1025px]:min-w-[32px] text-center'>Total</TableHead>
+              <TableHead className="text-center">
+                <div className='flex justify-center'>
+                  <Ellipsis />
+                </div>
+              </TableHead>
             </TableRow>
-          ) : (
-            paginacaoAvaliacoes.map((avaliacao) => (
-              <TableRow key={avaliacao.id}>
-                <TableCell className='flex gap-2 items-center md:max-w-sm'>
-                  <Avatar>
-                    <AvatarImage src={avaliacao.aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
-                    <AvatarFallback>{avaliacao.aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <p className='mt-1'>
-                    {avaliacao.aluno.name}
-                  </p>
-                </TableCell>
-                <TableCell className='md:max-w-sm'>{avaliacao.aluno.email}</TableCell>
-                <TableCell>
-                  {new Date(avaliacao.createdAt).toLocaleDateString('pt-BR')}
-                </TableCell>
-                {avaliacao.criterios.length === 0 ? (
-                  <>
-                    <TableCell className='text-center w-[100px]'>0</TableCell>
-                    <TableCell className='text-center w-[100px]'>0</TableCell>
-                    <TableCell className='text-center w-[100px]'>0</TableCell>
-                    <TableCell className='text-center w-[100px]'>0</TableCell>
-                    <TableCell className='text-center w-[100px]'>0</TableCell>
-                  </>
-                ) : (
-                  <>
-                    {avaliacao.criterios.map((criterio) => (
-                      <TableCell key={criterio.id} className='text-center'>
-                        {criterio.pontuacao}
-                      </TableCell>
-                    ))}
-                  </>
-                )
-                }
-                <TableCell className="text-center font-semibold w-full min-w-[68px] max-w-[68px]">
-                  {avaliacao.notaFinal.toFixed(2).replace('.', ',')}
-                </TableCell>
-                <TableCell className="w-[100px]">
-                  <div className="flex gap-4 justify-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button size="icon" variant='outline' onClick={() => baixarArquivo(avaliacao.resposta, avaliacao.aluno.email)}>
-                          <FileDown />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent className="text-primary bg-background fill-background">
-                        <p>Baixar Redação</p>
-                      </TooltipContent>
-                    </Tooltip>
-
-                    <FormularioCorrecao avaliacao={avaliacao} />
-
-                    <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id, avaliacao.resposta)} />
-                  </div>
+          </TableHeader>
+          <TableBody>
+            {paginacaoAvaliacoes.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8">
+                  Nenhum aluno encontrado
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : (
+              paginacaoAvaliacoes.map((avaliacao) => (
+                <TableRow key={avaliacao.id}>
+                  <TableCell className='flex gap-2 items-center md:max-w-sm'>
+                    <Avatar>
+                      <AvatarImage src={avaliacao.aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
+                      <AvatarFallback>{avaliacao.aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <p className='mt-1'>
+                      {avaliacao.aluno.name}
+                    </p>
+                  </TableCell>
+                  <TableCell className='md:max-w-sm'>{avaliacao.aluno.email}</TableCell>
+                  <TableCell>
+                    {new Date(avaliacao.createdAt).toLocaleDateString('pt-BR')}
+                  </TableCell>
+                  {avaliacao.criterios.length === 0 ? (
+                    <>
+                      <TableCell className='text-center w-[100px]'>0</TableCell>
+                      <TableCell className='text-center w-[100px]'>0</TableCell>
+                      <TableCell className='text-center w-[100px]'>0</TableCell>
+                      <TableCell className='text-center w-[100px]'>0</TableCell>
+                      <TableCell className='text-center w-[100px]'>0</TableCell>
+                    </>
+                  ) : (
+                    <>
+                      {avaliacao.criterios.map((criterio) => (
+                        <TableCell key={criterio.id} className='text-center'>
+                          {criterio.pontuacao}
+                        </TableCell>
+                      ))}
+                    </>
+                  )
+                  }
+                  <TableCell className="text-center font-semibold w-full min-w-[68px] max-w-[68px]">
+                    {avaliacao.notaFinal.toFixed(2).replace('.', ',')}
+                  </TableCell>
+                  <TableCell className="w-[100px]">
+                    <div className="flex gap-4 justify-center">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button size="icon" variant='outline' onClick={() => baixarArquivo(avaliacao.resposta, avaliacao.aluno.email)}>
+                            <FileDown />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent className="text-primary bg-background fill-background">
+                          <p>Baixar Redação</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <FormularioCorrecao avaliacao={avaliacao} />
+
+                      <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id, avaliacao.resposta)} />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
       <div className="flex justify-between items-center mt-4">
         <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
           {startIndex + 1} -{' '}

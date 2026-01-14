@@ -41,7 +41,7 @@ export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorari
 
 
     return (
-        <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4 h-full">
+        <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4">
             {mentorias.length === 0 ? (
                 <div className="w-full h-full flex flex-col flex-1 items-center justify-center gap-2 text-muted-foreground pt-5">
                     <CalendarX className="size-10" />
