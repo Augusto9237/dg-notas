@@ -1,5 +1,6 @@
 'use client'
 
+import { SquarePlus } from "lucide-react";
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
@@ -27,9 +28,10 @@ export function InstalarIos() {
 
     setHasPrompted(true)
     const id = toast.info(
-      'No iPhone/iPad, instale o app na Tela Inicial para habilitar tudo',
+      'No seu iPhone/iPad, adicione o app na Tela Inicial para habilitar todas as funções',
       {
-        duration: 6000,
+        icon: <SquarePlus />,
+        duration: 5000,
       }
     )
 

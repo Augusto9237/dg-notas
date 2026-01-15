@@ -27,8 +27,6 @@ import {
 } from "@/app/generated/prisma"
 import React from "react"
 import { ModalMentoriaProfessor } from "./modal-mentoria-professor"
-import { excluirMentoriaECascata } from "@/actions/mentoria"
-import { toast } from "sonner"
 import { TbClockCheck } from "react-icons/tb"
 import { RiUserStarLine } from "react-icons/ri"
 import { ContextoProfessor } from "@/context/contexto-professor"
@@ -139,12 +137,12 @@ const CelulaHorario = React.memo(
           <Skeleton className="w-full h-full col-span-full row-span-full bg-background" />
         ) : (
           <>
-            {mentoriasDoSlot.length === 0 && Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="flex items-center justify-center text-muted-foreground text-xs max-sm:h-9 sm:min-h-[50px] md:min-h-[60px] h-full bg-background/30 rounded-lg">
-              </div>
-            ))}
             {mentoriasDoSlot.map((mentoria) => (
               <ModalMentoriaProfessor key={mentoria.id} mentoria={mentoria} setListaMentorias={setListaMentorias} diasSemana={diasSemana} slotsHorario={slotsHorario} />
+            ))}
+            {Array.from({ length: 4 - mentoriasDoSlot.length }).map((_, index) => (
+              <div key={index} className="flex items-center justify-center text-muted-foreground text-xs max-sm:h-9 sm:min-h-[50px] md:min-h-[60px] h-full bg-background/30 rounded-lg">
+              </div>
             ))}
           </>
         )}

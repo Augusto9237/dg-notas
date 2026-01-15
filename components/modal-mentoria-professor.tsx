@@ -1,7 +1,7 @@
 'use client';
 
 import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { CalendarX, CheckCircle, ChevronRight, Clock2, Loader2 } from "lucide-react";
 import { TbClockCheck } from "react-icons/tb";
@@ -22,6 +22,7 @@ import { CardMentoriaProfessor } from "./card-mentoria-professor";
 import { Label } from "./ui/label";
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
 import { useSession } from "@/lib/auth-client";
+import clsx from "clsx";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -169,7 +170,7 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
 
                             <div className="w-full flex flex-col gap-5 overflow-hidden relative">
                                 <div className="flex gap-4 items-center">
-                                    <Avatar className={cn('border-2 size-16.5', { 'border-primary': mentoriaData?.status === 'REALIZADA', 'border-primary/15': mentoriaData?.status === 'CONFIRMADA', 'border-secondary': mentoriaData?.status === 'AGENDADA' })}>
+                                    <Avatar className={cn('border-2 size-16', { 'border-primary': mentoriaData?.status === 'REALIZADA', 'border-primary/15': mentoriaData?.status === 'CONFIRMADA', 'border-secondary': mentoriaData?.status === 'AGENDADA' })}>
                                         <AvatarImage
                                             src={mentoriaData?.aluno.image || ''}
                                             alt={mentoriaData?.aluno.name}
@@ -185,13 +186,13 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
                                         </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <h2 className="font-semibold">{mentoria.aluno.name}</h2>
-                                        <p className="text-sm text-muted-foreground">
+                                        <Label>{mentoria.aluno.name}</Label>
+                                        <DialogDescription>
                                             {mentoria.aluno.email}
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
+                                        </DialogDescription>
+                                        <DialogDescription>
                                             {mentoria.aluno.telefone}
-                                        </p>
+                                        </DialogDescription>
                                     </div>
                                 </div>
                                 <div>
@@ -215,36 +216,29 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
                                                 onValueChange={(value) => handleStatusChange(value as "AGENDADA" | "CONFIRMADA" | "REALIZADA")}
                                                 disabled={mentoria.status === 'REALIZADA'}
                                             >
-                                                <SelectTrigger className="w-full p-0 py-0 border-none shadow-none" style={{ height: '24px' }}>
+                                                <SelectTrigger className={clsx("w-full py-0 border-none shadow-none",
+                                                    {
+                                                        'bg-secondary dark:bg-secondary text-card': mentoriaData?.status === 'AGENDADA',
+                                                        'bg-primary/10 text-primary': mentoriaData?.status === 'CONFIRMADA',
+                                                        'bg-primary text-card dark:text-forenground': mentoriaData?.status === 'REALIZADA'
+                                                    })}
+                                                    style={{ height: '24px' }}
+                                                >
                                                     <SelectValue />
                                                 </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        <SelectItem value={'AGENDADA'}>
-                                                            <Badge
-                                                                variant='secondary'
-                                                                className="w-full min-w-full"
-                                                            >
-                                                                <Clock2 className="stroke-card" />
-                                                                Agendada
-                                                            </Badge>
+                                                <SelectContent >
+                                                    <SelectGroup className="space-y-2" >
+                                                        <SelectItem value={'AGENDADA'} className="border-transparent h-[24px] bg-secondary text-card hover:bg-secondary/90 focus:bg-secondary/90 focus:text-card">
+                                                            <Clock2 className="stroke-card" />
+                                                            Agendada
                                                         </SelectItem>
-                                                        <SelectItem value={'CONFIRMADA'}>
-                                                            <Badge
-                                                                variant='outline'
-                                                                className='bg-primary/10 text-primary border border-primary'
-                                                            >
-                                                                <TbClockCheck className="stroke-primary" />
-                                                                Confirmada
-                                                            </Badge>
+                                                        <SelectItem value={'CONFIRMADA'} className="text-primary h-[24px] bg-primary/10 border border-primary focus:bg-primary/5 focus:text-primary">
+                                                            <TbClockCheck className="stroke-primary" />
+                                                            Confirmada
                                                         </SelectItem>
-                                                        <SelectItem value={'REALIZADA'}>
-                                                            <Badge
-                                                                variant='default'
-                                                            >
-                                                                <CheckCircle className="stroke-card" />
-                                                                Realizada
-                                                            </Badge>
+                                                        <SelectItem value={'REALIZADA'} className="text-card h-[24px] bg-primary focus:bg-primary/90 focus:text-card">
+                                                            <CheckCircle className="stroke-card" />
+                                                            Realizada
                                                         </SelectItem>
                                                     </SelectGroup>
                                                 </SelectContent>
