@@ -49,9 +49,9 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
                 <TabsTrigger value="agendada" className="text-foreground max-sm:text-xs">Agendadas</TabsTrigger>
                 <TabsTrigger value="realizada" className="text-foreground max-sm:text-xs">Realizadas</TabsTrigger>
             </TabsList>
-            <TabsContent value="agendada" className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-24">
+            <TabsContent value="agendada" className="flex flex-col flex-1 h-full gap-4 overflow-y-auto max-sm:pb-24">
                 {mentoriasDoDia.length > 0 && (
-                    <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4 h-full">
+                    <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4">
                         {mentoriasDoDia.map((mentoria) => (
                             <CardMentoriaConfirmacao key={mentoria.id} mentoria={mentoria} professor={professor} />
                         ))}
