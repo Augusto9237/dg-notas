@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useMemo, useEffect, useContext } from 'react';
+import { useState,useEffect, useContext } from 'react';
 import {
   Table,
   TableBody,
@@ -31,7 +31,6 @@ import { banirUsuario } from '@/actions/admin';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
 import { ContextoProfessor } from '@/context/contexto-professor';
-import { RelatorioEvolucao } from './relatorio-evolucao';
 
 type Aluno = Prisma.UserGetPayload<{
   include: {
@@ -176,7 +175,6 @@ export function TabelaAlunos() {
                     {calcularMedia(aluno.avaliacoesComoAluno)}
                   </TableCell>
                   <TableCell className="text-center space-x-4">
-                    <RelatorioEvolucao alunoId={aluno.id} />
                     <Link href={`/professor/alunos/${aluno.id}`} passHref>
                       <Tooltip>
                         <TooltipTrigger asChild>

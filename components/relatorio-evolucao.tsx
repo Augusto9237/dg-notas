@@ -40,6 +40,10 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
   }
 }>
 
+interface RelatorioProps {
+  alunoId: string
+}
+
 
 const chartConfig = {
   media: {
@@ -103,16 +107,10 @@ export function RelatorioEvolucao({ alunoId }: { alunoId: string }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Tooltip>
-          <TooltipTrigger>
-            <Button variant="outline" size='icon' onClick={() => setIsOpen(true)} >
+            <Button variant="outline">
               <ChartNoAxesCombined />
+              Relatorio
             </Button>
-          </TooltipTrigger>
-          <TooltipContent className="text-primary dark:text-accent-foreground bg-card fill-card">
-            <p>Relatorio</p>
-          </TooltipContent>
-        </Tooltip>
       </DialogTrigger >
       <DialogContent className="sm:max-w-[625px] overflow-y-auto max-h-[95vh] gap-5">
         <DialogHeader>
