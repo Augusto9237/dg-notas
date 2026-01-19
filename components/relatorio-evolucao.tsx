@@ -30,7 +30,9 @@ import { ListarAvaliacoesAlunoId, ListarCriterios } from '@/actions/avaliacao'
 import { CardCompetencia } from './card-competencias'
 import { Spinner } from './ui/spinner'
 import { calcularMediaMensal } from '@/lib/media-geral'
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -40,8 +42,19 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
   }
 }>
 
+type Aluno = {
+  id: string;
+  nome: string;
+  email: string;
+  image: string;
+  telefone: string;
+  criado: Date;
+}
+
 interface RelatorioProps {
-  alunoId: string
+  aluno: Aluno
+  avaliacoes: Avaliacao[]
+  criterios: Criterio[]
 }
 
 
@@ -52,25 +65,20 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function RelatorioEvolucao({ alunoId }: { alunoId: string }) {
+export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [avaliacoes, setAvaliaçoes] = useState<Avaliacao[]>([]);
-  const [criterios, setCriterios] = useState<Criterio[]>([]);
+  const [listaAvaliacoes, setListaAvaliaçoes] = useState<Avaliacao[]>([]);
+  const [listaCriterios, setListaCriterios] = useState<Criterio[]>([]);
   const [carregamento, setCarregamento] = useState(false);
 
 
   useEffect(() => {
-    const carregarAvaliacoes = async () => {
-      if (!isOpen) return
-
+    const carregarAvaliacoes = () => {
       setCarregamento(true)
       try {
-        const [novasAvaliacoes, novosCriterios] = await Promise.all([
-          ListarAvaliacoesAlunoId(alunoId),
-          ListarCriterios()
-        ]);
-        setAvaliaçoes(novasAvaliacoes);
-        setCriterios(novosCriterios);
+
+        setListaAvaliaçoes(avaliacoes);
+        setListaCriterios(criterios);
       } catch (error) {
         console.error('Erro ao carregar avaliações:', error);
       } finally {
@@ -79,7 +87,7 @@ export function RelatorioEvolucao({ alunoId }: { alunoId: string }) {
     };
 
     carregarAvaliacoes();
-  }, [isOpen])
+  }, [avaliacoes, criterios])
 
   function calcularMediasPorCriterio(
     avaliacoes: Awaited<ReturnType<typeof ListarAvaliacoesAlunoId>>,
@@ -101,16 +109,27 @@ export function RelatorioEvolucao({ alunoId }: { alunoId: string }) {
     });
   }
 
-  const mediasPorCriterio = calcularMediasPorCriterio(avaliacoes, criterios);
-  const chartData = calcularMediaMensal(avaliacoes);
+  const mediasPorCriterio = calcularMediasPorCriterio(listaAvaliacoes, listaCriterios);
+  const chartData = calcularMediaMensal(listaAvaliacoes);
+
+  function formartarData(data: Date) {
+    // Converter a data UTC para uma data local sem problemas de fuso horário
+    const dataUTC = new Date(data);
+    const dataLocal = new Date(
+      dataUTC.getUTCFullYear(),
+      dataUTC.getUTCMonth(),
+      dataUTC.getUTCDate()
+    );
+    return format(dataLocal, "dd/MM/yyyy", { locale: ptBR });
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-            <Button variant="outline">
-              <ChartNoAxesCombined />
-              Relatorio
-            </Button>
+        <Button variant="outline">
+          <ChartNoAxesCombined />
+          Relatorio
+        </Button>
       </DialogTrigger >
       <DialogContent className="sm:max-w-[625px] overflow-y-auto max-h-[95vh] gap-5">
         <DialogHeader>
@@ -122,7 +141,22 @@ export function RelatorioEvolucao({ alunoId }: { alunoId: string }) {
           </div>
         ) : (
           <>
-            <div className='space-y-2'>
+            <div className='space-y-4'>
+                <div className='space-y-2'>
+                  <Label>
+                    Nome: <p className='font-light'>{aluno.nome}</p>
+                  </Label>
+                  <Label>
+                    E-mail: <p className='font-light'>{aluno.email}</p>
+                  </Label>
+                  <Label>
+                    Telefone: <p className='font-light'>{aluno.telefone}</p>
+                  </Label>
+                  <Label>
+                    Desde: <p className='font-light'>{formartarData(aluno.criado)}</p>
+                  </Label>
+                </div>
+
               <Label>
                 Desempenho
               </Label>
