@@ -1,5 +1,6 @@
 'use server'
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 // Função para listar alunos que fizeram login apenas com o Google
 export async function listarAlunosGoogle(busca?: string) {
@@ -71,6 +72,22 @@ export async function adicionarTelefone(id: string, telefone: string) {
         }
     } catch (error) {
         console.error("Erro ao adicionar telefone");
+        throw error;
+    }
+}
+
+export async function alterarStatusMatriculaAluno(idAluno: string, matriculado: boolean) {
+    try {
+        await prisma.user.update({
+            where: {
+                id: idAluno
+            }, data: {
+                matriculado: matriculado
+            }
+        })
+        revalidatePath('/professor/alunos')
+    } catch (error) {
+        console.error("Erro ao atualizar o status da matricula do aluno:", error);
         throw error;
     }
 }

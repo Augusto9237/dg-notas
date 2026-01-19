@@ -218,7 +218,7 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
                                             >
                                                 <SelectTrigger className={clsx("w-full py-0 border-none shadow-none",
                                                     {
-                                                        'bg-secondary dark:bg-secondary text-card': mentoriaData?.status === 'AGENDADA',
+                                                        'bg-secondary dark:bg-secondary dark:hover:bg-secondary/90 text-card': mentoriaData?.status === 'AGENDADA',
                                                         'bg-primary/10 text-primary': mentoriaData?.status === 'CONFIRMADA',
                                                         'bg-primary text-card dark:text-forenground': mentoriaData?.status === 'REALIZADA'
                                                     })}

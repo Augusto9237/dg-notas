@@ -26,6 +26,10 @@ export const auth = betterAuth({
                 type: "string",
                 required: false,
             },
+            matriculado: {
+                type: "boolean",
+                required: false
+            }
         },
     },
     emailAndPassword: {

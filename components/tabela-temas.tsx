@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo, useContext } from "react"
+import { useEffect, useState, useMemo, useContext, useTransition } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
@@ -41,10 +41,6 @@ interface respostasPorTema {
 }
 
 
-interface TabelaTemasProps {
-  avaliacoes: Avaliacao[];
-}
-
 // Componente para agrupar os botões de ação da tabela
 function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRespostas: respostasPorTema; aoExcluir: (id: number) => void }) {
   return (
@@ -81,6 +77,7 @@ function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRes
 export function TabelaTemas() {
   const { listaTemas, listaAvaliacoes } = useContext(ContextoProfessor)
   const [temas, setTemas] = useState<Tema[]>([]);
+  const [isPending, startTransition] = useTransition()
   const searchParams = useSearchParams();
   const busca = searchParams.get('busca');
   const [currentPage, setCurrentPage] = useState(1);

@@ -21,6 +21,8 @@ import { ProvedorAluno } from '@/context/provedor-aluno';
 import { ProvedorTemas } from '@/context/provedor-temas';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebarAluno } from '@/components/app-sidebar-aluno';
+import { Clock } from 'lucide-react';
+import { enviarNotificacaoParaTodos } from '@/actions/notificacoes';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'],
@@ -59,6 +61,41 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             headers: await headers()
         });
         redirect('/');
+    }
+
+    if (session.user.matriculado === false) {
+        await enviarNotificacaoParaTodos(
+            'admin',
+            'Novo login com acesso pendente',
+            `O aluno ${session.user.name} realizou login no aplicativo e solicita liberação de acesso`,
+            '/professor/alunos'
+        )
+
+        return (
+            <html lang="pt-BR" suppressHydrationWarning>
+                <head>
+                    <meta name="apple-mobile-web-app-capable" content="yes" />
+                    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+                    <meta name="apple-mobile-web-app-title" content="DG - Redação" />
+                    <link rel="apple-touch-icon" href="/ios/180.png" />
+                    <meta
+                        name="viewport"
+                        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+                    />
+                </head>
+                <body className={`${poppins.className} antialiased`}>
+                    <InstalarIos />
+                    <PwaInstallPrompt />
+                    <InicializarNotificacoes userId={session.user.id} />
+                    <FormularioTelefone user={session.user} />
+                    <main className='flex flex-col w-full h-screen justify-center items-center gap-2 p-5'>
+                        <Clock className='stroke-primary' />
+                        <h1 className='text-xl text-primary font-semibold'>Aguarando a liberação do seu acesso</h1>
+                        <p className='text-muted-foreground'>Assim que for liberado será notificado</p>
+                    </main>
+                </body>
+            </html>
+        )
     }
 
     const userId = session.user.id;

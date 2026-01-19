@@ -140,23 +140,23 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
             <Spinner className='size-10' />
           </div>
         ) : (
-          <>
-            <div className='space-y-4'>
-                <div className='space-y-2'>
-                  <Label>
-                    Nome: <p className='font-light'>{aluno.nome}</p>
-                  </Label>
-                  <Label>
-                    E-mail: <p className='font-light'>{aluno.email}</p>
-                  </Label>
-                  <Label>
-                    Telefone: <p className='font-light'>{aluno.telefone}</p>
-                  </Label>
-                  <Label>
-                    Desde: <p className='font-light'>{formartarData(aluno.criado)}</p>
-                  </Label>
-                </div>
+          <div className='space-y-5'>
+            <div className='space-y-2'>
+              <Label>
+                Nome: <p className='font-light'>{aluno.nome}</p>
+              </Label>
+              <Label>
+                E-mail: <p className='font-light'>{aluno.email}</p>
+              </Label>
+              <Label>
+                Telefone: <p className='font-light'>{aluno.telefone}</p>
+              </Label>
+              <Label>
+                Desde: <p className='font-light'>{formartarData(aluno.criado)}</p>
+              </Label>
+            </div>
 
+            <div className='space-y-2'>
               <Label>
                 Desempenho
               </Label>
@@ -192,7 +192,8 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
                 ))}
               </div>
             </div>
-          </>)
+          </div>
+        )
         }
         <DialogFooter className="text-xs sm:justify-start">
 

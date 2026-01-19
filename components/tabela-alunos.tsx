@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState,useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useTransition } from 'react';
 import {
   Table,
   TableBody,
@@ -22,7 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Ellipsis, FileCheck2, FileDown, Search } from 'lucide-react';
 import { InputBusca } from './input-busca';
-import { listarAlunosGoogle } from '@/actions/alunos';
+import { alterarStatusMatriculaAluno, listarAlunosGoogle } from '@/actions/alunos';
 import { useSearchParams } from 'next/navigation';
 import { Prisma, StatusAvaliacao } from '@/app/generated/prisma';
 import { calcularMedia } from '@/lib/media-geral';
@@ -31,6 +31,8 @@ import { banirUsuario } from '@/actions/admin';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
 import { ContextoProfessor } from '@/context/contexto-professor';
+import { Switch } from './ui/switch';
+import { enviarNotificacaoParaUsuario } from '@/actions/notificacoes';
 
 type Aluno = Prisma.UserGetPayload<{
   include: {
@@ -41,7 +43,8 @@ type Aluno = Prisma.UserGetPayload<{
 
 export function TabelaAlunos() {
   const { listaAlunos } = useContext(ContextoProfessor)
-  const [carregando, setCarregando] = useState(false)
+  const [carregando, setCarregando] = useState(false);
+  const [isPending, startTransition] = useTransition()
   const [alunos, setAlunos] = useState<Aluno[]>([])
   const searchParams = useSearchParams()
   const busca = searchParams.get('busca')
@@ -91,6 +94,18 @@ export function TabelaAlunos() {
     };
   }, [busca]);
 
+  function atualizarMatriculaAluno(id: string, status: boolean) {
+    startTransition(async () => {
+      try {
+        await alterarStatusMatriculaAluno(id, status)
+        toast.success('Statuas da matricula do aluno atualizda com sucesso')
+        await enviarNotificacaoParaUsuario(id, 'Seu acesso ao app foi liberado', "Abra ou recarregue novamente", "/aluno")
+      } catch (error) {
+        toast.error('Algo deu errado! Tente novamente')
+      }
+    })
+  }
+
   async function excluirAluno(alundoId: string) {
     try {
       const resposta = await banirUsuario(alundoId)
@@ -138,6 +153,7 @@ export function TabelaAlunos() {
               <TableHead className='min-[1025px]:min-w-sm'>Aluno</TableHead>
               <TableHead className='min-[1025px]:min-w-sm'>E-mail</TableHead>
               <TableHead className='w-full'>Telefone</TableHead>
+              <TableHead className='w-full'>Matriculado</TableHead>
               <TableHead className='w-full max-w-[100px] min-w-[100px] font-semibold'>Avaliações</TableHead>
               <TableHead className='w-full max-w-[64px] min-w-[64px] font-semibold'>Média</TableHead>
               <TableHead className="text-center">
@@ -168,6 +184,13 @@ export function TabelaAlunos() {
                   </TableCell>
                   <TableCell className='min-[1025px]:min-w-sm'>{aluno.email}</TableCell>
                   <TableCell className='w-full'>{aluno.telefone}</TableCell>
+                  <TableCell className="text-center">
+                    <Switch
+                      checked={aluno.matriculado ? aluno.matriculado : false}
+                      disabled={isPending}
+                      onCheckedChange={(checked) => atualizarMatriculaAluno(aluno.id, checked)}
+                    />
+                  </TableCell>
                   <TableCell className='w-full max-w-[100px] min-w-[100px] font-semibold text-center'>
                     {aluno.avaliacoesComoAluno.length}
                   </TableCell>
