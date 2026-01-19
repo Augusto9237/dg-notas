@@ -107,13 +107,15 @@ export function TabelaTemas() {
     };
   }, [listaAvaliacoes]);
 
-  async function atualizarDisponibilidadeTema(temaId: number, status: boolean) {
-    try {
-      await AlterarDisponibilidadeTema(temaId, status)
-      toast.success('Status do tema atualizado com sucesso')
-    } catch {
-      toast.error('Erro ao atualizar status')
-    }
+  function atualizarDisponibilidadeTema(temaId: number, status: boolean) {
+    startTransition(async () => {
+      try {
+        await AlterarDisponibilidadeTema(temaId, status)
+        toast.success('Status do tema atualizado com sucesso')
+      } catch {
+        toast.error('Erro ao atualizar status')
+      }
+    })
   }
 
   // Função para excluir um tema
@@ -192,6 +194,7 @@ export function TabelaTemas() {
                   <TableCell className="text-center">
                     <Switch
                       checked={tema.disponivel}
+                      disabled={isPending}
                       onCheckedChange={(checked) => atualizarDisponibilidadeTema(tema.id, checked)}
                     />
                   </TableCell>

@@ -1,9 +1,21 @@
 'use server'
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 // Função para listar alunos que fizeram login apenas com o Google
 export async function listarAlunosGoogle(busca?: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) {
+        throw new Error("Usuário não autenticado")
+    }
+    if (session.user.role !== 'admin') {
+        throw new Error("Usuário não autorizado")
+    }
+    
     try {
         // Construir o where clause dinamicamente
         const clasulaDeFiltro = {
@@ -77,6 +89,15 @@ export async function adicionarTelefone(id: string, telefone: string) {
 }
 
 export async function alterarStatusMatriculaAluno(idAluno: string, matriculado: boolean) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) {
+        throw new Error("Usuário não autenticado")
+    }
+    if (session.user.role !== 'admin') {
+        throw new Error("Usuário não autorizado")
+    }
     try {
         await prisma.user.update({
             where: {
