@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -178,7 +179,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
           </TooltipContent>
         </Tooltip>
       </DialogTrigger>
-      <DialogContent className="max-sm:max-h-[94vh] max-sm:overflow-y-auto overflow-x-hidden max-w-screen-md">
+      <DialogContent className="overflow-y-auto max-h-[95vh] overflow-x-hidden max-w-screen-md">
         <DialogHeader>
           <DialogTitle className="text-center max-sm:text-base">Correção</DialogTitle>
         </DialogHeader>
@@ -200,25 +201,25 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
                   render={({ field }) => {
                     const currentValue = field.value || 0;
                     return (
-                      <FormItem>
+                      <FormItem >
                         <Card className="gap-2 p-4">
-                          <div className="flex justify-between items-center">
+                          <div className="flex justify-between items-start gap-2">
                             <div className="space-y-1">
                               <FormLabel className="max-sm:text-sm">{i + 1} - {criterio.nome}</FormLabel>
                               <FormDescription className="text-xs">{criterio.descricao}</FormDescription>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  className="w-16.5"
-                                  value={currentValue}
-                                  onChange={(e) => field.onChange(Number(e.target.value) || 0)}
-                                  min={0}
-                                  max={200}
-                                />
-                              </FormControl>
-                            </div>
+
+                            <FormControl>
+                              <Input
+                                type="number"
+                                className="min-w-16 w-16 px-1.5"
+                                value={currentValue}
+                                onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                                min={0}
+                                max={200}
+                              />
+                            </FormControl>
+
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-xs text-muted-foreground">0</span>
@@ -271,24 +272,24 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
                   {calcularNotaFinal(form.watch('criterios'))}/1000
                 </span>
               </div>
-              <div className="flex justify-center gap-4">
+              <DialogFooter className="grid grid-cols-2 gap-4 w-full">
                 <Button
                   type="button"
                   variant="ghost"
                   onClick={() => setIsOpen(false)}
-                  className={clsx(form.formState.isSubmitting ? 'animate-fade-left animate-once hidden' : "min-w-[100px]")}
+
                 >
                   Cancelar
                 </Button>
                 <Button
                   type="submit"
-                  className={clsx(form.formState.isSubmitting ? 'animate-width-transition animate-once w-[216px]' : "min-w-[100px]")}
+
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   {form.formState.isSubmitting ? 'Salvando' : 'Salvar'}
                 </Button>
-              </div>
+              </DialogFooter>
             </div>
           </form>
         </Form>

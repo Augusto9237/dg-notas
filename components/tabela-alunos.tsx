@@ -175,7 +175,7 @@ export function TabelaAlunos() {
                 <TableRow key={aluno.id}>
                   <TableCell className='flex gap-2 items-center min-[1025px]:min-w-sm'>
                     <Avatar>
-                      <AvatarImage src={aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
+                      <AvatarImage src={aluno.image || "/avatar-placeholder.png"} />
                       <AvatarFallback>{aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <span className='mt-1'>

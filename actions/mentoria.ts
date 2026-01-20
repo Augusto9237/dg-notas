@@ -765,3 +765,42 @@ export async function confirmarMentoria(mentoriaId: number) {
     console.log(error)
   }
 }
+
+export async function notificarAlunosMentoriaAgendada() {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  const amanha = new Date(hoje);
+  amanha.setDate(hoje.getDate() + 1);
+
+  try {
+    const mentorias = await prisma.mentoria.findMany({
+      where: {
+        status: 'AGENDADA',
+        horario: {
+          data: {
+            gte: hoje,
+            lt: amanha,
+          },
+        },
+      },
+      include: {
+        aluno: true,
+        horario: {
+          include: {
+            slot: true,
+          },
+        },
+      },
+    });
+
+    for (const mentoria of mentorias) {
+      // TODO: Implementar envio de notificação para o aluno
+      console.log(`Notificar aluno ${mentoria.aluno.name} sobre mentoria agendada para ${mentoria.horario.data.toLocaleDateString()}`);
+    }
+
+  } catch (error) {
+    console.error('Erro ao notificar alunos sobre mentorias agendadas:', error);
+    throw new Error('Erro ao notificar alunos sobre mentorias agendadas');
+  }
+}

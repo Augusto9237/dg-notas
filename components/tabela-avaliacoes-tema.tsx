@@ -174,7 +174,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                 <TableRow key={avaliacao.id}>
                   <TableCell className='flex gap-2 items-center md:max-w-sm'>
                     <Avatar>
-                      <AvatarImage src={avaliacao.aluno.image || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"} />
+                      <AvatarImage src={avaliacao.aluno.image || "/avatar-placeholder.png"} />
                       <AvatarFallback>{avaliacao.aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <p className='mt-1'>

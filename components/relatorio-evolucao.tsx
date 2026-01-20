@@ -72,7 +72,6 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
   const [listaAvaliacoes, setListaAvaliaçoes] = useState<Avaliacao[]>([])
   const [listaCriterios, setListaCriterios] = useState<Criterio[]>([])
   const [carregamento, setCarregamento] = useState(false)
-  const [gerandoPdf, setGerandoPdf] = useState(false)
   const [isPending, startTransition] = useTransition()
   const relatorioRef = useRef<HTMLDivElement>(null)
 
@@ -132,8 +131,6 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
         console.error('Elemento não encontrado')
         return
       }
-
-      setGerandoPdf(true)
 
       // Captura classes do body para garantir contexto de tema
       const bodyClasses = document.body.className
