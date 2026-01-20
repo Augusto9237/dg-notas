@@ -90,66 +90,67 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                     <FormularioTelefone user={session.user} />
                     <main className='flex flex-col w-full h-screen justify-center items-center gap-2 p-5'>
                         <Clock className='stroke-primary' />
-                        <h1 className='text-xl text-primary font-semibold'>Aguarando a liberação do seu acesso</h1>
-                        <p className='text-muted-foreground'>Assim que for liberado será notificado</p>
+                        <h1 className='text-xl text-primary font-semibold justify-center'>Aguarando a liberação do seu acesso</h1>
+                        <p className='text-muted-foreground'>Assim que for liberado você será notificado</p>
                     </main>
                 </body>
             </html>
         )
-    }
+    } else if (session.user.matriculado === true) {
 
-    const userId = session.user.id;
+        const userId = session.user.id;
 
-    // Parallel data fetching for performance
-    const [avaliacoes, mentorias, temas] = await Promise.all([
-        ListarAvaliacoesAlunoId(userId),
-        listarMentoriasAluno(userId),
-        ListarTemasDisponiveis(userId),
-    ]);
+        // Parallel data fetching for performance
+        const [avaliacoes, mentorias, temas] = await Promise.all([
+            ListarAvaliacoesAlunoId(userId),
+            listarMentoriasAluno(userId),
+            ListarTemasDisponiveis(userId),
+        ]);
 
-    return (
-        <html lang="pt-BR" suppressHydrationWarning>
-            <head>
-                <meta name="apple-mobile-web-app-capable" content="yes" />
-                <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-                <meta name="apple-mobile-web-app-title" content="DG - Redação" />
-                <link rel="apple-touch-icon" href="/ios/180.png" />
-                <meta
-                    name="viewport"
-                    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
-                />
-            </head>
-            <body className={`${poppins.className} antialiased`}>
-                <ProvedorTemas
-                    attribute="class"
-                    defaultTheme="light"
-                    enableSystem
-                    disableTransitionOnChange
-                >
-                    <InstalarIos />
-                    <PwaInstallPrompt />
-                    <InicializarNotificacoes userId={userId} />
-                    <ProvedorAluno
-                        userId={userId}
-                        avaliacoes={avaliacoes}
-                        mentorias={mentorias}
-                        temas={temas}
+        return (
+            <html lang="pt-BR" suppressHydrationWarning>
+                <head>
+                    <meta name="apple-mobile-web-app-capable" content="yes" />
+                    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+                    <meta name="apple-mobile-web-app-title" content="DG - Redação" />
+                    <link rel="apple-touch-icon" href="/ios/180.png" />
+                    <meta
+                        name="viewport"
+                        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+                    />
+                </head>
+                <body className={`${poppins.className} antialiased`}>
+                    <ProvedorTemas
+                        attribute="class"
+                        defaultTheme="light"
+                        enableSystem
+                        disableTransitionOnChange
                     >
-                        <SidebarProvider>
-                            <AppSidebarAluno />
-                            <SidebarInset className="relative">
-                                <FormularioTelefone user={session.user} />
-                                <main>
-                                    {children}
-                                </main>
-                                <FooterAluno />
-                            </SidebarInset>
-                        </SidebarProvider>
-                        <Toaster richColors theme="light" />
-                    </ProvedorAluno>
-                </ProvedorTemas>
-                <SpeedInsights />
-            </body>
-        </html>
-    )
+                        <InstalarIos />
+                        <PwaInstallPrompt />
+                        <InicializarNotificacoes userId={userId} />
+                        <ProvedorAluno
+                            userId={userId}
+                            avaliacoes={avaliacoes}
+                            mentorias={mentorias}
+                            temas={temas}
+                        >
+                            <SidebarProvider>
+                                <AppSidebarAluno />
+                                <SidebarInset className="relative">
+                                    <FormularioTelefone user={session.user} />
+                                    <main>
+                                        {children}
+                                    </main>
+                                    <FooterAluno />
+                                </SidebarInset>
+                            </SidebarProvider>
+                            <Toaster richColors theme="light" />
+                        </ProvedorAluno>
+                    </ProvedorTemas>
+                    <SpeedInsights />
+                </body>
+            </html>
+        )
+    }
 }
