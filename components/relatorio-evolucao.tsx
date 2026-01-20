@@ -173,6 +173,7 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
       clone1.style.top = '0'
       clone1.style.zIndex = '-9999'
       clone1.style.background = '#ffffff'
+      clone1.style.color = '#000000'
       clone1.style.opacity = '1' // IMPORTANTE: Opacidade 1 para garantir renderização
 
       // Manipula o Clone 1: Manter Cabeçalho + Gráfico + 2 Cards
@@ -202,7 +203,7 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
       // Renderiza Página 1
       const dataUrl1 = await toPng(clone1, {
         quality: 1,
-        pixelRatio: 4, // Alta qualidade
+        pixelRatio: 5, // Alta qualidade
         backgroundColor: '#ffffff',
       })
       document.body.removeChild(clone1)
@@ -218,11 +219,14 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
       clone2.style.top = '0'
       clone2.style.zIndex = '-9999'
       clone2.style.background = '#ffffff'
+      clone2.style.color = '#000000'
       clone2.style.opacity = '1'
       clone2.style.paddingTop = '20px'
 
       // Manipula DOM Page 2 (3 Cards + Footer)
       // Remove Info Aluno (primeiro space-y-2)
+      const relatorio = clone2.querySelector('.pt-5')
+      if (relatorio) relatorio.remove()
       const infoAluno = clone2.querySelector('.space-y-2')
       if (infoAluno) infoAluno.remove()
 
@@ -234,6 +238,8 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
       const skillsSection2 = clone2.querySelector('.space-y-4') // Agora é o primeiro space-y-4 pois removemos o anterior
       if (skillsSection2) {
         // Remove label "Habilidades" se quiser limpar mais, ou mantem. 
+        const labelHabilidades = skillsSection2.querySelector('label')
+        if (labelHabilidades) labelHabilidades.remove()
         // O card container é o filho .space-y-4 dentro dele
         const cardsContainer2 = skillsSection2.querySelector('.space-y-4')
         if (cardsContainer2) {
@@ -253,7 +259,7 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
       // Renderiza Página 2
       const dataUrl2 = await toPng(clone2, {
         quality: 1,
-        pixelRatio: 4,
+        pixelRatio: 5,
         backgroundColor: '#ffffff',
       })
       document.body.removeChild(clone2)
