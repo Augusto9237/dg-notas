@@ -98,7 +98,7 @@ export function TabelaAlunos() {
     startTransition(async () => {
       try {
         await alterarStatusMatriculaAluno(id, status)
-        toast.success('Statuas da matricula do aluno atualizda com sucesso')
+        toast.success('Statuas da matricula do aluno atualizada com sucesso')
         await enviarNotificacaoParaUsuario(id, 'Seu acesso ao app foi liberado', "Abra ou recarregue novamente", "/aluno")
       } catch (error) {
         toast.error('Algo deu errado! Tente novamente')
