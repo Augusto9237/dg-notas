@@ -35,6 +35,7 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { calcularMedia } from '@/lib/media-geral';
 import { Separator } from './ui/separator'
+import { toast } from 'sonner'
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -294,11 +295,9 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
         pdf.addImage(dataUrl2, 'PNG', paddingX, paddingTop, contentWidth, imgHeight2)
 
         pdf.save(`relatorio-${aluno.nome.toLowerCase().replace(/ /g, '-')}.pdf`)
-        setGerandoPdf(false)
-
+        toast.success('Relatório gerado com sucesso!')
       } catch (error) {
         console.error('Erro ao gerar PDF:', error)
-        setGerandoPdf(false)
       }
     })
   }
