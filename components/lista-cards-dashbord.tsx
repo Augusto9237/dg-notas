@@ -88,7 +88,7 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
             if (url === '/professor/alunos') {
                 const novosAlunos = await listarAlunosGoogle()
 
-                setListaAlunos(novosAlunos)
+                setListaAlunos(novosAlunos.data)
             }
 
             if (url === '/professor/mentorias') {
