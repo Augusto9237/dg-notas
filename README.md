@@ -1,97 +1,91 @@
-# DG - Plataforma de Mentoria e Correção de Redações
+# DG - Plataforma de Mentoria e Redação
 
-Bem-vindo ao **DG - Plataforma de Mentoria**, uma solução web completa e moderna desenvolvida para conectar alunos e professores, facilitando o processo de correção de redações e agendamento de mentorias. Este projeto utiliza as tecnologias mais recentes do ecossistema React/Next.js para oferecer uma experiência de usuário fluida, responsiva e engajadora.
+**DG** é uma plataforma SaaS (Software as a Service) de ponta, desenvolvida para revolucionar a educação online, conectando professores e alunos através de um ecossistema de mentoria e correção de redações. Construída com as tecnologias mais avançadas, a plataforma oferece uma experiência de usuário nativa na web, performance excepcional e um conjunto de funcionalidades robustas para maximizar o potencial de aprendizado e ensino.
 
-## 🚀 Visão Geral
+## 🌟 Visão Comercial
 
-A plataforma visa otimizar o aprendizado e o ensino da redação, oferecendo ferramentas robustas para:
-- **Correção detalhada** baseada em competências.
-- **Acompanhamento de progresso** com métricas visuais.
-- **Agendamento simplificado** de mentorias individuais.
-- **Notificações em tempo real** para manter todos atualizados.
-- **Experiência nativa** através de suporte PWA (Progressive Web App).
+O DG foi projetado para ser um negócio escalável e de alta retenção. Ele atende a uma demanda crescente por educação personalizada, oferecendo ferramentas que geram valor tangível para alunos e educadores.
 
-## ✨ Funcionalidades Principais
+- **Modelo SaaS:** Pronto para implementação de assinaturas para alunos ou licenciamento para instituições de ensino.
+- **Alto Engajamento:** Notificações Push e funcionalidades PWA garantem que os usuários retornem e permaneçam ativos na plataforma.
+- **Experiência Premium:** Um design moderno e uma interface fluida justificam um posicionamento de preço premium.
+- **Data-Driven:** Ferramentas de análise de desempenho fornecem insights valiosos que podem ser um feature de valor agregado.
 
-### 🎓 Para Alunos
-- **Dashboard Personalizado:** Visão geral do desempenho, últimas correções e próximas mentorias.
-- **Submissão de Redações:** Interface intuitiva para envio de textos (imagem ou texto).
-- **Feedback Detalhado:** Receba correções com notas por competência (C1-C5) e comentários específicos.
-- **Gráficos de Evolução:** Acompanhe seu progresso ao longo do tempo com gráficos interativos.
-- **Ranking:** Veja sua posição em relação a outros alunos.
-- **Agendamento de Mentorias:** Reserve horários com professores através de um calendário interativo.
-- **Notificações Push:** Receba alertas instantâneos sobre correções finalizadas e lembretes de mentoria (Web Push).
-- **PWA Instalável:** Instale o app no seu dispositivo (desktop ou mobile) para acesso rápido e offline-ready.
+## ✨ Funcionalidades em Destaque
 
-### 👨‍🏫 Para Professores
-- **Gestão de Alunos:** Acesso fácil ao histórico e perfil de cada aluno.
-- **Fila de Correção:** Organização eficiente das redações pendentes.
-- **Ferramenta de Correção:** Interface otimizada para atribuir notas e comentários por competência com agilidade.
-- **Gestão de Agenda:** Defina seus horários disponíveis para mentoria.
-- **Painel Administrativo:** Visão macro do engajamento e desempenho da plataforma.
-- **Criação de Temas:** Gerencie os temas de redação disponíveis para prática.
+### 🎓 Para Alunos: Acelere seu Desenvolvimento
+- **Dashboard de Performance:** Acompanhe seu progresso com métricas visuais.
+- **Submissão Simplificada:** Envie redações em formato de imagem com facilidade.
+- **Feedback Estruturado:** Receba análises detalhadas por competências (C1 a C5).
+- **Visualização de Evolução:** Gráficos interativos mostram seu crescimento ao longo do tempo.
+- **Agendamento Inteligente:** Encontre e reserve horários de mentoria com seus professores em um calendário interativo.
+- **Experiência de App Nativo:** Instale o DG em seu desktop ou celular (PWA) e receba notificações push sobre suas correções e mentorias.
 
-### 🛠️ Diferenciais Técnicos
-- **Real-Time Notifications:** Sistema de notificações Web Push integrado, garantindo que os usuários não percam atualizações importantes, mesmo com o app fechado.
-- **Progressive Web App (PWA):** Manifesto completo com ícones adaptáveis para Windows, iOS e Android. Suporte a instalação na home screen e funcionamento similar a app nativo.
-- **Design System Moderno:** Interface polida construída com **Shadcn/UI** e **Tailwind CSS**, com suporte a modo escuro (Dark Mode).
-- **Performance:** Renderização otimizada com Next.js App Router e Server Actions.
+### 👨‍🏫 Para Professores: Otimize seu Fluxo de Trabalho
+- **Gestão Completa de Alunos:** Acesse o perfil, histórico de redações e desempenho de cada aluno.
+- **Fila de Correção Inteligente:** Organize e gerencie as redações pendentes de forma eficiente.
+- **Ferramenta de Correção Ágil:** Atribua notas por competência de forma rápida e intuitiva.
+- **Gestão de Disponibilidade:** Defina seus horários de mentoria com flexibilidade.
+- **Criação de Conteúdo:** Publique novos temas de redação para desafiar seus alunos.
 
-## 💻 Tecnologias Utilizadas
+## 🛠️ Excelência Técnica: A Base para uma Plataforma Escalável
 
-O projeto foi construído com uma stack moderna e robusta:
+O DG é construído sobre uma fundação técnica sólida, garantindo performance, segurança e manutenibilidade.
 
-- **Framework:** [Next.js 14+](https://nextjs.org/) (App Router & Server Components)
-- **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
-- **Banco de Dados:** [PostgreSQL](https://www.postgresql.org/) com [Prisma ORM](https://www.prisma.io/)
-- **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
-- **Componentes:** [shadcn/ui](https://ui.shadcn.com/) (Radix UI)
-- **Gráficos:** [Recharts](https://recharts.org/)
-- **Validação:** [Zod](https://zod.dev/) e [React Hook Form](https://react-hook-form.com/)
-- **Notificações:** Web Push API & Service Workers
-- **Autenticação:** [BetterAuth](https://www.better-auth.com/) (ou NextAuth, conforme configuração)
+- **Framework:** **Next.js 16+ React 19** utilizando App Router , React Server Components (RSCs) para performance otimizada e renderização do lado do servidor.
+- **Linguagem:** **TypeScript** em todo o projeto para um código mais seguro e robusto.
+- **Banco de Dados:** **PostgreSQL** com o **Prisma ORM**, garantindo type-safety e migrações de banco de dados confiáveis.
+- **Mutations Seguras:** **Server Actions** para todas as operações de escrita de dados, eliminando a necessidade de grande parte das rotas de API tradicionais e aumentando a segurança.
+- **UI/UX:**
+  - **shadcn/ui** e **Tailwind CSS** para um Design System moderno, consistente e personalizável.
+  - **Recharts** para visualização de dados rica e interativa.
+  - Validação de formulários com **Zod** e **React Hook Form**.
+- **Progressive Web App (PWA):** Implementação completa com Service Workers, manifesto detalhado e um conjunto abrangente de ícones para **iOS, Android e Windows**, proporcionando uma experiência de instalação e uso indistinguível de um app nativo.
+- **Notificações em Tempo Real:** Integração com a **Web Push API** para manter os usuários engajados com notificações instantâneas e relevantes.
 
 ## 📂 Estrutura do Projeto
 
-- **/app**: Rotas e layouts do Next.js (App Router).
-  - `(login)`: Fluxos de autenticação.
-  - `aluno`: Área restrita do aluno.
-  - `professor`: Área restrita do professor.
-  - `api`: Rotas de API (Webhooks, etc).
-- **/components**: Biblioteca de componentes reutilizáveis.
-- **/actions**: Server Actions para mutação de dados segura.
-- **/lib**: Configurações de serviços (Prisma, Auth, Utils).
-- **/public**: Assets estáticos e configurações de PWA (manifest, icons, sw.js).
-- **/prisma**: Schema do banco de dados.
+A arquitetura do projeto é modular e segue as melhores práticas do Next.js App Router.
 
-## 🚀 Como Executar
+- **/app**: Contém todas as rotas, layouts e UIs da aplicação.
+  - `(login)`: Agrupamento de rotas para o fluxo de autenticação.
+  - `aluno`: Dashboard e ferramentas exclusivas do aluno.
+  - `professor`: Dashboard e ferramentas exclusivas do professor.
+  - `api`: Rotas de API para webhooks, notificações e outras integrações.
+- **/components**: Componentes React reutilizáveis, incluindo um diretório `ui` para o Design System.
+- **/actions**: Funções Server Action para interações com o backend.
+- **/lib**: Funções utilitárias e configurações de serviços (Prisma, Auth, etc.).
+- **/public**: Assets estáticos, incluindo o Service Worker (`sw.js`) e todos os ícones da PWA.
+- **/prisma**: Schema e migrações do banco de dados.
 
-1. **Clone o repositório:**
-   ```bash
-   git clone <url-do-repositorio>
-   ```
+## 🚀 Como Executar o Projeto
 
-2. **Instale as dependências:**
-   ```bash
-   npm install
-   ```
+1.  **Clone o repositório:**
+    ```bash
+    git clone <url-do-repositorio>
+    ```
 
-3. **Configure as variáveis de ambiente:**
-   Crie um arquivo `.env` na raiz com as chaves necessárias (DATABASE_URL, chaves VAPID para push, secrets de auth).
+2.  **Instale as dependências:**
+    ```bash
+    npm install
+    ```
 
-4. **Prepare o banco de dados:**
-   ```bash
-   npx prisma generate
-   npx prisma db push
-   ```
+3.  **Configure as variáveis de ambiente:**
+    Crie um arquivo `.env.local` na raiz do projeto e adicione as chaves necessárias (DATABASE_URL, chaves VAPID para Web Push, segredos de autenticação).
 
-5. **Inicie o servidor de desenvolvimento:**
-   ```bash
-   npm run dev
-   ```
+4.  **Execute as migrações do banco de dados:**
+    ```bash
+    npx prisma generate
+    npx prisma db push
+    ```
 
-6. Acesse `http://localhost:3000` no seu navegador.
+5.  **Inicie o servidor de desenvolvimento:**
+    ```bash
+    npm run dev
+    ```
+
+Acesse `http://localhost:3000` e veja a mágica acontecer.
 
 ---
 
-Desenvolvido com foco em **Performance**, **Usabilidade** e **Código Limpo**.
+**DG - Elevando o padrão da educação online com tecnologia e design de ponta.**
