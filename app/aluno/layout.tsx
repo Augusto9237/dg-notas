@@ -90,7 +90,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                     <FormularioTelefone user={session.user} />
                     <main className='flex flex-col w-full h-screen justify-center items-center gap-2 p-5'>
                         <Clock className='stroke-primary' />
-                        <h1 className='text-xl text-primary font-semibold justify-center'>Aguarando a liberação do seu acesso</h1>
+                        <h1 className='text-xl text-primary font-semibold justify-center'>Aguardando a liberação do seu acesso</h1>
                         <p className='text-muted-foreground'>Assim que for liberado você será notificado</p>
                     </main>
                 </body>
