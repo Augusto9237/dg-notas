@@ -25,6 +25,7 @@ interface AdicionarMentoriaResult {
 import { StatusMentoria } from "@/app/generated/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { enviarNotificacaoParaUsuario } from "./notificacoes";
 
 export async function listarDiasSemana() {
   return await prisma.diaSemana.findMany({
@@ -766,6 +767,8 @@ export async function confirmarMentoria(mentoriaId: number) {
   }
 }
 
+// @/actions/mentoria.ts
+
 export async function notificarAlunosMentoriaAgendada() {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
@@ -794,10 +797,55 @@ export async function notificarAlunosMentoriaAgendada() {
       },
     });
 
-    for (const mentoria of mentorias) {
-      // TODO: Implementar envio de notificação para o aluno
-      console.log(`Notificar aluno ${mentoria.aluno.name} sobre mentoria agendada para ${mentoria.horario.data.toLocaleDateString()}`);
+    if (mentorias.length === 0) {
+      console.log('Nenhuma mentoria agendada para hoje.');
+      return {
+        success: true,
+        message: 'Nenhuma mentoria agendada para hoje.',
+        notificacoesEnviadas: 0
+      };
     }
+
+    const agora = new Date();
+    const horaAtual = agora.getHours();
+
+    // Verifica se são 8h da manhã (entre 8:00 e 8:59)
+    if (horaAtual !== 8) {
+      console.log(`Horário atual: ${horaAtual}h. Notificações serão enviadas às 8h da manhã.`);
+      return {
+        success: false,
+        message: `Fora do horário de envio. Atual: ${horaAtual}h. Envio programado para às 8h.`,
+        notificacoesEnviadas: 0
+      };
+    }
+
+    let notificacoesEnviadas = 0;
+    const erros: string[] = [];
+
+    for (const mentoria of mentorias) {
+      try {
+        await enviarNotificacaoParaUsuario(
+          mentoria.aluno.id, 'Confirme sua mentoria',
+          `Olá, ${mentoria.aluno.name}! 😊
+          Sua mentoria está agendada para hoje (${mentoria.horario.data.toLocaleDateString('pt-BR')}), às ${mentoria.horario.slot?.nome || 'horário a confirmar'}.`,
+          '/aluno/mentorias'
+        );
+        notificacoesEnviadas++;
+        console.log(`Notificação enviada para ${mentoria.aluno.name}`);
+      } catch (error) {
+        const mensagemErro = `Erro ao notificar ${mentoria.aluno.name}: ${error instanceof Error ? error.message : 'Erro desconhecido'}`;
+        erros.push(mensagemErro);
+        console.error(mensagemErro);
+      }
+    }
+
+    return {
+      success: true,
+      message: `${notificacoesEnviadas} notificações enviadas com sucesso.`,
+      notificacoesEnviadas,
+      totalMentorias: mentorias.length,
+      erros: erros.length > 0 ? erros : undefined,
+    };
 
   } catch (error) {
     console.error('Erro ao notificar alunos sobre mentorias agendadas:', error);

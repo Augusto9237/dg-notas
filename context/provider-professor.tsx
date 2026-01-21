@@ -44,7 +44,13 @@ interface ProfessorProviderProps {
     avaliacoes: AvaliacaoTema[]
     mentorias: Mentoria[]
     temas: Tema[]
-    alunos: Aluno[]
+    alunos: {
+        data: Aluno[]
+        total: number
+        pagina: number
+        limite: number
+        totalPaginas: number
+    }
 }
 
 export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, temas, alunos }: ProfessorProviderProps) => {
@@ -61,7 +67,7 @@ export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, te
         setListaAvaliacoes(avaliacoes);
         setListaMentorias(mentorias);
         setListaTemas(temas);
-        setListaAlunos(alunos);
+        setListaAlunos(alunos.data);
     }, [avaliacoes, mentorias, temas, alunos]);
 
     useEffect(() => {
@@ -98,6 +104,9 @@ export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, te
             listaMentorias,
             listaTemas,
             listaAlunos,
+            totalPaginas: alunos.totalPaginas,
+            pagina: alunos.pagina,
+            limite: alunos.limite,
             notificacoes
         }}>
             {children}

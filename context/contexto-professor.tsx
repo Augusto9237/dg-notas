@@ -45,6 +45,9 @@ interface ContextoProfessorProps {
     listaMentorias: Mentoria[]
     listaTemas: Tema[]
     listaAlunos: Aluno[]
+    totalPaginas: number
+    pagina: number
+    limite: number
     notificacoes: Notificacoes
 }
 

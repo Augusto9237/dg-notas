@@ -5,18 +5,19 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
 // Função para listar alunos que fizeram login apenas com o Google
-export async function listarAlunosGoogle(busca?: string) {
+export async function listarAlunosGoogle(busca?: string, page: number = 1, limit: number = 10) {
     const session = await auth.api.getSession({
         headers: await headers()
-    })
+    });
     if (!session) {
-        throw new Error("Usuário não autenticado")
+        throw new Error("Usuário não autenticado");
     }
     if (session.user.role !== 'admin') {
-        throw new Error("Usuário não autorizado")
+        throw new Error("Usuário não autorizado");
     }
-    
+
     try {
+        const skip = (page - 1) * limit;
         // Construir o where clause dinamicamente
         const clasulaDeFiltro = {
             accounts: {
@@ -31,14 +32,34 @@ export async function listarAlunosGoogle(busca?: string) {
                     mode: 'insensitive' as const, // Case-insensitive
                 },
             }),
-        }
-        const alunos = await prisma.user.findMany({
-            where: clasulaDeFiltro,
-            include: {
-                avaliacoesComoAluno: true
-            }
-        });
-        return alunos;
+        };
+
+        const [alunos, total] = await prisma.$transaction([
+            prisma.user.findMany({
+                where: clasulaDeFiltro,
+                take: limit,
+                skip: skip,
+                include: {
+                    avaliacoesComoAluno: true
+                },
+                orderBy: {
+                    name: 'asc'
+                }
+            }),
+            prisma.user.count({
+                where: clasulaDeFiltro,
+            })
+        ]);
+
+        const totalPaginas = Math.ceil(total / limit);
+
+        return {
+            data: alunos,
+            total,
+            pagina: page,
+            limite: limit,
+            totalPaginas
+        };
     } catch (error) {
         console.error("Erro ao listar alunos do Google:", error);
         throw error;

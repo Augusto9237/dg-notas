@@ -68,7 +68,7 @@ export default async function Page({
             </HeaderProfessor>
 
             <main className="flex flex-col gap-4 p-5 h-full">
-                <ListaCardsDashboard alunos={alunos} temas={temasMes} avaliacoes={avaliacoes} mentorias={mentorias} meses={meses} />
+                <ListaCardsDashboard alunos={alunos.data} temas={temasMes} avaliacoes={avaliacoes} mentorias={mentorias} meses={meses} />
 
                 <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
                     <UltimasAvaliacoes temasMes={temasMes} avaliacoes={avaliacoes} />

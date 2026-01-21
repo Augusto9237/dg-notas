@@ -69,7 +69,7 @@ export default async function RootLayout({
     ListarAvaliacoes(),
     listarMentoriasMes(),
     listarTemasMes(),
-    listarAlunosGoogle()
+    listarAlunosGoogle('', 1, 10)
   ]);
 
   return (

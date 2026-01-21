@@ -42,15 +42,16 @@ type Aluno = Prisma.UserGetPayload<{
 
 
 export function TabelaAlunos() {
-  const { listaAlunos } = useContext(ContextoProfessor)
+  const { listaAlunos, totalPaginas, pagina, limite } = useContext(ContextoProfessor)
   const [carregando, setCarregando] = useState(false);
   const [isPending, startTransition] = useTransition()
   const [alunos, setAlunos] = useState<Aluno[]>([])
   const searchParams = useSearchParams()
   const busca = searchParams.get('busca')
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 12;
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPage, setTotalPage] = useState(0)
+  const [limit, setLimit] = useState(0);
 
   useEffect(() => {
     setCarregando(true);
@@ -61,8 +62,6 @@ export function TabelaAlunos() {
   }, [listaAlunos]);
 
   useEffect(() => {
-    // Se não houver termo de busca, exibimos a lista completa (cacheada no contexto)
-    // Isso evita requisições desnecessárias e restaura o estado instantaneamente
     if (!busca) {
       setAlunos(listaAlunos);
       return;
@@ -76,7 +75,7 @@ export function TabelaAlunos() {
         const resultadoBusca = await listarAlunosGoogle(busca);
 
         if (isMounted) {
-          setAlunos(resultadoBusca);
+          setAlunos(resultadoBusca.data);
         }
       } catch (error) {
         console.error("Erro ao buscar alunos:", error);
@@ -116,9 +115,9 @@ export function TabelaAlunos() {
   }
 
   // Calcular paginação
-  const totalPages = Math.ceil(alunos.length / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
+  const totalPages = Math.ceil(alunos.length / limit);
+  const startIndex = (currentPage - 1) * limit;
+  const endIndex = startIndex + limit;
   const paginatedAlunos = alunos.slice(startIndex, endIndex);
 
 
