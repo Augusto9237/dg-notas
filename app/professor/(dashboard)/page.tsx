@@ -47,7 +47,7 @@ export default async function Page({
         ListarAvaliacoes(mes, ano),
         listarMentoriasMes(mes, ano),
         listarTemasMes(mes, ano),
-        listarAlunosGoogle()
+        listarAlunosGoogle('', 1, 1000)
     ]);
 
     const meses = [

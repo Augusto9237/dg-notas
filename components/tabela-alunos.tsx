@@ -20,11 +20,11 @@ import {
   PaginationNext,
 } from '@/components/ui/pagination';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Ellipsis, FileCheck2, FileDown, Search } from 'lucide-react';
+import { Ellipsis, FileCheck2 } from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { alterarStatusMatriculaAluno, listarAlunosGoogle } from '@/actions/alunos';
-import { useSearchParams } from 'next/navigation';
-import { Prisma, StatusAvaliacao } from '@/app/generated/prisma';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Prisma } from '@/app/generated/prisma';
 import { calcularMedia } from '@/lib/media-geral';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { banirUsuario } from '@/actions/admin';
@@ -42,63 +42,53 @@ type Aluno = Prisma.UserGetPayload<{
 
 
 export function TabelaAlunos() {
-  const { listaAlunos, totalPaginas, pagina, limite } = useContext(ContextoProfessor)
-  const [carregando, setCarregando] = useState(false);
+  const { listaAlunos, totalPaginas, pagina: paginaInicialContexto, limite } = useContext(ContextoProfessor)
   const [isPending, startTransition] = useTransition()
-  const [alunos, setAlunos] = useState<Aluno[]>([])
+  const [alunos, setAlunos] = useState<Aluno[]>(listaAlunos || [])
   const searchParams = useSearchParams()
-  const busca = searchParams.get('busca')
+  const router = useRouter()
+  const pathname = usePathname()
 
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPage, setTotalPage] = useState(0)
-  const [limit, setLimit] = useState(0);
+  const busca = searchParams.get('busca') || ''
+  const paginaAtual = Number(searchParams.get('page')) || 1
+
+  const [totalPage, setTotalPage] = useState(totalPaginas || 1)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    setCarregando(true);
-    if (listaAlunos.length > 0) {
+    // Se estivermos na primeira página e sem busca, usamos os dados do contexto (que já vieram do servidor)
+    // Isso evita um fetch desnecessário na carga inicial
+    if (paginaAtual === 1 && !busca) {
       setAlunos(listaAlunos)
+      setTotalPage(totalPaginas)
+      return
     }
-    setCarregando(false);
-  }, [listaAlunos]);
-
-  useEffect(() => {
-    if (!busca) {
-      setAlunos(listaAlunos);
-      return;
-    }
-
-    let isMounted = true;
-    setCarregando(true);
 
     const buscarAlunos = async () => {
+      setIsLoading(true)
       try {
-        const resultadoBusca = await listarAlunosGoogle(busca);
-
-        if (isMounted) {
-          setAlunos(resultadoBusca.data);
-        }
+        const resultado = await listarAlunosGoogle(busca, paginaAtual, limite)
+        setAlunos(resultado.data)
+        setTotalPage(resultado.totalPaginas)
       } catch (error) {
-        console.error("Erro ao buscar alunos:", error);
+        console.error("Erro ao buscar alunos:", error)
+        toast.error("Erro ao carregar alunos")
       } finally {
-        if (isMounted) {
-          setCarregando(false);
-        }
+        setIsLoading(false)
       }
-    };
+    }
 
-    buscarAlunos();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [busca]);
+    buscarAlunos()
+  }, [busca, paginaAtual, listaAlunos, totalPaginas, limite])
 
   function atualizarMatriculaAluno(id: string, status: boolean) {
     startTransition(async () => {
       try {
         await alterarStatusMatriculaAluno(id, status)
-        toast.success('Statuas da matricula do aluno atualizada com sucesso')
-        await enviarNotificacaoParaUsuario(id, 'Seu acesso ao app foi liberado', "Abra ou recarregue novamente", "/aluno")
+        toast.success('Status da matricula do aluno atualizada com sucesso')
+        if (status) {
+          await enviarNotificacaoParaUsuario(id, 'Seu acesso ao app foi liberado', "Abra ou recarregue novamente", "/aluno")
+        }
       } catch (error) {
         toast.error('Algo deu errado! Tente novamente')
       }
@@ -109,32 +99,29 @@ export function TabelaAlunos() {
     try {
       const resposta = await banirUsuario(alundoId)
       toast.error(resposta.message)
+      // Atualizar lista após excluir? Idealmente sim, mas pode exigir re-fetch
+      // Por enquanto vamos confiar no revalidatePath do server action ou forçar refresh
+      router.refresh()
     } catch (error) {
       console.log(error)
     }
   }
 
-  // Calcular paginação
-  const totalPages = Math.ceil(alunos.length / limit);
-  const startIndex = (currentPage - 1) * limit;
-  const endIndex = startIndex + limit;
-  const paginatedAlunos = alunos.slice(startIndex, endIndex);
-
-
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams)
+    params.set('page', newPage.toString())
+    router.push(`${pathname}?${params.toString()}`)
   };
 
   const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+    if (paginaAtual > 1) {
+      handlePageChange(paginaAtual - 1)
     }
   };
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+    if (paginaAtual < totalPage) {
+      handlePageChange(paginaAtual + 1)
     }
   };
 
@@ -151,10 +138,10 @@ export function TabelaAlunos() {
             <TableRow >
               <TableHead className='min-[1025px]:min-w-sm'>Aluno</TableHead>
               <TableHead className='min-[1025px]:min-w-sm'>E-mail</TableHead>
-              <TableHead className='w-full'>Telefone</TableHead>
-              <TableHead className='w-full'>Matriculado</TableHead>
-              <TableHead className='w-full max-w-[100px] min-w-[100px] font-semibold'>Avaliações</TableHead>
-              <TableHead className='w-full max-w-[64px] min-w-[64px] font-semibold'>Média</TableHead>
+              <TableHead className=''>Telefone</TableHead>
+              <TableHead className=''>Matriculado</TableHead>
+              <TableHead className=' font-semibold'>Avaliações</TableHead>
+              <TableHead className=' font-semibold'>Média</TableHead>
               <TableHead className="text-center">
                 <div className='flex justify-center w-full'>
                   <Ellipsis />
@@ -163,26 +150,32 @@ export function TabelaAlunos() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedAlunos.length === 0 ? (
+            {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={7} className="text-center py-8">
+                  Carregando...
+                </TableCell>
+              </TableRow>
+            ) : alunos.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8">
                   Nenhum aluno encontrado
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedAlunos.map((aluno) => (
+              alunos.map((aluno) => (
                 <TableRow key={aluno.id}>
                   <TableCell className='flex gap-2 items-center min-[1025px]:min-w-sm'>
                     <Avatar>
                       <AvatarImage src={aluno.image || "/avatar-placeholder.png"} />
-                      <AvatarFallback>{aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>{aluno.name ? aluno.name.charAt(0).toUpperCase() : 'A'}</AvatarFallback>
                     </Avatar>
                     <span className='mt-1'>
                       {aluno.name}
                     </span>
                   </TableCell>
                   <TableCell className='min-[1025px]:min-w-sm'>{aluno.email}</TableCell>
-                  <TableCell className='w-full'>{aluno.telefone}</TableCell>
+                  <TableCell className=''>{aluno.telefone}</TableCell>
                   <TableCell className="text-center">
                     <Switch
                       checked={aluno.matriculado ? aluno.matriculado : false}
@@ -190,10 +183,10 @@ export function TabelaAlunos() {
                       onCheckedChange={(checked) => atualizarMatriculaAluno(aluno.id, checked)}
                     />
                   </TableCell>
-                  <TableCell className='w-full max-w-[100px] min-w-[100px] font-semibold text-center'>
+                  <TableCell className=' font-semibold text-center'>
                     {aluno.avaliacoesComoAluno.length}
                   </TableCell>
-                  <TableCell className='w-full max-w-[64px] min-w-[64px] font-semibold text-center'>
+                  <TableCell className='font-semibold text-center'>
                     {calcularMedia(aluno.avaliacoesComoAluno)}
                   </TableCell>
                   <TableCell className="text-center space-x-4">
@@ -219,32 +212,36 @@ export function TabelaAlunos() {
       </div>
       <div className="flex justify-between items-center">
         <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
-          {startIndex + 1} -{' '}
-          {Math.min(endIndex, alunos.length)} de {alunos.length} resultados
+          Página {paginaAtual} de {totalPage} ({alunos.length} resultados nesta página)
         </div>
         <Pagination>
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
                 onClick={handlePreviousPage}
-                className={currentPage <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                className={paginaAtual <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
               />
             </PaginationItem>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+
+            {Array.from({ length: Math.min(5, totalPage) }, (_, i) => {
+              const startPage = Math.max(1, Math.min(paginaAtual - 2, totalPage - 4));
+              return startPage + i;
+            }).map((page) => (
               <PaginationItem key={page}>
                 <PaginationLink
                   onClick={() => handlePageChange(page)}
-                  isActive={page === currentPage}
+                  isActive={page === paginaAtual}
                   className="cursor-pointer"
                 >
                   {page}
                 </PaginationLink>
               </PaginationItem>
             ))}
+
             <PaginationItem>
               <PaginationNext
                 onClick={handleNextPage}
-                className={currentPage >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                className={paginaAtual >= totalPage ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
               />
             </PaginationItem>
           </PaginationContent>
