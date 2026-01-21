@@ -138,8 +138,8 @@ export function TabelaAlunos() {
             <TableRow >
               <TableHead className='min-[1025px]:min-w-sm'>Aluno</TableHead>
               <TableHead className='min-[1025px]:min-w-sm'>E-mail</TableHead>
-              <TableHead className=''>Telefone</TableHead>
-              <TableHead className=''>Matriculado</TableHead>
+              <TableHead >Telefone</TableHead>
+              <TableHead className='text-center'>Matriculado</TableHead>
               <TableHead className=' font-semibold'>Avaliações</TableHead>
               <TableHead className=' font-semibold'>Média</TableHead>
               <TableHead className="text-center">
