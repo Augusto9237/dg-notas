@@ -34,7 +34,7 @@ export function ListaCompetenciasAluno({ criterios }: Props) {
 
     const mediasPorCriterio = calcularMediasPorCriterio(listaAvaliacoes, criterios);
     return (
-        <div className='sm:space-y-4 max-sm:px-5 md:h-full max-sm:flex max-sm:gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-transparent scrollbar-track-transparent sm:scrollbar-thumb-transparent sm:scrollbar-track-transparent'>
+        <div className='sm:space-y-4 max-sm:px-5 md:h-full max-sm:flex max-sm:gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden'>
             {mediasPorCriterio.map((criterio, i) => (
                 <div key={criterio.criterioId} className="w-full max-sm:min-w-[90vw]">
                     <CardCompetencia criterio={criterio} criterios={criterios} />
