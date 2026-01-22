@@ -43,7 +43,7 @@ export async function AdicionarTema(nome: string): Promise<Tema> {
     }
 }
 
-export async function ListarTemas(busca?: string, month?: number, year?: number) {
+export async function ListarTemas(busca?: string, page: number = 1, limit: number = 10) {
     const session = await auth.api.getSession({
         headers: await headers()
     })
@@ -63,17 +63,32 @@ export async function ListarTemas(busca?: string, month?: number, year?: number)
             }),
         };
 
-        const temas = await prisma.tema.findMany({
-            where: whereClause,
-            orderBy: {
-                nome: 'asc',
-            },
-            include: {
-                professor: true,
-            }
-        });
+        const [temas, total] = await Promise.all([
+            prisma.tema.findMany({
+                where: whereClause,
+                orderBy: {
+                    nome: 'asc',
+                },
+                include: {
+                    professor: true,
+                },
+                take: limit,
+                skip: (page - 1) * limit,
+            }),
+            prisma.tema.count({
+                where: whereClause,
+            })
+        ]);
 
-        return temas;
+        return {
+            data: temas,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            }
+        };
     } catch (error) {
         console.error("Erro ao listar temas:", error);
         throw error;

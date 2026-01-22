@@ -77,6 +77,7 @@ function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRes
 export function TabelaTemas() {
   const { listaTemas, listaAvaliacoes } = useContext(ContextoProfessor)
   const [temas, setTemas] = useState<Tema[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [isPending, startTransition] = useTransition()
   const searchParams = useSearchParams();
   const busca = searchParams.get('busca');
@@ -84,19 +85,35 @@ export function TabelaTemas() {
   const pageSize = 12;
 
   // Efeito para buscar temas quando o parâmetro 'busca' mudar
+  // Efeito para buscar temas quando o parâmetro 'busca' ou 'currentPage' mudar
   useEffect(() => {
     const buscarTemas = async () => {
       if (busca) {
-        const resultadoBusca = await ListarTemas(busca);
-        setTemas(resultadoBusca);
+        const resultadoBusca = await ListarTemas(busca, currentPage, pageSize);
+        setTemas(resultadoBusca.data);
+        setTotalItems(resultadoBusca.meta.total);
       } else {
-        setTemas(listaTemas);
+        // Se não houver busca, assume que listaTemas já contém os dados (possivelmente todos ou paginados inicial via contexto)
+        // Mas como TabelaTemas agora espera comportamento paginado, vamos buscar paginado do servidor se não local
+        // Nota: O contexto ContextoProfessor tem listaTemas que pode ser apenas a primeira página ou todos.
+        // O ideal é buscar sempre do servidor se quisermos paginação real consistente aqui, ou usar o que veio do contexto.
+        // O código anterior usava `listaTemas` direto do contexto.
+
+        // Se quisermos manter a consistência com o servidor:
+        const resultado = await ListarTemas(undefined, currentPage, pageSize);
+        setTemas(resultado.data);
+        setTotalItems(resultado.meta.total);
       }
     };
 
     buscarTemas();
-    setCurrentPage(1); // Resetar para primeira página quando buscar
-  }, [busca, listaTemas]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [busca, currentPage, listaTemas]);
+
+  // Reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [busca]);
 
   // Memoiza a contagem de respostas para cada tema, evitando recálculos desnecessários
   const respostasPorTema = useMemo(() => (temaId: number) => {
@@ -137,10 +154,9 @@ export function TabelaTemas() {
   }
 
   // Calcular paginação
-  const totalPages = Math.ceil(temas.length / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedTemas = temas.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(totalItems / pageSize);
+  // Não precisamos mais de slice client-side
+  const paginatedTemas = temas;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -213,8 +229,8 @@ export function TabelaTemas() {
       </div>
       <div className="flex justify-between items-center">
         <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
-          {startIndex + 1} -{' '}
-          {Math.min(endIndex, temas.length)} de {temas.length} resultados
+          {totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0} -{' '}
+          {Math.min(currentPage * pageSize, totalItems)} de {totalItems} resultados
         </div>
         <Pagination>
           <PaginationContent>

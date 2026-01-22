@@ -12,7 +12,7 @@ import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 import { InicializarNotificacoes } from "@/components/inicializar-notificacoes";
 import { ProverdorProfessor } from "@/context/provider-professor";
-import { ListarAvaliacoes, listarTemasMes } from "@/actions/avaliacao";
+import { ListarAvaliacoes, listarTemasMes, ListarTemas } from "@/actions/avaliacao";
 import { listarMentoriasMes } from "@/actions/mentoria";
 import { listarAlunosGoogle } from "@/actions/alunos";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
@@ -68,7 +68,7 @@ export default async function RootLayout({
   const [avaliacoes, mentorias, temasMes, alunos] = await Promise.all([
     ListarAvaliacoes(),
     listarMentoriasMes(),
-    listarTemasMes(),
+    ListarTemas(), // Chama sem params para default page 1
     listarAlunosGoogle('', 1, 10)
   ]);
 
@@ -96,7 +96,7 @@ export default async function RootLayout({
           <InstalarIos />
           <PwaInstallPrompt />
           <InicializarNotificacoes userId={userId} />
-          <ProverdorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temasMes} alunos={alunos}>
+          <ProverdorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temasMes.data} alunos={alunos}>
             <SidebarProvider>
               <AppSidebar />
               <SidebarInset className="relative">
