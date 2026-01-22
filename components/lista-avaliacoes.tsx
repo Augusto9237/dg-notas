@@ -38,29 +38,29 @@ export function ListaAvaliacoes({ avaliacoesIniciais, criteriosIniciais }: Lista
         initializeData();
     }, [avaliacoesIniciais, criteriosIniciais]);
 
-    if (carregando) {
-        return (
-            <div className="gap-4 min-[1025px]:grid min-[1025px]:grid-cols-3">
-                {[1, 2, 3].map((index) => (
-                    <Card
-                        className="cursor-pointer hover:shadow-md transition-shadow p-0 min-h-[164px] h-full max-h-[164px] gap-0 relative"
-                        key={index}
-                    >
-                        <CardContent className="p-4 relative h-full">
-                            <div className="space-y-2.5">
-                                <Skeleton className="w-[75%] h-[0.875rem]" />
-                                <Skeleton className="w-[50%] h-[0.75rem]" />
-                                <Skeleton className="w-[25%] h-[0.75rem]" />
-                            </div>
-                        </CardContent>
-                        <CardFooter className="px-4 pb-4 absolute inset-x-0 bottom-0">
-                            <Skeleton className="w-full h-8" />
-                        </CardFooter>
-                    </Card>
-                ))}
-            </div>
-        );
-    }
+    // if (carregando) {
+    //     return (
+    //         <div className="gap-4 min-[1025px]:grid min-[1025px]:grid-cols-3">
+    //             {[1, 2, 3].map((index) => (
+    //                 <Card
+    //                     className="cursor-pointer hover:shadow-md transition-shadow p-0 min-h-[164px] h-full max-h-[164px] gap-0 relative"
+    //                     key={index}
+    //                 >
+    //                     <CardContent className="p-4 relative h-full">
+    //                         <div className="space-y-2.5">
+    //                             <Skeleton className="w-[75%] h-[0.875rem]" />
+    //                             <Skeleton className="w-[50%] h-[0.75rem]" />
+    //                             <Skeleton className="w-[25%] h-[0.75rem]" />
+    //                         </div>
+    //                     </CardContent>
+    //                     <CardFooter className="px-4 pb-4 absolute inset-x-0 bottom-0">
+    //                         <Skeleton className="w-full h-8" />
+    //                     </CardFooter>
+    //                 </Card>
+    //             ))}
+    //         </div>
+    //     );
+    // }
 
     return (
         <div className="gap-4 min-[1025px]:grid min-[1025px]:grid-cols-3">
