@@ -134,7 +134,7 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
               )}
             />
 
-            <div className="flex justify-center gap-4 pt-4">
+            <div className="grid grid-cols-2 gap-4 pt-4">
               <Button
                 type="button"
                 variant='ghost'
@@ -142,13 +142,12 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
                   formulario.reset()
                   setEstaAberto(false)
                 }}
-                className="min-w-[100px]"
+
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
-                className="min-w-[100px]"
                 disabled={formulario.formState.isSubmitting}
               >
                 {formulario.formState.isSubmitting ? "Salvando..." : "Salvar"}

@@ -105,9 +105,9 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                     </div>
                 </div >
                 {arquivo && (
-                    <div className="w-full h-full">
+                    <div className="w-full h-full aspect-[1/1.414]">
                         <Image
-                            className="h-[600px] w-[500px]"
+                            className="w-full h-full"
                             src={URL.createObjectURL(arquivo)}
                             alt=""
                             width={0}

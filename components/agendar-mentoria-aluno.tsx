@@ -306,34 +306,28 @@ export function AgendarMentoriaAluno({
                         />
 
                         <div className="grid grid-cols-2 gap-4 pt-4">
-                            <div className={clsx(form.formState.isSubmitting ? 'animate-fade-left animate-once hidden' : "w-full flex md:justify-end")}>
-                                <Button
-                                    type="button"
-                                    variant='ghost'
-                                    className="w-full md:max-w-[100px]"
-                                    onClick={() => {
-                                        form.reset()
-                                        setOpen(false)
-                                    }}
-                                >
-                                    Cancelar
-                                </Button>
-                            </div>
+                            <Button
+                                type="button"
+                                variant='ghost'
+                                onClick={() => {
+                                    form.reset()
+                                    setOpen(false)
+                                }}
+                            >
+                                Cancelar
+                            </Button>
 
-                            <div className={clsx(form.formState.isSubmitting ? 'animate-width-transition animate-once w-full col-span-2 flex justify-center' : "w-full flex")}>
-                                <Button
-                                    type="submit"
-                                    className={clsx(form.formState.isSubmitting ? 'animate-width-transition animate-once w-full md:max-w-[216px] flex' : "w-full md:max-w-[100px]")}
-                                    disabled={form.formState.isSubmitting}
+                            <Button
+                                type="submit"
+                                disabled={form.formState.isSubmitting}
 
-                                >
-                                    {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                                    {form.formState.isSubmitting
-                                        ? (mode === 'edit' ? 'Reagendando' : 'Agendando')
-                                        : (mode === 'edit' ? 'Reagendar' : 'Agendar')
-                                    }
-                                </Button>
-                            </div>
+                            >
+                                {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                {form.formState.isSubmitting
+                                    ? (mode === 'edit' ? 'Reagendando' : 'Agendando')
+                                    : (mode === 'edit' ? 'Reagendar' : 'Agendar')
+                                }
+                            </Button>
                         </div>
                     </form>
                 </Form>

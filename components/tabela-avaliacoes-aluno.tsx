@@ -21,7 +21,7 @@ export function TabelaAvaliacoesAluno({ criterios }: TabelaAvaliacoesAlunoProps)
                 <TabsTrigger value="pendentes" className="text-foreground max-sm:text-xs">Pendentes</TabsTrigger>
                 <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">Corrigidas</TabsTrigger>
             </TabsList>
-            <TabsContent value='pendentes' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-24">
+            <TabsContent value='pendentes' className="flex flex-col gap-4 flex-1 h-full overflow-y-auto max-sm:pb-24">
                 {listaTemas.length > 0 && (
                     <div className="gap-4 max-[1025px]:flex flex-col min-[1025px]:grid min-[1025px]:grid-cols-3">
                         {listaTemas.map((tema) => (

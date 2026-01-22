@@ -66,40 +66,33 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             <body
                 className={`${poppins.className} antialiased`}
             >
-                <ProvedorTemas
-                    attribute="class"
-                    defaultTheme="light"
-                    enableSystem
-                    disableTransitionOnChange
-                >
-                    <InstalarIos />
-                    <PwaInstallPrompt />
-                    <Suspense fallback={<Loading />}>
-                        <div className="grid min-h-svh lg:grid-cols-2">
-                            <div className="flex items-center justify-center bg-primary">
-                                <div className="w-full max-w-md flex flex-col items-center justify-items-center">
-                                    <Image
-                                        src="/Sublogo4.svg"
-                                        alt="Logo"
-                                        width={488}
-                                        height={400}
-                                        className="h-[80px] max-sm:h-[88px] w-[360px] max-sm:w-[280px] object-cover"
-                                    />
-                                    {children}
-                                </div>
-                            </div>
-                            <div className="bg-muted relative hidden lg:block">
+                <InstalarIos />
+                <PwaInstallPrompt />
+                <Suspense fallback={<Loading />}>
+                    <div className="grid min-h-svh lg:grid-cols-2">
+                        <div className="flex items-center justify-center bg-primary">
+                            <div className="w-full max-w-md flex flex-col items-center justify-items-center">
                                 <Image
-                                    src="/foto-1.jpeg"
-                                    alt="Image"
-                                    fill
-                                    className="object-cover"
+                                    src="/Sublogo4.svg"
+                                    alt="Logo"
+                                    width={488}
+                                    height={400}
+                                    className="h-[80px] max-sm:h-[88px] w-[360px] max-sm:w-[280px] object-cover"
                                 />
+                                {children}
                             </div>
                         </div>
-                    </Suspense>
-                    <Toaster richColors theme="light" />
-                </ProvedorTemas>
+                        <div className="bg-muted relative hidden lg:block">
+                            <Image
+                                src="/foto-1.jpeg"
+                                alt="Image"
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+                    </div>
+                </Suspense>
+                <Toaster richColors theme="light" />
                 <SpeedInsights />
             </body>
         </html >

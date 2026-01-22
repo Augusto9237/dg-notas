@@ -156,7 +156,7 @@ export function FormularioCriterio({ criterio }: FormularioCriterioProps) {
               )}
             />
 
-            <div className="flex justify-center gap-4 pt-4">
+            <div className="grid grid-cols-2 gap-4 pt-4">
               <Button
                 type="button"
                 variant='ghost'
@@ -164,13 +164,11 @@ export function FormularioCriterio({ criterio }: FormularioCriterioProps) {
                   form.reset()
                   setOpen(false)
                 }}
-                className="min-w-[100px]"
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
-                className="min-w-[100px]"
                 disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? "Salvando..." : "Salvar"}
