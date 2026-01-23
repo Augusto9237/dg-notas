@@ -519,7 +519,7 @@ export async function DeletarAvaliacao(id: number) {
     }
 }
 
-export async function ListarAvaliacoes(month?: number, year?: number) {
+export async function ListarAvaliacoes(month?: number, year?: number, page: number = 1, limit: number = 10) {
     const now = new Date();
 
     // Se nenhum parâmetro for fornecido, usa o mês e ano atual
@@ -547,24 +547,41 @@ export async function ListarAvaliacoes(month?: number, year?: number) {
     }
 
     try {
-        const avaliacoes = await prisma.avaliacao.findMany({
-            where: {
-                createdAt: {
-                    gte: startDate,
-                    lt: endDate,
-                },
+        const whereClause = {
+            createdAt: {
+                gte: startDate,
+                lt: endDate,
             },
-            include: {
-                aluno: true,
-                criterios: true,
-                tema: true,
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
+        };
 
-        return avaliacoes;
+        const [avaliacoes, total] = await Promise.all([
+            prisma.avaliacao.findMany({
+                where: whereClause,
+                include: {
+                    aluno: true,
+                    criterios: true,
+                    tema: true,
+                },
+                orderBy: {
+                    createdAt: 'desc',
+                },
+                take: limit,
+                skip: (page - 1) * limit,
+            }),
+            prisma.avaliacao.count({
+                where: whereClause,
+            })
+        ]);
+
+        return {
+            data: avaliacoes,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            }
+        };
     } catch (error) {
         console.error("Erro ao listar avaliações:", error);
 

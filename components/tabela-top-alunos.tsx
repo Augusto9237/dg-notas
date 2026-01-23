@@ -45,8 +45,8 @@ export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
       const url = notificacoes.data.url;
 
       if (url === '/professor/avaliacoes') {
-        const novasAvaliacoes = await ListarAvaliacoes(Number(mes), Number(ano))
-        const top10 = rankearMelhoresAlunos(novasAvaliacoes);
+        const novasAvaliacoes = await ListarAvaliacoes(Number(mes), Number(ano), 1, 1000)
+        const top10 = rankearMelhoresAlunos(novasAvaliacoes.data);
         setAlunos(top10)
       }
     }
