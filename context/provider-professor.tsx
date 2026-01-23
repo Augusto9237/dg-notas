@@ -87,10 +87,10 @@ export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, te
 
             try {
                 if (url === '/professor/avaliacoes') {
-                    const novasAvaliacoes = await ListarAvaliacoes()
+                    const novasAvaliacoes = await  ListarAvaliacoes(undefined, undefined, 1, 10)
                     setListaAvaliacoes(novasAvaliacoes);
                 }
-
+                
                 if (url === '/professor/mentorias') {
                     const novasMentorias = await listarMentoriasMes()
                     setListaMentorias(novasMentorias);

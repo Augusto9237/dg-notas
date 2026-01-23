@@ -66,7 +66,7 @@ export default async function RootLayout({
 
   // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
   const [avaliacoes, mentorias, temasMes, alunos] = await Promise.all([
-    ListarAvaliacoes(undefined, undefined, 1, 10), // Paginação server-side
+    ListarAvaliacoes(undefined, undefined, 1, 10), 
     listarMentoriasMes(),
     ListarTemas(), // Chama sem params para default page 1
     listarAlunosGoogle('', 1, 10)
