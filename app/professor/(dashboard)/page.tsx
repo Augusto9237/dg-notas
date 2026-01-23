@@ -44,7 +44,7 @@ export default async function Page({
 
     // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
     const [avaliacoes, mentorias, temasMes, alunos] = await Promise.all([
-        ListarAvaliacoes(mes, ano),
+        ListarAvaliacoes(mes, ano, 1, 1000),
         listarMentoriasMes(mes, ano),
         listarTemasMes(mes, ano),
         listarAlunosGoogle('', 1, 1000)

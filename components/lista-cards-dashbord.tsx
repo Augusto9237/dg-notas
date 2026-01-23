@@ -81,7 +81,7 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
                 const novasAvaliacoes = await ListarAvaliacoes(Number(mes), Number(ano))
                 const novosTemas = await listarTemasMes(Number(mes), Number(ano))
 
-                setListaAvaliacoes(novasAvaliacoes);
+                setListaAvaliacoes(novasAvaliacoes.data);
                 setListaTemas(novosTemas)
             }
 
