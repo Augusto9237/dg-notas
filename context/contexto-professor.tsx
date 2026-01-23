@@ -41,7 +41,15 @@ export type Notificacoes = {
 
 interface ContextoProfessorProps {
     userId: string
-    listaAvaliacoes: AvaliacaoTema[]
+    listaAvaliacoes: {
+        data: AvaliacaoTema[]
+        meta: {
+            limit: number;
+            page: number;
+            total: number;
+            totalPages: number;
+        }
+    }
     listaMentorias: Mentoria[]
     listaTemas: Tema[]
     listaAlunos: Aluno[]

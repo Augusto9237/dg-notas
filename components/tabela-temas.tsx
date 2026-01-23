@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { Ellipsis, FileCheck2 } from "lucide-react"
 
 import { Avaliacao, Prisma } from "@/app/generated/prisma"
-import { AlterarDisponibilidadeTema, DeletarTema, ListarTemas } from "@/actions/avaliacao"
+import { AlterarDisponibilidadeTema, DeletarTema, ListarTemas, ListarAvaliacoes } from "@/actions/avaliacao"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
@@ -75,8 +75,9 @@ function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRes
 }
 
 export function TabelaTemas() {
-  const { listaTemas, listaAvaliacoes } = useContext(ContextoProfessor)
+  const { listaTemas } = useContext(ContextoProfessor)
   const [temas, setTemas] = useState<Tema[]>([]);
+  const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [isPending, startTransition] = useTransition()
   const searchParams = useSearchParams();
@@ -84,45 +85,59 @@ export function TabelaTemas() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
 
-  // Efeito para buscar temas quando o parâmetro 'busca' mudar
-  // Efeito para buscar temas quando o parâmetro 'busca' ou 'currentPage' mudar
+  // Buscar temas com paginação
   useEffect(() => {
     const buscarTemas = async () => {
-      if (busca) {
-        const resultadoBusca = await ListarTemas(busca, currentPage, pageSize);
-        setTemas(resultadoBusca.data);
-        setTotalItems(resultadoBusca.meta.total);
-      } else {
-        // Se não houver busca, assume que listaTemas já contém os dados (possivelmente todos ou paginados inicial via contexto)
-        // Mas como TabelaTemas agora espera comportamento paginado, vamos buscar paginado do servidor se não local
-        // Nota: O contexto ContextoProfessor tem listaTemas que pode ser apenas a primeira página ou todos.
-        // O ideal é buscar sempre do servidor se quisermos paginação real consistente aqui, ou usar o que veio do contexto.
-        // O código anterior usava `listaTemas` direto do contexto.
-
-        // Se quisermos manter a consistência com o servidor:
-        const resultado = await ListarTemas(undefined, currentPage, pageSize);
-        setTemas(resultado.data);
-        setTotalItems(resultado.meta.total);
+      try {
+        if (busca) {
+          const resultadoBusca = await ListarTemas(busca, currentPage, pageSize);
+          setTemas(resultadoBusca.data);
+          setTotalItems(resultadoBusca.meta.total);
+        } else {
+          const resultado = await ListarTemas(undefined, currentPage, pageSize);
+          setTemas(resultado.data);
+          setTotalItems(resultado.meta.total);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar temas:", error);
+        toast.error("Erro ao buscar temas");
       }
     };
 
     buscarTemas();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [busca, currentPage, listaTemas]);
+  }, [busca, currentPage]);
+
+  // Buscar avaliações com paginação
+  useEffect(() => {
+    const buscarAvaliacoes = async () => {
+      try {
+        const resultado = await ListarAvaliacoes(undefined, undefined, currentPage, pageSize);
+        setAvaliacoes(resultado.data);
+      } catch (error) {
+        console.error("Erro ao buscar avaliações:", error);
+      }
+    };
+
+    buscarAvaliacoes();
+  }, [currentPage]);
 
   // Reset page when search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [busca]);
 
-  // Memoiza a contagem de respostas para cada tema, evitando recálculos desnecessários
-  const respostasPorTema = useMemo(() => (temaId: number) => {
-    const respostas = listaAvaliacoes.filter(avaliacao => avaliacao.temaId === temaId && avaliacao.resposta);
-    return {
-      total: respostas.length,
-      enviadas: respostas.filter(avaliacao => avaliacao.status === 'ENVIADA').length
+  // Memoiza a contagem de respostas para cada tema
+  const respostasPorTema = useMemo(() => {
+    return (temaId: number) => {
+      const respostasDoTema = avaliacoes.filter(a => a.temaId === temaId);
+      const enviadas = respostasDoTema.filter(a => a.status === 'ENVIADA').length;
+      
+      return {
+        total: respostasDoTema.length,
+        enviadas
+      };
     };
-  }, [listaAvaliacoes]);
+  }, [avaliacoes]);
 
   function atualizarDisponibilidadeTema(temaId: number, status: boolean) {
     startTransition(async () => {
@@ -155,8 +170,6 @@ export function TabelaTemas() {
 
   // Calcular paginação
   const totalPages = Math.ceil(totalItems / pageSize);
-  // Não precisamos mais de slice client-side
-  const paginatedTemas = temas;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -195,14 +208,14 @@ export function TabelaTemas() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedTemas.length === 0 ? (
+            {temas.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-8">
                   Nenhum tema encontrado
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedTemas.map((tema) => (
+              temas.map((tema) => (
                 <TableRow key={tema.id}>
                   <TableCell className="w-[54px]">{tema.id}</TableCell>
                   <TableCell>{tema.nome}</TableCell>

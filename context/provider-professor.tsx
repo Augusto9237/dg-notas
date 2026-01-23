@@ -41,7 +41,15 @@ export type Aluno = Prisma.UserGetPayload<{
 interface ProfessorProviderProps {
     children: ReactNode
     userId: string
-    avaliacoes: AvaliacaoTema[]
+    avaliacoes: {
+        data: AvaliacaoTema[]
+        meta: {
+            limit: number;
+            page: number;
+            total: number;
+            totalPages: number;
+        }
+    }
     mentorias: Mentoria[]
     temas: Tema[]
     alunos: {
@@ -55,7 +63,7 @@ interface ProfessorProviderProps {
 
 export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, temas, alunos }: ProfessorProviderProps) => {
     const { notificacoes } = useWebPush({ userId })
-    const [listaAvaliacoes, setListaAvaliacoes] = useState<AvaliacaoTema[]>([]);
+    const [listaAvaliacoes, setListaAvaliacoes] = useState<ProfessorProviderProps['avaliacoes']>({ data: [], meta: { limit: 0, page: 0, total: 0, totalPages: 0 } });
     const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
     const [listaTemas, setListaTemas] = useState<Tema[]>([]);
     const [listaAlunos, setListaAlunos] = useState<Aluno[]>([]);
