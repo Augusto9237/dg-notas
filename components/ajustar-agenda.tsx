@@ -26,6 +26,7 @@ import clsx from "clsx"
 import { Label } from "./ui/label"
 import { DiaSemana, SlotHorario } from "@/app/generated/prisma"
 import { editarDiasSemana, editarSlotsHorario } from "@/actions/mentoria"
+import { Spinner } from "./ui/spinner"
 
 // Schema de validação
 const agendaSchema = z.object({
@@ -266,21 +267,19 @@ export function AjustarAgenda({
               )}
             />
 
-            <div className="flex justify-center gap-4 pt-4">
+            <div className="grid grid-cols-2 gap-4 pt-4">
               <Button
                 type="button"
                 variant='ghost'
-                className="min-w-[100px]"
                 onClick={handleCancel}
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
-                className="min-w-[100px]"
                 disabled={form.formState.isSubmitting}
               >
-                {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {form.formState.isSubmitting ? <Spinner/> : null}
                 {form.formState.isSubmitting ? 'Salvando' : 'Salvar'}
               </Button>
             </div>
