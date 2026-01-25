@@ -39,7 +39,7 @@ export function DesempenhoAlunoGrafico() {
         setCarregamento(true)
     }, [])
 
-    const chartData = carregamento ? calcularMediaMensal(listaAvaliacoes) : []
+    const chartData = carregamento ? calcularMediaMensal(listaAvaliacoes.data) : []
 
     return (
         <div className='h-full flex flex-col overflow-hidden p-5 pb-6 max-sm:pb-14'>

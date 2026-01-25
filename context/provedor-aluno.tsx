@@ -24,7 +24,15 @@ type Tema = Prisma.TemaGetPayload<{
 interface AlunoProviderProps {
     children: ReactNode
     userId: string
-    avaliacoes: AvaliacaoTema[]
+    avaliacoes: {
+        data: AvaliacaoTema[]
+        meta: {
+            total: number,
+            page: number,
+            limit: number,
+            totalPages: number,
+        }
+    }
     mentorias: Mentoria[]
     temas: Tema[]
 }
@@ -32,7 +40,7 @@ interface AlunoProviderProps {
 export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas }: AlunoProviderProps) => {
     const { notificacoes } = useWebPush({ userId });
     const [isLoading, setIsLoading] = useState(false);
-    const [listaAvaliacoes, setListaAvaliacoes] = useState<AvaliacaoTema[]>([]);
+    const [listaAvaliacoes, setListaAvaliacoes] = useState<AlunoProviderProps['avaliacoes']>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
     const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
     const [listaTemas, setListaTemas] = useState<Tema[]>([]);
 
@@ -45,8 +53,8 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas }
 
     // Cálculos derivados otimizados
     const { mediaGeral, totalRedacoes } = useMemo(() => {
-        const total = listaAvaliacoes.length;
-        const soma = listaAvaliacoes.reduce((acc, curr) => acc + curr.notaFinal, 0);
+        const total = listaAvaliacoes.data.length;
+        const soma = listaAvaliacoes.data.reduce((acc, curr) => acc + curr.notaFinal, 0);
         return {
             mediaGeral: total > 0 ? soma / total : 0,
             totalRedacoes: total

@@ -422,7 +422,7 @@ export async function ListarAvaliacoesTemaId(temaId: number) {
     return avaliacoes;
 }
 
-export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string) {
+export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, limit: number = 10, page: number = 1) {
     const session = await auth.api.getSession({
         headers: await headers()
     })
@@ -445,22 +445,45 @@ export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string) {
             }),
         }
 
-        const avaliacoes = await prisma.avaliacao.findMany({
-            where: whereClause,
-            include: {
-                tema: true,
-                criterios: true,
-                aluno: true,
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
+        const [avaliacoes, total] = await Promise.all([
+            prisma.avaliacao.findMany({
+                where: whereClause,
+                include: {
+                    tema: true,
+                    criterios: true,
+                    aluno: true,
+                },
+                orderBy: {
+                    createdAt: 'desc',
+                },
+                take: limit,
+                skip: (page - 1) * limit,
+            }),
+            prisma.avaliacao.count({
+                where: whereClause,
+            })
+        ]);
 
-        return avaliacoes;
+        return {
+            data: avaliacoes,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            }
+        };
     } catch (error) {
         console.error('Erro ao listar avaliações:', error);
-        return [];
+        return {
+            data: [],
+            meta: {
+                total: 0,
+                page,
+                limit,
+                totalPages: 0,
+            }
+        };
     }
 }
 

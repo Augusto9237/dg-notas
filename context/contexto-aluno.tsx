@@ -37,7 +37,15 @@ export interface ContextoAlunoProps {
     setTotalRedacoes?: Dispatch<SetStateAction<number>>;
     totalMentorias: number;
     setTotalMentorias?: Dispatch<SetStateAction<number>>;
-    listaAvaliacoes: AvaliacaoTema[];
+    listaAvaliacoes: {
+        data: AvaliacaoTema[]
+        meta: {
+            total: number,
+            page: number,
+            limit: number,
+            totalPages: number,
+        }
+    }
     listaMentorias: Mentoria[];
     listaTemas: Tema[];
 }

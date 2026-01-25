@@ -16,7 +16,7 @@ export function ListaCompetenciasAluno({ criterios }: Props) {
         avaliacoes: Awaited<ReturnType<typeof ListarAvaliacoesAlunoId>>,
         criterios: Criterio[]
     ) {
-        const scoresByCriterio = avaliacoes
+        const scoresByCriterio = avaliacoes.data
             .flatMap(a => a.criterios)
             .reduce((acc, c) => {
                 acc[c.criterioId] = [...(acc[c.criterioId] || []), c.pontuacao];
