@@ -13,7 +13,7 @@ interface TabelaAvaliacoesAlunoProps {
 
 export function TabelaAvaliacoesAluno({ criterios }: TabelaAvaliacoesAlunoProps) {
     const { listaAvaliacoes, listaTemas, } = useContext(ContextoAluno);
-    const pendingAvaliacoes = listaAvaliacoes.filter((avaliacao) => avaliacao.status === "ENVIADA");
+    const pendingAvaliacoes = listaAvaliacoes.data.filter((avaliacao) => avaliacao.status === "ENVIADA");
     
     return (
         <Tabs defaultValue="pendentes" className='h-full'>
@@ -40,7 +40,7 @@ export function TabelaAvaliacoesAluno({ criterios }: TabelaAvaliacoesAlunoProps)
                 )}
             </TabsContent>
             <TabsContent value='corrigidas' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-24">
-                <ListaAvaliacoes avaliacoesIniciais={listaAvaliacoes.filter((avaliacao) => avaliacao.status === "CORRIGIDA")} criteriosIniciais={criterios} />
+                <ListaAvaliacoes avaliacoesIniciais={listaAvaliacoes.data.filter((avaliacao) => avaliacao.status === "CORRIGIDA")} criteriosIniciais={criterios} />
             </TabsContent>
         </Tabs>
     )

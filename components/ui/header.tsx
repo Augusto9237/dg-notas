@@ -1,22 +1,98 @@
 'use client'
 import { authClient } from "@/lib/auth-client";
-import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { Card, CardDescription, CardTitle } from "./card";
 import { Button } from "./button";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useContext } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { ContextoAluno } from "@/context/contexto-aluno";
 import { PerfilAluno } from "../perfil-aluno";
 
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes";
+import { Prisma } from "@/app/generated/prisma/wasm";
+import { ListarAvaliacoesAlunoId } from "@/actions/avaliacao";
+import { listarMentoriasAluno } from "@/actions/mentoria";
 
-export default function Header() {
+type Avaliacao = Prisma.AvaliacaoGetPayload<{
+  include: {
+    aluno: true,
+    criterios: true,
+    tema: true,
+  }
+}>
+
+export type Mentoria = Prisma.MentoriaGetPayload<{
+  include: {
+    aluno: true,
+    professor: true,
+    horario: {
+      include: {
+        slot: true
+      }
+    }
+  }
+}>
+
+interface HeaderProps {
+  avaliacoes: Avaliacao[];
+  mentorias: Mentoria[];
+}
+
+export default function Header({ avaliacoes, mentorias }: HeaderProps) {
+  const { notificacoes } = useContext(ContextoAluno);
   const { data: session } = authClient.useSession();
+  const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
+  const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { mediaGeral, totalRedacoes, totalMentorias, isLoading } = useContext(ContextoAluno);
+
   const { setTheme, theme } = useTheme()
+
+  useEffect(() => {
+    setListaAvaliacoes(avaliacoes);
+    setListaMentorias(mentorias);
+  }, [avaliacoes, mentorias]);
+
+  // Gerenciamento de Notificações
+  useEffect(() => {
+    const handleNotification = async () => {
+      if (!notificacoes?.data?.url) return;
+
+      const url = notificacoes.data.url;
+      setIsLoading(true);
+
+      try {
+        if (url === '/aluno/avaliacoes') {
+          const novasAvaliacoes = await ListarAvaliacoesAlunoId(session?.user.id!, '', 10000, 1)
+          setListaAvaliacoes(novasAvaliacoes.data);
+        }
+
+        if (url === '/aluno/mentorias') {
+          const novasMentorias = await listarMentoriasAluno(session?.user.id!);;
+          setListaMentorias(novasMentorias);
+        }
+      } catch (error) {
+        console.error("Erro ao atualizar dados via notificação:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    handleNotification();
+  }, [notificacoes]);
+
+  // Cálculos derivados otimizados
+  const { mediaGeral, totalRedacoes } = useMemo(() => {
+    const total = listaAvaliacoes.length;
+    const soma = listaAvaliacoes.reduce((acc, curr) => acc + curr.notaFinal, 0);
+    return {
+      mediaGeral: total > 0 ? soma / total : 0,
+      totalRedacoes: total
+    };
+  }, [listaAvaliacoes]);
+
+  const totalMentorias = useMemo(() => listaMentorias.length, [listaMentorias]);
 
   // Renderizar um placeholder durante a hidratação
   if (!isLoading && !session) {

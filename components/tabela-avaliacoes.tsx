@@ -66,7 +66,7 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
         const resultadoBusca = await ListarAvaliacoesAlunoId(aluno.id, busca)
 
         if (isMounted) {
-          setListaAvaliacoes(resultadoBusca as TabelaAvaliacoesProps['avaliacoes']);
+          setListaAvaliacoes(resultadoBusca.data);
           setCarregando(false);
         }
       }

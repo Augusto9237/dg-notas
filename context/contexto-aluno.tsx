@@ -1,5 +1,5 @@
 'use client';
-import { Prisma } from "@/app/generated/prisma";
+import { Criterio, Prisma } from "@/app/generated/prisma";
 import { Dispatch, SetStateAction, createContext } from "react";
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
@@ -30,16 +30,23 @@ type Tema = Prisma.TemaGetPayload<{
 
 export interface ContextoAlunoProps {
     isLoading: boolean;
-    setIsLoading?: Dispatch<SetStateAction<boolean>>;
-    mediaGeral: number;
-    setMediaGeral?: Dispatch<SetStateAction<number>>;
-    totalRedacoes: number;
-    setTotalRedacoes?: Dispatch<SetStateAction<number>>;
-    totalMentorias: number;
-    setTotalMentorias?: Dispatch<SetStateAction<number>>;
-    listaAvaliacoes: AvaliacaoTema[];
+    listaAvaliacoes: {
+        data: AvaliacaoTema[]
+        meta: {
+            total: number,
+            page: number,
+            limit: number,
+            totalPages: number,
+        }
+    }
     listaMentorias: Mentoria[];
     listaTemas: Tema[];
+    criterios: Criterio[]
+    notificacoes: {
+        title: string;
+        body: any;
+        data: any;
+    } | null
 }
 
 export const ContextoAluno = createContext<ContextoAlunoProps>(null!);

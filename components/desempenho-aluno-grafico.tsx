@@ -23,6 +23,9 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
     }
 }>
 
+interface DesempenhoAlunoGraficoProps {
+    avaliacoes: Avaliacao[]
+}
 
 const chartConfig = {
     media: {
@@ -31,14 +34,22 @@ const chartConfig = {
     },
 } satisfies ChartConfig
 
-export function DesempenhoAlunoGrafico() {
-    const { listaAvaliacoes } = useContext(ContextoAluno);
+export function DesempenhoAlunoGrafico({ avaliacoes }: DesempenhoAlunoGraficoProps) {
+    const { notificacoes } = useContext(ContextoAluno);
+    const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
     const [carregamento, setCarregamento] = useState(false);
 
     useEffect(() => {
         setCarregamento(true)
+        setListaAvaliacoes(avaliacoes)
+        setCarregamento(false)
     }, [])
 
+    useEffect(() => {
+        if (notificacoes) {
+            // Lógica para lidar com novas notificações, se necessário
+        }
+    }, [notificacoes]);
     const chartData = carregamento ? calcularMediaMensal(listaAvaliacoes) : []
 
     return (

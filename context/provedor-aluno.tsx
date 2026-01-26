@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useMemo, useState } from "react";
 import { ContextoAluno, Mentoria } from "./contexto-aluno";
 import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from "@/actions/avaliacao";
 import { listarMentoriasAluno } from "@/actions/mentoria";
-import { Prisma } from "@/app/generated/prisma";
+import { Criterio, Prisma } from "@/app/generated/prisma";
 import useWebPush from "@/hooks/useWebPush";
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
@@ -24,15 +24,24 @@ type Tema = Prisma.TemaGetPayload<{
 interface AlunoProviderProps {
     children: ReactNode
     userId: string
-    avaliacoes: AvaliacaoTema[]
+    avaliacoes: {
+        data: AvaliacaoTema[]
+        meta: {
+            total: number,
+            page: number,
+            limit: number,
+            totalPages: number,
+        }
+    }
     mentorias: Mentoria[]
     temas: Tema[]
+    criterios: Criterio[]
 }
 
-export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas }: AlunoProviderProps) => {
+export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas, criterios }: AlunoProviderProps) => {
     const { notificacoes } = useWebPush({ userId });
     const [isLoading, setIsLoading] = useState(false);
-    const [listaAvaliacoes, setListaAvaliacoes] = useState<AvaliacaoTema[]>([]);
+    const [listaAvaliacoes, setListaAvaliacoes] = useState<AlunoProviderProps['avaliacoes']>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
     const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
     const [listaTemas, setListaTemas] = useState<Tema[]>([]);
 
@@ -43,17 +52,7 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas }
         setListaTemas(temas || []);
     }, [avaliacoes, mentorias, temas]);
 
-    // Cálculos derivados otimizados
-    const { mediaGeral, totalRedacoes } = useMemo(() => {
-        const total = listaAvaliacoes.length;
-        const soma = listaAvaliacoes.reduce((acc, curr) => acc + curr.notaFinal, 0);
-        return {
-            mediaGeral: total > 0 ? soma / total : 0,
-            totalRedacoes: total
-        };
-    }, [listaAvaliacoes]);
-
-    const totalMentorias = useMemo(() => listaMentorias.length, [listaMentorias]);
+  
 
     // Gerenciamento de Notificações
     useEffect(() => {
@@ -90,12 +89,11 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas }
     return (
         <ContextoAluno.Provider value={{
             isLoading,
-            mediaGeral,
-            totalRedacoes,
-            totalMentorias,
             listaAvaliacoes,
             listaMentorias,
-            listaTemas
+            listaTemas,
+            criterios,
+            notificacoes
         }}>
             {children}
         </ContextoAluno.Provider>
