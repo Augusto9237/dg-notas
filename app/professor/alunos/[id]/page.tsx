@@ -48,7 +48,7 @@ export default async function Page({
             <h1 className="text-xl max-sm:text-lg font-bold">{aluno.name}</h1>
             <p className="text-xs text-muted-foreground truncate">{aluno.email}</p>
           </div>
-          <RelatorioEvolucao aluno={{ id: alunoId, nome: aluno.name, email: aluno.email, image: aluno.image || '', telefone: aluno.telefone || '', criado: aluno.createdAt }} avaliacoes={avaliacoes} criterios={criterios} />
+          <RelatorioEvolucao aluno={{ id: alunoId, nome: aluno.name, email: aluno.email, image: aluno.image || '', telefone: aluno.telefone || '', criado: aluno.createdAt }} avaliacoes={avaliacoes.data} criterios={criterios} />
         </HeaderProfessor>
         <main className="flex flex-col gap-4 p-5">
           <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
