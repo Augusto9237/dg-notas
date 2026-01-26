@@ -15,7 +15,7 @@ import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 import { InstalarIos } from '@/hooks/instalar-ios';
 
 import { auth } from '@/lib/auth';
-import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from '@/actions/avaliacao';
+import { ListarAvaliacoesAlunoId, ListarCriterios, ListarTemasDisponiveis } from '@/actions/avaliacao';
 import { listarMentoriasAluno } from '@/actions/mentoria';
 import { ProvedorAluno } from '@/context/provedor-aluno';
 import { ProvedorTemas } from '@/context/provedor-temas';
@@ -106,10 +106,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         const userId = session.user.id;
 
         // Parallel data fetching for performance
-        const [avaliacoes, mentorias, temas] = await Promise.all([
+        const [avaliacoes, mentorias, temas, criterios] = await Promise.all([
             ListarAvaliacoesAlunoId(userId),
             listarMentoriasAluno(userId),
             ListarTemasDisponiveis(userId),
+            ListarCriterios()
         ]);
 
         return (
@@ -139,6 +140,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                             avaliacoes={avaliacoes}
                             mentorias={mentorias}
                             temas={temas}
+                            criterios={criterios}
                         >
                             <SidebarProvider>
                                 <AppSidebarAluno />

@@ -1,22 +1,43 @@
 'use client'
 
 import { ListarAvaliacoesAlunoId } from "@/actions/avaliacao";
-import { Criterio } from "@/app/generated/prisma";
+import { Criterio, Prisma } from "@/app/generated/prisma";
 import { ContextoAluno } from "@/context/contexto-aluno";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { CardCompetencia } from "./card-competencias";
 
+type Avaliacao = Prisma.AvaliacaoGetPayload<{
+    include: {
+        aluno: true,
+        criterios: true,
+        tema: true,
+    }
+}>
+
 interface Props {
-    criterios: Criterio[]
+    avaliacoes: Avaliacao[]
 }
-export function ListaCompetenciasAluno({ criterios }: Props) {
-    const { listaAvaliacoes } = useContext(ContextoAluno)
+export function ListaCompetenciasAluno({ avaliacoes}: Props) {
+    const { criterios } = useContext(ContextoAluno);
+    const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
+
+    useEffect(() => {
+        setListaAvaliacoes(avaliacoes);
+    }, [avaliacoes]);
+
+    // useEffect(() => {
+    //     async function fetchAvaliacoes() {
+    //         const resposta = await ListarAvaliacoesAlunoId('');
+    //         setListaAvaliacoes(resposta.data);
+    //     }
+    //     fetchAvaliacoes();
+    // }, []);
 
     function calcularMediasPorCriterio(
-        avaliacoes: Awaited<ReturnType<typeof ListarAvaliacoesAlunoId>>,
+        avaliacoes: Avaliacao[],
         criterios: Criterio[]
     ) {
-        const scoresByCriterio = avaliacoes.data
+        const scoresByCriterio = avaliacoes
             .flatMap(a => a.criterios)
             .reduce((acc, c) => {
                 acc[c.criterioId] = [...(acc[c.criterioId] || []), c.pontuacao];

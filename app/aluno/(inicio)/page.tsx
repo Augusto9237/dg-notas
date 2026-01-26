@@ -1,10 +1,11 @@
-import { ListarCriterios } from '@/actions/avaliacao';
+import { ListarAvaliacoesAlunoId, ListarCriterios, ListarTemasDisponiveis } from '@/actions/avaliacao';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import Header from '@/components/ui/header';
 import { redirect } from 'next/navigation';
 import { ListaCompetenciasAluno } from '@/components/lista-competencias-aluno';
 import { DesempenhoAlunoGrafico } from '@/components/desempenho-aluno-grafico';
+import { listarMentoriasAluno } from '@/actions/mentoria';
 
 export default async function Page() {
   const session = await auth.api.getSession({
@@ -14,19 +15,22 @@ export default async function Page() {
   if (!session?.user) {
     redirect('/');
   }
-
-  const criterios = await ListarCriterios();
+  const userId = session.user.id;
+  const [avaliacoes, mentorias] = await Promise.all([
+    ListarAvaliacoesAlunoId(userId, '', 10000, 1),
+    listarMentoriasAluno(userId),
+  ]);
 
 
   return (
     <div className="w-full h-full max-h-screen overflow-hidden">
-      <Header />
+      <Header avaliacoes={avaliacoes.data} mentorias={mentorias} />
       <main className="sm:grid sm:grid-cols-2 flex flex-col  py-5 flex-1 overflow-hidden h-full max-h-[calc(100vh-156px)]">
         <div className="flex flex-col gap-4 sm:p-5">
           <h2 className="text-primary font-semibold max-sm:px-5">Suas Habilidades</h2>
-          <ListaCompetenciasAluno criterios={criterios} />
+          <ListaCompetenciasAluno avaliacoes={avaliacoes.data} />
         </div>
-        <DesempenhoAlunoGrafico />
+        <DesempenhoAlunoGrafico avaliacoes={avaliacoes.data} />
       </main>
     </div>
   );
