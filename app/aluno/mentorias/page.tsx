@@ -6,7 +6,6 @@ import { headers } from "next/headers"
 import { obterProfessor } from "@/actions/admin";
 import { TabelaMentoriasAluno } from "@/components/tabela-mentorias-aluno";
 
-export const revalidate = 300;
 
 export default async function Page() {
     const session = await auth.api.getSession({
@@ -22,8 +21,6 @@ export default async function Page() {
         listarSlotsHorario(),
         obterProfessor()
     ])
-
-    console.log('professor test', professor)
 
     if (!professor?.id) {
         return (
