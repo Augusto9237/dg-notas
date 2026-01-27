@@ -5,6 +5,7 @@ import { Criterio, Prisma } from "@/app/generated/prisma";
 import { ContextoAluno } from "@/context/contexto-aluno";
 import { useContext, useEffect, useState } from "react";
 import { CardCompetencia } from "./card-competencias";
+import { authClient } from "@/lib/auth-client";
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
     include: {
@@ -17,21 +18,27 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
 interface Props {
     avaliacoes: Avaliacao[]
 }
-export function ListaCompetenciasAluno({ avaliacoes}: Props) {
-    const { criterios } = useContext(ContextoAluno);
+export function ListaCompetenciasAluno({ avaliacoes }: Props) {
+    const { criterios, notificacoes } = useContext(ContextoAluno);
+    const { data: session } = authClient.useSession();
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
 
     useEffect(() => {
         setListaAvaliacoes(avaliacoes);
     }, [avaliacoes]);
 
-    // useEffect(() => {
-    //     async function fetchAvaliacoes() {
-    //         const resposta = await ListarAvaliacoesAlunoId('');
-    //         setListaAvaliacoes(resposta.data);
-    //     }
-    //     fetchAvaliacoes();
-    // }, []);
+    useEffect(() => {
+        async function fetchAvaliacoes() {
+            if (!notificacoes?.data?.url) return;
+
+            const url = notificacoes.data.url;
+            if (url === '/aluno/avaliacoes') {
+                const novasAvaliacoes = await ListarAvaliacoesAlunoId(session?.user.id!, '', 10000, 1)
+                setListaAvaliacoes(novasAvaliacoes.data);
+            }
+        }
+        fetchAvaliacoes();
+    }, []);
 
     function calcularMediasPorCriterio(
         avaliacoes: Avaliacao[],
