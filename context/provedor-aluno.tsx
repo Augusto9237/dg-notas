@@ -74,7 +74,7 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas, 
 
                 if (url === '/aluno/mentorias') {
                     const novasMentorias = await listarMentoriasAluno(userId);
-                    setListaMentorias(novasMentorias);
+                    setListaMentorias(novasMentorias.data);
                 }
             } catch (error) {
                 console.error("Erro ao atualizar dados via notificação:", error);

@@ -412,35 +412,72 @@ export async function listarMentoriasMes(mes?: number, ano?: number) {
   }
 }
 /**
- * Função para listar todas as mentorias de um aluno a partir do ID
+ * Função para listar todas as mentorias de um aluno a partir do ID com paginação
  * @param alunoId - ID do aluno
- * @returns Lista de mentorias do aluno
+ * @param page - Número da página
+ * @param limit - Número de itens por página
+ * @returns Lista de mentorias do aluno com informações de paginação
  */
-export async function listarMentoriasAluno(alunoId: string) {
+export async function listarMentoriasAluno(
+  alunoId: string,
+  page: number = 1,
+  limit: number = 10
+) {
   try {
-    const mentorias = await prisma.mentoria.findMany({
-      where: {
-        alunoId: alunoId,
-      },
-      include: {
-        horario: {
-          include: {
-            slot: true, // Garante que o objeto slot completo seja incluído
-          },
+    const skip = (page - 1) * limit;
+
+    const [mentorias, total] = await prisma.$transaction([
+      prisma.mentoria.findMany({
+        where: {
+          alunoId: alunoId,
         },
-        professor: true, // Garante que o objeto professor completo seja incluído, se professorId não for nulo
-        aluno: true,
-      },
-      orderBy: {
-        createdAt: 'asc',
-      },
-    });
-    return mentorias;
+        include: {
+          horario: {
+            include: {
+              slot: true, // Garante que o objeto slot completo seja incluído
+            },
+          },
+          professor: true, // Garante que o objeto professor completo seja incluído, se professorId não for nulo
+          aluno: true,
+        },
+        orderBy: {
+          createdAt: 'asc',
+        },
+        skip: skip,
+        take: limit,
+      }),
+      prisma.mentoria.count({
+        where: {
+          alunoId: alunoId,
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: mentorias,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      }
+    }
   } catch (error) {
     console.error('Erro ao listar mentorias do aluno:', error);
-    return [];
+    return {
+      data: [],
+      meta: {
+        total: 0,
+        page,
+        limit,
+        totalPages: 0,
+      }
+    }
   }
 }
+
 
 // Interface para editar mentoria
 interface EditarMentoriaParams {
@@ -812,9 +849,8 @@ export async function notificarAlunosMentoriaAgendada() {
         notificacoesEnviadas++;
         console.log(`Notificação enviada para ${mentoria.aluno.name}`);
       } catch (error) {
-        const mensagemErro = `Erro ao notificar ${mentoria.aluno.name}: ${
-          error instanceof Error ? error.message : 'Erro desconhecido'
-        }`;
+        const mensagemErro = `Erro ao notificar ${mentoria.aluno.name}: ${error instanceof Error ? error.message : 'Erro desconhecido'
+          }`;
         erros.push(mensagemErro);
         console.error(mensagemErro);
       }
