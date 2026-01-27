@@ -13,9 +13,7 @@ export default async function Page() {
 
   if (session?.user) {
 
-    const [criterios,] = await Promise.all([
-      ListarCriterios(),
-    ])
+    const criterios = await ListarCriterios()
 
     return (
       <div className="w-full h-full max-h-screen min-h-screen overflow-hidden">

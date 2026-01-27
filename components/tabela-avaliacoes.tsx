@@ -17,14 +17,15 @@ import {
   PaginationLink,
   PaginationNext,
 } from '@/components/ui/pagination';
-import { Criterio, CriterioAvaliacao, Tema, Prisma, User } from '@/app/generated/prisma';
+import { Criterio, Tema, Prisma, User } from '@/app/generated/prisma';
 import { DeletarAvaliacao, ListarAvaliacoesAlunoId } from '@/actions/avaliacao';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
 import { Skeleton } from './ui/skeleton';
-import { Button } from './ui/button';
 import { Ellipsis, Trash } from 'lucide-react';
 import { FormularioCorrecao } from './formulario-correcao';
+import { storage } from '@/lib/firebase';
+import { deleteObject, ref } from '@firebase/storage';
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -132,10 +133,12 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
     }
   };
 
-  async function excluirAvaliacao(id: number) {
+  async function excluirAvaliacao(id: number, temaId: number, alunoEmail: string) {
+    const storageRef = ref(storage, `avaliacoes/${temaId}/${alunoEmail}`);
     try {
       await DeletarAvaliacao(id)
-      toast.success("Avaliaçao excluída com sucesso")
+      await deleteObject(storageRef);
+      toast.error("Avaliaçao excluída")
     } catch (error) {
       console.log(error)
       toast.error('Algo deu errado, tente novamente!')
@@ -194,7 +197,7 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
                   <div className='flex justify-center gap-4'>
                     <FormularioCorrecao avaliacao={avaliacao} />
 
-                    <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id)} />
+                    <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id, avaliacao.temaId, avaliacao.aluno.email)} />
                   </div>
                 </TableCell>
               </TableRow>
