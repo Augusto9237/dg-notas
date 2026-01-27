@@ -23,6 +23,8 @@ export default async function Page() {
         obterProfessor()
     ])
 
+    console.log('professor test', professor)
+
     if (!professor?.id) {
         return (
             <div className="w-full">
