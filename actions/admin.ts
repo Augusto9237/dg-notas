@@ -17,22 +17,28 @@ type AtualizarContaProfessorParams = {
 
 export async function obterProfessor() {
   try {
-    const resultado = await prisma.user.findMany({
+    const resultado = await prisma.user.findFirst({
       where: {
         role: 'admin'
       }
     })
+
+    if (!resultado) {
+        console.log("Nenhum professor (admin) encontrado na base de dados.");
+        return null;
+    }
+
     return {
-      id: resultado[0].id,
-      nome: resultado[0].name,
-      email: resultado[0].email,
-      telefone: resultado[0].telefone,
-      especialidade: resultado[0].especialidade,
-      bio: resultado[0].bio,
-      image: await obterUrlImagem(resultado[0].image!)
+      id: resultado.id,
+      nome: resultado.name,
+      email: resultado.email,
+      telefone: resultado.telefone,
+      especialidade: resultado.especialidade,
+      bio: resultado.bio,
+      image: resultado.image ? await obterUrlImagem(resultado.image) : null
     }
   } catch (error) {
-    console.log(error)
+    console.error("Erro ao obter professor:", error)
     return null
   }
 }

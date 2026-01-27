@@ -13,7 +13,7 @@ type Professor = {
     telefone: string | null;
     especialidade: string | null;
     bio: string | null;
-    image: string;
+    image: string | null;
 } | null
 
 interface TabelaMentoriasAlunoProps {
