@@ -70,7 +70,7 @@ export default function Header({ avaliacoes, mentorias }: HeaderProps) {
 
         if (url === '/aluno/mentorias') {
           const novasMentorias = await listarMentoriasAluno(session?.user.id!);;
-          setListaMentorias(novasMentorias);
+          setListaMentorias(novasMentorias.data);
         }
       } catch (error) {
         console.error("Erro ao atualizar dados via notificação:", error);

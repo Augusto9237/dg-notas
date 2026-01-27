@@ -24,7 +24,7 @@ export default async function Page() {
 
   return (
     <div className="w-full h-full max-h-screen overflow-hidden">
-      <Header avaliacoes={avaliacoes.data} mentorias={mentorias} />
+      <Header avaliacoes={avaliacoes.data} mentorias={mentorias.data} />
       <main className="sm:grid sm:grid-cols-2 flex flex-col  py-5 flex-1 overflow-hidden h-full max-h-[calc(100vh-156px)]">
         <div className="flex flex-col gap-4 sm:p-5">
           <h2 className="text-primary font-semibold max-sm:px-5">Suas Habilidades</h2>
