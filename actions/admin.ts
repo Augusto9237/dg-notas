@@ -5,6 +5,7 @@ import { obterUrlImagem } from "@/lib/obter-imagem";
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { headers } from "next/headers";
+import { unstable_noStore as noStore } from 'next/cache';
 
 type AtualizarContaProfessorParams = {
   email: string;
@@ -16,6 +17,7 @@ type AtualizarContaProfessorParams = {
 }
 
 export async function obterProfessor() {
+  noStore();
   try {
     const resultado = await prisma.user.findMany({
       where: {
