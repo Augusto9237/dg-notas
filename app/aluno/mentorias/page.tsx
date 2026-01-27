@@ -21,7 +21,10 @@ export default async function Page() {
         listarSlotsHorario(),
         obterProfessor()
     ])
-    if (professor?.id === undefined) {
+
+    console.log('Professor:', professor);
+
+    if (!professor?.id) {
         return (
             <div className="w-full">
                 <main className="flex flex-col gap-4 p-5 pb-20">
