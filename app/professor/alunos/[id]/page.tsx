@@ -29,16 +29,10 @@ export default async function Page({
     );
   }
 
-  const [temas, criterios, avaliacoes] = await Promise.all([
-    ListarTemas(),
+  const [criterios, avaliacoes] = await Promise.all([
     ListarCriterios(),
     ListarAvaliacoesAlunoId(alunoId)
   ])
-
-  // Garantir que os dados são estáveis
-  const temasData = JSON.parse(JSON.stringify(temas))
-  const criteriosData = JSON.parse(JSON.stringify(criterios))
-  const avaliacoesData = JSON.parse(JSON.stringify(avaliacoes))
 
   return (
     <Suspense fallback={<Loading />}>
@@ -53,7 +47,7 @@ export default async function Page({
         <main className="flex flex-col gap-4 p-5">
           <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
             <InputBusca placeholder='Buscar por Tema' />
-            <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoesData} criterios={criteriosData} temas={temasData} />
+            <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoes}/>
           </div>
         </main>
       </div>

@@ -79,8 +79,7 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
     const carregarAvaliacoes = async () => {
       setCarregamento(true)
       try {
-        const resposta = await ListarAvaliacoesAlunoId(aluno.id, '', 10000, 1)
-        setListaAvaliaçoes(resposta.data)
+        setListaAvaliaçoes(avaliacoes)
         setListaCriterios(criterios)
       } catch (error) {
         console.error('Erro ao carregar avaliações:', error)
@@ -90,7 +89,7 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
     }
 
     carregarAvaliacoes()
-  }, [aluno.id, criterios])
+  }, [aluno.id, avaliacoes,criterios])
 
   function calcularMediasPorCriterio(
     avaliacoes: Avaliacao[],

@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect, memo } from 'react';
-import { useSearchParams } from 'next/navigation'
+import { useState, useEffect, memo, useContext } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import {
   Table,
   TableBody,
@@ -26,6 +26,7 @@ import { Ellipsis, Trash } from 'lucide-react';
 import { FormularioCorrecao } from './formulario-correcao';
 import { storage } from '@/lib/firebase';
 import { deleteObject, ref } from '@firebase/storage';
+import { ContextoProfessor } from '@/context/contexto-professor';
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -37,24 +38,32 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
 
 interface TabelaAvaliacoesProps {
   aluno: User;
-  temas: Tema[];
-  criterios: Criterio[];
-  avaliacoes: Avaliacao[];
+  avaliacoes: {
+    data: Avaliacao[];
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  };
 }
 
-export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, criterios, avaliacoes }: TabelaAvaliacoesProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [listaAvaliacoes, setListaAvaliacoes] = useState<TabelaAvaliacoesProps['avaliacoes']>(avaliacoes || []);
-  const [carregando, setCarregando] = useState(false)
+export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, avaliacoes }: TabelaAvaliacoesProps) {
+  const [listaAvaliacoes, setListaAvaliacoes] = useState<TabelaAvaliacoesProps['avaliacoes']>(avaliacoes || { data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
+  const [carregandoBusca, setCarregandoBusca] = useState(false)
+  const [inicializado, setInicializado] = useState(false)
 
   const searchParams = useSearchParams()
-  const busca = searchParams.get('busca')
-
-  const pageSize = 10;
+  const router = useRouter()
+  const pathname = usePathname()
+  const busca = searchParams.get('busca') || ''
+  const paginaAtual = Number(searchParams.get('page')) || 1
 
   useEffect(() => {
-    if (avaliacoes && Array.isArray(avaliacoes)) {
+    if (avaliacoes) {
       setListaAvaliacoes(avaliacoes);
+      setInicializado(true);
     }
   }, [avaliacoes]);
 
@@ -62,27 +71,34 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
     let isMounted = true;
 
     const buscarAvaliacoes = async () => {
-      if (busca && aluno.id) {
-        setCarregando(true);
-        const resultadoBusca = await ListarAvaliacoesAlunoId(aluno.id, busca)
+      // Se estivermos na primeira página e sem busca, usamos os dados da props (que já vieram do servidor)
+      // Isso evita um fetch desnecessário na carga inicial
+      if (paginaAtual === 1 && !busca) {
+        setListaAvaliacoes(avaliacoes);
+        return;
+      }
+
+      if (aluno.id) {
+        setCarregandoBusca(true);
+        const resultadoBusca = await ListarAvaliacoesAlunoId(aluno.id, busca, paginaAtual);
 
         if (isMounted) {
-          setListaAvaliacoes(resultadoBusca.data);
-          setCarregando(false);
+          setListaAvaliacoes(resultadoBusca);
+          setCarregandoBusca(false);
         }
       }
     };
 
-    buscarAvaliacoes()
+    buscarAvaliacoes();
 
     return () => {
       isMounted = false;
     };
 
-  }, [busca])
+  }, [busca, paginaAtual, aluno.id, avaliacoes])
 
   // Verificar se os dados são válidos
-  if (carregando || !listaAvaliacoes || !Array.isArray(listaAvaliacoes)) {
+  if (!inicializado || carregandoBusca || !listaAvaliacoes || !listaAvaliacoes.data) {
     return (
       <Table>
         <TableHeader>
@@ -99,7 +115,7 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.from({ length: pageSize }).map((_, idx) => (
+          {Array.from({ length: avaliacoes.meta.total }).map((_, idx) => (
             <TableRow key={idx}>
               <TableCell colSpan={9} className="text-center">
                 <Skeleton className='w-full h-8 rounded-sm' />
@@ -111,25 +127,24 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
     );
   }
 
-  // Calcular paginação com base no state local
-  const totalPages = Math.ceil(listaAvaliacoes.length / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedAvaliacoes = listaAvaliacoes.slice(startIndex, endIndex);
+  const { data: avaliacoesPaginadas, meta } = listaAvaliacoes;
+  const totalPages = meta.totalPages;
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', newPage.toString());
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+    if (paginaAtual > 1) {
+      handlePageChange(paginaAtual - 1);
     }
   };
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+    if (paginaAtual < totalPages) {
+      handlePageChange(paginaAtual + 1);
     }
   };
 
@@ -167,14 +182,14 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
           </TableRow>
         </TableHeader>
         <TableBody>
-          {paginatedAvaliacoes.length === 0 ? (
+          {avaliacoesPaginadas.length === 0 ? (
             <TableRow>
               <TableCell colSpan={9} className="text-center py-8">
                 Nenhuma avaliação encontrada
               </TableCell>
             </TableRow>
           ) : (
-            paginatedAvaliacoes.map((avaliacao) => (
+            avaliacoesPaginadas.map((avaliacao) => (
               <TableRow key={avaliacao.id}>
                 <TableCell className='pl-4'>
                   {avaliacao.tema.nome}
@@ -209,22 +224,24 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
       {totalPages > 1 && (
         <div className="flex justify-between items-center mt-4">
           <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
-            {startIndex + 1} -{' '}
-            {Math.min(endIndex, listaAvaliacoes.length)} de {listaAvaliacoes.length} resultados
+            Página {paginaAtual} de {totalPages} ({avaliacoesPaginadas.length} resultados nesta página)
           </div>
           <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
                   onClick={handlePreviousPage}
-                  className={currentPage <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  className={paginaAtual <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                 />
               </PaginationItem>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const startPage = Math.max(1, Math.min(paginaAtual - 2, totalPages - 4));
+                return startPage + i;
+              }).map((page) => (
                 <PaginationItem key={page}>
                   <PaginationLink
                     onClick={() => handlePageChange(page)}
-                    isActive={page === currentPage}
+                    isActive={page === paginaAtual}
                     className="cursor-pointer"
                   >
                     {page}
@@ -234,7 +251,7 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, temas, c
               <PaginationItem>
                 <PaginationNext
                   onClick={handleNextPage}
-                  className={currentPage >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  className={paginaAtual >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                 />
               </PaginationItem>
             </PaginationContent>
