@@ -212,7 +212,7 @@ export function TabelaAlunos() {
       </div>
       <div className="flex justify-between items-center">
         <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
-          Página {paginaAtual} de {totalPage} ({alunos.length} resultados nesta página)
+          {paginaAtual} de {totalPage} ({alunos.length} resultados)
         </div>
         <Pagination>
           <PaginationContent>

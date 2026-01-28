@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
 // Função para listar alunos que fizeram login apenas com o Google
-export async function listarAlunosGoogle(busca?: string, page: number = 1, limit: number = 10) {
+export async function listarAlunosGoogle(busca?: string, page: number = 1, limit: number = 12) {
     const session = await auth.api.getSession({
         headers: await headers()
     });

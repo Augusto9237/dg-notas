@@ -20,11 +20,14 @@ import { obterUrlImagem } from "@/lib/obter-imagem";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { ThemeSwitcher } from "./kibo-ui/theme-switcher";
+import { useTheme } from "next-themes";
 
 export function PerfilAluno() {
     const mobile = useIsMobile()
     const { data: session } = authClient.useSession();
     const [aluno, setAluno] = useState<User | null>(null)
+    const { setTheme, theme } = useTheme()
 
     const router = useRouter()
 
@@ -86,6 +89,9 @@ export function PerfilAluno() {
                     </div>
                 </div>
                 <SheetFooter>
+                    <div className="w-full items-center text-center justify-center pb-2 min-[1025px]:hidden">
+                        <ThemeSwitcher className="w-20 mx-auto" defaultValue="system" onChange={setTheme} value={(theme as "light" | "dark" | "system" | undefined)} />
+                    </div>
                     <Button
                         variant='ghost'
                         onClick={sair}

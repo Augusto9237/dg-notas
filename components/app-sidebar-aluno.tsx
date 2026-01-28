@@ -18,6 +18,7 @@ import { authClient } from "@/lib/auth-client"
 import { Button } from "./ui/button"
 import { Switch } from "./ui/switch"
 import { useTheme } from "next-themes"
+import { ThemeSwitcher } from "./kibo-ui/theme-switcher"
 
 export function AppSidebarAluno() {
   const { data: session, isPending } = authClient.useSession();
@@ -68,13 +69,8 @@ export function AppSidebarAluno() {
         </SidebarMenuButton>
       </SidebarContent>
       <SidebarFooter className="p-5">
-        <div className="text-card dark:text-foreground flex gap-2 w-full items-center text-sm px-2 py-1.5 justify-center">
-          <Moon size={16} />
-          <Switch
-            checked={theme === 'light' ? true : false}
-            onCheckedChange={(checked) => setTheme(checked === true ? "light" : "dark")}
-          />
-          <Sun size={16} />
+        <div className="w-full items-center text-center justify-center pb-2 max-[1025px]:hidden">
+          <ThemeSwitcher className="w-20 mx-auto" defaultValue="system" onChange={setTheme} value={(theme as "light" | "dark" | "system" | undefined)} />
         </div>
       </SidebarFooter>
     </Sidebar>

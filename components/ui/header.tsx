@@ -2,17 +2,17 @@
 import { authClient } from "@/lib/auth-client";
 import { Card, CardDescription, CardTitle } from "./card";
 import { Button } from "./button";
-import { LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Bell, BellOff } from "lucide-react";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { ContextoAluno } from "@/context/contexto-aluno";
 import { PerfilAluno } from "../perfil-aluno";
 
-import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes";
 import { Prisma } from "@/app/generated/prisma/wasm";
 import { ListarAvaliacoesAlunoId } from "@/actions/avaliacao";
 import { listarMentoriasAluno } from "@/actions/mentoria";
+import useWebPush from "@/hooks/useWebPush";
+import { toast } from "sonner";
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -45,7 +45,8 @@ export default function Header({ avaliacoes, mentorias }: HeaderProps) {
   const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const { subscribe, permission } = useWebPush({ userId: session?.user.id! });
+  console.log("Permissão de Notificações:", permission);
 
   const { setTheme, theme } = useTheme()
 
@@ -94,6 +95,8 @@ export default function Header({ avaliacoes, mentorias }: HeaderProps) {
 
   const totalMentorias = useMemo(() => listaMentorias.length, [listaMentorias]);
 
+
+
   // Renderizar um placeholder durante a hidratação
   if (!isLoading && !session) {
     return (
@@ -105,9 +108,7 @@ export default function Header({ avaliacoes, mentorias }: HeaderProps) {
             <div className="h-3 w-48 bg-muted animate-pulse rounded" />
           </div>
         </div>
-        <Button className="absolute top-5 right-5 min-[1025px]:hidden" size="icon" variant="outline" disabled>
-          <LogOut />
-        </Button>
+
         <div className="grid grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
             <Card key={i} className="text-center bg-card/10 rounded-lg backdrop-blur-sm border-none gap-0 p-2">
@@ -132,11 +133,20 @@ export default function Header({ avaliacoes, mentorias }: HeaderProps) {
           </div>
         </div>
 
-        <Button className="absolute top-5 right-5 min-[1025px]:hidden" size='icon' variant='ghost' onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-          {theme === 'light' ? <Moon /> : <Sun />}
-        </Button>
+        {(permission === 'default' || permission === 'denied') ? (
+          <div className="absolute top-5 right-5 min-[1025px]:hidden">
+            <Button size='icon' variant='ghost' className="bg-background/50" onClick={subscribe}>
+              <BellOff />
+            </Button>
+          </div>
+        ) : (
+          <div className="absolute top-5 right-5 min-[1025px]:hidden">
+            <Button size='icon' variant='ghost' className="bg-background/50" onClick={() => toast.success("Notificações já ativadas!")}>
+              <Bell />
+            </Button>
+          </div>
+        )}
 
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-4 min-[1025px]:gap-5">
           <Card className="text-center bg-card/10 min-[1025px]:bg-card/100 rounded-lg backdrop-blur-sm border-none min-[1025px]:border-border gap-0 p-2 min-[1025px]:p-4">
             <CardTitle className="text-lg font-bold text-secondary">
