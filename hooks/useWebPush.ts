@@ -46,6 +46,7 @@ interface SubscriptionCache {
 
 const SUBSCRIPTION_CACHE_TTL = 60000; // 1 minuto
 const MIN_SYNC_INTERVAL = 30000; // 30 segundos mínimo entre sincronizações
+const MAX_SUBSCRIPTIONS_PER_USER = 5; // Limite de devices por usuário
 
 export default function useWebPush({ userId }: { userId: string }) {
   const router = useRouter();
@@ -130,7 +131,7 @@ export default function useWebPush({ userId }: { userId: string }) {
   }, [subscription, userId, invalidateCache]);
 
 
-  // Subscribe function - otimizada para reduzir chamadas ao banco
+  // 🔧 FUNÇÃO CORRIGIDA: Subscribe sem deletar outras subscriptions
   const subscribe = useCallback(async () => {
     // Previne múltiplas execuções simultâneas
     if (isSubscribingRef.current) {
@@ -198,15 +199,27 @@ export default function useWebPush({ userId }: { userId: string }) {
           console.log('✅ Subscription já existe no banco de dados. Usando existente.');
           setSubscription(sub);
           
-          // Limpar outras subscriptions antigas apenas se houver mais de uma
-          const outrasSubs = subsNoBanco.filter(s => s.endpoint !== sub!.endpoint);
-          if (outrasSubs.length > 0) {
-            console.log(`🧹 Removendo ${outrasSubs.length} subscription(s) antiga(s)...`);
-            // Remove em paralelo para melhor performance
-            await Promise.allSettled(
-              outrasSubs.map(oldSub => removerPushSubscription(oldSub.endpoint))
-            );
-            invalidateCache(userId);
+          // 🔧 CORREÇÃO: Apenas limpa se houver MUITAS subscriptions (proteção contra spam)
+          if (subsNoBanco.length > MAX_SUBSCRIPTIONS_PER_USER) {
+            console.log(`⚠️ Usuário tem ${subsNoBanco.length} subscriptions (limite: ${MAX_SUBSCRIPTIONS_PER_USER})`);
+            
+            // Remove apenas as MAIS ANTIGAS, mantendo as mais recentes
+            const sortedSubs = [...subsNoBanco].sort((a: any, b: any) => {
+              // Se não houver updatedAt, assume como muito antiga
+              const dateA = new Date(a.updatedAt || 0).getTime();
+              const dateB = new Date(b.updatedAt || 0).getTime();
+              return dateB - dateA; // Mais recentes primeiro
+            });
+            
+            const subsParaRemover = sortedSubs.slice(MAX_SUBSCRIPTIONS_PER_USER);
+            
+            if (subsParaRemover.length > 0) {
+              console.log(`🧹 Removendo ${subsParaRemover.length} subscription(s) MUITO antiga(s)...`);
+              await Promise.allSettled(
+                subsParaRemover.map(oldSub => removerPushSubscription(oldSub.endpoint))
+              );
+              invalidateCache(userId);
+            }
           }
 
           isSubscribingRef.current = false;
@@ -253,22 +266,9 @@ export default function useWebPush({ userId }: { userId: string }) {
       console.log('✅ Subscription obtida:', sub.endpoint);
       setSubscription(sub);
 
-      // Limpar subscriptions antigas ANTES de salvar (usando cache se disponível)
-      try {
-        const subsNoBanco = await fetchSubscriptionsWithCache(userId, true);
-        const outrasSubs = subsNoBanco.filter(s => s.endpoint !== sub.endpoint);
-        
-        if (outrasSubs.length > 0) {
-          console.log(`🧹 Removendo ${outrasSubs.length} subscription(s) antiga(s)...`);
-          await Promise.allSettled(
-            outrasSubs.map(oldSub => removerPushSubscription(oldSub.endpoint))
-          );
-        }
-      } catch (cleanupError) {
-        console.warn('⚠️ Erro ao limpar subscriptions antigas:', cleanupError);
-      }
-
-      // Save to DB
+      // 🔧 CORREÇÃO: NÃO limpa subscriptions antigas automaticamente
+      // Apenas salva a nova subscription
+      console.log('💾 Salvando subscription no banco...');
       const deviceInfo = `${navigator.userAgent} | Standalone: ${isStandalone()} | iOS: ${isIOS()}`;
       await salvarPushSubscription(userId, sub.toJSON() as any, deviceInfo);
       invalidateCache(userId); // Invalida cache após salvar
@@ -294,7 +294,7 @@ export default function useWebPush({ userId }: { userId: string }) {
     subscribeRef.current = subscribe;
   }, [subscribe]);
 
-  // Main effect for initialization and synchronization - OTIMIZADO
+  // 🔧 FUNÇÃO CORRIGIDA: Sincronização sem deletar subscriptions de outros devices
   useEffect(() => {
     // 1. Check basic support
     if (isIOS() && !isStandalone()) {
@@ -307,7 +307,7 @@ export default function useWebPush({ userId }: { userId: string }) {
       return;
     }
 
-    // 2. Sync state function - otimizada com throttling e cache
+    // 2. Sync state function - CORRIGIDA
     const syncSubscriptionState = async (force = false) => {
       const now = Date.now();
       
@@ -364,33 +364,18 @@ export default function useWebPush({ userId }: { userId: string }) {
               if (jaExisteNoBanco) {
                 console.log('✅ Subscription também existe no banco de dados.');
                 
-                // Limpar outras subscriptions antigas apenas se houver mais de uma
-                const outrasSubs = subsNoBanco.filter(s => s.endpoint !== currentSub.endpoint);
-                if (outrasSubs.length > 0) {
-                  console.log(`🧹 Removendo ${outrasSubs.length} subscription(s) duplicada(s)...`);
-                  await Promise.allSettled(
-                    outrasSubs.map(oldSub => removerPushSubscription(oldSub.endpoint))
-                  );
-                  invalidateCache(userId);
-                }
+                // 🔧 CORREÇÃO: NÃO remove outras subscriptions automaticamente
+                // Elas podem ser de outros dispositivos do usuário
+                
               } else {
                 console.log('⚠️ Subscription local existe mas não está no banco. Salvando...');
                 const deviceInfo = `${navigator.userAgent} | Standalone: ${isStandalone()} | iOS: ${isIOS()}`;
                 await salvarPushSubscription(userId, currentSub.toJSON() as any, deviceInfo);
                 invalidateCache(userId);
                 console.log('✅ Subscription salva no banco de dados');
-
-                // Limpar outras subscriptions antigas
-                if (subsNoBanco.length > 0) {
-                  console.log(`🧹 Removendo ${subsNoBanco.length} subscription(s) antiga(s)...`);
-                  await Promise.allSettled(
-                    subsNoBanco.map(oldSub => removerPushSubscription(oldSub.endpoint))
-                  );
-                  invalidateCache(userId);
-                }
               }
             } catch (dbError) {
-              console.warn('⚠️ Erro ao verificar/limpar subscriptions no banco:', dbError);
+              console.warn('⚠️ Erro ao verificar subscriptions no banco:', dbError);
             }
             setSubscription(currentSub);
           }

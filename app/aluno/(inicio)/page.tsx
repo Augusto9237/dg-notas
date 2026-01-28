@@ -30,7 +30,7 @@ export default async function Page() {
           <h2 className="text-primary font-semibold max-sm:px-5">Suas Habilidades</h2>
           <ListaCompetenciasAluno avaliacoes={avaliacoes.data} />
         </div>
-        <DesempenhoAlunoGrafico avaliacoes={avaliacoes.data} />
+        <DesempenhoAlunoGrafico avaliacoes={avaliacoes.data} userId={userId} />
       </main>
     </div>
   );

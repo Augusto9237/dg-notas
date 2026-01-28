@@ -6,8 +6,6 @@ import { Bell, BellOff } from "lucide-react";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { ContextoAluno } from "@/context/contexto-aluno";
 import { PerfilAluno } from "../perfil-aluno";
-
-import { useTheme } from "next-themes";
 import { Prisma } from "@/app/generated/prisma/wasm";
 import { ListarAvaliacoesAlunoId } from "@/actions/avaliacao";
 import { listarMentoriasAluno } from "@/actions/mentoria";
@@ -45,10 +43,7 @@ export default function Header({ avaliacoes, mentorias }: HeaderProps) {
   const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { subscribe, permission } = useWebPush({ userId: session?.user.id! });
-  console.log("Permissão de Notificações:", permission);
-
-  const { setTheme, theme } = useTheme()
+  const { subscribe, permission } = useWebPush({ userId: session?.user.id! })
 
   useEffect(() => {
     setListaAvaliacoes(avaliacoes);
@@ -133,15 +128,15 @@ export default function Header({ avaliacoes, mentorias }: HeaderProps) {
           </div>
         </div>
 
-        {(permission === 'default' || permission === 'denied') ? (
+        {(permission === 'default' || permission === 'denied' || permission === null) ? (
           <div className="absolute top-5 right-5 min-[1025px]:hidden">
-            <Button size='icon' variant='ghost' className="bg-background/50" onClick={subscribe}>
+            <Button size='icon'  onClick={subscribe}>
               <BellOff />
             </Button>
           </div>
         ) : (
           <div className="absolute top-5 right-5 min-[1025px]:hidden">
-            <Button size='icon' variant='ghost' className="bg-background/50" onClick={() => toast.success("Notificações já ativadas!")}>
+            <Button size='icon'  onClick={() => toast.success("Notificações já ativadas!")}>
               <Bell />
             </Button>
           </div>

@@ -13,6 +13,7 @@ import {
 import { useContext, useEffect, useState } from "react"
 import { ContextoAluno } from "@/context/contexto-aluno"
 import { calcularMediaMensal } from "@/lib/media-geral"
+import { ListarAvaliacoesAlunoId } from "@/actions/avaliacao"
 
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
@@ -24,7 +25,8 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
 }>
 
 interface DesempenhoAlunoGraficoProps {
-    avaliacoes: Avaliacao[]
+    avaliacoes: Avaliacao[];
+    userId: string
 }
 
 const chartConfig = {
@@ -34,7 +36,7 @@ const chartConfig = {
     },
 } satisfies ChartConfig
 
-export function DesempenhoAlunoGrafico({ avaliacoes }: DesempenhoAlunoGraficoProps) {
+export function DesempenhoAlunoGrafico({ avaliacoes, userId }: DesempenhoAlunoGraficoProps) {
     const { notificacoes } = useContext(ContextoAluno);
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
     const [carregamento, setCarregamento] = useState(false);
@@ -43,15 +45,31 @@ export function DesempenhoAlunoGrafico({ avaliacoes }: DesempenhoAlunoGraficoPro
         setCarregamento(true)
         setListaAvaliacoes(avaliacoes)
         setCarregamento(false)
-    }, [])
+    }, [avaliacoes])
 
     useEffect(() => {
-        if (notificacoes) {
-            // Lógica para lidar com novas notificações, se necessário
-        }
-    }, [notificacoes]);
-    const chartData = carregamento ? calcularMediaMensal(listaAvaliacoes) : []
+        const handleNotification = async () => {
+            if (!notificacoes?.data?.url) return;
 
+            const url = notificacoes.data.url;
+
+            try {
+                if (url === '/aluno/avaliacoes') {
+                    setCarregamento(true);
+                    const novasAvaliacoes = await ListarAvaliacoesAlunoId(userId, '', 10000, 1)
+                    setListaAvaliacoes(novasAvaliacoes.data);
+                }
+
+            } catch (error) {
+                console.error("Erro ao atualizar dados via notificação:", error);
+            } finally {
+                setCarregamento(false);
+            }
+        };
+        handleNotification();
+    }, [notificacoes]);
+
+    const chartData = carregamento === true ? [] : calcularMediaMensal(listaAvaliacoes)
     return (
         <div className='h-full flex flex-col overflow-hidden p-5 pb-6 max-sm:pb-14'>
             <h2 className="mb-3 text-primary font-semibold">Seu Desempenho</h2>
