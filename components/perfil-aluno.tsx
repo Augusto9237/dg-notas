@@ -22,6 +22,7 @@ import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ThemeSwitcher } from "./kibo-ui/theme-switcher";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 
 export function PerfilAluno() {
     const mobile = useIsMobile()
@@ -50,7 +51,11 @@ export function PerfilAluno() {
         <Sheet>
             <SheetTrigger asChild>
                 <Avatar className="size-10 border-2 border-secondary">
-                    <AvatarImage
+                    <Image
+                        alt={session?.user.name || "Usuário"}
+                        priority={true}
+                        width={40}
+                        height={40}
                         src={session?.user.image || "/avatar-placeholder.png"}
                     />
                     <AvatarFallback className="bg-background text-primary font-medium">

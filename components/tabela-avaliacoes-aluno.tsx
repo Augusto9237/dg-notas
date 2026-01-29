@@ -1,11 +1,12 @@
 'use client'
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileX } from 'lucide-react';
 import { ListaAvaliacoes } from '@/components/lista-avaliacoes';
 import { CardNovoTema } from '@/components/card-novotema';
 import { ContextoAluno } from '@/context/contexto-aluno';
 import { useContext } from 'react';
-import { Criterio, Prisma } from '@/app/generated/prisma';
+import { Criterio} from '@/app/generated/prisma';
 
 interface TabelaAvaliacoesAlunoProps {
     criterios: Criterio[]

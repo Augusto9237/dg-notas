@@ -3,8 +3,6 @@
 import { Avaliacao, Criterio, CriterioAvaliacao, Tema } from "@/app/generated/prisma";
 import { useEffect, useState } from "react";
 import { CardAvaliacao } from "./card-avaliacao";
-import { Card, CardContent, CardFooter } from "./ui/card";
-import { Skeleton } from "./ui/skeleton";
 
 interface ListaAvaliacoesProps {
     avaliacoesIniciais: (Avaliacao & {
