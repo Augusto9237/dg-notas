@@ -12,6 +12,7 @@ import { useContext, useEffect, useState } from 'react';
 import { ContextoProfessor } from '@/context/contexto-professor';
 import { ListarAvaliacoes } from '@/actions/avaliacao';
 import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -69,7 +70,7 @@ export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
           <Card key={aluno.alunoId} className='flex flex-row items-center p-4 gap-4'>
             <span className='text-lg font-bold'>{aluno.posicao}º</span>
             <Avatar className='size-10'>
-              <AvatarImage src={aluno.image || "/avatar-placeholder.png"} />
+              <Image alt={aluno.nome} src={aluno.image || "/avatar-placeholder.png"} height={40} width={40}  />
               <AvatarFallback>{aluno.nome.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className='w-full flex flex-col gap-2'>

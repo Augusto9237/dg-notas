@@ -31,6 +31,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
 import { DeletarAvaliacao } from '@/actions/avaliacao';
+import Image from 'next/image';
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -174,7 +175,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                 <TableRow key={avaliacao.id}>
                   <TableCell className='flex gap-2 items-center md:max-w-sm'>
                     <Avatar>
-                      <AvatarImage src={avaliacao.aluno.image || "/avatar-placeholder.png"} />
+                      <Image alt={avaliacao.aluno.name} src={avaliacao.aluno.image || "/avatar-placeholder.png"} height={40} width={40} />
                       <AvatarFallback>{avaliacao.aluno.name.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <p className='mt-1'>

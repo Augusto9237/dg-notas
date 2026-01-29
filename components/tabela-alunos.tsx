@@ -33,6 +33,7 @@ import { DeleteButton } from './ui/delete-button';
 import { ContextoProfessor } from '@/context/contexto-professor';
 import { Switch } from './ui/switch';
 import { enviarNotificacaoParaUsuario } from '@/actions/notificacoes';
+import Image from 'next/image';
 
 type Aluno = Prisma.UserGetPayload<{
   include: {
@@ -56,8 +57,6 @@ export function TabelaAlunos() {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    // Se estivermos na primeira página e sem busca, usamos os dados do contexto (que já vieram do servidor)
-    // Isso evita um fetch desnecessário na carga inicial
     if (paginaAtual === 1 && !busca) {
       setAlunos(listaAlunos)
       setTotalPage(totalPaginas)
@@ -165,7 +164,7 @@ export function TabelaAlunos() {
                 <TableRow key={aluno.id}>
                   <TableCell className='flex gap-2 items-center min-[1025px]:min-w-sm'>
                     <Avatar>
-                      <AvatarImage src={aluno.image || "/avatar-placeholder.png"} />
+                      <Image alt={aluno.name} src={aluno.image || "/avatar-placeholder.png"} height={40} width={40}/>
                       <AvatarFallback>{aluno.name ? aluno.name.charAt(0).toUpperCase() : 'A'}</AvatarFallback>
                     </Avatar>
                     <span className='mt-1'>
