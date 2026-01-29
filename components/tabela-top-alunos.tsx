@@ -64,7 +64,7 @@ export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
           <ChevronRight className="max-sm:size-[16px] size-[20px]" />
         </Link>
       </CardHeader>
-      <CardContent className='p-0'>
+      <CardContent className='p-0 space-y-4'>
         {alunos.map((aluno) => (
           <Card key={aluno.alunoId} className='flex flex-row items-center p-4 gap-4'>
             <span className='text-lg font-bold'>{aluno.posicao}º</span>
