@@ -1,7 +1,7 @@
 'use client'
 
-import { ReactNode, useEffect, useMemo, useState } from "react";
-import { ContextoAluno, Mentoria } from "./contexto-aluno";
+import { ReactNode, useEffect, useState } from "react";
+import { ContextoAluno } from "./contexto-aluno";
 import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from "@/actions/avaliacao";
 import { listarMentoriasAluno } from "@/actions/mentoria";
 import { Criterio, Prisma } from "@/app/generated/prisma";
@@ -21,6 +21,18 @@ type Tema = Prisma.TemaGetPayload<{
     }
 }>
 
+export type Mentoria = Prisma.MentoriaGetPayload<{
+    include: {
+      aluno: true,
+      professor: true,
+      horario: {
+        include: {
+          slot: true
+        }
+      }
+    }
+  }>
+
 interface AlunoProviderProps {
     children: ReactNode
     userId: string
@@ -33,7 +45,15 @@ interface AlunoProviderProps {
             totalPages: number,
         }
     }
-    mentorias: Mentoria[]
+    mentorias: {
+        data: Mentoria[]
+        meta: {
+            total: number,
+            page: number,
+            limit: number,
+            totalPages: number,
+        }
+    }
     temas: Tema[]
     criterios: Criterio[]
 }
@@ -42,17 +62,17 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas, 
     const { notificacoes } = useWebPush({ userId });
     const [isLoading, setIsLoading] = useState(false);
     const [listaAvaliacoes, setListaAvaliacoes] = useState<AlunoProviderProps['avaliacoes']>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
-    const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
+    const [listaMentorias, setListaMentorias] = useState<AlunoProviderProps['mentorias']>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
     const [listaTemas, setListaTemas] = useState<Tema[]>([]);
 
     // Atualiza o estado se as props mudarem (ex: revalidação do servidor)
     useEffect(() => {
         setListaAvaliacoes(avaliacoes || []);
-        setListaMentorias(mentorias || []);
+        setListaMentorias(mentorias);
         setListaTemas(temas || []);
     }, [avaliacoes, mentorias, temas]);
 
-  
+
 
     // Gerenciamento de Notificações
     useEffect(() => {
@@ -74,7 +94,7 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas, 
 
                 if (url === '/aluno/mentorias') {
                     const novasMentorias = await listarMentoriasAluno(userId);
-                    setListaMentorias(novasMentorias.data);
+                    setListaMentorias(novasMentorias);
                 }
             } catch (error) {
                 console.error("Erro ao atualizar dados via notificação:", error);

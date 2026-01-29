@@ -31,7 +31,7 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
     const hojeMes = brasilTime.getMonth()
     const hojeDia = brasilTime.getDate()
 
-    const mentoriasDoDia = listaMentorias.filter((mentoria) => {
+    const mentoriasDoDia = listaMentorias.data.filter((mentoria) => {
         if (mentoria.status !== "AGENDADA" && mentoria.status !== 'CONFIRMADA') return false
 
         // Database stores dates at midnight UTC, which represents the correct day
@@ -59,7 +59,7 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
                 )}
 
                 <ListMentoriasAlunos
-                    mentoriasIniciais={listaMentorias.filter(
+                    mentoriasIniciais={listaMentorias.data.filter(
                         (mentoria) => mentoria.status === "AGENDADA" 
                     )}
                     diasSemana={diasSemana}
@@ -69,7 +69,7 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
             </TabsContent>
             <TabsContent value="realizada" className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-24">
                 <ListMentoriasAlunos
-                    mentoriasIniciais={listaMentorias.filter((mentoria) => mentoria.status === "REALIZADA")}
+                    mentoriasIniciais={listaMentorias.data.filter((mentoria) => mentoria.status === "REALIZADA")}
                     diasSemana={diasSemana}
                     slotsHorario={slotsHorario}
                     professor={professor}

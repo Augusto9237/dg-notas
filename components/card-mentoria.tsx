@@ -37,9 +37,6 @@ interface CardMentoriaProps {
 
 export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentoriaProps) {
     const { data: session } = authClient.useSession();
-    const [open, setOpen] = useState(false);
-    const [carregando, setCarregando] = useState(false);
-
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
     useEffect(() => {
@@ -92,7 +89,7 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentori
                         <div className="flex items-center gap-2">
                             <Avatar className="border-2 border-primary size-10">
                                 {avatarUrl ? (
-                                    <Image alt={mentoria.professor?.name || '/avatar-placeholder'} src={avatarUrl} height={60} width={60} className="object-cover" />
+                                    <Image alt={mentoria.professor?.name || '/avatar-placeholder'} src={avatarUrl} height={40} width={40} className="object-cover" />
                                 ) : (
                                     <Skeleton className="size-full"/>
                                 )}

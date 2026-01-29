@@ -20,35 +20,21 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
   }
 }>
 
-export type Mentoria = Prisma.MentoriaGetPayload<{
-  include: {
-    aluno: true,
-    professor: true,
-    horario: {
-      include: {
-        slot: true
-      }
-    }
-  }
-}>
 
 interface HeaderProps {
   avaliacoes: Avaliacao[];
-  mentorias: Mentoria[];
 }
 
-export default function Header({ avaliacoes, mentorias }: HeaderProps) {
-  const { notificacoes } = useContext(ContextoAluno);
+export default function Header({ avaliacoes }: HeaderProps) {
+  const { notificacoes, listaMentorias } = useContext(ContextoAluno);
   const { data: session } = authClient.useSession();
   const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
-  const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { subscribe, permission } = useWebPush({ userId: session?.user.id! })
 
   useEffect(() => {
     setListaAvaliacoes(avaliacoes);
-    setListaMentorias(mentorias);
-  }, [avaliacoes, mentorias]);
+  }, [avaliacoes]);
 
   // Gerenciamento de Notificações
   useEffect(() => {
@@ -62,11 +48,6 @@ export default function Header({ avaliacoes, mentorias }: HeaderProps) {
         if (url === '/aluno/avaliacoes') {
           const novasAvaliacoes = await ListarAvaliacoesAlunoId(session?.user.id!, '', 10000, 1)
           setListaAvaliacoes(novasAvaliacoes.data);
-        }
-
-        if (url === '/aluno/mentorias') {
-          const novasMentorias = await listarMentoriasAluno(session?.user.id!);;
-          setListaMentorias(novasMentorias.data);
         }
       } catch (error) {
         console.error("Erro ao atualizar dados via notificação:", error);
@@ -87,10 +68,6 @@ export default function Header({ avaliacoes, mentorias }: HeaderProps) {
       totalRedacoes: total
     };
   }, [listaAvaliacoes]);
-
-  const totalMentorias = useMemo(() => listaMentorias.length, [listaMentorias]);
-
-
 
   // Renderizar um placeholder durante a hidratação
   if (!isLoading && !session) {
@@ -159,7 +136,7 @@ export default function Header({ avaliacoes, mentorias }: HeaderProps) {
 
           <Card className="text-center bg-card/10 min-[1025px]:bg-card/100 rounded-lg backdrop-blur-sm border-none min-[1025px]:border-border gap-0 p-2 min-[1025px]:p-4">
             <CardTitle className="text-lg font-bold text-secondary">
-              {totalMentorias}
+              {listaMentorias.meta.total}
             </CardTitle>
             <CardDescription className="text-xs opacity-90 text-card min-[1025px]:text-muted-foreground dark:text-muted-foreground">Mentorias</CardDescription>
           </Card>

@@ -138,7 +138,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                         <ProvedorAluno
                             userId={userId}
                             avaliacoes={avaliacoes}
-                            mentorias={mentorias.data}
+                            mentorias={mentorias}
                             temas={temas}
                             criterios={criterios}
                         >

@@ -39,7 +39,15 @@ export interface ContextoAlunoProps {
             totalPages: number,
         }
     }
-    listaMentorias: Mentoria[];
+    listaMentorias: {
+        data: Mentoria[]
+        meta: {
+            total: number,
+            page: number,
+            limit: number,
+            totalPages: number,
+        }
+    },
     listaTemas: Tema[];
     criterios: Criterio[]
     notificacoes: {

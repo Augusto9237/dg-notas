@@ -9,7 +9,7 @@ import {
 
 import { Button } from "./ui/button";
 import { Upload } from "lucide-react";
-import { useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { authClient } from "@/lib/auth-client";
@@ -23,11 +23,9 @@ import Image from "next/image";
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from "./kibo-ui/dropzone";
 import { Spinner } from "./ui/spinner";
 
-
 interface ModalEnviarRedacaoProps {
     tema: Tema;
 }
-
 
 export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
     const { data: session } = authClient.useSession();
@@ -36,9 +34,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
     const [isOpen, setIsOpen] = useState(false)
     const [visualizarArquivo, setVisualizarArquivo] = useState<string | undefined>();
 
-
     const handleDrop = (files: File[]) => {
-        console.log(files);
         setArquivo(files);
         if (files.length > 0) {
             const reader = new FileReader();
@@ -112,6 +108,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                     onError={() => toast.error('Formato de arquivo não suportado!')}
                     src={arquivo}
                     maxFiles={1}
+                    className="p-4"
                 >
                     <DropzoneEmptyState />
                     <DropzoneContent>

@@ -453,8 +453,6 @@ export async function listarMentoriasAluno(
       }),
     ]);
 
-    const totalPages = Math.ceil(total / limit);
-
     return {
       data: mentorias,
       meta: {

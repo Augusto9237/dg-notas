@@ -39,7 +39,7 @@ export function ListaAvaliacoes({ avaliacoesIniciais, criteriosIniciais }: Lista
     }, [avaliacoesIniciais, criteriosIniciais]);
 
     return (
-        <div className="gap-4 min-[1025px]:grid min-[1025px]:grid-cols-3">
+        <div className="flex flex-col gap-4 min-[1025px]:grid min-[1025px]:grid-cols-3">
             {avaliacoes.map((avaliacao) => (
                 <CardAvaliacao
                     key={avaliacao.id}
