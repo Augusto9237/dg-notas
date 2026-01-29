@@ -320,6 +320,7 @@ export async function AdicionarAvaliacao({
 
 export async function EnviarRespoastaAvaliacao(
     idAluno: string,
+    idProfessor: string,
     idTema: number,
     resposta: string
 ) {
@@ -346,6 +347,7 @@ export async function EnviarRespoastaAvaliacao(
         const avaliacaoCriada = await prisma.avaliacao.create({
             data: {
                 alunoId: idAluno,
+                professorId: idProfessor,
                 temaId: idTema,
                 resposta: resposta,
                 notaFinal: 0, // Default score

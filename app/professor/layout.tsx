@@ -65,7 +65,7 @@ export default async function RootLayout({
   const userId = session.user.id;
 
   // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
-  const [avaliacoes, mentorias, temasMes, alunos] = await Promise.all([
+  const [avaliacoes, mentorias, temas, alunos] = await Promise.all([
     ListarAvaliacoes(undefined, undefined, 1, 10), 
     listarMentoriasMes(),
     ListarTemas(), // Chama sem params para default page 1
@@ -96,7 +96,7 @@ export default async function RootLayout({
           <InstalarIos />
           <PwaInstallPrompt />
           <InicializarNotificacoes userId={userId} />
-          <ProverdorProfessor userId={userId} avaliacoes={avaliacoes as any} mentorias={mentorias} temas={temasMes.data} alunos={alunos}>
+          <ProverdorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas} alunos={alunos}>
             <SidebarProvider>
               <AppSidebar />
               <SidebarInset className="relative">

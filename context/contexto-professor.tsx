@@ -51,7 +51,15 @@ interface ContextoProfessorProps {
         }
     }
     listaMentorias: Mentoria[]
-    listaTemas: Tema[]
+    listaTemas: {
+        data: Tema[]
+        meta: {
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
+        };
+    }
     listaAlunos: Aluno[]
     totalPaginas: number
     pagina: number

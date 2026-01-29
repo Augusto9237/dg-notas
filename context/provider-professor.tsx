@@ -51,7 +51,15 @@ interface ProfessorProviderProps {
         }
     }
     mentorias: Mentoria[]
-    temas: Tema[]
+    temas: {
+        data: Tema[]
+        meta: {
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
+        };
+    }
     alunos: {
         data: Aluno[]
         total: number
@@ -65,7 +73,7 @@ export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, te
     const { notificacoes } = useWebPush({ userId })
     const [listaAvaliacoes, setListaAvaliacoes] = useState<ProfessorProviderProps['avaliacoes']>({ data: [], meta: { limit: 0, page: 0, total: 0, totalPages: 0 } });
     const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
-    const [listaTemas, setListaTemas] = useState<Tema[]>([]);
+    const [listaTemas, setListaTemas] = useState<ProfessorProviderProps['temas']>({ data: [], meta: { total: 0, page: 0, limit: 0, totalPages: 0 } });
     const [listaAlunos, setListaAlunos] = useState<Aluno[]>([]);
 
     const [carregamento, setCarregamento] = useState(false);
@@ -87,10 +95,10 @@ export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, te
 
             try {
                 if (url === '/professor/avaliacoes') {
-                    const novasAvaliacoes = await  ListarAvaliacoes(undefined, undefined, 1, 10)
+                    const novasAvaliacoes = await ListarAvaliacoes(undefined, undefined, 1, 10)
                     setListaAvaliacoes(novasAvaliacoes);
                 }
-                
+
                 if (url === '/professor/mentorias') {
                     const novasMentorias = await listarMentoriasMes()
                     setListaMentorias(novasMentorias);

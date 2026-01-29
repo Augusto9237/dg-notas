@@ -99,8 +99,6 @@ export function TabelaAlunos() {
     try {
       const resposta = await banirUsuario(alundoId)
       toast.error(resposta.message)
-      // Atualizar lista após excluir? Idealmente sim, mas pode exigir re-fetch
-      // Por enquanto vamos confiar no revalidatePath do server action ou forçar refresh
       router.refresh()
     } catch (error) {
       console.log(error)

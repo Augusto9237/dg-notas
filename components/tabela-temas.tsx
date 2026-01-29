@@ -56,8 +56,8 @@ function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRes
             >
               {totalRespostas.enviadas > 0 ? (
                 <span className="absolute -right-1 -top-1 flex size-4">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
-                  <span className="relative flex justify-center items-center size-4 rounded-full bg-card text-[0.60rem] text-center text-primary border border-primary">{totalRespostas.enviadas}</span>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary opacity-75"></span>
+                  <span className="relative flex justify-center items-center size-4 rounded-full bg-secondary text-[0.60rem] text-center text-card border border-secondary">{totalRespostas.enviadas}</span>
                 </span>
               ) : null}
               <FileCheck2 />
@@ -75,7 +75,7 @@ function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRes
 }
 
 export function TabelaTemas() {
-  const { listaTemas } = useContext(ContextoProfessor)
+  const { listaTemas , listaAvaliacoes} = useContext(ContextoProfessor)
   const [temas, setTemas] = useState<Tema[]>([]);
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [totalItems, setTotalItems] = useState(0);
@@ -84,6 +84,11 @@ export function TabelaTemas() {
   const busca = searchParams.get('busca');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
+
+  useEffect(() => {
+    setAvaliacoes(listaAvaliacoes.data);
+  }, [listaAvaliacoes]);
+
 
   // Buscar temas com paginação
   useEffect(() => {
@@ -94,9 +99,8 @@ export function TabelaTemas() {
           setTemas(resultadoBusca.data);
           setTotalItems(resultadoBusca.meta.total);
         } else {
-          const resultado = await ListarTemas(undefined, currentPage, pageSize);
-          setTemas(resultado.data);
-          setTotalItems(resultado.meta.total);
+          setTemas(listaTemas.data);
+          setTotalItems(listaTemas.meta.total);
         }
       } catch (error) {
         console.error("Erro ao buscar temas:", error);
@@ -105,7 +109,7 @@ export function TabelaTemas() {
     };
 
     buscarTemas();
-  }, [busca, currentPage]);
+  }, [busca, currentPage, listaTemas]);
 
   // Buscar avaliações com paginação
   useEffect(() => {
@@ -131,7 +135,7 @@ export function TabelaTemas() {
     return (temaId: number) => {
       const respostasDoTema = avaliacoes.filter(a => a.temaId === temaId);
       const enviadas = respostasDoTema.filter(a => a.status === 'ENVIADA').length;
-      
+
       return {
         total: respostasDoTema.length,
         enviadas
@@ -241,7 +245,7 @@ export function TabelaTemas() {
         </Table>
       </div>
       <div className="flex justify-between items-center">
-        <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
+        <div className="text-xs text-muted-foreground md:text-nowrap max-md:hidden">
           {totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0} -{' '}
           {Math.min(currentPage * pageSize, totalItems)} de {totalItems} resultados
         </div>

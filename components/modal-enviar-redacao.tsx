@@ -8,10 +8,7 @@ import {
 } from "@/components/ui/dialog"
 
 import { Button } from "./ui/button";
-import { FileText, Paperclip, Upload } from "lucide-react";
-
-import { Input } from "@/components/ui/input"
-import { z } from "zod"
+import { Upload } from "lucide-react";
 import { useRef, useState, useTransition } from "react";
 import { ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/lib/firebase";
@@ -23,6 +20,8 @@ import { EnviarRespoastaAvaliacao } from "@/actions/avaliacao";
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
 import clsx from "clsx";
 import Image from "next/image";
+import { Dropzone, DropzoneContent, DropzoneEmptyState } from "./kibo-ui/dropzone";
+import { Spinner } from "./ui/spinner";
 
 
 interface ModalEnviarRedacaoProps {
@@ -32,40 +31,43 @@ interface ModalEnviarRedacaoProps {
 
 export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
     const { data: session } = authClient.useSession();
-    const [arquivo, setArquivo] = useState<File | null>(null);
+    const [arquivo, setArquivo] = useState<File[] | undefined>();
     const [isPending, startTransition] = useTransition();
     const [isOpen, setIsOpen] = useState(false)
+    const [visualizarArquivo, setVisualizarArquivo] = useState<string | undefined>();
 
-    // Referência para o input
-    const inputRef = useRef<HTMLInputElement>(null);
 
-    const handleButtonClick = () => {
-        inputRef.current?.click();
-    };
-
-    function carregarArquivo(event: React.ChangeEvent<HTMLInputElement>) {
-        const file = event.target.files;
-        if (file) {
-            setArquivo(file[0]);
+    const handleDrop = (files: File[]) => {
+        console.log(files);
+        setArquivo(files);
+        if (files.length > 0) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (typeof e.target?.result === "string") {
+                    setVisualizarArquivo(e.target?.result);
+                }
+            };
+            reader.readAsDataURL(files[0]);
         }
     };
 
     function enviarRespostaExercicio() {
         startTransition(async () => {
-            if (!arquivo || !session?.user?.email || !session?.user?.name) return;
+            if (arquivo === undefined || !session?.user?.email || !session?.user?.name) return;
 
             const storageRef = ref(storage, `avaliacoes/${tema.id}/${session.user.email}`);
 
             try {
-                await uploadBytes(storageRef, arquivo);
+                await uploadBytes(storageRef, arquivo[0]);
 
                 await EnviarRespoastaAvaliacao(
                     session.user.id,
+                    tema.professorId,
                     tema.id,
                     `avaliacoes/${tema.id}/${session.user.email}`
                 )
                 toast.success('Redação enviada com sucesso!');
-                setArquivo(null);
+                setArquivo(undefined);
                 setIsOpen(false);
                 await enviarNotificacaoParaUsuario(
                     tema.professorId,
@@ -82,7 +84,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
     }
 
     function cancelar() {
-        setArquivo(null);
+        setArquivo(undefined);
         setIsOpen(false);
     }
 
@@ -104,45 +106,30 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                         <p className="text-sm text-muted-foreground">{tema.nome}</p>
                     </div>
                 </div >
-                {arquivo && (
-                    <div className="w-full h-full aspect-[1/1.414]">
-                        <Image
-                            className="w-full h-full"
-                            src={URL.createObjectURL(arquivo)}
-                            alt=""
-                            width={0}
-                            height={0}
-                            sizes="100vw"
-                        />
-                    </div>
-                )}
-
-                <Input
-                    placeholder="shadcn"
-                    type='file'
-                    accept=".jpg"
-                    className="hidden"
-                    ref={inputRef}
-                    onChange={carregarArquivo}
-                />
-                <Button
-                    type="button"
-                    onClick={handleButtonClick}
-                    variant={arquivo === null ? 'ghost' : 'outline'}
-                    className={arquivo === null ? "w-full bg-background border border-accent-foreground" : "w-full bg-primary/10 overflow-hidden truncate"}
+                <Dropzone
+                    accept={{ "images": [".jpg", ".jpeg"] }}
+                    onDrop={handleDrop}
+                    onError={() => toast.error('Formato de arquivo não suportado!')}
+                    src={arquivo}
+                    maxFiles={1}
                 >
-                    {arquivo === null ? (
-                        <>
-                            <Paperclip />
-                            Anexar folha de redação
-                        </>
-                    ) : (
-                        <>
-                            <FileText />
-                            {arquivo.name}
-                        </>
-                    )}
-                </Button>
+                    <DropzoneEmptyState />
+                    <DropzoneContent>
+                        {visualizarArquivo && (
+                            <div className="w-full h-full aspect-[1/1.414]">
+                                <Image
+                                    className="w-full h-full"
+                                    src={visualizarArquivo}
+                                    alt=""
+                                    width={0}
+                                    height={0}
+                                    sizes="100vw"
+                                />
+                            </div>
+                        )}
+                    </DropzoneContent>
+                </Dropzone>
+
                 <div className="grid grid-cols-2 gap-4 mt-4">
                     <Button
                         type="button"
@@ -157,7 +144,8 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                         disabled={isPending}
                         onClick={enviarRespostaExercicio}
                     >
-                        Enviar
+                        {isPending && <Spinner />}
+                        {isPending ? 'Enviando' : 'Enviar'}
                     </Button>
                 </div>
             </DialogContent >
