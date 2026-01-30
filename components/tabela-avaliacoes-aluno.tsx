@@ -23,15 +23,15 @@ export function TabelaAvaliacoesAluno({ criterios }: TabelaAvaliacoesAlunoProps)
                 <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">Corrigidas</TabsTrigger>
             </TabsList>
             <TabsContent value='pendentes' className="flex flex-col gap-4 flex-1 h-full overflow-y-auto max-sm:pb-24">
-                {listaTemas.length > 0 && (
+                {listaTemas.meta.total > 0 && (
                     <div className="gap-4 max-[1025px]:flex flex-col min-[1025px]:grid min-[1025px]:grid-cols-3">
-                        {listaTemas.map((tema) => (
+                        {listaTemas.data.map((tema) => (
                             <CardNovoTema key={tema.id} tema={tema} />
                         ))}
                     </div>
                 )}
 
-                {pendingAvaliacoes.length > 0 || listaTemas.length > 0 ? (
+                {pendingAvaliacoes.length > 0 || listaTemas.meta.total > 0 ? (
                     <ListaAvaliacoes avaliacoesIniciais={pendingAvaliacoes} criteriosIniciais={criterios} />
                 ) : (
                     <div className="w-full h-full flex flex-col flex-1 items-center justify-center gap-2 text-muted-foreground pt-5">
