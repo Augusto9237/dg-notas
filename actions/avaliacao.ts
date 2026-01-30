@@ -489,25 +489,50 @@ export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, l
     }
 }
 
-export async function ListarTemasDisponiveis(alunoId: string) {
+export async function ListarTemasDisponiveis(alunoId: string, pagina: number = 1, limite: number = 10) {
+
     try {
-        const temas = await prisma.tema.findMany({
-            where: {
-                Avaliacao: {
-                    none: {
-                        alunoId: alunoId
-                    }
+        const [temas, total] = await Promise.all([
+            prisma.tema.findMany({
+                where: {
+                    Avaliacao: {
+                        none: {
+                            alunoId: alunoId
+                        }
+                    },
+                    disponivel: true
                 },
-                disponivel: true
-            },
-            include: {
-                professor: true
-            },
-            orderBy: {
-                createdAt: 'asc'
+                include: {
+                    professor: true
+                },
+                orderBy: {
+                    createdAt: 'asc'
+                },
+                take: limite,
+                skip: (pagina - 1) * limite
+            }),
+            prisma.tema.count({
+                where: {
+                    Avaliacao: {
+                        none: {
+                            alunoId: alunoId
+                        }
+                    },
+                    disponivel: true
+                },
             }
-        });
-        return temas;
+            )
+        ])
+
+        return {
+            data: temas,
+            meta: {
+                total,
+                pagina,
+                limite,
+                totalPaginas: Math.ceil(total / limite),
+            }
+        };
     } catch (error) {
         console.error("Erro ao listar temas disponíveis:", error);
         throw error;

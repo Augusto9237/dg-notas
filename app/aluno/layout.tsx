@@ -25,7 +25,7 @@ import { Clock } from 'lucide-react';
 import { enviarNotificacaoParaTodos } from '@/actions/notificacoes';
 
 const poppins = Poppins({
-    weight: ['200', '300', '400', '500', '600', '700', '800', '900'],
+    weight: ['400', '500', '600', '700'],
     subsets: ['latin'],
     display: 'swap',
 });

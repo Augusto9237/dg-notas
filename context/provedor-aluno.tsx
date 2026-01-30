@@ -23,15 +23,15 @@ type Tema = Prisma.TemaGetPayload<{
 
 export type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
-      aluno: true,
-      professor: true,
-      horario: {
-        include: {
-          slot: true
+        aluno: true,
+        professor: true,
+        horario: {
+            include: {
+                slot: true
+            }
         }
-      }
     }
-  }>
+}>
 
 interface AlunoProviderProps {
     children: ReactNode
@@ -54,7 +54,15 @@ interface AlunoProviderProps {
             totalPages: number,
         }
     }
-    temas: Tema[]
+    temas: {
+        data: Tema[]
+        meta: {
+            total: number;
+            pagina: number;
+            limite: number;
+            totalPaginas: number;
+        };
+    }
     criterios: Criterio[]
 }
 
@@ -63,7 +71,7 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas, 
     const [isLoading, setIsLoading] = useState(false);
     const [listaAvaliacoes, setListaAvaliacoes] = useState<AlunoProviderProps['avaliacoes']>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
     const [listaMentorias, setListaMentorias] = useState<AlunoProviderProps['mentorias']>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
-    const [listaTemas, setListaTemas] = useState<Tema[]>([]);
+    const [listaTemas, setListaTemas] = useState<AlunoProviderProps['temas']>({ data: [], meta: { total: 0, pagina: 1, limite: 10, totalPaginas: 0 } });
 
     // Atualiza o estado se as props mudarem (ex: revalidação do servidor)
     useEffect(() => {
@@ -71,7 +79,6 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas, 
         setListaMentorias(mentorias);
         setListaTemas(temas || []);
     }, [avaliacoes, mentorias, temas]);
-
 
 
     // Gerenciamento de Notificações
