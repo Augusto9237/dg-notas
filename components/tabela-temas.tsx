@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useMemo, useContext, useTransition } from "react"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
 import { toast } from "sonner"
@@ -75,32 +75,38 @@ function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRes
 }
 
 export function TabelaTemas() {
-  const { listaTemas , listaAvaliacoes} = useContext(ContextoProfessor)
-  const [temas, setTemas] = useState<Tema[]>([]);
+  const { listaTemas, listaAvaliacoes } = useContext(ContextoProfessor)
+  const [temas, setTemas] = useState<Tema[]>(listaTemas?.data || []);
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
-  const [totalItems, setTotalItems] = useState(0);
+  const [totalItems, setTotalItems] = useState(listaTemas?.meta?.total || 0);
   const [isPending, startTransition] = useTransition()
   const searchParams = useSearchParams();
+  const router = useRouter()
+  const pathname = usePathname()
+
   const busca = searchParams.get('busca');
-  const [currentPage, setCurrentPage] = useState(1);
+  const currentPage = Number(searchParams.get('page')) || 1;
   const pageSize = 12;
 
   useEffect(() => {
-    setAvaliacoes(listaAvaliacoes.data);
+    if (listaAvaliacoes) {
+      setAvaliacoes(listaAvaliacoes.data);
+    }
   }, [listaAvaliacoes]);
 
 
   // Buscar temas com paginação
+  // Buscar temas com paginação
   useEffect(() => {
     const buscarTemas = async () => {
       try {
-        if (busca) {
-          const resultadoBusca = await ListarTemas(busca, currentPage, pageSize);
-          setTemas(resultadoBusca.data);
-          setTotalItems(resultadoBusca.meta.total);
-        } else {
+        if (currentPage === 1 && !busca) {
           setTemas(listaTemas.data);
           setTotalItems(listaTemas.meta.total);
+        } else {
+          const resultadoBusca = await ListarTemas(busca || undefined, currentPage, pageSize);
+          setTemas(resultadoBusca.data);
+          setTotalItems(resultadoBusca.meta.total);
         }
       } catch (error) {
         console.error("Erro ao buscar temas:", error);
@@ -125,10 +131,7 @@ export function TabelaTemas() {
     buscarAvaliacoes();
   }, [currentPage]);
 
-  // Reset page when search changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [busca]);
+
 
   // Memoiza a contagem de respostas para cada tema
   const respostasPorTema = useMemo(() => {
@@ -176,18 +179,20 @@ export function TabelaTemas() {
   const totalPages = Math.ceil(totalItems / pageSize);
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    const params = new URLSearchParams(searchParams)
+    params.set('page', page.toString())
+    router.push(`${pathname}?${params.toString()}`)
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+      handlePageChange(currentPage - 1);
     }
   };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+      handlePageChange(currentPage + 1);
     }
   };
 
