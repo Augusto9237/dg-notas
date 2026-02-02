@@ -67,7 +67,7 @@ export async function ListarTemas(busca?: string, page: number = 1, limit: numbe
             prisma.tema.findMany({
                 where: whereClause,
                 orderBy: {
-                    nome: 'asc',
+                    createdAt: 'desc',
                 },
                 include: {
                     professor: true,

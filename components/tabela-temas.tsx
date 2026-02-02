@@ -79,6 +79,7 @@ export function TabelaTemas() {
   const [temas, setTemas] = useState<Tema[]>(listaTemas?.data || []);
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [totalItems, setTotalItems] = useState(listaTemas?.meta?.total || 0);
+  const [totalPages, setTotalPages] = useState(listaTemas?.meta?.totalPages || 0);
   const [isPending, startTransition] = useTransition()
   const searchParams = useSearchParams();
   const router = useRouter()
@@ -86,7 +87,6 @@ export function TabelaTemas() {
 
   const busca = searchParams.get('busca');
   const currentPage = Number(searchParams.get('page')) || 1;
-  const pageSize = 12;
 
   useEffect(() => {
     if (listaAvaliacoes) {
@@ -96,17 +96,18 @@ export function TabelaTemas() {
 
 
   // Buscar temas com paginação
-  // Buscar temas com paginação
   useEffect(() => {
     const buscarTemas = async () => {
       try {
         if (currentPage === 1 && !busca) {
           setTemas(listaTemas.data);
           setTotalItems(listaTemas.meta.total);
+          setTotalPages(listaTemas.meta.totalPages)
         } else {
-          const resultadoBusca = await ListarTemas(busca || undefined, currentPage, pageSize);
+          const resultadoBusca = await ListarTemas(busca || undefined, currentPage, 12);
           setTemas(resultadoBusca.data);
           setTotalItems(resultadoBusca.meta.total);
+          setTotalPages(resultadoBusca.meta.totalPages)
         }
       } catch (error) {
         console.error("Erro ao buscar temas:", error);
@@ -121,7 +122,7 @@ export function TabelaTemas() {
   useEffect(() => {
     const buscarAvaliacoes = async () => {
       try {
-        const resultado = await ListarAvaliacoes(undefined, undefined, currentPage, pageSize);
+        const resultado = await ListarAvaliacoes(undefined, undefined, currentPage, 12);
         setAvaliacoes(resultado.data);
       } catch (error) {
         console.error("Erro ao buscar avaliações:", error);
@@ -175,8 +176,7 @@ export function TabelaTemas() {
     }
   }
 
-  // Calcular paginação
-  const totalPages = Math.ceil(totalItems / pageSize);
+
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams)
@@ -251,8 +251,8 @@ export function TabelaTemas() {
       </div>
       <div className="flex justify-between items-center">
         <div className="text-xs text-muted-foreground md:text-nowrap max-md:hidden">
-          {totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0} -{' '}
-          {Math.min(currentPage * pageSize, totalItems)} de {totalItems} resultados
+          {totalItems > 0 ? (currentPage - 1) * listaTemas.meta.limit + 1 : 0} -{' '}
+          {Math.min(currentPage * listaTemas.meta.limit, totalItems)} de {totalItems} resultados
         </div>
         <Pagination>
           <PaginationContent>
