@@ -103,7 +103,7 @@ export function TabelaAvaliacoesAluno() {
     };
 
     return (
-        <Tabs defaultValue="pendentes" className='h-full'>
+        <Tabs defaultValue="temas" className='h-full'>
             <TabsList>
                 <TabsTrigger value="temas" className="text-foreground max-sm:text-xs">Novos Temas</TabsTrigger>
                 <TabsTrigger value="pendentes" className="text-foreground max-sm:text-xs">Pendentes</TabsTrigger>

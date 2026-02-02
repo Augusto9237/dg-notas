@@ -9,7 +9,6 @@ export default async function Page() {
         <div className="flex items-center justify-between">
           <h2 className="text-primary font-semibold">Suas Avaliações</h2>
         </div>
-
         <TabelaAvaliacoesAluno />
       </main>
     </div>
