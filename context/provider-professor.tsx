@@ -29,6 +29,7 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 type Tema = Prisma.TemaGetPayload<{
     include: {
         professor: true
+        Avaliacao: true
     }
 }>
 
@@ -77,7 +78,6 @@ export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, te
     const [listaAlunos, setListaAlunos] = useState<Aluno[]>([]);
 
     const [carregamento, setCarregamento] = useState(false);
-
 
     useEffect(() => {
         setListaAvaliacoes(avaliacoes);

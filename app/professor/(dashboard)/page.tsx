@@ -4,11 +4,8 @@ import { listarMentoriasMes } from "@/actions/mentoria";
 
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { CardDashboard } from "@/components/card-dashboard";
 import { TabelaTopAlunos } from "@/components/tabela-top-alunos";
 import { SeletorData } from "@/components/seletor-data";
-import { calcularMediaGeral, rankearMelhoresAlunos } from "@/lib/dashboard-utils";
-import { Prisma } from "@/app/generated/prisma";
 import { UltimasAvaliacoes } from "@/components/ultimas-avaliacoes";
 import { HeaderProfessor } from "@/components/header-professor";
 import { ListaCardsDashboard } from "@/components/lista-cards-dashbord";
@@ -55,6 +52,8 @@ export default async function Page({
         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
     ]
 
+    const ultimosTemas = temasMes.slice(0, 10)
+
     return (
         <div className="w-full h-full min-h-screen relative pt-14 overflow-y-auto">
             <HeaderProfessor>
@@ -71,7 +70,7 @@ export default async function Page({
                 <ListaCardsDashboard alunos={alunos.data} temas={temasMes} avaliacoes={avaliacoes.data} mentorias={mentorias} meses={meses} />
 
                 <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
-                    <UltimasAvaliacoes temasMes={temasMes} avaliacoes={avaliacoes.data} />
+                    <UltimasAvaliacoes temasMes={ultimosTemas} avaliacoes={avaliacoes.data} />
                     <TabelaTopAlunos avaliacoes={avaliacoes.data} />
                 </div>
             </main >

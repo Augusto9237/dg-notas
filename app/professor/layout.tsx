@@ -21,7 +21,7 @@ import { ProvedorTemas } from "@/context/provedor-temas";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const poppins = Poppins({
-  weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
+  weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
   display: 'swap', // Or 'fallback' or 'optional'
 });
@@ -66,9 +66,9 @@ export default async function RootLayout({
 
   // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
   const [avaliacoes, mentorias, temas, alunos] = await Promise.all([
-    ListarAvaliacoes(undefined, undefined, 1, 10), 
+    ListarAvaliacoes(undefined, undefined, 1, 12), 
     listarMentoriasMes(),
-    ListarTemas(), // Chama sem params para default page 1
+    ListarTemas(),
     listarAlunosGoogle('', 1, 12)
   ]);
 

@@ -43,7 +43,7 @@ export async function AdicionarTema(nome: string): Promise<Tema> {
     }
 }
 
-export async function ListarTemas(busca?: string, page: number = 1, limit: number = 10) {
+export async function ListarTemas(busca?: string, page: number = 1, limit: number = 12) {
     const session = await auth.api.getSession({
         headers: await headers()
     })
@@ -71,6 +71,7 @@ export async function ListarTemas(busca?: string, page: number = 1, limit: numbe
                 },
                 include: {
                     professor: true,
+                    Avaliacao: true
                 },
                 take: limit,
                 skip: (page - 1) * limit,

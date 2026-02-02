@@ -32,47 +32,9 @@ import {
 type Tema = Prisma.TemaGetPayload<{
   include: {
     professor: true,
+    Avaliacao: true
   }
 }>
-
-interface respostasPorTema {
-  total: number;
-  enviadas: number;
-}
-
-
-// Componente para agrupar os botões de ação da tabela
-function AcoesDoTema({ tema, totalRespostas, aoExcluir }: { tema: Tema; totalRespostas: respostasPorTema; aoExcluir: (id: number) => void }) {
-  return (
-    <div className="flex items-center justify-center gap-4">
-      <Link href={totalRespostas.total > 0 ? `/professor/avaliacoes/${tema.id}` : '/professor/avaliacoes'} passHref>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              className="hover:cursor-pointer relative"
-              variant={totalRespostas.total > 0 ? 'default' : 'ghost'}
-              disabled={totalRespostas.total === 0}
-            >
-              {totalRespostas.enviadas > 0 ? (
-                <span className="absolute -right-1 -top-1 flex size-4">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary opacity-75"></span>
-                  <span className="relative flex justify-center items-center size-4 rounded-full bg-secondary text-[0.60rem] text-center text-card border border-secondary">{totalRespostas.enviadas}</span>
-                </span>
-              ) : null}
-              <FileCheck2 />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent className="text-background">
-            <p>Redações</p>
-          </TooltipContent>
-        </Tooltip>
-      </Link>
-      <FormularioTema tema={tema} />
-      <DeleteButton onClick={() => aoExcluir(tema.id)} />
-    </div>
-  );
-}
 
 export function TabelaTemas() {
   const { listaTemas, listaAvaliacoes } = useContext(ContextoProfessor)
@@ -133,20 +95,6 @@ export function TabelaTemas() {
   }, [currentPage]);
 
 
-
-  // Memoiza a contagem de respostas para cada tema
-  const respostasPorTema = useMemo(() => {
-    return (temaId: number) => {
-      const respostasDoTema = avaliacoes.filter(a => a.temaId === temaId);
-      const enviadas = respostasDoTema.filter(a => a.status === 'ENVIADA').length;
-
-      return {
-        total: respostasDoTema.length,
-        enviadas
-      };
-    };
-  }, [avaliacoes]);
-
   function atualizarDisponibilidadeTema(temaId: number, status: boolean) {
     startTransition(async () => {
       try {
@@ -158,7 +106,6 @@ export function TabelaTemas() {
     })
   }
 
-  // Função para excluir um tema
   async function excluirTema(id: number) {
     try {
       await DeletarTema(id);
@@ -176,15 +123,13 @@ export function TabelaTemas() {
     }
   }
 
-
-
-  const handlePageChange = (page: number) => {
+  function handlePageChange(page: number) {
     const params = new URLSearchParams(searchParams)
     params.set('page', page.toString())
     router.push(`${pathname}?${params.toString()}`)
   };
 
-  const handlePreviousPage = () => {
+  function handlePreviousPage() {
     if (currentPage > 1) {
       handlePageChange(currentPage - 1);
     }
@@ -237,11 +182,33 @@ export function TabelaTemas() {
                     />
                   </TableCell>
                   <TableCell className="w-[54px]">
-                    <AcoesDoTema
-                      tema={tema}
-                      totalRespostas={respostasPorTema(tema.id)}
-                      aoExcluir={excluirTema}
-                    />
+                    <div className="flex items-center justify-center gap-4">
+                      <Link href={tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length > 0 ? `/professor/avaliacoes/${tema.id}` : '/professor/avaliacoes'} passHref>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="icon"
+                              className="hover:cursor-pointer relative"
+                              variant={tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length > 0 ? 'default' : 'ghost'}
+                              disabled={tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length === 0}
+                            >
+                              {tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length > 0 ? (
+                                <span className="absolute -right-1 -top-1 flex size-4">
+                                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary opacity-75"></span>
+                                  <span className="relative flex justify-center items-center size-4 rounded-full bg-secondary text-[0.60rem] text-center text-card border border-secondary">{tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length}</span>
+                                </span>
+                              ) : null}
+                              <FileCheck2 />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent className="text-background">
+                            <p>Redações</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </Link>
+                      <FormularioTema tema={tema} />
+                      <DeleteButton onClick={() => excluirTema(tema.id)} />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -251,7 +218,7 @@ export function TabelaTemas() {
       </div>
       <div className="flex justify-between items-center">
         <div className="text-xs text-muted-foreground md:text-nowrap max-md:hidden">
-          {totalItems > 0 ? (currentPage - 1) * listaTemas.meta.limit + 1 : 0} -{' '}
+          {totalItems > 0 ? currentPage * 1 : 0} -{' '}
           {Math.min(currentPage * listaTemas.meta.limit, totalItems)} de {totalItems} resultados
         </div>
         <Pagination>

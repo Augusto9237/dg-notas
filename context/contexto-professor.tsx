@@ -24,6 +24,7 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 type Tema = Prisma.TemaGetPayload<{
     include: {
         professor: true
+        Avaliacao: true
     }
 }>
 
