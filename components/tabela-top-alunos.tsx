@@ -67,20 +67,22 @@ export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
       </CardHeader>
       <CardContent className='p-0 space-y-4'>
         {alunos.map((aluno) => (
-          <Card key={aluno.alunoId} className='flex flex-row items-center p-4 gap-4'>
-            <span className='text-lg font-bold'>{aluno.posicao}º</span>
-            <Avatar className='size-10'>
-              <Image alt={aluno.nome} src={aluno.image || "/avatar-placeholder.png"} height={40} width={40}  />
-              <AvatarFallback>{aluno.nome.charAt(0).toUpperCase()}</AvatarFallback>
-            </Avatar>
-            <div className='w-full flex flex-col gap-2'>
-              <div className='flex w-full justify-between items-center -mt-1'>
-                <p className='pt-1 leading-none'>{aluno.nome}</p>
-                <Badge>{aluno.mediaFinal}</Badge>
+          <Link key={aluno.alunoId} href={`/professor/alunos/${aluno.alunoId}`}>
+            <Card className='flex flex-row items-center p-4 gap-4'>
+              <span className='text-lg font-bold'>{aluno.posicao}º</span>
+              <Avatar className='size-10'>
+                <Image alt={aluno.nome} src={aluno.image || "/avatar-placeholder.png"} height={40} width={40} />
+                <AvatarFallback>{aluno.nome.charAt(0).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className='w-full flex flex-col gap-2'>
+                <div className='flex w-full justify-between items-center -mt-1'>
+                  <p className='pt-1 leading-none'>{aluno.nome}</p>
+                  <Badge>{aluno.mediaFinal}</Badge>
+                </div>
+                <Progress value={(aluno.mediaFinal / 10)} />
               </div>
-              <Progress value={(aluno.mediaFinal / 10)} />
-            </div>
-          </Card>
+            </Card>
+          </Link>
         ))}
       </CardContent>
     </Card>

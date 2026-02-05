@@ -123,7 +123,7 @@ export function TabelaAlunos() {
   };
 
   return (
-    <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4 h-full flex-1 justify-beetwen'>
+    <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4 h-full flex-1 justify-beetwen w-full overflow-hidden'>
       <div className="flex items-center max-w-md relative">
         <InputBusca
           placeholder='Buscar por E-mail'
@@ -164,7 +164,7 @@ export function TabelaAlunos() {
                 <TableRow key={aluno.id}>
                   <TableCell className='flex gap-2 items-center min-[1025px]:min-w-sm'>
                     <Avatar>
-                      <Image alt={aluno.name} src={aluno.image || "/avatar-placeholder.png"} height={40} width={40}/>
+                      <Image alt={aluno.name} src={aluno.image || "/avatar-placeholder.png"} height={40} width={40} />
                       <AvatarFallback>{aluno.name ? aluno.name.charAt(0).toUpperCase() : 'A'}</AvatarFallback>
                     </Avatar>
                     <span className='mt-1'>
@@ -209,7 +209,7 @@ export function TabelaAlunos() {
       </div>
       <div className="flex justify-between items-center">
         <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
-          {paginaAtual} de {totalPage} ({alunos.length} resultados)
+          {paginaAtual} - {totalPage} de {alunos.length} resultados
         </div>
         <Pagination>
           <PaginationContent>
