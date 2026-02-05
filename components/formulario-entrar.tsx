@@ -113,7 +113,7 @@ export function FormularioEntrar() {
               onClick={entrarComGoogle}
             >
               <FcGoogle />
-              Login com Google
+              Continuar com Google
             </Button>
           </CardContent>
         </Card>

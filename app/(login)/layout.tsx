@@ -70,7 +70,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 <PwaInstallPrompt />
                 <Suspense fallback={<Loading />}>
                     <div className="grid min-h-svh lg:grid-cols-2">
-                        <div className="flex items-center justify-center bg-primary">
+                        <div className="relative flex items-center justify-center bg-primary">
                             <div className="w-full max-w-md flex flex-col items-center justify-items-center">
                                 <Image
                                     src="/Sublogo4.svg"
@@ -81,6 +81,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                                 />
                                 {children}
                             </div>
+                            <p className='absolute bottom-2 right-0 left-0 text-xs text-center text-muted'>Desenvolvido por AS CODE©</p>
                         </div>
                         <div className="bg-muted relative hidden lg:block">
                             <Image

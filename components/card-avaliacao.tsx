@@ -41,7 +41,7 @@ export function CardAvaliacao({ avaliacao, criterios }: CardAvaliacaoProps) {
 
     return (
         <Card
-            className={clsx("cursor-pointer hover:shadow-md transition-shadow p-0 min-h-[164px] h-full max-h-[164px] gap-0 relative", avaliacao.status === 'ENVIADA' && "bg-primary/5")}
+            className={clsx("cursor-pointer hover:shadow-md transition-shadow p-0 min-h-[164px] h-full max-h-[164px] gap-0 relative", avaliacao.status === 'ENVIADA' && "bg-linear-to-r from-primary/5 to-primary/10 border-primary/20")}
         >
             <CardContent className="p-4 relative h-full flex-1 flex flex-col justify-between">
                 <div className="flex items-start justify-between gap-2">
