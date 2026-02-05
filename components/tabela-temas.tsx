@@ -37,9 +37,8 @@ type Tema = Prisma.TemaGetPayload<{
 }>
 
 export function TabelaTemas() {
-  const { listaTemas, listaAvaliacoes } = useContext(ContextoProfessor)
+  const { listaTemas } = useContext(ContextoProfessor)
   const [temas, setTemas] = useState<Tema[]>(listaTemas?.data || []);
-  const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [totalItems, setTotalItems] = useState(listaTemas?.meta?.total || 0);
   const [totalPages, setTotalPages] = useState(listaTemas?.meta?.totalPages || 0);
   const [isPending, startTransition] = useTransition()
@@ -50,50 +49,18 @@ export function TabelaTemas() {
   const busca = searchParams.get('busca');
   const currentPage = Number(searchParams.get('page')) || 1;
 
-  useEffect(() => {
-    if (listaAvaliacoes) {
-      setAvaliacoes(listaAvaliacoes.data);
-    }
-  }, [listaAvaliacoes]);
 
-
-  // Buscar temas com paginação
   useEffect(() => {
-    const buscarTemas = async () => {
-      try {
-        if (currentPage === 1 && !busca) {
-          setTemas(listaTemas.data);
-          setTotalItems(listaTemas.meta.total);
-          setTotalPages(listaTemas.meta.totalPages)
-        } else {
-          const resultadoBusca = await ListarTemas(busca || undefined, currentPage, 12);
-          setTemas(resultadoBusca.data);
-          setTotalItems(resultadoBusca.meta.total);
-          setTotalPages(resultadoBusca.meta.totalPages)
-        }
-      } catch (error) {
-        console.error("Erro ao buscar temas:", error);
-        toast.error("Erro ao buscar temas");
-      }
+    const buscarDados = async () => {
+      const [temas] = await Promise.all([
+        ListarTemas(busca || undefined, currentPage, 12),
+      ]);
+      setTemas(temas.data);
     };
+    buscarDados();
+  }, [busca, currentPage]);
 
-    buscarTemas();
-  }, [busca, currentPage, listaTemas]);
-
-  // Buscar avaliações com paginação
-  useEffect(() => {
-    const buscarAvaliacoes = async () => {
-      try {
-        const resultado = await ListarAvaliacoes(undefined, undefined, currentPage, 12);
-        setAvaliacoes(resultado.data);
-      } catch (error) {
-        console.error("Erro ao buscar avaliações:", error);
-      }
-    };
-
-    buscarAvaliacoes();
-  }, [currentPage]);
-
+  console.log(temas.map((tema) => tema.Avaliacao))
 
   function atualizarDisponibilidadeTema(temaId: number, status: boolean) {
     startTransition(async () => {
@@ -183,14 +150,14 @@ export function TabelaTemas() {
                   </TableCell>
                   <TableCell className="w-[54px]">
                     <div className="flex items-center justify-center gap-4">
-                      <Link href={tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length > 0 ? `/professor/avaliacoes/${tema.id}` : '/professor/avaliacoes'} passHref>
+                      <Link href={tema.Avaliacao.length > 0 ? `/professor/avaliacoes/${tema.id}` : '/professor/avaliacoes'} passHref>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
                               size="icon"
                               className="hover:cursor-pointer relative"
-                              variant={tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length > 0 ? 'default' : 'ghost'}
-                              disabled={tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length === 0}
+                              variant={tema.Avaliacao.length > 0 ? 'default' : 'ghost'}
+                              disabled={tema.Avaliacao.length === 0}
                             >
                               {tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length > 0 ? (
                                 <span className="absolute -right-1 -top-1 flex size-4">
