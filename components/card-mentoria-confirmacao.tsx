@@ -89,7 +89,7 @@ export function CardMentoriaConfirmacao({ mentoria, professor }: CardMentoriaPro
         <Card
             className={clsx(
                 "cursor-pointer  border-secondary hover:shadow-md transition-shadow p-0 gap-2 relative",
-                mentoria.status === "CONFIRMADA" ? "bg-primary/5 border-primary/5" : 'bg-secondary/10'
+                mentoria.status === "CONFIRMADA" ? "bg-linear-to-r from-primary/5 to-primary/10 border-primary/20" : 'bg-linear-to-r from-secondary/5 to-secondary/10'
             )}
         >
             <CardContent className="p-4">
