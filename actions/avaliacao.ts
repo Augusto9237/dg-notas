@@ -507,7 +507,7 @@ export async function ListarTemasDisponiveis(alunoId: string, pagina: number = 1
                     professor: true
                 },
                 orderBy: {
-                    createdAt: 'asc'
+                    createdAt: 'desc'
                 },
                 take: limite,
                 skip: (pagina - 1) * limite

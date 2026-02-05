@@ -32,7 +32,7 @@ interface ListMentoriasAlunosProps {
     } | null
 }
 
-export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorario, professor }: ListMentoriasAlunosProps) {
+export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorario }: ListMentoriasAlunosProps) {
     const [mentorias, setMentorias] = useState<Mentoria[]>(mentoriasIniciais)
 
     useEffect(() => {

@@ -1,8 +1,6 @@
-
 import { TabelaAvaliacoesAluno } from '@/components/tabela-avaliacoes-aluno';
 
 export default async function Page() {
-
   return (
     <div className="w-full h-full max-h-screen min-h-screen overflow-hidden">
       <main className="flex flex-col gap-4 p-5 h-full">

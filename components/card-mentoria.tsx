@@ -119,7 +119,7 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentori
 
             <CardFooter className="p-4 pt-0">
                 {mentoria.status === "REALIZADA" ? (
-                    <ModalFeedbackMentoria feedback={mentoria.feedback ?? ''} />
+                    <ModalFeedbackMentoria feedback={mentoria.feedback ?? ''} professor={mentoria.professor!} />
                 ) : (
                     <div className="gap-5 overflow-hidden grid grid-cols-2 w-full">
                         <AgendarMentoriaAluno professorId={mentoria.professorId || ''} mentoriaData={mentoria} mode="edit" diasSemana={diasSemana} slotsHorario={slotsHorario} />

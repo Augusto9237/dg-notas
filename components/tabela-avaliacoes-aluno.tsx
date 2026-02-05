@@ -64,7 +64,7 @@ export function TabelaAvaliacoesAluno() {
 
     const pendingAvaliacoes = avaliacoes.data.filter((avaliacao) => avaliacao.status === "ENVIADA");
 
-    const nextNewThemes = () => {
+    const novosTemas = () => {
         if (temas.meta.total >= temas.data.length) {
             setHasMore(false);
         }
@@ -109,26 +109,26 @@ export function TabelaAvaliacoesAluno() {
                 <TabsTrigger value="pendentes" className="text-foreground max-sm:text-xs">Pendentes</TabsTrigger>
                 <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">Corrigidas</TabsTrigger>
             </TabsList>
-            <TabsContent value='temas' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-24">
+            <TabsContent value='temas' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-20">
                 {temas.meta.total > 0 && (
                     <div className="gap-4 max-[1025px]:flex flex-col min-[1025px]:grid min-[1025px]:grid-cols-3">
                         {temas.data.map((tema) => (
                             <CardNovoTema key={tema.id} tema={tema} />
                         ))}
                         <div className="flex items-center justify-center col-span-full max-md:hidden">
-                            <InfiniteScroll hasMore={hasMore} isLoading={loading} next={nextNewThemes} threshold={1} >
+                            <InfiniteScroll hasMore={hasMore} isLoading={loading} next={novosTemas} threshold={1} >
                                 {hasMore && <Spinner />}
                             </InfiniteScroll>
                         </div>
                         <div className="flex items-center justify-center col-span-full min-md:hidden">
-                            <InfiniteScroll hasMore={hasMore} isLoading={loading} next={nextNewThemes} threshold={0.1} rootMargin="100px">
+                            <InfiniteScroll hasMore={hasMore} isLoading={loading} next={novosTemas} threshold={0.1} rootMargin="100px">
                                 {hasMore && <Spinner />}
                             </InfiniteScroll>
                         </div>
                     </div>
                 )}
             </TabsContent>
-            <TabsContent value='pendentes' className="flex flex-col gap-4 flex-1 h-full overflow-y-auto max-sm:pb-24">
+            <TabsContent value='pendentes' className="flex flex-col gap-4 flex-1 h-full overflow-y-auto max-sm:pb-20">
                 {pendingAvaliacoes.length > 0 || listaTemas.meta.total > 0 ? (
                     <ListaAvaliacoes avaliacoesIniciais={pendingAvaliacoes} criteriosIniciais={criterios} hasMore={hasMoreAvaliacoes} loading={loading} nextAvaliacoes={nextAvaliacoes} />
                 ) : (
@@ -138,7 +138,7 @@ export function TabelaAvaliacoesAluno() {
                     </div>
                 )}
             </TabsContent>
-            <TabsContent value='corrigidas' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-24">
+            <TabsContent value='corrigidas' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-20">
                 <ListaAvaliacoes avaliacoesIniciais={listaAvaliacoes.data.filter((avaliacao) => avaliacao.status === "CORRIGIDA")} criteriosIniciais={criterios} hasMore={hasMoreAvaliacoes} loading={loading} nextAvaliacoes={nextAvaliacoes} />
             </TabsContent>
         </Tabs>
