@@ -184,7 +184,7 @@ export function TabelaAlunos() {
                     {aluno.avaliacoesComoAluno.length}
                   </TableCell>
                   <TableCell className='font-semibold text-center'>
-                    {calcularMedia(aluno.avaliacoesComoAluno)}
+                    {calcularMedia(aluno.avaliacoesComoAluno).toFixed(2).replace('.', ',')}
                   </TableCell>
                   <TableCell className="text-center space-x-4">
                     <Link href={`/professor/alunos/${aluno.id}`} passHref>
