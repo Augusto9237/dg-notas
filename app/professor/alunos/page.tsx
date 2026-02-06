@@ -3,7 +3,6 @@ import { TabelaAlunos } from '@/components/tabela-alunos';
 import Loading from './loading';
 import { Suspense } from 'react';
 import { HeaderProfessor } from '@/components/header-professor';
-import { RelatorioEvolucao } from '@/components/relatorio-evolucao';
 
 export default async function Page() {
 

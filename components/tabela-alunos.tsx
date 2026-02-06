@@ -41,9 +41,8 @@ type Aluno = Prisma.UserGetPayload<{
   }
 }>
 
-
 export function TabelaAlunos() {
-  const { listaAlunos, totalPaginas, pagina: paginaInicialContexto, limite } = useContext(ContextoProfessor)
+  const { listaAlunos, totalPaginas, limite } = useContext(ContextoProfessor)
   const [isPending, startTransition] = useTransition()
   const [alunos, setAlunos] = useState<Aluno[]>(listaAlunos || [])
   const searchParams = useSearchParams()
@@ -165,7 +164,6 @@ export function TabelaAlunos() {
                   <TableCell className='flex gap-2 items-center min-[1025px]:min-w-sm'>
                     <Avatar>
                       <Image alt={aluno.name} src={aluno.image || "/avatar-placeholder.png"} height={40} width={40} />
-                      <AvatarFallback>{aluno.name ? aluno.name.charAt(0).toUpperCase() : 'A'}</AvatarFallback>
                     </Avatar>
                     <span className='mt-1'>
                       {aluno.name}
