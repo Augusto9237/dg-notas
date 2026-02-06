@@ -89,7 +89,7 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
     }
 
     carregarAvaliacoes()
-  }, [aluno.id, avaliacoes,criterios])
+  }, [aluno.id, avaliacoes, criterios])
 
   function calcularMediasPorCriterio(
     avaliacoes: Avaliacao[],
@@ -392,7 +392,7 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
             <Button variant='ghost'>Cancelar</Button>
           </DialogClose>
           <Button onClick={gerarPdf} type='button' disabled={isPending}>
-            {isPending ? 'Gerando PDF...' : 'Gerar PDF'}
+            {isPending ? 'Exportando PDF...' : 'Exportar PDF'}
           </Button>
         </DialogFooter>
       </DialogContent>

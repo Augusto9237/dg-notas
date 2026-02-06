@@ -38,16 +38,18 @@ export default async function Page({
     <Suspense fallback={<Loading />}>
       <div className="w-full h-full min-h-screen relative pt-14 overflow-y-auto">
         <HeaderProfessor>
-          <div className='max-[1025px]:ml-10 overflow-hidden'>
+          <div>
             <h1 className="text-xl max-sm:text-lg font-bold">{aluno.name}</h1>
             <p className="text-xs text-muted-foreground truncate">{aluno.email}</p>
           </div>
-          <RelatorioEvolucao aluno={{ id: alunoId, nome: aluno.name, email: aluno.email, image: aluno.image || '', telefone: aluno.telefone || '', criado: aluno.createdAt }} avaliacoes={avaliacoes.data} criterios={criterios} />
+          <div className='flex justify-end w-full flex-1 items-center gap-4'>
+            <RelatorioEvolucao aluno={{ id: alunoId, nome: aluno.name, email: aluno.email, image: aluno.image || '', telefone: aluno.telefone || '', criado: aluno.createdAt }} avaliacoes={avaliacoes.data} criterios={criterios} />
+          </div>
         </HeaderProfessor>
         <main className="flex flex-col gap-4 p-5">
           <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
             <InputBusca placeholder='Buscar por Tema' />
-            <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoes}/>
+            <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoes} />
           </div>
         </main>
       </div>

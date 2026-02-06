@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "../app/generated/prisma"
 }
 
@@ -41,6 +41,12 @@ model Avaliacao {
   notaFinal   Int
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
+
+  @@index([status])
+  @@index([alunoId, status])
+  @@index([professorId, status])
+  @@index([createdAt])
+  @@index([temaId, status])
 }
 
 model CriterioAvaliacao {
@@ -165,6 +171,8 @@ model User {
   temas                   Tema[]             @relation("AvaliacoesProfessor")
   pushSubscriptions       PushSubscription[]
 
+  @@index([email, role])
+  @@index([matriculado])
   @@unique([email])
   @@map("user")
 }
