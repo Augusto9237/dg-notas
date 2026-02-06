@@ -52,7 +52,7 @@ export function ModalFeedbackMentoria({ feedback, professor }: ModalFeedbackMent
                 <p>
                     "{feedback}"
                 </p>
-                <DialogFooter className="w-full flex flex-row items-center">
+                <DialogFooter className="w-full flex flex-row items-center sm:justify-start">
                     <Avatar>
                         <Image alt={professor.name} src={avatarUrl || '/avatar-placeholder'} height={40} width={40} className="object-cover" />
                     </Avatar>

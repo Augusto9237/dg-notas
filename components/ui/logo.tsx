@@ -21,10 +21,6 @@ export function Logo({
         width: 440,
         height: 220,
     },
-    pequeno = {
-        width: 34,
-        height: 34,
-    }
 }: LogoProps) {
     return (
         <>

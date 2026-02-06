@@ -66,7 +66,7 @@ export default async function RootLayout({
 
   // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
   const [avaliacoes, mentorias, temas, alunos] = await Promise.all([
-    ListarAvaliacoes(undefined, undefined, 1, 12), 
+    ListarAvaliacoes(undefined, undefined, 1, 12),
     listarMentoriasMes(),
     ListarTemas(),
     listarAlunosGoogle('', 1, 12)

@@ -18,14 +18,17 @@ export default async function Page() {
         <Suspense fallback={<Loading />}>
             <div className="w-full h-full min-h-screen max-h-screen relative pt-14 overflow-hidden">
                 <HeaderProfessor>
-                    <div className="max-[1025px]:pl-10">
+                    <div className="">
                         <h1 className=" text-xl font-bold">Mentorias</h1>
                         <p className="text-xs text-muted-foreground leading-none">Lista de mentorias agendadas</p>
                     </div>
-                    <AjustarAgenda diasSemana={diasSemana} slotsHorario={slotsHorario} />
+                    <div className="w-full flex-1 flex justify-end">
+                        <AjustarAgenda diasSemana={diasSemana} slotsHorario={slotsHorario} />
+                    </div>
+
                 </HeaderProfessor>
                 <main className="flex flex-col p-5 h-full flex-1 overflow-hidden max-h-[100vh - 3.5rem]">
-                    <CalendarioGrande  diasSemana={diasAtivos} slotsHorario={horariosAtivos} />
+                    <CalendarioGrande diasSemana={diasAtivos} slotsHorario={horariosAtivos} />
                 </main>
             </div>
         </Suspense>

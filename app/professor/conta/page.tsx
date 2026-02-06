@@ -34,7 +34,7 @@ export default async function Page() {
         <Suspense fallback={<Loading />}>
             <div className="w-full h-full min-h-screen max-h-screen relative pt-14 overflow-hidden">
                 <HeaderProfessor>
-                    <div className="max-[1025px]:pl-10">
+                    <div className="">
                         <h1 className="text-xl font-bold">Sua Conta</h1>
                         <p className="text-xs text-muted-foreground max-sm:leading-none max-sm:truncate">Gerencie suas informações</p>
                     </div>

@@ -71,8 +71,19 @@ export async function ListarTemas(busca?: string, page: number = 1, limit: numbe
                 },
                 include: {
                     professor: true,
-                    Avaliacao: true
-                },
+                    Avaliacao: true,
+                    _count: {
+                        select: {
+                            Avaliacao: {
+                                where: { 
+                                    status: { 
+                                        in: ['ENVIADA', 'CORRIGIDA'] 
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    },
                 take: limit,
                 skip: (page - 1) * limit,
             }),

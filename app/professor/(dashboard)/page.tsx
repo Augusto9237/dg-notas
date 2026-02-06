@@ -57,13 +57,15 @@ export default async function Page({
     return (
         <div className="w-full h-full min-h-screen relative pt-14 overflow-y-auto">
             <HeaderProfessor>
-                <div className="flex flex-col max-[1025px]:ml-10">
+                <div className="flex flex-col">
                     <h1 className="text-lg font-bold ">
                         Olá, {session?.user.name}!
                     </h1>
                     <p className="text-xs text-muted-foreground leading-none">Dados de {mes && ano ? `${meses[Number(mes) - 1]} de ${ano}` : 'este mês'}</p>
                 </div>
-                <SeletorData />
+                <div className="w-full flex-1 flex justify-end">
+                    <SeletorData />
+                </div>
             </HeaderProfessor>
 
             <main className="flex flex-col gap-4 p-5 h-full">

@@ -111,7 +111,7 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas, 
         };
 
         handleNotification();
-    }, [notificacoes, userId]);
+    }, [notificacoes]);
 
     return (
         <ContextoAluno.Provider value={{

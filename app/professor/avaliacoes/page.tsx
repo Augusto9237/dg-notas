@@ -13,18 +13,18 @@ export default async function Page() {
     <Suspense fallback={<Loading />}>
       <div className="w-full h-full min-h-screen relative pt-14 overflow-y-auto">
         <HeaderProfessor>
-          <div className="max-[1025px]:pl-10">
+          <div>
             <h1 className=" text-xl font-bold">Avaliações</h1>
             <p className="text-xs text-muted-foreground max-sm:leading-none">Lista de avaliações</p>
           </div>
-          <div className='flex items-center gap-4'>
+          <div className='flex justify-end w-full flex-1 items-center gap-4'>
             <ModalCompetencias criterios={criterios} />
             <FormularioTema />
           </div>
         </HeaderProfessor>
 
         <main className="flex flex-col p-5 h-full">
-          <TabelaTemas/>
+          <TabelaTemas />
         </main>
       </div>
     </Suspense>
