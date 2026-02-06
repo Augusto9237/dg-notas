@@ -43,7 +43,7 @@ export default async function Page({
             <p className="text-xs text-muted-foreground truncate">{aluno.email}</p>
           </div>
           <div className='flex justify-end w-full flex-1 items-center gap-4'>
-            <RelatorioEvolucao aluno={{ id: alunoId, nome: aluno.name, email: aluno.email, image: aluno.image || '', telefone: aluno.telefone || '', criado: aluno.createdAt }} avaliacoes={avaliacoes.data} criterios={criterios} />
+            <RelatorioEvolucao aluno={{ id: alunoId, nome: aluno.name, email: aluno.email, image: aluno.image || '', telefone: aluno.telefone || '', criado: aluno.createdAt }} avaliacoes={avaliacoes.data} />
           </div>
         </HeaderProfessor>
         <main className="flex flex-col gap-4 p-5">

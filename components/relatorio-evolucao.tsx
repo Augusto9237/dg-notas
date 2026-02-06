@@ -24,7 +24,7 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart'
 import { Label } from './ui/label'
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { useContext, useEffect, useRef, useState, useTransition } from 'react'
 
 import { Criterio, Prisma } from '@/app/generated/prisma'
 import { ListarAvaliacoesAlunoId } from '@/actions/avaliacao'
@@ -36,6 +36,7 @@ import { ptBR } from 'date-fns/locale'
 import { calcularMedia } from '@/lib/media-geral';
 import { Separator } from './ui/separator'
 import { toast } from 'sonner'
+import { ContextoProfessor } from '@/context/contexto-professor'
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -57,7 +58,6 @@ type Aluno = {
 interface RelatorioProps {
   aluno: Aluno
   avaliacoes: Avaliacao[]
-  criterios: Criterio[]
 }
 
 const chartConfig = {
@@ -67,10 +67,10 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioProps) {
+export function RelatorioEvolucao({ aluno, avaliacoes }: RelatorioProps) {
+  const { listaCriterios } = useContext(ContextoProfessor)
   const [isOpen, setIsOpen] = useState(false)
   const [listaAvaliacoes, setListaAvaliaçoes] = useState<Avaliacao[]>([])
-  const [listaCriterios, setListaCriterios] = useState<Criterio[]>([])
   const [carregamento, setCarregamento] = useState(false)
   const [isPending, startTransition] = useTransition()
   const relatorioRef = useRef<HTMLDivElement>(null)
@@ -80,7 +80,6 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
       setCarregamento(true)
       try {
         setListaAvaliaçoes(avaliacoes)
-        setListaCriterios(criterios)
       } catch (error) {
         console.error('Erro ao carregar avaliações:', error)
       } finally {
@@ -89,7 +88,7 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
     }
 
     carregarAvaliacoes()
-  }, [aluno.id, avaliacoes, criterios])
+  }, [aluno.id, avaliacoes])
 
   function calcularMediasPorCriterio(
     avaliacoes: Avaliacao[],
@@ -372,7 +371,7 @@ export function RelatorioEvolucao({ aluno, avaliacoes, criterios }: RelatorioPro
               </Label>
               <div className='space-y-4 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-card scrollbar-track-background'>
                 {mediasPorCriterio.map((criterio, i) => (
-                  <CardCompetencia key={i} criterio={criterio} criterios={criterios} />
+                  <CardCompetencia key={i} criterio={criterio} criterios={listaCriterios} />
                 ))}
               </div>
             </div>

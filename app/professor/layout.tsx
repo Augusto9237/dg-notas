@@ -12,7 +12,7 @@ import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 import { InicializarNotificacoes } from "@/components/inicializar-notificacoes";
 import { ProverdorProfessor } from "@/context/provider-professor";
-import { ListarAvaliacoes, listarTemasMes, ListarTemas } from "@/actions/avaliacao";
+import { ListarAvaliacoes, listarTemasMes, ListarTemas, ListarCriterios } from "@/actions/avaliacao";
 import { listarMentoriasMes } from "@/actions/mentoria";
 import { listarAlunosGoogle } from "@/actions/alunos";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
@@ -72,6 +72,8 @@ export default async function RootLayout({
     listarAlunosGoogle('', 1, 12)
   ]);
 
+  const criterios = await ListarCriterios();
+
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
@@ -96,7 +98,7 @@ export default async function RootLayout({
           <InstalarIos />
           <PwaInstallPrompt />
           <InicializarNotificacoes userId={userId} />
-          <ProverdorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas} alunos={alunos}>
+          <ProverdorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas} alunos={alunos} criterios={criterios}>
             <SidebarProvider>
               <AppSidebar />
               <SidebarInset className="relative">

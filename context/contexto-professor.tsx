@@ -1,6 +1,6 @@
 'use client'
 
-import { Prisma } from "@/app/generated/prisma";
+import { Criterio, Prisma } from "@/app/generated/prisma";
 import { createContext } from "react";
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
     include: {
@@ -61,6 +61,7 @@ interface ContextoProfessorProps {
             totalPages: number;
         };
     }
+    listaCriterios: Criterio[];
     listaAlunos: Aluno[]
     totalPaginas: number
     pagina: number

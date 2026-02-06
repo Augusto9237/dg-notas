@@ -1,6 +1,6 @@
 'use client'
 
-import { Prisma } from "@/app/generated/prisma"
+import { Criterio, Prisma } from "@/app/generated/prisma"
 import { ReactNode, useEffect, useState } from "react"
 import { ContextoProfessor } from "./contexto-professor"
 import useWebPush from "@/hooks/useWebPush"
@@ -61,6 +61,7 @@ interface ProfessorProviderProps {
             totalPages: number;
         };
     }
+    criterios: Criterio[];
     alunos: {
         data: Aluno[]
         total: number
@@ -70,7 +71,7 @@ interface ProfessorProviderProps {
     }
 }
 
-export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, temas, alunos }: ProfessorProviderProps) => {
+export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, temas, alunos, criterios }: ProfessorProviderProps) => {
     const { notificacoes } = useWebPush({ userId })
     const [listaAvaliacoes, setListaAvaliacoes] = useState<ProfessorProviderProps['avaliacoes']>({ data: [], meta: { limit: 0, page: 0, total: 0, totalPages: 0 } });
     const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
@@ -123,7 +124,8 @@ export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, te
             totalPaginas: alunos.totalPaginas,
             pagina: alunos.pagina,
             limite: alunos.limite,
-            notificacoes
+            notificacoes,
+            listaCriterios: criterios
         }}>
             {children}
         </ContextoProfessor.Provider>
