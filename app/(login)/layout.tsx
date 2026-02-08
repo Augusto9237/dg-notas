@@ -1,6 +1,7 @@
 import { ReactNode, Suspense } from 'react'
 import type { Metadata } from "next";
 import { Poppins } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next'
 
 import "../globals.css";
 import { Toaster } from 'sonner';
@@ -56,6 +57,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 </Suspense>
                 <Toaster richColors theme="light" />
                 <SpeedInsights />
+                <Analytics />
             </body>
         </html >
     )

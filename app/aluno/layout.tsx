@@ -6,6 +6,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import "../globals.css";
 import AlunoWrapper from './wrapper';
 import Loading from './loading';
+import { Analytics } from '@vercel/analytics/next';
 
 const poppins = Poppins({
     weight: ['400', '500', '600', '700'],
@@ -50,6 +51,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                     </AlunoWrapper>
                 </Suspense>
                 <SpeedInsights />
+                <Analytics />
             </body>
         </html>
     )

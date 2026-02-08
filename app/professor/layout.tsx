@@ -1,27 +1,11 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "../globals.css";
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { Toaster } from "sonner";
-import { InicializarNotificacoes } from "@/components/inicializar-notificacoes";
-import { ProverdorProfessor } from "@/context/provider-professor";
-import { ListarAvaliacoes, listarTemasMes, ListarTemas, ListarCriterios } from "@/actions/avaliacao";
-import { listarMentoriasMes } from "@/actions/mentoria";
-import { listarAlunosGoogle } from "@/actions/alunos";
-import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
-import { InstalarIos } from "@/hooks/instalar-ios";
-import { ProvedorTemas } from "@/context/provedor-temas";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ProfessorWrapper from "./wrapper";
 import { Suspense } from "react";
 import Loading from "./(dashboard)/loading";
+import { Analytics } from "@vercel/analytics/next";
 
 const poppins = Poppins({
   weight: ['400', '500', '600', '700'],
@@ -71,6 +55,7 @@ export default async function RootLayout({
           </ProfessorWrapper>
         </Suspense>
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
