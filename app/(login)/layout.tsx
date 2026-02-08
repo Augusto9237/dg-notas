@@ -3,16 +3,10 @@ import type { Metadata } from "next";
 import { Poppins } from 'next/font/google';
 
 import "../globals.css";
-import Image from 'next/image';
 import { Toaster } from 'sonner';
 import Loading from './loading';
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
-import { InstalarIos } from '@/hooks/instalar-ios';
-import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { ProvedorTemas } from '@/context/provedor-temas';
+import LoginWrapper from './wrapper';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -38,17 +32,6 @@ interface RootLayoutProps {
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-    const session = await auth.api.getSession({
-        headers: await headers() // you need to pass the headers object.
-    })
-
-    if (session?.user) {
-        if (session.user.role === 'admin') {
-            redirect('/professor')
-        } else {
-            redirect('/aluno')
-        }
-    }
 
     return (
         <html lang="pt-BR" suppressHydrationWarning>
@@ -66,32 +49,10 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             <body
                 className={`${poppins.className} antialiased`}
             >
-                <InstalarIos />
-                <PwaInstallPrompt />
                 <Suspense fallback={<Loading />}>
-                    <div className="grid min-h-svh lg:grid-cols-2">
-                        <div className="relative flex items-center justify-center bg-primary">
-                            <div className="w-full max-w-md flex flex-col items-center justify-items-center">
-                                <Image
-                                    src="/Sublogo4.svg"
-                                    alt="Logo"
-                                    width={488}
-                                    height={400}
-                                    className="h-[80px] max-sm:h-[88px] w-[360px] max-sm:w-[280px] object-cover"
-                                />
-                                {children}
-                            </div>
-                            <p className='absolute bottom-2 right-0 left-0 text-xs text-center text-muted'>Desenvolvido por AS CODE©</p>
-                        </div>
-                        <div className="bg-muted relative hidden lg:block">
-                            <Image
-                                src="/foto-1.jpeg"
-                                alt="Image"
-                                fill
-                                className="object-cover"
-                            />
-                        </div>
-                    </div>
+                    <LoginWrapper>
+                        {children}
+                    </LoginWrapper>
                 </Suspense>
                 <Toaster richColors theme="light" />
                 <SpeedInsights />

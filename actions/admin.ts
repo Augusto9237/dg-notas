@@ -16,9 +16,16 @@ type AtualizarContaProfessorParams = {
 }
 
 export async function obterProfessor() {
-  'use cache'
+  'use cache: private'
 
   cacheLife('days')
+
+  const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session?.user) {
+        throw new Error('Usuário não autorizado');
+    }
   try {
     const resultado = await prisma.user.findFirst({
       where: {
