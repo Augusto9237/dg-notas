@@ -19,6 +19,9 @@ import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { ProvedorTemas } from "@/context/provedor-temas";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import ProfessorWrapper from "./wrapper";
+import { Suspense } from "react";
+import Loading from "./(dashboard)/loading";
 
 const poppins = Poppins({
   weight: ['400', '500', '600', '700'],
@@ -47,33 +50,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const session = await auth.api.getSession({
-    headers: await headers() // you need to pass the headers object.
-  })
-
-  if (!session?.user) {
-    redirect('/')
-  }
-
-  if (session.user.role !== 'admin') {
-    await auth.api.signOut({
-      headers: await headers()
-    })
-    redirect('/')
-  }
-
-  const userId = session.user.id;
-
-  // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
-  const [avaliacoes, mentorias, temas, alunos] = await Promise.all([
-    ListarAvaliacoes(undefined, undefined, 1, 12),
-    listarMentoriasMes(),
-    ListarTemas(),
-    listarAlunosGoogle('', 1, 12)
-  ]);
-
-  const criterios = await ListarCriterios();
-
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
@@ -89,25 +65,11 @@ export default async function RootLayout({
       <body
         className={`${poppins.className} antialiased`}
       >
-        <ProvedorTemas
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <InstalarIos />
-          <PwaInstallPrompt />
-          <InicializarNotificacoes userId={userId} />
-          <ProverdorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas} alunos={alunos} criterios={criterios}>
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset className="relative">
-                {children}
-              </SidebarInset>
-            </SidebarProvider>
-            <Toaster richColors theme="light" />
-          </ProverdorProfessor>
-        </ProvedorTemas>
+        <Suspense fallback={<Loading />}>
+          <ProfessorWrapper>
+            {children}
+          </ProfessorWrapper>
+        </Suspense>
         <SpeedInsights />
       </body>
     </html>
