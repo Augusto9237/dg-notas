@@ -37,11 +37,22 @@
     - **Modais:** Para ações como envio de redação e feedback.
 - **Layout:** Responsivo, adaptando-se a telas de desktop e mobile.
 
+
 ## Plano de Desenvolvimento Atual
 
-**Objetivo:** N/A - O README foi atualizado, e agora estou estabelecendo a linha de base para o controle de versão do projeto com este `blueprint.md`.
+**Objetivo:** Correção de Bug - Notificações Duplicadas
 
 **Passos:**
 
-1.  **Criar o `blueprint.md` inicial:** Documentar a arquitetura, funcionalidades e design atuais do projeto para servir como referência.
+1.  **Refatorar `hooks/useWebPush.ts`:**
+    - Adicionar suporte ao parâmetro `handleMessages` para controlar a criação de listeners de eventos.
+    - Garantir que apenas um listener de notificação esteja ativo por vez.
+
+2.  **Atualizar `components/inicializar-notificacoes.tsx`:**
+    - Configurar o hook `useWebPush` com `handleMessages: false` para evitar duplicidade de notificações nesse componente.
+
+3.  **Verificação:**
+    - Confirmar que notificações são exibidas apenas uma vez.
+    - Garantir que `app/(login)/wrapper.tsx` e outros wrappers funcionem conforme o esperado.
+
 

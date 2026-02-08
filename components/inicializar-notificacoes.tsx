@@ -22,7 +22,7 @@ export function InicializarNotificacoes({ userId }: InicializarNotificacoesProps
     needsInstall,
     isIOS,
     isStandalone,
-  } = useWebPush({ userId });
+  } = useWebPush({ userId, handleMessages: false });
 
   const [showPrompt, setShowPrompt] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);

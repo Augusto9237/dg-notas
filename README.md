@@ -32,16 +32,19 @@ O DG foi projetado para ser um negócio escalável e de alta retenção. Ele ate
 
 O DG é construído sobre uma fundação técnica sólida, garantindo performance, segurança e manutenibilidade.
 
-- **Framework:** **Next.js 16+ React 19** utilizando App Router , React Server Components (RSCs) para performance otimizada e renderização do lado do servidor.
-- **Linguagem:** **TypeScript** em todo o projeto para um código mais seguro e robusto.
-- **Banco de Dados:** **PostgreSQL** com o **Prisma ORM**, garantindo type-safety e migrações de banco de dados confiáveis.
-- **Mutations Seguras:** **Server Actions** para todas as operações de escrita de dados, eliminando a necessidade de grande parte das rotas de API tradicionais e aumentando a segurança.
+- **Framework:** **Next.js 16+** e **React 19** (RC), utilizando App Router, React Server Components (RSCs) e Server Actions para máxima performance e segurança.
+- **Linguagem:** **TypeScript** estrito para um código robusto e manutenível.
+- **Autenticação:** **Better Auth** implementando um sistema completo de gestão de identidade e sessões seguras.
+- **Banco de Dados:** **PostgreSQL** gerenciado pelo **Prisma ORM** com **Prisma Accelerate** para cache distribuído e conexões em borda.
+- **Relatórios:** Geração de documentos PDF profissionais com **React PDF** e **jsPDF**, incluindo exportação de relatórios de evolução.
 - **UI/UX:**
-  - **shadcn/ui** e **Tailwind CSS** para um Design System moderno, consistente e personalizável.
-  - **Recharts** para visualização de dados rica e interativa.
-  - Validação de formulários com **Zod** e **React Hook Form**.
-- **Progressive Web App (PWA):** Implementação completa com Service Workers, manifesto detalhado e um conjunto abrangente de ícones para **iOS, Android e Windows**, proporcionando uma experiência de instalação e uso indistinguível de um app nativo.
-- **Notificações em Tempo Real:** Integração com a **Web Push API** para manter os usuários engajados com notificações instantâneas e relevantes.
+  - **shadcn/ui** e **Tailwind CSS v4** para interfaces modernas e responsivas.
+  - **Framer Motion** para animações fluidas e micro-interações.
+  - **Recharts** para visualização de dados e analytics.
+  - **Sonner** e **React Hot Toast** para feedback visual imediato.
+  - Validação rigorosa com **Zod** e **React Hook Form**.
+- **PWA & Mobile:** Experiência nativa com suporte offline, instalação na home screen e notificações push em background e foreground.
+- **Integrações:** **Web Push API** para engajamento e **Vercel Blob** para armazenamento de arquivos.
 
 ## 📂 Estrutura do Projeto
 

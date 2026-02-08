@@ -6,8 +6,6 @@ import {
 } from "lucide-react"
 import {
     Avatar,
-    AvatarFallback,
-    AvatarImage,
 } from "@/components/ui/avatar"
 import {
     DropdownMenu,
@@ -29,7 +27,7 @@ export function NavUsuario() {
     const [isClient, setIsClient] = useState(false)
     const { data: session, isPending } = authClient.useSession();
     const [avatarImagem, setAvatarImagem] = useState<string | null>(null);
-    
+
 
     const router = useRouter()
 

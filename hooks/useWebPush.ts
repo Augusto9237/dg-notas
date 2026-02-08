@@ -48,7 +48,7 @@ const SUBSCRIPTION_CACHE_TTL = 60000; // 1 minuto
 const MIN_SYNC_INTERVAL = 30000; // 30 segundos mínimo entre sincronizações
 const MAX_SUBSCRIPTIONS_PER_USER = 5; // Limite de devices por usuário
 
-export default function useWebPush({ userId }: { userId: string }) {
+export default function useWebPush({ userId, handleMessages = true }: { userId: string, handleMessages?: boolean }) {
   const router = useRouter();
   const [permission, setPermission] = useState<NotificationPermission | null>(null);
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
@@ -424,26 +424,30 @@ export default function useWebPush({ userId }: { userId: string }) {
 
     window.addEventListener('focus', handleFocus);
 
-    // 4. Listen for messages from SW
-    const messageHandler = (event: MessageEvent) => {
-      if (event.data?.type === 'PUSH_NOTIFICATION_FOREGROUND') {
-        const { title, body, data, tag } = event.data.data;
-        console.log('🔔 Notificação recebida em primeiro plano:', title);
-        setNotificacoes({ title, body, data });
-        toast.info(title, {
-          id: tag,
-          description: body,
-          action: data?.url ? { label: "Ver", onClick: () => router.push(data.url) } : undefined,
-          duration: 5000,
-        });
-      }
-      if (event.data?.type === 'REVALIDATE_DATA') {
-        console.log('🔄 Revalidando dados (solicitado pelo SW)');
-        router.refresh();
-      }
-    };
+    // 4. Listen for messages from SW (Only if handleMessages is true)
+    let messageHandler: ((event: MessageEvent) => void) | null = null;
 
-    navigator.serviceWorker.addEventListener('message', messageHandler);
+    if (handleMessages) {
+      messageHandler = (event: MessageEvent) => {
+        if (event.data?.type === 'PUSH_NOTIFICATION_FOREGROUND') {
+          const { title, body, data, tag } = event.data.data;
+          console.log('🔔 Notificação recebida em primeiro plano:', title);
+          setNotificacoes({ title, body, data });
+          toast.info(title, {
+            id: tag,
+            description: body,
+            action: data?.url ? { label: "Ver", onClick: () => router.push(data.url) } : undefined,
+            duration: 5000,
+          });
+        }
+        if (event.data?.type === 'REVALIDATE_DATA') {
+          console.log('🔄 Revalidando dados (solicitado pelo SW)');
+          router.refresh();
+        }
+      };
+
+      navigator.serviceWorker.addEventListener('message', messageHandler);
+    }
 
     // 5. Cleanup
     return () => {
@@ -451,10 +455,12 @@ export default function useWebPush({ userId }: { userId: string }) {
         clearTimeout(focusTimeoutRef.current);
       }
       window.removeEventListener('focus', handleFocus);
-      navigator.serviceWorker.removeEventListener('message', messageHandler);
+      if (messageHandler) {
+        navigator.serviceWorker.removeEventListener('message', messageHandler);
+      }
       isSyncingRef.current = false;
     };
-  }, [router, userId, fetchSubscriptionsWithCache, invalidateCache]);
+  }, [router, userId, fetchSubscriptionsWithCache, invalidateCache, handleMessages]);
 
   return {
     permission,
