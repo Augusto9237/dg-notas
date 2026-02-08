@@ -1,5 +1,5 @@
 'use server'
-import { revalidatePath, unstable_cache } from "next/cache";
+import { cacheLife, revalidatePath, unstable_cache } from "next/cache";
 import { Criterio, Tema } from "../app/generated/prisma";
 import { Avaliacao } from "../app/generated/prisma";
 import { prisma } from "@/lib/prisma";
@@ -242,9 +242,12 @@ export async function DeletarTema(id: number) {
     }
 }
 
-export const ListarCriterios = unstable_cache(
-    async () => {
-        try {
+export async function ListarCriterios() {
+    'use cache'
+
+    cacheLife('days')
+
+    try {
             const criterios = await prisma.criterio.findMany({
                 orderBy: {
                     id: 'asc',
@@ -255,10 +258,7 @@ export const ListarCriterios = unstable_cache(
             console.error("Erro ao listar criterios:", error);
             throw error;
         }
-    },
-    ['criterios'],
-    { revalidate: 43200 } // 12 horas
-);
+    }
 
 export async function EditarCriterio(id: number, nome: string, descricao: string, pontuacaoMax: number): Promise<Criterio> {
     const session = await auth.api.getSession({

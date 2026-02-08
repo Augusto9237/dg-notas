@@ -2,7 +2,7 @@
 
 import { Mentoria } from '@/app/generated/prisma';
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { cacheLife, revalidatePath } from 'next/cache';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
 // Tipos para os parâmetros da função
@@ -29,6 +29,9 @@ import { headers } from 'next/headers';
 import { enviarNotificacaoParaUsuario } from './notificacoes';
 
 export async function listarDiasSemana() {
+  'use cache'
+  cacheLife('days')
+
   return await prisma.diaSemana.findMany({
     orderBy: {
       dia: 'asc',
@@ -53,6 +56,8 @@ export async function editarDiasSemana(id: number, status: boolean) {
 }
 
 export async function listarSlotsHorario() {
+  'use cache'
+  cacheLife('days')
   return await prisma.slotHorario.findMany({});
 }
 

@@ -49,4 +49,6 @@ module.exports = {
       },
     ],
   },
+  reactCompiler: true,
+  cacheComponents: true,
 }

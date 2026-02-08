@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import { obterUrlImagem } from "@/lib/obter-imagem";
 import { prisma } from "@/lib/prisma"
-import { revalidatePath } from "next/cache"
+import { cacheLife, revalidatePath } from "next/cache"
 import { headers } from "next/headers";
 
 type AtualizarContaProfessorParams = {
@@ -16,6 +16,9 @@ type AtualizarContaProfessorParams = {
 }
 
 export async function obterProfessor() {
+  'use cache'
+
+  cacheLife('days')
   try {
     const resultado = await prisma.user.findFirst({
       where: {
