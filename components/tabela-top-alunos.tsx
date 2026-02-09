@@ -25,9 +25,10 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
 
 interface TabelaAlunosProps {
   avaliacoes: Avaliacao[]
+  quantidadeTemas: number
 }
 
-export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
+export function TabelaTopAlunos({ avaliacoes, quantidadeTemas }: TabelaAlunosProps) {
   const { notificacoes } = useContext(ContextoProfessor)
   const [alunos, setAlunos] = useState<AlunoRanking[]>([])
 
@@ -36,7 +37,7 @@ export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
   const ano = params.get('ano')
 
   useEffect(() => {
-    const top10 = rankearMelhoresAlunos(avaliacoes);
+    const top10 = rankearMelhoresAlunos(avaliacoes, quantidadeTemas);
     setAlunos(top10)
   }, [avaliacoes])
 
@@ -47,7 +48,7 @@ export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
 
       if (url === '/professor/avaliacoes') {
         const novasAvaliacoes = await ListarAvaliacoes(Number(mes), Number(ano), 1, 1000)
-        const top10 = rankearMelhoresAlunos(novasAvaliacoes.data);
+        const top10 = rankearMelhoresAlunos(novasAvaliacoes.data, quantidadeTemas);
         setAlunos(top10)
       }
     }

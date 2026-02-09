@@ -29,7 +29,7 @@ export function calcularMediaGeral(avaliacoes: { notaFinal: number }[]): number 
     return media;
 }
 
-export function rankearMelhoresAlunos(avaliacoes: Avaliacao[]): AlunoRanking[] {
+export function rankearMelhoresAlunos(avaliacoes: Avaliacao[], quantidadeTemas: number): AlunoRanking[] {
     // Agrupa avaliações por aluno e calcula a média
     const alunosMap = new Map<string, {
         nome: string;
@@ -63,7 +63,7 @@ export function rankearMelhoresAlunos(avaliacoes: Avaliacao[]): AlunoRanking[] {
         nome: dados.nome,
         email: dados.email || "", // Garante string vazia se for null
         image: dados.image || null,
-        mediaFinal: Number((dados.somaNotas / dados.totalAvaliacoes).toFixed(2)),
+        mediaFinal: Number((dados.somaNotas / quantidadeTemas).toFixed(2)),
         totalAvaliacoes: dados.totalAvaliacoes
     }));
 
