@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/mentoria",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/excluir-mentorias",
+      "schedule": "0 3 * * *"
     }
   ]
 }
