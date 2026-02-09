@@ -22,11 +22,14 @@ import { DeletarAvaliacao, ListarAvaliacoesAlunoId } from '@/actions/avaliacao';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
 import { Skeleton } from './ui/skeleton';
-import { Ellipsis, Trash } from 'lucide-react';
+import { Ellipsis, FileDown, Trash } from 'lucide-react';
 import { FormularioCorrecao } from './formulario-correcao';
 import { storage } from '@/lib/firebase';
-import { deleteObject, ref } from '@firebase/storage';
+import { deleteObject, getDownloadURL, ref } from '@firebase/storage';
 import { ContextoProfessor } from '@/context/contexto-professor';
+import useDownloader from 'react-use-downloader';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Button } from './ui/button';
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -53,7 +56,7 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, avaliaco
   const [listaAvaliacoes, setListaAvaliacoes] = useState<TabelaAvaliacoesProps['avaliacoes']>(avaliacoes || { data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
   const [carregandoBusca, setCarregandoBusca] = useState(false)
   const [inicializado, setInicializado] = useState(false)
-
+  const { download } = useDownloader();
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
@@ -160,6 +163,19 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, avaliaco
     }
   }
 
+  async function baixarArquivo(path: string, emailAluno: string) {
+    try {
+      const arquivo = ref(storage, path);
+      const url = await getDownloadURL(arquivo);
+
+      download(url, `${emailAluno}.jpg`);
+      toast.success('Download iniciado!');
+    } catch (error) {
+      console.error('Erro ao baixar o arquivo:', error);
+      toast.error('Erro ao baixar o arquivo. Tente novamente.');
+    }
+  }
+
 
   return (
     <>
@@ -210,6 +226,17 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, avaliaco
                 </TableCell>
                 <TableCell className="w-[100px] pr-4">
                   <div className='flex justify-center gap-4'>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button size="icon" variant='outline' onClick={() => baixarArquivo(avaliacao.resposta, avaliacao.aluno.email)}>
+                          <FileDown />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-primary bg-background fill-background">
+                        <p>Baixar Redação</p>
+                      </TooltipContent>
+                    </Tooltip>
+
                     <FormularioCorrecao avaliacao={avaliacao} />
 
                     <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id, avaliacao.temaId, avaliacao.aluno.email)} />

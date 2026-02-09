@@ -18,7 +18,7 @@ import {
   PaginationLink,
   PaginationNext,
 } from '@/components/ui/pagination';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Ellipsis, FileDown } from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { useSearchParams } from 'next/navigation';
