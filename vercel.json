@@ -3,11 +3,11 @@
   "crons": [
     {
       "path": "/api/cron/mentoria",
-      "schedule": "0 15 * * *"
+      "schedule": "0 11 * * *"
     },
     {
       "path": "/api/cron/excluir-mentorias",
-      "schedule": "0 3 * * *"
+      "schedule": "0 15 * * *"
     }
   ]
 }
