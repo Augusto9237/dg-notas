@@ -44,9 +44,6 @@ interface PropsCalendarioDoisDiasDaSemana {
   nomeClasse?: string
 }
 
-/**
- * Componente de calendário para agendar mentorias, exibindo apenas dois dias da semana configuráveis.
- */
 export function CalendarioAgendarMentoria({
   primeiroDiaSemana,
   segundoDiaSemana,
@@ -215,16 +212,16 @@ export function CalendarioAgendarMentoria({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" className="bg-transparent" size='sm' onClick={handleMesAnterior} aria-label="Mês anterior" type="button">
-          <ChevronLeft className="h-4 w-4" />
+        <Button disabled={desabilitarData(new Date(ano, mes, 1))} variant="ghost" className="bg-transparent" size='sm' onClick={handleMesAnterior} aria-label="Mês anterior" type="button">
+          <ChevronLeft className="size-6" />
         </Button>
 
         <CardTitle className="text-sm font-semibold">
-          {MESES[mes]} {ano}
+          {MESES[mes]}
         </CardTitle>
 
         <Button variant="ghost" className="bg-transparent" size='sm' onClick={handleProximoMes} aria-label="Próximo mês" type="button">
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="size-6" />
         </Button>
       </div>
       <div className="grid grid-cols-2 gap-x-5 gap-y-2">

@@ -30,6 +30,7 @@ import clsx from "clsx"
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes"
 import { format } from "date-fns"
 import { CalendarioAgendarMentoria } from "./calendario-agendar-mentoria"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion"
 
 const formSchema = z.object({
     data: z.date({
@@ -83,6 +84,7 @@ export function AgendarMentoriaAluno({
 }: AgendarMentoriaAlunoProps) {
     const [open, setOpen] = useState(false)
     const [vagas, setVagas] = useState<Record<string, number>>({});
+    const [accordionValue, setAccordionValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const { data: session } = authClient.useSession();
     const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -186,6 +188,14 @@ export function AgendarMentoriaAluno({
         };
     }, [watchedData, verificarVagas]);
 
+    useEffect(() => {
+        if (watchedData) {
+            setAccordionValue("item-1");
+        } else {
+            setAccordionValue("");
+        }
+    }, [watchedData]);
+
 
     function formartarData(data: Date) {
         // Converter a data UTC para uma data local sem problemas de fuso horário
@@ -282,30 +292,43 @@ export function AgendarMentoriaAluno({
                             name="horario"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Horário</FormLabel>
-                                    <FormControl>
-                                        <div className="grid grid-cols-3 gap-4 max-h-48 overflow-y-auto ">
-                                            {slotsHorario.map((slot) => (
-                                                <Button
-                                                    key={slot.id}
-                                                    size="sm"
-                                                    variant={field.value === String(slot.id) ? "outline" : "ghost"}
-                                                    className={clsx('text-xs', field.value === String(slot.id) && "bg-primary/5")}
-                                                    onClick={() => field.onChange(String(slot.id))}
-                                                    disabled={vagas[slot.id] === 0}
-                                                    type="button"
-                                                >
-                                                    {slot.nome}
-                                                </Button>
-                                            ))}
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
+                                    <Accordion type="single" collapsible className="w-full" value={accordionValue} onValueChange={setAccordionValue}>
+                                        <AccordionItem value="item-1">
+                                            <AccordionTrigger className="py-2 ">Horário</AccordionTrigger>
+                                            <AccordionContent>
+                                                <FormControl>
+                                                    {watchedData ? (
+                                                        <div className="grid grid-cols-3 gap-4 max-h-40 overflow-y-auto">
+                                                            {slotsHorario.map((slot) => (
+                                                                <Button
+                                                                    key={slot.id}
+                                                                    size="sm"
+                                                                    variant={field.value === String(slot.id) ? "outline" : "ghost"}
+                                                                    className={clsx('text-xs', field.value === String(slot.id) && "bg-primary/5")}
+                                                                    onClick={() => field.onChange(String(slot.id))}
+                                                                    disabled={vagas[slot.id] === 0}
+                                                                    type="button"
+                                                                >
+                                                                    {slot.nome}
+                                                                    {vagas[slot.id] === 0 && <span className="text-xs text-red-500 ml-1">(Lotado)</span>}
+                                                                </Button>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex items-center justify-center h-12 text-muted-foreground text-xs">
+                                                            Selecione uma data primeiro
+                                                        </div>
+                                                    )}
+                                                </FormControl>
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                        <FormMessage />
+                                    </Accordion>
                                 </FormItem>
                             )}
                         />
 
-                        <div className="grid grid-cols-2 gap-4 pt-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <Button
                                 type="button"
                                 variant='ghost'

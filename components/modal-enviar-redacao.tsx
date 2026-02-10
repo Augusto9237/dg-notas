@@ -96,7 +96,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                 <DialogHeader>
                     <DialogTitle className="text-center">Enviar Redação</DialogTitle>
                 </DialogHeader>
-                <div className="flex flex-col gap-5">
+                <div className="flex flex-col">
                     <div>
                         <Label>Tema</Label>
                         <p className="text-sm text-muted-foreground">{tema.nome}</p>

@@ -34,7 +34,7 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
             <Card className="backdrop-blur-lg p-0 border-none bg-card rounded-t-xl rounded-b-none shadow-[1px_1px_15px_6px_rgba(0,_0,_0,_0.1)]">
                 <nav className="flex justify-between w-full px-5 relative">
                     <Link href="/aluno" className="absolute top-0 left-1/2 transform -translate-x-1/2 object-cover">
-                        <Image src="/Símbolo4.svg" alt="logo" width={100} height={100} className={cn("w-14 h-14 bg-primary rounded-full p-2 border border-2 ", pathname === "/aluno" ? "border-secondary" : "border-primary")} />
+                        <Image src="/Símbolo4.svg" alt="logo" width={50} height={50} className={cn("w-14 h-14 bg-primary rounded-full p-2 border border-2 ", pathname === "/aluno" ? "border-secondary" : "border-primary")} />
                     </Link>
                     {routes.map((route) => (
                         <Link

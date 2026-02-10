@@ -40,19 +40,16 @@
 
 ## Plano de Desenvolvimento Atual
 
-**Objetivo:** Correção de Bug - Notificações Duplicadas
+**Objetivo:** UX: Agendamento de Mentoria - Condicional de Horários
 
-**Passos:**
+**Passos Realizados:**
 
-1.  **Refatorar `hooks/useWebPush.ts`:**
-    - Adicionar suporte ao parâmetro `handleMessages` para controlar a criação de listeners de eventos.
-    - Garantir que apenas um listener de notificação esteja ativo por vez.
+1.  **Atualizar `components/agendar-mentoria-aluno.tsx`:**
+    - Implementar renderização condicional para a lista de `slotsHorario` dentro do `Accordion`.
+    - Exibir os horários apenas quando o campo `data` do formulário possuir valor.
+    - Adicionar mensagem de feedback visual ("Selecione uma data primeiro") quando nenhuma data estiver selecionada.
+    - **Automatização:** O `Accordion` de horários agora abre automaticamente assim que uma data é selecionada.
 
-2.  **Atualizar `components/inicializar-notificacoes.tsx`:**
-    - Configurar o hook `useWebPush` com `handleMessages: false` para evitar duplicidade de notificações nesse componente.
-
-3.  **Verificação:**
-    - Confirmar que notificações são exibidas apenas uma vez.
-    - Garantir que `app/(login)/wrapper.tsx` e outros wrappers funcionem conforme o esperado.
-
-
+**Verificação:**
+- O Accordion de horários agora deve iniciar vazio (com mensagem).
+- Ao selecionar uma data, o Accordion deve se abrir automaticamente, revelando os horários disponíveis.

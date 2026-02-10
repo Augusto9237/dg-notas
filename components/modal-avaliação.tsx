@@ -22,6 +22,7 @@ import { toast } from "sonner"
 type AvaliacaoProp = Prisma.AvaliacaoGetPayload<{
   include: {
     tema: true
+
   };
 }>;
 
@@ -96,7 +97,7 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
           }
         </Button>
       </DialogTrigger>
-      <DialogContent className="gap-2 overflow-y-auto max-h-[90vh]">
+      <DialogContent className="overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-center text-base mb-2">{avaliacao.tema.nome}</DialogTitle>
         </DialogHeader>
