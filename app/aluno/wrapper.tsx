@@ -1,3 +1,4 @@
+
 import { ListarAvaliacoesAlunoId, ListarCriterios, ListarTemasDisponiveis } from "@/actions/avaliacao";
 import { listarMentoriasAluno } from "@/actions/mentoria";
 import { enviarNotificacaoParaTodos } from "@/actions/notificacoes";
@@ -12,6 +13,7 @@ import { ProvedorTemas } from "@/context/provedor-temas";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { auth } from "@/lib/auth";
 import { Clock } from "lucide-react";
+import { cacheTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
@@ -23,6 +25,7 @@ interface RootLayoutProps {
 
 
 export default async function AlunoWrapper({ children }: RootLayoutProps) {
+
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -68,12 +71,31 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
         const userId = session.user.id;
 
         // Parallel data fetching for performance
-        const [avaliacoes, mentorias, temas, criterios] = await Promise.all([
-            ListarAvaliacoesAlunoId(userId),
-            listarMentoriasAluno(userId),
-            ListarTemasDisponiveis(userId),
-            ListarCriterios()
-        ]);
+        // const [avaliacoes, mentorias, temas,] = await Promise.all([
+        //     ListarAvaliacoesAlunoId(userId),
+        //     listarMentoriasAluno(userId),
+        //     ListarTemasDisponiveis(userId),
+        // ]);
+
+        async function listarDados() {
+            'use cache: private'
+            cacheTag('listarDadosAluno')
+
+            const [avaliacoes, mentorias, temas,] = await Promise.all([
+                ListarAvaliacoesAlunoId(userId),
+                listarMentoriasAluno(userId),
+                ListarTemasDisponiveis(userId),
+            ]);
+
+            return {
+                avaliacoes,
+                mentorias,
+                temas,
+            }
+        }
+
+        const criterios = await ListarCriterios();
+
 
         return (
             <>
@@ -88,9 +110,9 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
                     <InicializarNotificacoes userId={userId} />
                     <ProvedorAluno
                         userId={userId}
-                        avaliacoes={avaliacoes}
-                        mentorias={mentorias}
-                        temas={temas}
+                        avaliacoes={(await listarDados()).avaliacoes}
+                        mentorias={(await listarDados()).mentorias}
+                        temas={(await listarDados()).temas}
                         criterios={criterios}
                     >
                         <SidebarProvider>
