@@ -103,13 +103,13 @@ export function TabelaAvaliacoesAluno() {
     };
 
     return (
-        <Tabs defaultValue="temas" className='h-full'>
+        <Tabs defaultValue="pendentes" className='h-full'>
             <TabsList>
-                <TabsTrigger value="temas" className="text-foreground max-sm:text-xs">Novos Temas</TabsTrigger>
                 <TabsTrigger value="pendentes" className="text-foreground max-sm:text-xs">Pendentes</TabsTrigger>
+                <TabsTrigger value="enviadas" className="text-foreground max-sm:text-xs">Enviadas</TabsTrigger>
                 <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">Corrigidas</TabsTrigger>
             </TabsList>
-            <TabsContent value='temas' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-20">
+            <TabsContent value='pendentes' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-20">
                 {temas.meta.total > 0 && (
                     <div className="gap-4 max-[1025px]:flex flex-col min-[1025px]:grid min-[1025px]:grid-cols-3">
                         {temas.data.map((tema) => (
@@ -128,7 +128,7 @@ export function TabelaAvaliacoesAluno() {
                     </div>
                 )}
             </TabsContent>
-            <TabsContent value='pendentes' className="flex flex-col gap-4 flex-1 h-full overflow-y-auto max-sm:pb-20">
+            <TabsContent value='enviadas' className="flex flex-col gap-4 flex-1 h-full overflow-y-auto max-sm:pb-20">
                 {pendingAvaliacoes.length > 0 || listaTemas.meta.total > 0 ? (
                     <ListaAvaliacoes avaliacoesIniciais={pendingAvaliacoes} criteriosIniciais={criterios} hasMore={hasMoreAvaliacoes} loading={loading} nextAvaliacoes={nextAvaliacoes} />
                 ) : (
