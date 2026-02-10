@@ -49,7 +49,6 @@ export function TabelaTemas() {
   const busca = searchParams.get('busca');
   const currentPage = Number(searchParams.get('page')) || 1;
 
-
   useEffect(() => {
     const buscarDados = async () => {
       const [temas] = await Promise.all([
@@ -59,8 +58,6 @@ export function TabelaTemas() {
     };
     buscarDados();
   }, [busca, currentPage]);
-
-  console.log(temas.map((tema) => tema.Avaliacao))
 
   function atualizarDisponibilidadeTema(temaId: number, status: boolean) {
     startTransition(async () => {

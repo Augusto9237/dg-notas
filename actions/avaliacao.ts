@@ -1,5 +1,5 @@
 'use server'
-import { cacheLife, revalidatePath, unstable_cache } from "next/cache";
+import { cacheLife, revalidatePath, unstable_cache, updateTag } from "next/cache";
 import { Criterio, Tema } from "../app/generated/prisma";
 import { Avaliacao } from "../app/generated/prisma";
 import { prisma } from "@/lib/prisma";
@@ -360,7 +360,8 @@ export async function EnviarRespoastaAvaliacao(
                 notaFinal: 0, // Default score
             },
         });
-        revalidatePath('/aluno');
+        updateTag('ListarAvaliacoes');
+        
         return avaliacaoCriada;
     } catch (error) {
         console.error("Erro ao enviar resposta da avaliação:", error);

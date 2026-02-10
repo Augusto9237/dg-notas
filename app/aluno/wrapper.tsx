@@ -70,28 +70,27 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
 
         const userId = session.user.id;
 
-        // Parallel data fetching for performance
-        // const [avaliacoes, mentorias, temas,] = await Promise.all([
-        //     ListarAvaliacoesAlunoId(userId),
-        //     listarMentoriasAluno(userId),
-        //     ListarTemasDisponiveis(userId),
-        // ]);
-
         async function listarDados() {
             'use cache: private'
             cacheTag('listarDadosAluno')
 
-            const [avaliacoes, mentorias, temas,] = await Promise.all([
-                ListarAvaliacoesAlunoId(userId),
+            const [mentorias, temas,] = await Promise.all([
                 listarMentoriasAluno(userId),
                 ListarTemasDisponiveis(userId),
             ]);
 
             return {
-                avaliacoes,
                 mentorias,
                 temas,
             }
+        }
+
+        async function ListarAvaliacoes() {
+            'use cache: private'
+            cacheTag('ListarAvaliacoes')
+
+            const avaliacoes = await ListarAvaliacoesAlunoId(userId);
+            return avaliacoes;
         }
 
         const criterios = await ListarCriterios();
@@ -110,7 +109,7 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
                     <InicializarNotificacoes userId={userId} />
                     <ProvedorAluno
                         userId={userId}
-                        avaliacoes={(await listarDados()).avaliacoes}
+                        avaliacoes={(await ListarAvaliacoes())}
                         mentorias={(await listarDados()).mentorias}
                         temas={(await listarDados()).temas}
                         criterios={criterios}

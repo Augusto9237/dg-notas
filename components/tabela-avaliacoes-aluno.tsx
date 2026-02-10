@@ -11,6 +11,7 @@ import InfiniteScroll from './ui/infinite-scroll';
 import { Spinner } from './ui/spinner';
 import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from '@/actions/avaliacao';
 import { authClient } from '@/lib/auth-client';
+import { Badge } from './ui/badge';
 
 type Tema = Prisma.TemaGetPayload<{
     include: {
@@ -105,7 +106,9 @@ export function TabelaAvaliacoesAluno() {
     return (
         <Tabs defaultValue="pendentes" className='h-full'>
             <TabsList>
-                <TabsTrigger value="pendentes" className="text-foreground max-sm:text-xs">Pendentes</TabsTrigger>
+                <TabsTrigger value="pendentes" className="text-foreground max-sm:text-xs">
+                    Pendentes
+                </TabsTrigger>
                 <TabsTrigger value="enviadas" className="text-foreground max-sm:text-xs">Enviadas</TabsTrigger>
                 <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">Corrigidas</TabsTrigger>
             </TabsList>
