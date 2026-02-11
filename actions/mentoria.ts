@@ -843,14 +843,13 @@ export async function notificarAlunosMentoriaAgendada() {
       try {
         await enviarNotificacaoParaUsuario(
           mentoria.aluno.id,
-          'Confirme sua mentoria',
-          `Olá, ${mentoria.aluno.name}! 😊\n          Sua mentoria está agendada para hoje (${mentoria.horario.data.toLocaleDateString(
+          'Confirme sua mentoria ✅',
+          `Olá, ${mentoria.aluno.name}! 😊\nSua mentoria acontece hoje (${mentoria.horario.data.toLocaleDateString(
             'pt-BR'
-          )}), às ${mentoria.horario.slot?.nome || 'horário a confirmar'}.`,
+          )}) às ${mentoria.horario.slot?.nome || 'horário a confirmar'}.\nConfirme sua presença até 12h para garantir o atendimento.`,
           '/aluno/mentorias'
         );
         notificacoesEnviadas++;
-        console.log(`Notificação enviada para ${mentoria.aluno.name}`);
       } catch (error) {
         const mensagemErro = `Erro ao notificar ${mentoria.aluno.name}: ${error instanceof Error ? error.message : 'Erro desconhecido'
           }`;

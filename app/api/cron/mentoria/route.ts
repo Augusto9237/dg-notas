@@ -1,4 +1,3 @@
-// app/api/notificacoes/mentorias/route.ts
 
 import { notificarAlunosMentoriaAgendada } from '@/actions/mentoria';
 import { NextRequest, NextResponse } from 'next/server';

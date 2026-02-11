@@ -1,5 +1,6 @@
 
 import { excluirMentoriaECascata } from '@/actions/mentoria';
+import { enviarNotificacaoParaUsuario } from '@/actions/notificacoes';
 import { prisma } from '@/lib/prisma';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { NextRequest, NextResponse } from 'next/server';
@@ -45,7 +46,38 @@ export async function GET(request: NextRequest) {
     }
 
     for (const mentoria of mentoriasParaExcluir) {
-      await excluirMentoriaECascata(mentoria.id);
+      const resposta = await prisma.mentoria.findUnique({
+        where: { id: mentoria.id },
+        select: { horarioId: true, aluno: true },
+      });
+
+      if (!resposta) {
+        console.error('Mentoria não encontrada para exclusão.');
+        return false;
+      }
+
+      const countMentorias = await prisma.mentoria.count({
+        where: { horarioId: resposta.horarioId },
+      });
+
+      await prisma.mentoria.delete({
+        where: { id: mentoria.id },
+      });
+
+      if (countMentorias === 1) {
+        await prisma.horario.delete({
+          where: { id: resposta.horarioId },
+        });
+      }
+
+      await enviarNotificacaoParaUsuario(
+        resposta.aluno.id,
+        'Mentoria cancelada ❌',
+        `Olá, ${resposta.aluno.name}! \nSua mentoria foi cancelada por falta de confirmação.\nFique tranquilo(a), você pode agendar uma nova mentoria.`,
+        '/aluno/mentorias'
+      );
+
+
     }
 
     return NextResponse.json({
