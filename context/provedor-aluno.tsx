@@ -75,9 +75,9 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas, 
 
     // Atualiza o estado se as props mudarem (ex: revalidação do servidor)
     useEffect(() => {
-        setListaAvaliacoes(avaliacoes || []);
+        setListaAvaliacoes(avaliacoes);
         setListaMentorias(mentorias);
-        setListaTemas(temas || []);
+        setListaTemas(temas);
     }, [avaliacoes, mentorias, temas]);
 
 

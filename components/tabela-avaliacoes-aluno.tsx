@@ -58,48 +58,103 @@ export function TabelaAvaliacoesAluno() {
     const { data: session } = authClient.useSession();
     const userId = session?.user.id;
 
+   
     useEffect(() => {
         setTemas(listaTemas);
         setAvaliacoes(listaAvaliacoes);
+        setHasMore(listaTemas.meta.total > listaTemas.data.length);
+        setHasMoreAvaliacoes(listaAvaliacoes.meta.total > listaAvaliacoes.data.length);
     }, [listaTemas, listaAvaliacoes]);
 
     const pendingAvaliacoes = avaliacoes.data.filter((avaliacao) => avaliacao.status === "ENVIADA");
 
-    const novosTemas = () => {
-        if (temas.meta.total >= temas.data.length) {
+    const novosTemas = async () => {
+        if (loading || !hasMore) return;
+
+        // Verificar se ainda há mais temas para carregar
+        if (temas.data.length >= temas.meta.total) {
             setHasMore(false);
+            return;
         }
 
-        if (temas.meta.total > temas.data.length) {
-            setTimeout(async () => {
-                const temasNovos = await ListarTemasDisponiveis(userId!, 1, temas.meta.limite + 10);
-                setTemas(temasNovos);
+        setLoading(true);
 
-                if (temasNovos.meta.total <= temasNovos.data.length) {
+        try {
+            // Calcular a próxima página baseada no número atual de temas
+            const temasCarregados = temas.data.length;
+            const proximaPagina = Math.floor(temasCarregados / temas.meta.limite) + 1;
+            
+            const temasNovos = await ListarTemasDisponiveis(userId!, proximaPagina, temas.meta.limite);
+            
+            // Adicionar novos temas aos existentes
+            setTemas(prev => {
+                const novosData = [...prev.data, ...temasNovos.data];
+                const totalCarregado = novosData.length;
+                
+                // Verificar se ainda há mais temas para carregar
+                if (totalCarregado >= prev.meta.total || temasNovos.data.length < prev.meta.limite) {
                     setHasMore(false);
                 }
-
-                setLoading(false);
-            }, 800);
+                
+                return {
+                    ...temasNovos,
+                    data: novosData,
+                    meta: {
+                        ...temasNovos.meta,
+                        // Manter o total original do primeiro carregamento
+                        total: prev.meta.total
+                    }
+                };
+            });
+        } catch (error) {
+            console.error('Erro ao carregar mais temas:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const nextAvaliacoes = () => {
-        if (avaliacoes.meta.total >= avaliacoes.data.length) {
+    const nextAvaliacoes = async () => {
+        if (loading || !hasMoreAvaliacoes) return;
+
+        // Verificar se ainda há mais avaliações para carregar
+        if (avaliacoes.data.length >= avaliacoes.meta.total) {
             setHasMoreAvaliacoes(false);
+            return;
         }
 
-        if (avaliacoes.meta.total > avaliacoes.data.length) {
-            setTimeout(async () => {
-                const avaliacoesNovas = await ListarAvaliacoesAlunoId(userId!, '', avaliacoes.meta.limit + 10, 1);
-                setAvaliacoes(avaliacoesNovas);
+        setLoading(true);
 
-                if (avaliacoesNovas.meta.total <= avaliacoesNovas.data.length) {
+        try {
+            // Calcular a próxima página baseada no número atual de avaliações
+            const avaliacoesCarregadas = avaliacoes.data.length;
+            const proximaPagina = Math.floor(avaliacoesCarregadas / avaliacoes.meta.limit) + 1;
+            
+            const avaliacoesNovas = await ListarAvaliacoesAlunoId(userId!, '', avaliacoes.meta.limit, proximaPagina);
+            
+            // Adicionar novas avaliações às existentes
+            setAvaliacoes(prev => {
+                const novosData = [...prev.data, ...avaliacoesNovas.data];
+                const totalCarregado = novosData.length;
+                
+                // Verificar se ainda há mais avaliações para carregar
+                if (totalCarregado >= prev.meta.total || avaliacoesNovas.data.length < prev.meta.limit) {
                     setHasMoreAvaliacoes(false);
                 }
-
-                setLoading(false);
-            }, 800);
+                
+                return {
+                    ...avaliacoesNovas,
+                    data: novosData,
+                    meta: {
+                        ...avaliacoesNovas.meta,
+                        // Manter o total original do primeiro carregamento
+                        total: prev.meta.total
+                    }
+                };
+            });
+        } catch (error) {
+            console.error('Erro ao carregar mais avaliações:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
