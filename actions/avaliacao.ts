@@ -361,6 +361,7 @@ export async function EnviarRespoastaAvaliacao(
             },
         });
         updateTag('ListarAvaliacoes');
+        updateTag('listarDadosAluno')
         
         return avaliacaoCriada;
     } catch (error) {
