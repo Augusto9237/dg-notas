@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 
       if (!resposta) {
         console.error('Mentoria não encontrada para exclusão.');
-        return false;
+        continue;
       }
 
       const countMentorias = await prisma.mentoria.count({
