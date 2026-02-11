@@ -1,5 +1,4 @@
 'use client'
-
 import { listarAlunosGoogle } from "@/actions/alunos";
 import { ListarAvaliacoes, listarTemasMes } from "@/actions/avaliacao";
 import { listarMentoriasMes } from "@/actions/mentoria";
@@ -13,7 +12,7 @@ import { FileType, Users } from "lucide-react";
 import { RiUserStarLine } from "react-icons/ri";
 import { FaChartLine } from "react-icons/fa";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { CardDashboard } from "./card-dashboard";
+import { CardDashboard, CardSkeleton } from "./card-dashboard";
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
     include: {
@@ -52,6 +51,17 @@ interface ListaCardsDashboardProps {
     mentorias: Mentoria[];
     alunos: Aluno[];
     meses: string[]
+}
+
+export function ListaCardsSkelenton(){
+    return(
+        <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
+            <CardSkeleton/>
+            <CardSkeleton/>
+            <CardSkeleton/>
+            <CardSkeleton/>
+        </div>
+    )
 }
 
 export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, meses }: ListaCardsDashboardProps) {

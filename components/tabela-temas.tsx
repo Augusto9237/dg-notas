@@ -27,6 +27,7 @@ import {
   PaginationLink,
   PaginationNext,
 } from "./ui/pagination"
+import { Skeleton } from "./ui/skeleton"
 
 
 type Tema = Prisma.TemaGetPayload<{
@@ -38,10 +39,11 @@ type Tema = Prisma.TemaGetPayload<{
 
 export function TabelaTemas() {
   const { listaTemas } = useContext(ContextoProfessor)
-  const [temas, setTemas] = useState<Tema[]>(listaTemas?.data || []);
-  const [totalItems, setTotalItems] = useState(listaTemas?.meta?.total || 0);
-  const [totalPages, setTotalPages] = useState(listaTemas?.meta?.totalPages || 0);
+  const [temas, setTemas] = useState<Tema[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [isPending, startTransition] = useTransition()
+  const [isLoading, setIsLoading] = useState(false)
   const searchParams = useSearchParams();
   const router = useRouter()
   const pathname = usePathname()
@@ -50,12 +52,27 @@ export function TabelaTemas() {
   const currentPage = Number(searchParams.get('page')) || 1;
 
   useEffect(() => {
+    if (currentPage === 1 && !busca) {
+      setTemas(listaTemas?.data)
+      setTotalItems(listaTemas?.meta.total)
+      setTotalPages(listaTemas.meta.totalPages)
+      return
+    }
+
+
     const buscarDados = async () => {
-      const [temas] = await Promise.all([
-        ListarTemas(busca || undefined, currentPage, 12),
-      ]);
-      setTemas(temas.data);
+      setIsLoading(true)
+      try {
+        const temas = await ListarTemas(busca || undefined, currentPage, 12)
+        setTemas(temas.data);
+      } catch (error) {
+        console.error("Erro ao buscar temas:", error)
+        toast.error("Erro ao carregar temas")
+      } finally {
+        setIsLoading(false)
+      }
     };
+
     buscarDados();
   }, [busca, currentPage]);
 
@@ -126,7 +143,17 @@ export function TabelaTemas() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {temas.length === 0 ? (
+            {isLoading ? (
+              <>
+                {Array.from({ length: 12 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell colSpan={7}>
+                      <Skeleton className='h-9 rounded-sm' />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </>
+            ) : temas.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-8">
                   Nenhum tema encontrado

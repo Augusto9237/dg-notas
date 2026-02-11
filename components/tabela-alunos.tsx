@@ -34,6 +34,7 @@ import { ContextoProfessor } from '@/context/contexto-professor';
 import { Switch } from './ui/switch';
 import { enviarNotificacaoParaUsuario } from '@/actions/notificacoes';
 import Image from 'next/image';
+import { Skeleton } from './ui/skeleton';
 
 type Aluno = Prisma.UserGetPayload<{
   include: {
@@ -128,7 +129,7 @@ export function TabelaAlunos() {
           placeholder='Buscar por E-mail'
         />
       </div>
-      <div className='w-full h-full flex-1'>
+      <div className='h-full flex-1 oveflow-hidden'>
         <Table className='h-full'>
           <TableHeader>
             <TableRow >
@@ -147,11 +148,15 @@ export function TabelaAlunos() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
-                  Carregando...
-                </TableCell>
-              </TableRow>
+              <>
+                {Array.from({ length: 12 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell colSpan={7}>
+                      <Skeleton className='h-9 rounded-sm' />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </>
             ) : alunos.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8">
