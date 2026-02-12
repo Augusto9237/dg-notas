@@ -29,10 +29,7 @@ export default async function Page({
     );
   }
 
-  const [criterios, avaliacoes] = await Promise.all([
-    ListarCriterios(),
-    ListarAvaliacoesAlunoId(alunoId)
-  ])
+  const avaliacoes = await ListarAvaliacoesAlunoId(alunoId)
 
   return (
     <Suspense fallback={<Loading />}>
@@ -46,11 +43,8 @@ export default async function Page({
             <RelatorioEvolucao aluno={{ id: alunoId, nome: aluno.name, email: aluno.email, image: aluno.image || '', telefone: aluno.telefone || '', criado: aluno.createdAt }} avaliacoes={avaliacoes.data} />
           </div>
         </HeaderProfessor>
-        <main className="flex flex-col gap-4 p-5">
-          <div className='bg-card rounded-lg shadow-sm p-4 flex flex-col gap-4'>
-            <InputBusca placeholder='Buscar por Tema' />
-            <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoes} />
-          </div>
+        <main className="flex flex-col p-5 h-full">
+          <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoes} />
         </main>
       </div>
     </Suspense>

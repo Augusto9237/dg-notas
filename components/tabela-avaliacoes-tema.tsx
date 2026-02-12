@@ -92,8 +92,6 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
   const endIndex = startIndex + pageSize;
   const paginacaoAvaliacoes = listaAvaliacoes.slice(startIndex, endIndex);
 
-
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
