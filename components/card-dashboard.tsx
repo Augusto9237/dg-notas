@@ -15,7 +15,7 @@ interface CardDashboardProps {
     footerText: string;
 }
 
-export function CardSkeleton() {
+export const CardSkeleton = () => {
     return (
         <Card className="max-sm:gap-3 max-sm:px-5">
             <CardHeader className="max-sm:p-0">
