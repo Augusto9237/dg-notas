@@ -53,16 +53,6 @@ interface ListaCardsDashboardProps {
     meses: string[]
 }
 
-export function ListaCardsSkelenton(){
-    return(
-        <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
-            <CardSkeleton/>
-            <CardSkeleton/>
-            <CardSkeleton/>
-            <CardSkeleton/>
-        </div>
-    )
-}
 
 export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, meses }: ListaCardsDashboardProps) {
     const { notificacoes } = useContext(ContextoProfessor);
@@ -112,35 +102,45 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
     }, [notificacoes])
 
     const mediaGeral = calcularMediaGeral(listaAvaliacoes);
-    return (
-        <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
-            <CardDashboard
-                description="Média Geral"
-                value={mediaGeral.toFixed(2).replace('.', ',')}
-                icon={<FaChartLine size={26} />}
-                footerText={`Média geral de ${meses[Number(mes) - 1]}`}
-            />
 
-            <CardDashboard
-                description="Total de Alunos"
-                value={listaAlunos.length}
-                icon={<Users size={26} />}
-                footerText={`Cadastrados até ${meses[Number(mes) - 1]}`}
-            />
+    if (mes === null || ano === null) {
+        return (
+            <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+            </div>)
+    } else {
+        return (
+            <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
+                <CardDashboard
+                    description="Média Geral"
+                    value={mediaGeral.toFixed(2).replace('.', ',')}
+                    icon={<FaChartLine size={26} />}
+                    footerText={`Média geral de ${meses[Number(mes) - 1]}`}
+                />
 
-            <CardDashboard
-                description="Total de Temas"
-                value={listaTemas.length}
-                icon={<FileType size={26} />}
-                footerText={mes && ano ? `Temas de ${meses[Number(mes) - 1]}` : 'Temas do mês atual'}
-            />
+                <CardDashboard
+                    description="Total de Alunos"
+                    value={listaAlunos.length}
+                    icon={<Users size={26} />}
+                    footerText={`Cadastrados até ${meses[Number(mes) - 1]}`}
+                />
 
-            <CardDashboard
-                description="Total de Mentorias"
-                value={listaMentorias.length}
-                icon={<RiUserStarLine size={26} />}
-                footerText={mes && ano ? `Mentorias de ${meses[Number(mes) - 1]}` : 'Mentorias do mês atual'}
-            />
-        </div>
-    )
-}
+                <CardDashboard
+                    description="Total de Temas"
+                    value={listaTemas.length}
+                    icon={<FileType size={26} />}
+                    footerText={mes && ano ? `Temas de ${meses[Number(mes) - 1]}` : 'Temas do mês atual'}
+                />
+
+                <CardDashboard
+                    description="Total de Mentorias"
+                    value={listaMentorias.length}
+                    icon={<RiUserStarLine size={26} />}
+                    footerText={mes && ano ? `Mentorias de ${meses[Number(mes) - 1]}` : 'Mentorias do mês atual'}
+                />
+            </div>
+        )
+    }}

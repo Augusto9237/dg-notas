@@ -8,7 +8,7 @@ import { TabelaTopAlunos } from "@/components/tabela-top-alunos";
 import { SeletorData } from "@/components/seletor-data";
 import { UltimasAvaliacoes } from "@/components/ultimas-avaliacoes";
 import { HeaderProfessor } from "@/components/header-professor";
-import { ListaCardsDashboard, ListaCardsSkelenton } from "@/components/lista-cards-dashbord";
+import { ListaCardsDashboard, } from "@/components/lista-cards-dashbord";
 import { Suspense } from "react";
 
 
@@ -70,9 +70,8 @@ export default async function Page({
             </HeaderProfessor>
 
             <main className="flex flex-col gap-4 p-5 h-full">
-                <Suspense fallback={<ListaCardsSkelenton />}>
-                    <ListaCardsDashboard alunos={alunos.data} temas={temasMes} avaliacoes={avaliacoes.data} mentorias={mentorias} meses={meses} />
-                </Suspense>
+                <ListaCardsDashboard alunos={alunos.data} temas={temasMes} avaliacoes={avaliacoes.data} mentorias={mentorias} meses={meses} />
+
                 <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
                     <UltimasAvaliacoes temasMes={ultimosTemas} avaliacoes={avaliacoes.data} />
                     <TabelaTopAlunos avaliacoes={avaliacoes.data} quantidadeTemas={temasMes.length} />
