@@ -127,7 +127,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
     const arquivo = ref(storage, path);
     try {
       await DeletarAvaliacao(avaliacaoId);
-      const deletarArquivo = await deleteObject(arquivo);
+      await deleteObject(arquivo);
       setListaAvaliacoes(prevAvaliacoes => prevAvaliacoes.filter(avaliacao => avaliacao.id !== avaliacaoId));
       toast.success('Avaliação excluída com sucesso!');
     } catch (error) {
