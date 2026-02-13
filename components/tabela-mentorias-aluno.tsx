@@ -56,15 +56,8 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
     const userId = session?.user.id;
 
     useEffect(() => {
-        // Deduplicar por id para evitar chaves repetidas no React
-        const idsVistos = new Set<number>();
-        const dataUnica = listaMentorias.data.filter((m) => {
-            if (idsVistos.has(m.id)) return false;
-            idsVistos.add(m.id);
-            return true;
-        });
-        setMentorias({ ...listaMentorias, data: dataUnica });
-        setHasMore(listaMentorias.meta.total > dataUnica.length);
+        setMentorias(listaMentorias);
+        setHasMore(listaMentorias.meta.total > listaMentorias.data.length);
     }, [listaMentorias]);
 
     const hoje = new Date()
@@ -108,11 +101,9 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
             
             const mentoriasNovas = await listarMentoriasAluno(userId!, proximaPagina, mentorias.meta.limit);
             
-            // Adicionar novas mentorias às existentes (deduplicar por id para evitar keys repetidas)
+            // Adicionar novas mentorias às existentes
             setMentorias(prev => {
-                const idsExistentes = new Set(prev.data.map((m) => m.id));
-                const semDuplicatas = mentoriasNovas.data.filter((m) => !idsExistentes.has(m.id));
-                const novosData = [...prev.data, ...semDuplicatas];
+                const novosData = [...prev.data, ...mentoriasNovas.data];
                 const totalCarregado = novosData.length;
                 
                 // Verificar se ainda há mais mentorias para carregar
