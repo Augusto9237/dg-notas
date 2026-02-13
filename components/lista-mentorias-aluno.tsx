@@ -5,6 +5,8 @@ import { Card, CardContent } from "./ui/card"
 import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma"
 import { ContextoAluno } from "@/context/contexto-aluno"
 import { CalendarX } from "lucide-react"
+import InfiniteScroll from "./ui/infinite-scroll"
+import { Spinner } from "./ui/spinner"
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -30,9 +32,12 @@ interface ListMentoriasAlunosProps {
         bio: string | null;
         image: string | null;
     } | null
+    hasMore?: boolean;
+    loading?: boolean;
+    nextMentorias?: () => void;
 }
 
-export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorario }: ListMentoriasAlunosProps) {
+export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorario, hasMore, loading, nextMentorias }: ListMentoriasAlunosProps) {
     const [mentorias, setMentorias] = useState<Mentoria[]>(mentoriasIniciais)
 
     useEffect(() => {
@@ -49,9 +54,25 @@ export function ListMentoriasAlunos({ mentoriasIniciais, diasSemana, slotsHorari
                     <p className="text-xs">Que tal agendar uma nova mentoria?</p>
                 </div>
             ) : (
-                mentorias.map((mentoria) => (
-                    <CardMentoria key={mentoria.id} mentoria={mentoria} diasSemana={diasSemana} slotsHorario={slotsHorario} />
-                ))
+                <>
+                    {mentorias.map((mentoria) => (
+                        <CardMentoria key={mentoria.id} mentoria={mentoria} diasSemana={diasSemana} slotsHorario={slotsHorario} />
+                    ))}
+                    {hasMore !== undefined && loading !== undefined && nextMentorias && (
+                        <>
+                            <div className="flex items-center justify-center col-span-full max-md:hidden">
+                                <InfiniteScroll hasMore={hasMore} isLoading={loading} next={nextMentorias} threshold={1} >
+                                    {hasMore && <Spinner />}
+                                </InfiniteScroll>
+                            </div>
+                            <div className="flex items-center justify-center col-span-full min-md:hidden">
+                                <InfiniteScroll hasMore={hasMore} isLoading={loading} next={nextMentorias} threshold={0.1} rootMargin="100px">
+                                    {hasMore && <Spinner />}
+                                </InfiniteScroll>
+                            </div>
+                        </>
+                    )}
+                </>
             )}
         </div>
     )

@@ -8,7 +8,7 @@ import { Progress } from './ui/progress';
 import { Badge } from './ui/badge';
 import { AlunoRanking, rankearMelhoresAlunos } from '@/lib/dashboard-utils';
 import { Prisma } from '@/app/generated/prisma';
-import { Suspense, useContext, useEffect, useState } from 'react';
+import { Suspense, useContext, useEffect, useState, useTransition } from 'react';
 import { ContextoProfessor } from '@/context/contexto-professor';
 import { ListarAvaliacoes } from '@/actions/avaliacao';
 import { useSearchParams } from 'next/navigation';
@@ -19,16 +19,16 @@ const TabelaTopAlunosSkeleton = () => {
   return (
     <Card className='p-5 gap-5'>
       <CardHeader className='flex w-full justify-between items-start p-0'>
-        <Skeleton className='w-full h-[16px] rounded-sm' />
+        <Skeleton className='w-full max-w-sm h-[16px] rounded-sm' />
       </CardHeader>
       <CardContent className='p-0 flex flex-col gap-4'>
         {Array.from({ length: 10 }).map((_, index) => (
-          <Card className='flex flex-row items-center p-4 gap-4'>
+          <Card key={index} className='flex flex-row items-center p-4 gap-4'>
             <Skeleton className='h-[18px]' />
             <Skeleton className='size-10 rounded-full' />
             <div className='w-full flex flex-col gap-2'>
               <div className='flex w-full justify-between items-center -mt-1'>
-                <Skeleton className='h-[16px]' />
+                <Skeleton className='h-[16px] w-full' />
                 <Skeleton />
               </div>
               <Skeleton className='w-full h-2' />
@@ -57,17 +57,17 @@ interface TabelaAlunosProps {
 export function TabelaTopAlunos({ avaliacoes, quantidadeTemas }: TabelaAlunosProps) {
   const { notificacoes } = useContext(ContextoProfessor)
   const [alunos, setAlunos] = useState<AlunoRanking[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const params = useSearchParams();
   const mes = params.get('mes');
   const ano = params.get('ano')
 
+
   useEffect(() => {
-    setIsLoading(true)
     const top10 = rankearMelhoresAlunos(avaliacoes, quantidadeTemas);
     setAlunos(top10)
-    setIsLoading(false)
   }, [avaliacoes])
 
   useEffect(() => {
@@ -85,7 +85,8 @@ export function TabelaTopAlunos({ avaliacoes, quantidadeTemas }: TabelaAlunosPro
     handleNotification();
   }, [notificacoes])
 
-  if (isLoading) {
+
+  if (isPending) {
     return (
       <TabelaTopAlunosSkeleton />
     )

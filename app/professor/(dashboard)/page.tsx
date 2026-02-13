@@ -10,6 +10,7 @@ import { UltimasAvaliacoes } from "@/components/ultimas-avaliacoes";
 import { HeaderProfessor } from "@/components/header-professor";
 import { ListaCardsDashboard, } from "@/components/lista-cards-dashbord";
 import { Suspense } from "react";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 
 
 // Helper para normalizar os parâmetros
@@ -41,12 +42,26 @@ export default async function Page({
     const { mes, ano } = normalizarParams(params.mes, params.ano);
 
     // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
-    const [avaliacoes, mentorias, temasMes, alunos] = await Promise.all([
-        ListarAvaliacoes(mes, ano, 1, 1000),
+    const [mentorias, temasMes, alunos] = await Promise.all([
         listarMentoriasMes(mes, ano),
         listarTemasMes(mes, ano),
         listarAlunosGoogle('', 1, 1000)
     ]);
+
+    async function listarAvaliacoesIniciais() {
+        'use cache: private'
+        cacheTag('listar-avaliacoes-home')
+        cacheLife({ revalidate: 900 })
+
+        const avaliacoes = await ListarAvaliacoes(mes, ano, 1, 1000)
+
+        return avaliacoes
+    }
+
+    async function atualizarAvaliacoes() {
+        'use server'
+        updateTag('listar-avaliacoes-home')
+    }
 
     const meses = [
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -70,11 +85,11 @@ export default async function Page({
             </HeaderProfessor>
 
             <main className="flex flex-col gap-4 p-5 h-full">
-                <ListaCardsDashboard alunos={alunos.data} temas={temasMes} avaliacoes={avaliacoes.data} mentorias={mentorias} meses={meses} />
+                <ListaCardsDashboard alunos={alunos.data} temas={temasMes} avaliacoes={(await listarAvaliacoesIniciais()).data} atualizarAvaliacoes={atualizarAvaliacoes} mentorias={mentorias} meses={meses} />
 
                 <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
-                    <UltimasAvaliacoes temasMes={ultimosTemas} avaliacoes={avaliacoes.data} />
-                    <TabelaTopAlunos avaliacoes={avaliacoes.data} quantidadeTemas={temasMes.length} />
+                    <UltimasAvaliacoes temasMes={ultimosTemas} avaliacoes={(await listarAvaliacoesIniciais()).data} />
+                    <TabelaTopAlunos avaliacoes={(await listarAvaliacoesIniciais()).data} quantidadeTemas={temasMes.length} />
                 </div>
             </main >
         </div >

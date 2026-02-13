@@ -1,10 +1,12 @@
 'use client'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ContextoAluno } from "@/context/contexto-aluno";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { CardMentoriaConfirmacao } from "./card-mentoria-confirmacao";
 import { ListMentoriasAlunos } from "./lista-mentorias-aluno";
-import { DiaSemana, SlotHorario } from "@/app/generated/prisma";
+import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma";
+import { listarMentoriasAluno } from "@/actions/mentoria";
+import { authClient } from "@/lib/auth-client";
 
 type Professor = {
     id: string;
@@ -16,6 +18,28 @@ type Professor = {
     image: string | null;
 } | null
 
+type Mentoria = Prisma.MentoriaGetPayload<{
+    include: {
+        horario: {
+            include: {
+                slot: true
+            }
+        },
+        professor: true;
+        aluno: true;
+    }
+}>;
+
+interface ListaMentorias {
+    data: Mentoria[]
+    meta: {
+        total: number,
+        page: number,
+        limit: number,
+        totalPages: number,
+    }
+}
+
 interface TabelaMentoriasAlunoProps {
     professor: Professor;
     diasSemana: DiaSemana[];
@@ -24,25 +48,80 @@ interface TabelaMentoriasAlunoProps {
 
 export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: TabelaMentoriasAlunoProps) {
     const { listaMentorias } = useContext(ContextoAluno);
-    // Get today's date in Brazil timezone
+    const [mentorias, setMentorias] = useState<ListaMentorias>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+
+    const { data: session } = authClient.useSession();
+    const userId = session?.user.id;
+
+    useEffect(() => {
+        setMentorias(listaMentorias);
+        setHasMore(listaMentorias.meta.total > listaMentorias.data.length);
+    }, [listaMentorias]);
+
     const hoje = new Date()
     const brasilTime = new Date(hoje.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
     const hojeAno = brasilTime.getFullYear()
     const hojeMes = brasilTime.getMonth()
     const hojeDia = brasilTime.getDate()
 
-    const mentoriasDoDia = listaMentorias.data.filter((mentoria) => {
+    const mentoriasDoDia = mentorias.data.filter((mentoria) => {
         if (mentoria.status !== "AGENDADA" && mentoria.status !== 'CONFIRMADA') return false
 
-        // Database stores dates at midnight UTC, which represents the correct day
-        // So we compare using UTC date components, not local time
         const dataMentoria = new Date(mentoria.horario.data)
-
-        // Compare year, month, and day using UTC components
         return dataMentoria.getUTCFullYear() === hojeAno &&
             dataMentoria.getUTCMonth() === hojeMes &&
             dataMentoria.getUTCDate() === hojeDia
     })
+
+    const mentoriasAgendadas = mentorias.data.filter((mentoria) => mentoria.status === "AGENDADA");
+    const mentoriasRealizadas = mentorias.data.filter((mentoria) => mentoria.status === "REALIZADA");
+
+    const nextMentorias = async () => {
+        if (loading || !hasMore) return;
+
+        // Verificar se ainda há mais mentorias para carregar
+        if (mentorias.data.length >= mentorias.meta.total) {
+            setHasMore(false);
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            // Calcular a próxima página baseada no número atual de mentorias
+            const mentoriasCarregadas = mentorias.data.length;
+            const proximaPagina = Math.floor(mentoriasCarregadas / mentorias.meta.limit) + 1;
+            
+            const mentoriasNovas = await listarMentoriasAluno(userId!, proximaPagina, mentorias.meta.limit);
+            
+            // Adicionar novas mentorias às existentes
+            setMentorias(prev => {
+                const novosData = [...prev.data, ...mentoriasNovas.data];
+                const totalCarregado = novosData.length;
+                
+                // Verificar se ainda há mais mentorias para carregar
+                if (totalCarregado >= prev.meta.total || mentoriasNovas.data.length < prev.meta.limit) {
+                    setHasMore(false);
+                }
+                
+                return {
+                    ...mentoriasNovas,
+                    data: novosData,
+                    meta: {
+                        ...mentoriasNovas.meta,
+                        // Manter o total original do primeiro carregamento
+                        total: prev.meta.total
+                    }
+                };
+            });
+        } catch (error) {
+            console.error('Erro ao carregar mais mentorias:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <Tabs defaultValue="agendada" className='h-full'>
             <TabsList>
@@ -59,20 +138,24 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
                 )}
 
                 <ListMentoriasAlunos
-                    mentoriasIniciais={listaMentorias.data.filter(
-                        (mentoria) => mentoria.status === "AGENDADA" 
-                    )}
+                    mentoriasIniciais={mentoriasAgendadas}
                     diasSemana={diasSemana}
                     slotsHorario={slotsHorario}
                     professor={professor}
+                    hasMore={hasMore}
+                    loading={loading}
+                    nextMentorias={nextMentorias}
                 />
             </TabsContent>
             <TabsContent value="realizada" className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-24">
                 <ListMentoriasAlunos
-                    mentoriasIniciais={listaMentorias.data.filter((mentoria) => mentoria.status === "REALIZADA")}
+                    mentoriasIniciais={mentoriasRealizadas}
                     diasSemana={diasSemana}
                     slotsHorario={slotsHorario}
                     professor={professor}
+                    hasMore={hasMore}
+                    loading={loading}
+                    nextMentorias={nextMentorias}
                 />
             </TabsContent>
         </Tabs>

@@ -581,9 +581,13 @@ export async function DeletarAvaliacao(id: number) {
 export async function ListarAvaliacoes(month?: number, year?: number, page: number = 1, limit: number = 10) {
     const now = new Date();
 
-    // Se nenhum parâmetro for fornecido, usa o mês e ano atual
-    const targetMonth = month ?? (now.getMonth() + 1); // getMonth() retorna 0-11
-    const targetYear = year ?? now.getFullYear();
+    // Se month e year forem undefined, retorna mês e ano atual
+    if (typeof month === 'undefined' && typeof year === 'undefined') {
+        month = now.getMonth() + 1; // getMonth() retorna 0-11
+        year = now.getFullYear();
+    }
+    const targetMonth = month!;
+    const targetYear = year!;
 
     // Validação do mês
     if (targetMonth < 1 || targetMonth > 12) {
