@@ -56,8 +56,15 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
     const userId = session?.user.id;
 
     useEffect(() => {
-        setMentorias(listaMentorias);
-        setHasMore(listaMentorias.meta.total > listaMentorias.data.length);
+        // Deduplicar por id para evitar chaves repetidas no React
+        const idsVistos = new Set<number>();
+        const dataUnica = listaMentorias.data.filter((m) => {
+            if (idsVistos.has(m.id)) return false;
+            idsVistos.add(m.id);
+            return true;
+        });
+        setMentorias({ ...listaMentorias, data: dataUnica });
+        setHasMore(listaMentorias.meta.total > dataUnica.length);
     }, [listaMentorias]);
 
     const hoje = new Date()
@@ -78,6 +85,11 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
     const mentoriasAgendadas = mentorias.data.filter((mentoria) => mentoria.status === "AGENDADA");
     const mentoriasRealizadas = mentorias.data.filter((mentoria) => mentoria.status === "REALIZADA");
 
+    // Excluir mentorias já exibidas em "mentorias do dia" para evitar chaves duplicadas e duplicação visual
+    const mentoriasAgendadasParaLista = mentoriasAgendadas.filter(
+        (m) => !mentoriasDoDia.some((d) => d.id === m.id)
+    );
+
     const nextMentorias = async () => {
         if (loading || !hasMore) return;
 
@@ -96,9 +108,11 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
             
             const mentoriasNovas = await listarMentoriasAluno(userId!, proximaPagina, mentorias.meta.limit);
             
-            // Adicionar novas mentorias às existentes
+            // Adicionar novas mentorias às existentes (deduplicar por id para evitar keys repetidas)
             setMentorias(prev => {
-                const novosData = [...prev.data, ...mentoriasNovas.data];
+                const idsExistentes = new Set(prev.data.map((m) => m.id));
+                const semDuplicatas = mentoriasNovas.data.filter((m) => !idsExistentes.has(m.id));
+                const novosData = [...prev.data, ...semDuplicatas];
                 const totalCarregado = novosData.length;
                 
                 // Verificar se ainda há mais mentorias para carregar
@@ -138,7 +152,7 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
                 )}
 
                 <ListMentoriasAlunos
-                    mentoriasIniciais={mentoriasAgendadas}
+                    mentoriasIniciais={mentoriasAgendadasParaLista}
                     diasSemana={diasSemana}
                     slotsHorario={slotsHorario}
                     professor={professor}

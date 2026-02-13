@@ -2,7 +2,7 @@
 
 import { Mentoria } from '@/app/generated/prisma';
 import { prisma } from '@/lib/prisma';
-import { cacheLife, revalidatePath } from 'next/cache';
+import { cacheLife, revalidatePath, updateTag } from 'next/cache';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
 // Tipos para os parâmetros da função
@@ -202,7 +202,9 @@ export async function adicionarMentoria(
         data: { status: false }, // false = ocupado
       });
     }
-    revalidatePath('/aluno/mentorias');
+
+    updateTag('listar-mentorias-aluno')
+    // revalidatePath('/aluno/mentorias');
     revalidatePath('/professor/mentorias');
 
     return {

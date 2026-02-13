@@ -42,12 +42,22 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
     }
 
     if (session.user.matriculado === false) {
-        await enviarNotificacaoParaTodos(
-            'admin',
-            'Novo login com acesso pendente',
-            `O aluno ${session.user.name} realizou login no aplicativo e solicita liberação de acesso`,
-            '/professor/alunos'
-        )
+        async function avisoNovoAcesso() {
+            'use cache'
+            cacheLife({ revalidate: 300 })
+
+            const res = await enviarNotificacaoParaTodos(
+                'admin',
+                'Novo login com acesso pendente',
+                `O aluno ${session?.user.name} realizou login no aplicativo e solicita liberação de acesso`,
+                '/professor/alunos'
+            );
+
+            return res
+        }
+
+        await avisoNovoAcesso();
+
         return (
             <>
                 <InstalarIos />
@@ -62,7 +72,6 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
                     <p className="text-muted-foreground">
                         Seu acesso ainda não foi liberado, mas estamos cuidando disso. Avisaremos você assim que for liberado.
                     </p>
-
                 </main>
             </>
         )
