@@ -13,7 +13,7 @@ import { ProvedorTemas } from "@/context/provedor-temas";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { auth } from "@/lib/auth";
 import { Clock } from "lucide-react";
-import { cacheTag } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
@@ -70,27 +70,36 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
 
         const userId = session.user.id;
 
-        async function listarDados() {
+        async function listarMentorias() {
             'use cache: private'
-            cacheTag('listarDadosAluno')
+            cacheTag('listar-mentorias-aluno')
 
-            const [mentorias, temas,] = await Promise.all([
-                listarMentoriasAluno(userId),
-                ListarTemasDisponiveis(userId),
-            ]);
+            cacheLife({ revalidate: 900 })
 
-            return {
-                mentorias,
-                temas,
-            }
+            const mentorias = await listarMentoriasAluno(userId)
+
+            return mentorias
         }
 
         async function ListarAvaliacoes() {
             'use cache: private'
-            cacheTag('ListarAvaliacoes')
+            cacheTag('listar-avaliacoes-aluno')
+
+            cacheLife({ revalidate: 900 })
 
             const avaliacoes = await ListarAvaliacoesAlunoId(userId);
             return avaliacoes;
+        }
+
+        async function ListarTemas() {
+            'use cache: private'
+            cacheTag('listar-temas-aluno')
+
+            cacheLife({ revalidate: 900 })
+
+            const temas = await ListarTemasDisponiveis(userId)
+
+            return temas
         }
 
         const criterios = await ListarCriterios();
@@ -110,8 +119,8 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
                     <ProvedorAluno
                         userId={userId}
                         avaliacoes={(await ListarAvaliacoes())}
-                        mentorias={(await listarDados()).mentorias}
-                        temas={(await listarDados()).temas}
+                        mentorias={(await listarMentorias())}
+                        temas={(await ListarTemas())}
                         criterios={criterios}
                     >
                         <SidebarProvider>

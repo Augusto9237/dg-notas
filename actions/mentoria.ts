@@ -442,7 +442,7 @@ export async function listarMentoriasAluno(
               slot: true, // Garante que o objeto slot completo seja incluído
             },
           },
-          professor: true, // Garante que o objeto professor completo seja incluído, se professorId não for nulo
+          professor: true, 
           aluno: true,
         },
         orderBy: {

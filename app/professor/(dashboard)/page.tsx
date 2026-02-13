@@ -58,10 +58,6 @@ export default async function Page({
         return avaliacoes
     }
 
-    async function atualizarAvaliacoes() {
-        'use server'
-        updateTag('listar-avaliacoes-home')
-    }
 
     const meses = [
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -85,7 +81,7 @@ export default async function Page({
             </HeaderProfessor>
 
             <main className="flex flex-col gap-4 p-5 h-full">
-                <ListaCardsDashboard alunos={alunos.data} temas={temasMes} avaliacoes={(await listarAvaliacoesIniciais()).data} atualizarAvaliacoes={atualizarAvaliacoes} mentorias={mentorias} meses={meses} />
+                <ListaCardsDashboard alunos={alunos.data} temas={temasMes} avaliacoes={(await listarAvaliacoesIniciais()).data} mentorias={mentorias} meses={meses} />
 
                 <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
                     <UltimasAvaliacoes temasMes={ultimosTemas} avaliacoes={(await listarAvaliacoesIniciais()).data} />

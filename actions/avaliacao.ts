@@ -360,7 +360,7 @@ export async function EnviarRespoastaAvaliacao(
                 notaFinal: 0, // Default score
             },
         });
-        updateTag('ListarAvaliacoes');
+        updateTag('listar-avaliacoes-aluno');
         updateTag('listarDadosAluno')
         
         return avaliacaoCriada;
