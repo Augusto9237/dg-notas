@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { FilePen, FileText, Loader2, Upload } from "lucide-react"
-import { useEffect, useState, useMemo, memo, useRef } from "react"
+import { useEffect, useState, useMemo, memo, useRef, useContext } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -26,6 +26,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 import { ref, uploadBytes } from "firebase/storage"
 import { storage } from "@/lib/firebase"
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes"
+import { ContextoProfessor } from "@/context/contexto-professor"
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -49,9 +50,9 @@ interface FormularioAvaliacaoProps {
   avaliacao: Avaliacao
 }
 
-export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao }: FormularioAvaliacaoProps) {
+export function FormularioCorrecao({ avaliacao }: FormularioAvaliacaoProps) {
+  const { listaCriterios } = useContext(ContextoProfessor)
   const [isOpen, setIsOpen] = useState(false)
-  const [criterios, setCriterios] = useState<Criterio[]>([])
   const [arquivo, setArquivo] = useState<File | null>(null);
 
   const defaultValues = useMemo(() => {
@@ -70,15 +71,6 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
       reposta: ""
     };
   }, [avaliacao]);
-
-  useEffect(() => {
-    const fetchConfig = async () => {
-      const criterios = await ListarCriterios()
-      setCriterios(criterios);
-    };
-
-    fetchConfig();
-  }, [])
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -125,7 +117,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const storageRef = ref(storage, `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.pdf`);
+    const storageRef = ref(storage, `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`);
     try {
       if (!values.tema || !values.criterios) {
         throw new Error('Tema e critérios são obrigatórios');
@@ -179,7 +171,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
           </TooltipContent>
         </Tooltip>
       </DialogTrigger>
-      <DialogContent className="overflow-y-auto max-h-[95vh] overflow-x-hidden max-w-screen-md">
+      <DialogContent className="overflow-y-auto max-h-[95vh]">
         <DialogHeader>
           <DialogTitle className="text-center max-sm:text-base">Correção</DialogTitle>
         </DialogHeader>
@@ -193,7 +185,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
 
             <div className="space-y-2">
               <FormLabel>Competências</FormLabel>
-              {criterios.map((criterio, i) => (
+              {listaCriterios.map((criterio, i) => (
                 <FormField
                   key={criterio.id}
                   control={form.control}
@@ -241,7 +233,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
             <Input
               placeholder="shadcn"
               type="file"
-              accept="application/pdf"
+              accept="application/jpg"
               className="hidden"
               ref={inputRef}
               onChange={carregarArquivo}
@@ -276,6 +268,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
                 <Button
                   type="button"
                   variant="ghost"
+                  className={clsx(form.formState.isSubmitting && 'hidden')}
                   onClick={() => setIsOpen(false)}
 
                 >
@@ -283,7 +276,7 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
                 </Button>
                 <Button
                   type="submit"
-
+                  className={clsx(form.formState.isSubmitting && 'col-span-2')}
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
@@ -296,4 +289,4 @@ export const FormularioCorrecao = memo(function FormularioAvaliacao({ avaliacao 
       </DialogContent>
     </Dialog>
   )
-});
+};

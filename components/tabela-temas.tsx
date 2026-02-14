@@ -48,6 +48,8 @@ export function TabelaTemas() {
   const router = useRouter()
   const pathname = usePathname()
 
+  console.log('Contexto', listaTemas.data)
+
   const busca = searchParams.get('busca');
   const currentPage = Number(searchParams.get('page')) || 1;
 
@@ -58,7 +60,6 @@ export function TabelaTemas() {
       setTotalPages(listaTemas.meta.totalPages)
       return
     }
-
 
     const buscarDados = async () => {
       setIsLoading(true)
@@ -74,7 +75,7 @@ export function TabelaTemas() {
     };
 
     buscarDados();
-  }, [busca, currentPage]);
+  }, [busca, currentPage, listaTemas]);
 
   function atualizarDisponibilidadeTema(temaId: number, status: boolean) {
     startTransition(async () => {

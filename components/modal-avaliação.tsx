@@ -70,7 +70,7 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
       const arquivo = ref(storage, path);
       const url = await getDownloadURL(arquivo);
 
-      download(url, `${nomeArquivo}.pdf`);
+      download(url, `${nomeArquivo}.jpg`);
       toast.success('Download iniciado');
     } catch (error) {
       console.error('Erro ao baixar o arquivo:', error);

@@ -5,7 +5,7 @@ import { ReactNode, useEffect, useState } from "react"
 import { ContextoProfessor } from "./contexto-professor"
 import useWebPush from "@/hooks/useWebPush"
 import { listarMentoriasMes } from "@/actions/mentoria"
-import { ListarAvaliacoes } from "@/actions/avaliacao"
+import { ListarAvaliacoes, ListarTemas } from "@/actions/avaliacao"
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
     include: {
@@ -96,8 +96,11 @@ export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, te
 
             try {
                 if (url === '/professor/avaliacoes') {
-                    const novasAvaliacoes = await ListarAvaliacoes(undefined, undefined, 1, 10)
+                    const novasAvaliacoes = await ListarAvaliacoes(undefined, undefined, 1, 10);
+                    const novosTemas = await ListarTemas()
                     setListaAvaliacoes(novasAvaliacoes);
+                    setListaTemas(novosTemas)
+
                 }
 
                 if (url === '/professor/mentorias') {
