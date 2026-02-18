@@ -17,7 +17,7 @@ const chartConfig = {
     },
     ruim: {
         label: "ruim",
-        color: "var(--red-500)",
+        color: "var(--destructive)",
     },
     regular: {
         label: "regular",
