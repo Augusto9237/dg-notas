@@ -28,7 +28,7 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
             active: pathname === "/aluno/avaliacoes",
         },
         {
-            icon: <Image src="/Símbolo4.svg" alt="logo" width={50} height={50} className="min-size-14 size-14.5 bg-primary -mt-10  rounded-full p-2 border border-4 shadow-lg shadow-primary/45 border-card" />,
+            icon: <Image src="/Símbolo4.svg" alt="logo" width={50} height={50} className="min-size-14.5 size-14.5 bg-primary -mt-10  rounded-full p-2 border border-4 shadow-lg shadow-primary/45 border-card" />,
             href: "/aluno/#",
             label: "",
             active: pathname === "/aluno/#",
@@ -50,7 +50,7 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
     return (
         <footer className={cn("fixed inset-x-0 bottom-0 min-[1025px]:hidden", className)}>
             <Card className="p-0 bg-card rounded-t-xl rounded-b-none">
-                <nav className="flex justify-between gap-1 w-full px-5 items-center">
+                <nav className="flex justify-between w-full px-5 items-center">
 
                     {routes.map((route) => (
                         <Link
