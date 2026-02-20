@@ -35,7 +35,9 @@ export default function VideoPlayer({ videoUrl }: VideoPlayerProps) {
                         disableDownload: true,
                         attributes: {
                             controlsList: 'nodownload'
-                        }
+                        },
+                        forceHLS: false,
+                        forceVideo: true,
                     }
                 }}
             />
