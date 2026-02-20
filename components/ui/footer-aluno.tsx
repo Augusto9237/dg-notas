@@ -28,16 +28,16 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
             active: pathname === "/aluno/avaliacoes",
         },
         {
-            icon: <Image src="/Símbolo4.svg" alt="logo" width={50} height={50} className="size-14.5 bg-primary -mt-10  rounded-full p-2 border border-4 shadow-lg shadow-primary/45 border-card" />,
+            icon: <Image src="/Símbolo4.svg" alt="logo" width={50} height={50} className="min-size-14 size-14.5 bg-primary -mt-10  rounded-full p-2 border border-4 shadow-lg shadow-primary/45 border-card" />,
             href: "/aluno/#",
             label: "",
             active: pathname === "/aluno/#",
         },
         {
             icon: <MonitorPlay className="h-5 w-5" />,
-            href: "/aluno/videoaulas/1",
-            label: "Videoaulas",
-            active: pathname.includes("/aluno/videoaulas"),
+            href: "/aluno/aulas/1",
+            label: "Aulas",
+            active: pathname.includes("/aluno/aulas"),
         },
         {
             icon: <RiUserStarLine className="h-5 w-5" />,

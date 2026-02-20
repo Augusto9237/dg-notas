@@ -21,7 +21,7 @@ export default async function Page({
     return (
         <div className="flex-1 h-full max-h-screen min-h-screen max-w-screen overflow-x-hidden p-5">
             <div className="flex items-center justify-between mb-5">
-                <h2 className="text-primary font-semibold">Videoaulas</h2>
+                <h2 className="text-primary font-semibold">Aulas</h2>
                 <div className="sm:hidden">
                     <MenuVideoaulas aulaId={Number(aulaId)} />
                 </div>

@@ -1,6 +1,6 @@
 'use server';
 
-import { Mentoria } from '@/app/generated/prisma';
+import { Mentoria, Prisma } from '@/app/generated/prisma';
 import { prisma } from '@/lib/prisma';
 import { cacheLife, revalidatePath, updateTag } from 'next/cache';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
@@ -350,7 +350,7 @@ export async function verificarDisponibilidadeMultiplosSlots(
 export async function listarMentoriasHorario(data?: Date) {
   try {
     // Inicializando os filtros
-    const filtros: any = {};
+    const filtros: Prisma.HorarioWhereInput = {};
 
     // Se a data for fornecida, normaliza e adiciona ao filtro
     if (data) {
