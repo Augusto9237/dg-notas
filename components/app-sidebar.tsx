@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { Logo } from "./ui/logo"
-import { FileChartLine, FileType, Users } from "lucide-react"
+import { FileChartLine, FileType, MonitorPlay, Users } from "lucide-react"
 import { NavUsuario } from "./nav-usuario"
 import { usePathname } from "next/navigation"
 import { RiUserStarLine } from "react-icons/ri";
@@ -45,10 +45,20 @@ export function AppSidebar() {
           className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
           isActive={path === '/professor/alunos' ? true : false}
         >
-
           <Link href="/professor/alunos" className="flex gap-2 items-center">
             <Users />
             Alunos
+          </Link>
+        </SidebarMenuButton>
+
+        <SidebarMenuButton
+          asChild
+          className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
+          isActive={path === '/professor/aulas' ? true : false}
+        >
+          <Link href="/professor/aulas" className="flex gap-2 items-center">
+            <MonitorPlay />
+            Aulas
           </Link>
         </SidebarMenuButton>
 
