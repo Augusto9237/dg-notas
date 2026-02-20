@@ -20,7 +20,7 @@ export default function VideoPlayer({ videoUrl }: VideoPlayerProps) {
         if (!applyNoDownload()) {
             setTimeout(applyNoDownload, 100)
         }
-    }, [])
+    }, [videoUrl])
 
     return (
         <div ref={wrapperRef} className='w-full h-full'>
@@ -30,6 +30,14 @@ export default function VideoPlayer({ videoUrl }: VideoPlayerProps) {
                 height='100%'
                 controls={true}
                 onReady={disableDownload}
+                config={{
+                    html: {
+                        disableDownload: true,
+                        attributes: {
+                            controlsList: 'nodownload'
+                        }
+                    }
+                }}
             />
         </div>
     )

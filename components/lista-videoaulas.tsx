@@ -22,7 +22,7 @@ export function ListaVideoaulas({ aulaId }: ListaVideoaulasProps) {
     useEffect(() => {
         const novasVideoaulas = async () => {
             const aulas = await listarVideoaulas()
-          
+
             setVideoaulas(aulas.data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()))
         }
         novasVideoaulas()
@@ -33,7 +33,7 @@ export function ListaVideoaulas({ aulaId }: ListaVideoaulasProps) {
         <ScrollArea className="w-full h-full">
             <div className="h-full pb-12">
                 {videoaulas.map((videoaula) => (
-                    <Link href={`/aluno/videoaulas/${videoaula.id}`} key={videoaula.id}>
+                    <Link href={`/aluno/aulas/${videoaula.id}`} key={videoaula.id}>
                         <div className={clsx("text-sm flex gap-2 items-center text-muted-foreground p-2 rounded-sm", aulaId === videoaula.id && 'text-primary font-semibold bg-primary/5')}>
                             {aulaId === videoaula.id ? <CirclePlay size={18} /> : <Video size={18} />}
                             {videoaula.titulo}
