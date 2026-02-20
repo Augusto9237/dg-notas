@@ -24,6 +24,7 @@ interface ModalFeedbackMentoriaProps {
 
 export function ModalFeedbackMentoria({ feedback, professor }: ModalFeedbackMentoriaProps) {
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+    
     useEffect(() => {
         async function fetchImage() {
             if (professor?.image) {

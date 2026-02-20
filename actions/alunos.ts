@@ -66,9 +66,14 @@ export async function listarAlunosGoogle(busca?: string, page: number = 1, limit
     }
 }
 
-
-// Função para buscar um aluno pelo id, que tenha apenas providerId 'google'
 export async function BuscarAlunoGooglePorId(id: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user) {
+        throw new Error('Usuário não autorizado');
+    }
     try {
         const aluno = await prisma.user.findFirst({
             where: {
@@ -89,6 +94,16 @@ export async function BuscarAlunoGooglePorId(id: string) {
 
 
 export async function adicionarTelefone(id: string, telefone: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user) {
+        throw new Error('Usuário não autorizado');
+    }
+    if (session.user.id !== id) {
+        throw new Error('Não autorizado');
+    }
     try {
         const aluno = await prisma.user.update({
             where: {

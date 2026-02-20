@@ -1,24 +1,17 @@
 'use client'
 
-import { useEffect, useState, useMemo, useContext, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
 import { toast } from "sonner"
-import { Ellipsis, FileCheck2 } from "lucide-react"
+import { Ellipsis } from "lucide-react"
 
-import { Avaliacao, Prisma } from "@/app/generated/prisma"
-import { AlterarDisponibilidadeTema, DeletarTema, ListarTemas, ListarAvaliacoes } from "@/actions/avaliacao"
+import { Prisma, Videoaula } from "@/app/generated/prisma"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 import { DeleteButton } from "./ui/delete-button"
-import { FormularioTema } from "./formulario-tema"
 import { InputBusca } from "./input-busca"
-import { Button } from "./ui/button"
-import { Switch } from "./ui/switch"
-import { enviarNotificacaoParaTodos } from "@/actions/notificacoes"
-import { ContextoProfessor } from "@/context/contexto-professor"
 import {
   Pagination,
   PaginationContent,
@@ -28,6 +21,9 @@ import {
   PaginationNext,
 } from "./ui/pagination"
 import { Skeleton } from "./ui/skeleton"
+import { deletarVideoaula, listarVideoaulas } from "@/actions/videoaulas"
+import { FormularioVideoaula } from "./formulario-videoaula"
+import { ModalVisualizarVideoaula } from "./modal-visualizar-aula"
 
 
 type Tema = Prisma.TemaGetPayload<{
@@ -37,9 +33,20 @@ type Tema = Prisma.TemaGetPayload<{
   }
 }>
 
-export function TabelaTemas() {
-  const { listaTemas } = useContext(ContextoProfessor)
-  const [temas, setTemas] = useState<Tema[]>([]);
+interface TabelaVideoaulasProps {
+  videoaulas: {
+    data: Videoaula[],
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  }
+}
+
+export function TabelaVideoaulas({ videoaulas }: TabelaVideoaulasProps) {
+  const [listaVideoaulas, setListaVideoaulas] = useState<Videoaula[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isPending, startTransition] = useTransition()
@@ -53,17 +60,17 @@ export function TabelaTemas() {
 
   useEffect(() => {
     if (currentPage === 1 && !busca) {
-      setTemas(listaTemas?.data)
-      setTotalItems(listaTemas?.meta.total)
-      setTotalPages(listaTemas.meta.totalPages)
+      setListaVideoaulas(videoaulas.data)
+      setTotalItems(videoaulas.meta.total)
+      setTotalPages(videoaulas.meta.totalPages)
       return
     }
 
     const buscarDados = async () => {
       setIsLoading(true)
       try {
-        const temas = await ListarTemas(busca || undefined, currentPage, 12)
-        setTemas(temas.data);
+        const listaVideoaulas = await listarVideoaulas(busca || undefined, currentPage, 12)
+        setListaVideoaulas(listaVideoaulas.data);
       } catch (error) {
         console.error("Erro ao buscar temas:", error)
         toast.error("Erro ao carregar temas")
@@ -73,34 +80,21 @@ export function TabelaTemas() {
     };
 
     buscarDados();
-  }, [busca, currentPage, listaTemas]);
+  }, [busca, currentPage, videoaulas]);
 
-  function atualizarDisponibilidadeTema(temaId: number, status: boolean) {
+
+  function excluirVideoaula(id: number) {
     startTransition(async () => {
       try {
-        await AlterarDisponibilidadeTema(temaId, status)
-        toast.success('Status do tema atualizado com sucesso')
-      } catch {
-        toast.error('Erro ao atualizar status')
+        await deletarVideoaula(id);
+        setListaVideoaulas(videoaulasAnteriores => videoaulasAnteriores.filter(videoaula => videoaula.id !== id));
+        toast.error("A videoaula foi excluído");
+
+      } catch (error) {
+        console.error("Erro ao excluir a videoaula:", error);
+        toast.error("Ocorreu um erro ao excluir a videoaula");
       }
     })
-  }
-
-  async function excluirTema(id: number) {
-    try {
-      await DeletarTema(id);
-      setTemas(temasAnteriores => temasAnteriores.filter(tema => tema.id !== id));
-      toast.error("O tema foi excluído");
-      await enviarNotificacaoParaTodos(
-        'user',
-        'Tema excluído',
-        `O Tema teste foi excluído`,
-        '/aluno/avaliacoes'
-      )
-    } catch (error) {
-      console.error("Erro ao excluir o tema:", error);
-      toast.error("Ocorreu um erro ao excluir o tema");
-    }
   }
 
   function handlePageChange(page: number) {
@@ -131,9 +125,10 @@ export function TabelaTemas() {
           <TableHeader>
             <TableRow>
               <TableHead>Id</TableHead>
-              <TableHead>Tema</TableHead>
-              <TableHead>Data</TableHead>
-              <TableHead className="text-center max-w-[54px]">Disponível</TableHead>
+              <TableHead>Título</TableHead>
+              <TableHead>Descrição</TableHead>
+              <TableHead >Url do Video</TableHead>
+              <TableHead className="text-center max-w-[54px]">Data</TableHead>
               <TableHead className="text-center max-w-[54px]">
                 <div className='flex justify-center w-full'>
                   <Ellipsis />
@@ -152,52 +147,25 @@ export function TabelaTemas() {
                   </TableRow>
                 ))}
               </>
-            ) : temas.length === 0 ? (
+            ) : listaVideoaulas.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-8">
                   Nenhum tema encontrado
                 </TableCell>
               </TableRow>
             ) : (
-              temas.map((tema) => (
-                <TableRow key={tema.id}>
-                  <TableCell className="w-[54px]">{tema.id}</TableCell>
-                  <TableCell>{tema.nome}</TableCell>
-                  <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
-                  <TableCell className="text-center">
-                    <Switch
-                      checked={tema.disponivel}
-                      disabled={isPending}
-                      onCheckedChange={(checked) => atualizarDisponibilidadeTema(tema.id, checked)}
-                    />
-                  </TableCell>
+              listaVideoaulas.map((videoaula) => (
+                <TableRow key={videoaula.id}>
+                  <TableCell className="w-[54px]">{videoaula.id}</TableCell>
+                  <TableCell>{videoaula.titulo}</TableCell>
+                  <TableCell>{videoaula.descricao}</TableCell>
+                  <TableCell className="truncate max-w-sm">{videoaula.urlVideo}</TableCell>
+                  <TableCell>{format(new Date(videoaula.createdAt), "dd/MM/yyyy")}</TableCell>
                   <TableCell className="w-[54px]">
                     <div className="flex items-center justify-center gap-4">
-                      <Link href={tema.Avaliacao.length > 0 ? `/professor/avaliacoes/${tema.id}` : '/professor/avaliacoes'} passHref>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              size="icon"
-                              className="hover:cursor-pointer relative"
-                              variant={tema.Avaliacao.length > 0 ? 'default' : 'ghost'}
-                              disabled={tema.Avaliacao.length === 0}
-                            >
-                              {tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length > 0 ? (
-                                <span className="absolute -right-1 -top-1 flex size-4">
-                                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary opacity-75"></span>
-                                  <span className="relative flex justify-center items-center size-4 rounded-full bg-secondary text-[0.60rem] text-center text-card border border-secondary">{tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length}</span>
-                                </span>
-                              ) : null}
-                              <FileCheck2 />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent className="text-background">
-                            <p>Redações</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </Link>
-                      <FormularioTema tema={tema} />
-                      <DeleteButton onClick={() => excluirTema(tema.id)} />
+                      <ModalVisualizarVideoaula videoaula={videoaula} />
+                      <FormularioVideoaula aula={videoaula} />
+                      <DeleteButton disabled={isPending} onClick={() => excluirVideoaula(videoaula.id)} />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -209,7 +177,7 @@ export function TabelaTemas() {
       <div className="flex justify-between items-center">
         <div className="text-xs text-muted-foreground md:text-nowrap max-md:hidden">
           {totalItems > 0 ? currentPage * 1 : 0} -{' '}
-          {Math.min(currentPage * listaTemas.meta.limit, totalItems)} de {totalItems} resultados
+          {Math.min(currentPage * videoaulas.meta.limit, totalItems)} de {totalItems} resultados
         </div>
         <Pagination>
           <PaginationContent>

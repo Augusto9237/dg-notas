@@ -145,6 +145,18 @@ model Mentoria {
   @@index([horarioId, status])
 }
 
+model Videoaula {
+  id          Int     @id @default(autoincrement())
+  titulo      String
+  descricao   String
+  urlVideo    String
+  professorId String?
+  professor   User?   @relation("MentoriasProfessor", fields: [professorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model User {
   id                      String             @id
   name                    String
@@ -170,10 +182,11 @@ model User {
   // Relação com tokens FCM
   temas                   Tema[]             @relation("AvaliacoesProfessor")
   pushSubscriptions       PushSubscription[]
+  videoaulas              Videoaula[]        @relation("MentoriasProfessor")
 
+  @@unique([email])
   @@index([email, role])
   @@index([matriculado])
-  @@unique([email])
   @@map("user")
 }
 

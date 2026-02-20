@@ -211,35 +211,48 @@ export function AgendarMentoriaAluno({
     // Memoizar função de submit
     const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
         if (!professorId || !session?.user.id) return
-        try {
-            if (mode === 'edit' && mentoriaData) {
-                await editarMentoria({
-                    mentoriaId: mentoriaData.id,
-                    data: values.data,
-                    slotId: Number(values.horario),
-                    diaSemanaId: mentoriaData.horario.diaSemanaId,
-                    duracao: mentoriaData.duracao,
-                });
-            } else {
-                const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === values.data.getDay())?.id || 0;
-                await adicionarMentoria({
-                    professorId,
-                    alunoId: session.user.id,
-                    data: values.data,
-                    slotId: Number(values.horario),
-                    diaSemanaId: diaSemanaIdCalculado,
-                });
+
+        if (mode === 'edit' && mentoriaData) {
+            const response = await editarMentoria({
+                mentoriaId: mentoriaData.id,
+                data: values.data,
+                slotId: Number(values.horario),
+                diaSemanaId: mentoriaData.horario.diaSemanaId,
+                duracao: mentoriaData.duracao,
+            });
+            if (response.success === false) {
+                toast.error(response.error);
+                return;
+            } else if (response.success === true) {
+                toast.success(response.message);
+                await enviarNotificacaoParaUsuario(usuario === 'aluno' ? professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria reagendada', `${session?.user.name} reagendou uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
+                form.reset();
+                setOpen(false);
+                setIsOpen?.(false)
+                return;
             }
-            const message = mode === 'edit' ? 'Mentoria editada com sucesso!' : 'Mentoria agendada com sucesso!';
-            toast.success(message);
-            form.reset();
-            setOpen(false);
-            setIsOpen?.(false)
-            await enviarNotificacaoParaUsuario(usuario === 'aluno' ? professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria agendada', `${session?.user.name} ${mode === 'edit' ? 'reagendou' : 'agendou'} uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
-        } catch (error) {
-            toast.error('Algo deu errado, tente novamente');
-            console.error(`Erro ao ${mode === 'edit' ? 'editar' : 'agendar'} mentoria:`, error);
+        } else {
+            const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === values.data.getDay())?.id || 0;
+            const response = await adicionarMentoria({
+                professorId,
+                alunoId: session.user.id,
+                data: values.data,
+                slotId: Number(values.horario),
+                diaSemanaId: diaSemanaIdCalculado,
+            });
+            if (response.success === false) {
+                toast.error(response.error);
+                return;
+            } else if (response.success === true) {
+                toast.success(response.message);
+                await enviarNotificacaoParaUsuario(usuario === 'aluno' ? professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria agendada', `${session?.user.name} agendou uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
+                form.reset();
+                setOpen(false);
+                setIsOpen?.(false)
+                return;
+            }
         }
+        await enviarNotificacaoParaUsuario(usuario === 'aluno' ? professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria agendada', `${session?.user.name} ${mode === 'edit' ? 'reagendou' : 'agendou'} uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
     }, [mode, mentoriaData, session?.user.id, session?.user.name, diasSemana, form, setIsOpen, professorId, slotsHorario, usuario]);
 
     return (

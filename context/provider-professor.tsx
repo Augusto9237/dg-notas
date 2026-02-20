@@ -71,7 +71,7 @@ interface ProfessorProviderProps {
     }
 }
 
-export const ProverdorProfessor = ({ children, userId, avaliacoes, mentorias, temas, alunos, criterios }: ProfessorProviderProps) => {
+export const ProvedorProfessor = ({ children, userId, avaliacoes, mentorias, temas, alunos, criterios }: ProfessorProviderProps) => {
     const { notificacoes } = useWebPush({ userId })
     const [listaAvaliacoes, setListaAvaliacoes] = useState<ProfessorProviderProps['avaliacoes']>({ data: [], meta: { limit: 0, page: 0, total: 0, totalPages: 0 } });
     const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);

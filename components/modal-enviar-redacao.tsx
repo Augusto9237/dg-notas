@@ -16,7 +16,7 @@ import { authClient } from "@/lib/auth-client";
 import { Tema } from "@/app/generated/prisma";
 import { toast } from "sonner";
 import { Label } from "./ui/label";
-import { EnviarRespoastaAvaliacao } from "@/actions/avaliacao";
+import { enviarRespostaAvaliacao } from "@/actions/avaliacao";
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
 import clsx from "clsx";
 import Image from "next/image";
@@ -56,7 +56,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
             try {
                 await uploadBytes(storageRef, arquivo[0]);
 
-                await EnviarRespoastaAvaliacao(
+                await enviarRespostaAvaliacao(
                     session.user.id,
                     tema.professorId,
                     tema.id,

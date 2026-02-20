@@ -54,6 +54,13 @@ export async function obterProfessor() {
 }
 
 export async function obterProfessorPorId(userId: string) {
+  const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user) {
+        throw new Error('Usuário não autorizado');
+    }
   try {
     const user = await prisma.user.findUnique({
       where: {
@@ -75,6 +82,13 @@ export async function atualizarContaProfessor(userId: string, data: AtualizarCon
   message: string;
   error: string;
 }> {
+  const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
   try {
     if (senhaAtual && novaSenha) {
       try {
@@ -146,6 +160,13 @@ export async function atualizarContaProfessor(userId: string, data: AtualizarCon
 }
 
 export async function banirUsuario(userId: string) {
+  const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
   try {
     await auth.api.banUser({
       body: {

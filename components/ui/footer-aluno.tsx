@@ -1,8 +1,8 @@
 'use client'
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { FileCheck2 } from "lucide-react";
+import { usePathname, } from "next/navigation";
+import { FileCheck2, LayoutGrid, MonitorPlay } from "lucide-react";
 import Image from "next/image";
 import { Card } from "./card";
 import { RiUserStarLine } from "react-icons/ri";
@@ -16,10 +16,28 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
 
     const routes = [
         {
+            icon: <LayoutGrid className="h-5 w-5" />,
+            href: "/aluno",
+            label: "Home",
+            active: pathname === "/aluno",
+        },
+        {
             icon: <FileCheck2 className="h-5 w-5" />,
             href: "/aluno/avaliacoes",
             label: "Avaliações",
             active: pathname === "/aluno/avaliacoes",
+        },
+        {
+            icon: <Image src="/Símbolo4.svg" alt="logo" width={50} height={50} className="size-14.5 bg-primary -mt-10  rounded-full p-2 border border-4 shadow-lg shadow-primary/45 border-card" />,
+            href: "/aluno/#",
+            label: "",
+            active: pathname === "/aluno/#",
+        },
+        {
+            icon: <MonitorPlay className="h-5 w-5" />,
+            href: "/aluno/videoaulas/1",
+            label: "Videoaulas",
+            active: pathname.includes("/aluno/videoaulas"),
         },
         {
             icon: <RiUserStarLine className="h-5 w-5" />,
@@ -31,18 +49,16 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
 
     return (
         <footer className={cn("fixed inset-x-0 bottom-0 min-[1025px]:hidden", className)}>
-            <Card className="backdrop-blur-lg p-0 border-none bg-card rounded-t-xl rounded-b-none shadow-[1px_1px_15px_6px_rgba(0,_0,_0,_0.1)]">
-                <nav className="flex justify-between w-full px-5 relative">
-                    <Link href="/aluno" className="absolute top-0 left-1/2 transform -translate-x-1/2 object-cover">
-                        <Image src="/Símbolo4.svg" alt="logo" width={50} height={50} className={cn("w-14 h-14 bg-primary rounded-full p-2 border border-2 ", pathname === "/aluno" ? "border-secondary" : "border-primary")} />
-                    </Link>
+            <Card className="p-0 bg-card rounded-t-xl rounded-b-none">
+                <nav className="flex justify-between gap-1 w-full px-5 items-center">
+
                     {routes.map((route) => (
                         <Link
                             key={route.href}
                             href={route.href}
                             className={cn(
-                                "flex flex-col p-2 items-center text-xs text-primary font-medium transition-colors border-b-3",
-                                route.active ? "border-primary " : "border-card/0"
+                                "flex flex-col p-2 items-center text-xs text-muted-foreground font-medium transition-colors border-b-3",
+                                route.active ? "border-primary text-primary " : "border-card/0"
                             )}
                         >
                             <div className="mt-[1px]">{route.icon}</div>

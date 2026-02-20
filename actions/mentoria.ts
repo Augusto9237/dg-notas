@@ -19,6 +19,7 @@ interface AdicionarMentoriaParams {
 interface AdicionarMentoriaResult {
   success: boolean;
   mentoria?: Mentoria;
+  message?: string;
   error?: string;
 }
 
@@ -95,7 +96,7 @@ export async function adicionarMentoria(
       Date.UTC(data.getFullYear(), data.getMonth(), data.getDate())
     );
 
-    // Verificar se o aluno existe
+    // Verificar se o aluno existe (fora da transação — leitura barata)
     const alunoExiste = await prisma.user.findUnique({
       where: { id: alunoId },
     });
@@ -107,115 +108,125 @@ export async function adicionarMentoria(
       };
     }
 
-    // Buscar o horário existente ou criar um novo
-    let horario = await prisma.horario.findFirst({
-      where: {
-        data: dataNormalizada,
-        slotId: slotId,
-      },
-      include: {
-        mentorias: {
+    const novaMentoria = await prisma.$transaction(
+      async (tx) => {
+        let horario = await tx.horario.findFirst({
           where: {
-            status: StatusMentoria.AGENDADA || StatusMentoria.CONFIRMADA, // Só contar mentorias ativas
+            data: dataNormalizada,
+            slotId: slotId,
           },
-        },
-      },
-    });
-
-    // Se o horário não existe, criar um novo
-    if (!horario) {
-      horario = await prisma.horario.create({
-        data: {
-          data: dataNormalizada,
-          slotId: slotId,
-          diaSemanaId: diaSemanaId,
-          status: true, // Status como boolean (true = disponível)
-        },
-        include: {
-          mentorias: {
-            where: {
-              status: StatusMentoria.AGENDADA,
+          include: {
+            mentorias: {
+              where: {
+                status: { in: [StatusMentoria.AGENDADA, StatusMentoria.CONFIRMADA] },
+              },
             },
           },
-        },
-      });
-    }
+        });
 
-    // Verificar se já existe mentoria para este aluno neste horário
-    const mentoriaExistente = await prisma.mentoria.findUnique({
-      where: {
-        alunoId_horarioId: {
-          alunoId: alunoId,
-          horarioId: horario.id,
-        },
-      },
-    });
+        if (!horario) {
+          horario = await tx.horario.create({
+            data: {
+              data: dataNormalizada,
+              slotId: slotId,
+              diaSemanaId: diaSemanaId,
+              status: true,
+            },
+            include: {
+              mentorias: {
+                where: {
+                  status: { in: [StatusMentoria.AGENDADA, StatusMentoria.CONFIRMADA] },
+                },
+              },
+            },
+          });
+        }
 
-    if (mentoriaExistente) {
-      return {
-        success: false,
-        error: 'Este aluno já possui uma mentoria agendada para este horário',
-      };
-    }
-
-    // Verificar se ainda há vagas disponíveis (máximo 4 mentorias por horário)
-    const mentoriasAtivas = horario.mentorias.length;
-    if (mentoriasAtivas >= 4) {
-      return {
-        success: false,
-        error: 'Este horário já possui o máximo de 4 mentorias agendadas',
-      };
-    }
-
-    // Criar a nova mentoria
-    const novaMentoria = await prisma.mentoria.create({
-      data: {
-        professorId: professorId,
-        alunoId: alunoId,
-        horarioId: horario.id,
-        duracao: duracao,
-        status: StatusMentoria.AGENDADA,
-      },
-      include: {
-        aluno: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
+        // 2. Verificar duplicata para este aluno neste horário
+        const mentoriaExistente = await tx.mentoria.findUnique({
+          where: {
+            alunoId_horarioId: {
+              alunoId: alunoId,
+              horarioId: horario.id,
+            },
           },
-        },
-        horario: {
-          select: {
-            id: true,
-            data: true,
-            slot: true,
-            status: true,
+        });
+
+        if (mentoriaExistente) {
+          throw new Error('ALUNO_JA_AGENDADO');
+        }
+
+        // 3. Verificar vagas disponíveis (leitura dentro da mesma transação)
+        const mentoriasAtivas = horario.mentorias.length;
+        if (mentoriasAtivas >= 4) {
+          throw new Error('HORARIO_LOTADO');
+        }
+
+        // 4. Criar a mentoria
+        const mentoriaCriada = await tx.mentoria.create({
+          data: {
+            professorId: professorId,
+            alunoId: alunoId,
+            horarioId: horario.id,
+            duracao: duracao,
+            status: StatusMentoria.AGENDADA,
           },
-        },
+          include: {
+            aluno: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+            horario: {
+              select: {
+                id: true,
+                data: true,
+                slot: true,
+                status: true,
+              },
+            },
+          },
+        });
+
+        // 5. Se esta é a 4ª mentoria, marcar o horário como ocupado
+        if (mentoriasAtivas + 1 >= 4) {
+          await tx.horario.update({
+            where: { id: horario.id },
+            data: { status: false },
+          });
+        }
+
+        return mentoriaCriada;
       },
-    });
+      { isolationLevel: 'Serializable' }
+    );
 
-    // Se esta é a 4ª mentoria, marcar o horário como ocupado
-    if (mentoriasAtivas + 1 >= 4) {
-      await prisma.horario.update({
-        where: { id: horario.id },
-        data: { status: false }, // false = ocupado
-      });
-    }
-
-    updateTag('listar-mentorias-aluno')
-    // revalidatePath('/aluno/mentorias');
+    updateTag('listar-mentorias-aluno');
     revalidatePath('/professor/mentorias');
 
     return {
       success: true,
       mentoria: novaMentoria,
+      message: 'Mentoria agendada com sucesso',
     };
   } catch (error) {
-    console.error('Erro ao adicionar mentoria:', error);
-
-    // Tratamento de erros específicos do Prisma
+    // Erros semânticos lançados dentro da transação
     if (error instanceof Error) {
+      if (error.message === 'ALUNO_JA_AGENDADO') {
+        return {
+          success: false,
+          error: 'Este aluno já possui uma mentoria agendada para este horário',
+        };
+      }
+      if (error.message === 'HORARIO_LOTADO') {
+        return {
+          success: false,
+          error: 'Este horário já possui o máximo de 4 mentorias agendadas',
+        };
+      }
+      // Violação de unique constraint (segurança extra do banco)
       if (error.message.includes('Unique constraint')) {
         return {
           success: false,
@@ -224,6 +235,7 @@ export async function adicionarMentoria(
       }
     }
 
+    console.error('Erro ao adicionar mentoria:', error);
     return {
       success: false,
       error: 'Erro interno do servidor. Tente novamente.',
@@ -498,6 +510,7 @@ interface EditarMentoriaResult {
   success: boolean;
   mentoria?: Mentoria;
   error?: string;
+  message?: string;
 }
 
 /**
@@ -645,6 +658,7 @@ export async function editarMentoria(
     return {
       success: true,
       mentoria: mentoriaAtualizada,
+      message: 'Mentoria editada com sucesso!',
     };
   } catch (error) {
     console.error('Erro ao editar mentoria:', error);

@@ -183,6 +183,12 @@ export async function EditarTema(id: number, novoNome: string): Promise<Tema> {
 }
 
 export async function AlterarDisponibilidadeTema(id: number, disponivel: boolean): Promise<Tema> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
     try {
         const temaAtualizado = await prisma.tema.update({
             where: {
@@ -325,7 +331,7 @@ export async function AdicionarAvaliacao({
     }
 }
 
-export async function EnviarRespoastaAvaliacao(
+export async function enviarRespostaAvaliacao(
     idAluno: string,
     idProfessor: string,
     idTema: number,
@@ -419,6 +425,14 @@ export async function EditarAvaliacao(
 }
 
 export async function ListarAvaliacoesTemaId(temaId: number) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user) {
+        throw new Error('Usuário não autorizado');
+    }
+    
     const avaliacoes = await prisma.avaliacao.findMany({
         where: {
             temaId: temaId
@@ -499,6 +513,13 @@ export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, l
 }
 
 export async function ListarTemasDisponiveis(alunoId: string, pagina: number = 1, limite: number = 10) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user) {
+        throw new Error('Usuário não autorizado');
+    }
 
     try {
         const [temas, total] = await Promise.all([

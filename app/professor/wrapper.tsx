@@ -11,7 +11,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 import { InicializarNotificacoes } from "@/components/inicializar-notificacoes";
-import { ProverdorProfessor } from "@/context/provider-professor";
+import { ProvedorProfessor } from "@/context/provider-professor";
 import { ListarAvaliacoes, listarTemasMes, ListarTemas, ListarCriterios } from "@/actions/avaliacao";
 import { listarMentoriasMes } from "@/actions/mentoria";
 import { listarAlunosGoogle } from "@/actions/alunos";
@@ -64,7 +64,7 @@ export default async function ProfessorWrapper({
         <InstalarIos />
         <PwaInstallPrompt />
         <InicializarNotificacoes userId={userId} />
-        <ProverdorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas} alunos={alunos} criterios={criterios}>
+        <ProvedorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas} alunos={alunos} criterios={criterios}>
           <SidebarProvider>
             <AppSidebar />
             <SidebarInset className="relative">
@@ -72,7 +72,7 @@ export default async function ProfessorWrapper({
             </SidebarInset>
           </SidebarProvider>
           <Toaster richColors theme="light" />
-        </ProverdorProfessor>
+        </ProvedorProfessor>
       </ProvedorTemas>
     </>
   );
