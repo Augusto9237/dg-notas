@@ -151,7 +151,7 @@ model Videoaula {
   descricao   String
   urlVideo    String
   professorId String?
-  professor   User?   @relation("MentoriasProfessor", fields: [professorId], references: [id])
+  professor   User?   @relation("VideoaulasProfessor", fields: [professorId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -182,7 +182,7 @@ model User {
   // Relação com tokens FCM
   temas                   Tema[]             @relation("AvaliacoesProfessor")
   pushSubscriptions       PushSubscription[]
-  videoaulas              Videoaula[]        @relation("MentoriasProfessor")
+  videoaulas              Videoaula[]        @relation("VideoaulasProfessor")
 
   @@unique([email])
   @@index([email, role])
