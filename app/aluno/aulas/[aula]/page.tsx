@@ -7,6 +7,7 @@ import { obterUrlImagem } from "@/lib/obter-imagem";
 import { listarVideoaulaPorId } from "@/actions/videoaulas";
 import { MenuVideoaulas } from "@/components/menu-videoaulas";
 import { notFound } from "next/navigation";
+import { MonitorX } from "lucide-react";
 
 export default async function Page({
     params,
@@ -16,7 +17,22 @@ export default async function Page({
     const aulaId = (await params).aula
     const videoaula = await listarVideoaulaPorId(Number(aulaId))
     const professor = await obterProfessor()
-    if (!videoaula || !professor) notFound()
+    if (!videoaula || !professor) {
+        return (
+            <div className="flex-1 h-full max-h-screen min-h-screen max-w-screen overflow-hidden p-5">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-primary font-semibold">Aulas</h2>
+                </div>
+
+                <main className="flex justify-center flex-1 items-center overflow-hidden h-full">
+                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                        <MonitorX className="h-10 w-10" />
+                        <h1>Aula não encontrada</h1>
+                    </div>
+                </main>
+            </div>
+        )
+    }
 
     return (
         <div className="flex-1 h-full max-h-screen min-h-screen max-w-screen overflow-x-hidden p-5">

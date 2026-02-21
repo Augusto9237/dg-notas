@@ -50,14 +50,13 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
     return (
         <footer className={cn("fixed inset-x-0 bottom-0 min-[1025px]:hidden", className)}>
             <Card className="p-0 bg-card rounded-t-xl rounded-b-none">
-                <nav className="flex justify-between w-full px-5 items-center">
-
+                <nav className="flex justify-between gap-1 w-full px-5 items-center">
                     {routes.map((route) => (
                         <Link
                             key={route.href}
                             href={route.href}
                             className={cn(
-                                "flex flex-col p-2 items-center text-xs text-muted-foreground font-medium transition-colors border-b-3",
+                                "flex flex-col py-2 items-center text-xs text-muted-foreground font-medium transition-colors border-b-3",
                                 route.active ? "border-primary text-primary " : "border-card/0"
                             )}
                         >
