@@ -150,7 +150,7 @@ export function TabelaVideoaulas({ videoaulas }: TabelaVideoaulasProps) {
             ) : listaVideoaulas.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-8">
-                  Nenhum tema encontrado
+                  Nenhuma aula encontrada
                 </TableCell>
               </TableRow>
             ) : (

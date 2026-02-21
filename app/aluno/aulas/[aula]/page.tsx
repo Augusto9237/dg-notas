@@ -27,7 +27,7 @@ export default async function Page({
                 <main className="flex justify-center flex-1 items-center overflow-hidden h-full">
                     <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                         <MonitorX className="h-10 w-10" />
-                        <h1>Aula não encontrada</h1>
+                        <h1>Nenhuma aula encontrada</h1>
                     </div>
                 </main>
             </div>

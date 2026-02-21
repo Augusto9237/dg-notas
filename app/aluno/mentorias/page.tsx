@@ -34,9 +34,25 @@ export default async function Page() {
         }
     }
 
+    const { diasSemana, slotsHorario, professor } = await listaDadosAgenda()
 
-    const diasAtivos = (await listaDadosAgenda()).diasSemana.filter((dia) => dia.status)
-    const horariosAtivos = (await listaDadosAgenda()).slotsHorario.filter((horario) => horario.status)
+    const diasAtivos = diasSemana.filter((dia) => dia.status)
+    const horariosAtivos = slotsHorario.filter((horario) => horario.status)
+
+    if (!professor) {
+        return (
+            <div className="w-full h-full max-h-screen min-h-screen overflow-hidden">
+                <main className="flex flex-col gap-4 p-5 pb-20 h-full">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-primary font-semibold">Suas Mentorias</h2>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                        Nenhum professor disponível no momento. Tente novamente mais tarde.
+                    </p>
+                </main>
+            </div>
+        )
+    }
 
     return (
         <div className="w-full h-full max-h-screen min-h-screen overflow-hidden">
@@ -44,8 +60,8 @@ export default async function Page() {
                 <div className="flex items-center justify-between">
                     <h2 className="text-primary font-semibold">Suas Mentorias</h2>
                 </div>
-                <AgendarMentoriaAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professorId={(await listaDadosAgenda()).professor!.id} />
-                <TabelaMentoriasAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professor={(await listaDadosAgenda()).professor} />
+                <AgendarMentoriaAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professorId={professor.id} />
+                <TabelaMentoriasAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professor={professor} />
             </main>
         </div>
     )
