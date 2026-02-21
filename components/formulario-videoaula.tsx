@@ -99,7 +99,7 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
 
     if (temArquivoNovo && arquivo![0]) {
       const extensao = arquivo![0].name.split('.').pop() || 'mp4'
-      const caminhoUnico = `videoaulas/${Date.now()}-${valores.titulo.replace(/[^a-zA-Z0-9\s-]/g, '').trim().replace(/\s+/g, '-')}.${extensao}`
+      const caminhoUnico = `videoaulas/${valores.titulo}.${extensao}`
       const storageRef = ref(storage, caminhoUnico)
       const uploadTask = uploadBytesResumable(storageRef, arquivo[0])
 
@@ -182,7 +182,7 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
             <Plus />
             <div className="max-sm:hidden flex gap-2">
               <span className="max-sm:hidden">Nova</span>
-              Videoaula
+              Aula
             </div>
           </Button>
         }
@@ -190,7 +190,7 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-center">
-            {ehModoEdicao ? "Editar Videoaula" : "Adicionar Videoaula"}
+            {ehModoEdicao ? "Editar Aula" : "Adicionar Aula"}
           </DialogTitle>
         </DialogHeader>
         <Form {...formulario}>
