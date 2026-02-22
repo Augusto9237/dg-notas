@@ -1,4 +1,4 @@
-import { ListarAvaliacoesAlunoId, ListarCriterios, ListarTemas } from '@/actions/avaliacao';
+import { ListarAvaliacoesAlunoId, ListarCriterios, listarTemas } from '@/actions/avaliacao';
 import { BuscarAlunoGooglePorId } from '@/actions/alunos';
 import { TabelaAvaliacoes } from '@/components/tabela-avaliacoes';
 import { Suspense } from 'react';

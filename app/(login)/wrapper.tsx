@@ -1,4 +1,4 @@
-import { ListarAvaliacoesAlunoId, ListarCriterios, ListarTemasDisponiveis } from "@/actions/avaliacao";
+import { ListarAvaliacoesAlunoId, ListarCriterios, listarTemasDisponiveis } from "@/actions/avaliacao";
 import { listarMentoriasAluno } from "@/actions/mentoria";
 import { enviarNotificacaoParaTodos } from "@/actions/notificacoes";
 import { AppSidebarAluno } from "@/components/app-sidebar-aluno";

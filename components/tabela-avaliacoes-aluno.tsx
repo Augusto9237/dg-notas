@@ -9,9 +9,10 @@ import { useContext, useEffect, useState } from 'react';
 import { Criterio, Prisma } from '@/app/generated/prisma';
 import InfiniteScroll from './ui/infinite-scroll';
 import { Spinner } from './ui/spinner';
-import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from '@/actions/avaliacao';
+import { ListarAvaliacoesAlunoId, listarTemasDisponiveis } from '@/actions/avaliacao';
 import { authClient } from '@/lib/auth-client';
 import { Badge } from './ui/badge';
+import { atualizarCache } from '@/actions/cache';
 
 type Tema = Prisma.TemaGetPayload<{
     include: {
@@ -47,8 +48,15 @@ interface ListaAvaliacoes {
     }
 }
 
-export function TabelaAvaliacoesAluno() {
-    const { listaAvaliacoes, listaTemas, criterios } = useContext(ContextoAluno);
+
+
+interface TabelaAvaliacoesAlunoProps {
+    avaliacoesIniciais: ListaAvaliacoes,
+    temasIniciais: ListaTemas
+}
+
+export function TabelaAvaliacoesAluno({ avaliacoesIniciais, temasIniciais }: TabelaAvaliacoesAlunoProps) {
+    const { criterios } = useContext(ContextoAluno);
     const [temas, setTemas] = useState<ListaTemas>({ data: [], meta: { total: 0, pagina: 1, limite: 10, totalPaginas: 0 } });
     const [avaliacoes, setAvaliacoes] = useState<ListaAvaliacoes>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
     const [loading, setLoading] = useState(false);
@@ -58,20 +66,18 @@ export function TabelaAvaliacoesAluno() {
     const { data: session } = authClient.useSession();
     const userId = session?.user.id;
 
-   
     useEffect(() => {
-        setTemas(listaTemas);
-        setAvaliacoes(listaAvaliacoes);
-        setHasMore(listaTemas.meta.total > listaTemas.data.length);
-        setHasMoreAvaliacoes(listaAvaliacoes.meta.total > listaAvaliacoes.data.length);
-    }, [listaTemas, listaAvaliacoes]);
+        setTemas(temasIniciais);
+        setAvaliacoes(avaliacoesIniciais);
+        setHasMore(temasIniciais.meta.total > temasIniciais.data.length);
+        setHasMoreAvaliacoes(avaliacoesIniciais.meta.total > avaliacoesIniciais.data.length);
+    }, [avaliacoesIniciais, temasIniciais]);
 
     const pendingAvaliacoes = avaliacoes.data.filter((avaliacao) => avaliacao.status === "ENVIADA");
 
     const novosTemas = async () => {
         if (loading || !hasMore) return;
 
-        // Verificar se ainda há mais temas para carregar
         if (temas.data.length >= temas.meta.total) {
             setHasMore(false);
             return;
@@ -80,22 +86,18 @@ export function TabelaAvaliacoesAluno() {
         setLoading(true);
 
         try {
-            // Calcular a próxima página baseada no número atual de temas
             const temasCarregados = temas.data.length;
             const proximaPagina = Math.floor(temasCarregados / temas.meta.limite) + 1;
-            
-            const temasNovos = await ListarTemasDisponiveis(userId!, proximaPagina, temas.meta.limite);
-            
-            // Adicionar novos temas aos existentes
+
+            const temasNovos = await listarTemasDisponiveis(userId!, proximaPagina, temas.meta.limite);
+
             setTemas(prev => {
                 const novosData = [...prev.data, ...temasNovos.data];
                 const totalCarregado = novosData.length;
-                
-                // Verificar se ainda há mais temas para carregar
                 if (totalCarregado >= prev.meta.total || temasNovos.data.length < prev.meta.limite) {
                     setHasMore(false);
                 }
-                
+
                 return {
                     ...temasNovos,
                     data: novosData,
@@ -128,19 +130,19 @@ export function TabelaAvaliacoesAluno() {
             // Calcular a próxima página baseada no número atual de avaliações
             const avaliacoesCarregadas = avaliacoes.data.length;
             const proximaPagina = Math.floor(avaliacoesCarregadas / avaliacoes.meta.limit) + 1;
-            
+
             const avaliacoesNovas = await ListarAvaliacoesAlunoId(userId!, '', avaliacoes.meta.limit, proximaPagina);
-            
+
             // Adicionar novas avaliações às existentes
             setAvaliacoes(prev => {
                 const novosData = [...prev.data, ...avaliacoesNovas.data];
                 const totalCarregado = novosData.length;
-                
+
                 // Verificar se ainda há mais avaliações para carregar
                 if (totalCarregado >= prev.meta.total || avaliacoesNovas.data.length < prev.meta.limit) {
                     setHasMoreAvaliacoes(false);
                 }
-                
+
                 return {
                     ...avaliacoesNovas,
                     data: novosData,
@@ -164,8 +166,10 @@ export function TabelaAvaliacoesAluno() {
                 <TabsTrigger value="pendentes" className="text-foreground max-sm:text-xs">
                     Pendentes
                 </TabsTrigger>
-                <TabsTrigger value="enviadas" className="text-foreground max-sm:text-xs">Enviadas</TabsTrigger>
-                <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">Corrigidas</TabsTrigger>
+                <TabsTrigger value="enviadas" className="text-foreground max-sm:text-xs">
+                    Enviadas</TabsTrigger>
+                <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">
+                    Corrigidas</TabsTrigger>
             </TabsList>
             <TabsContent value='pendentes' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-20">
                 {temas.meta.total > 0 && (
@@ -187,7 +191,7 @@ export function TabelaAvaliacoesAluno() {
                 )}
             </TabsContent>
             <TabsContent value='enviadas' className="flex flex-col gap-4 flex-1 h-full overflow-y-auto max-sm:pb-20">
-                {pendingAvaliacoes.length > 0 || listaTemas.meta.total > 0 ? (
+                {pendingAvaliacoes.length > 0 || temas.meta.total > 0 ? (
                     <ListaAvaliacoes avaliacoesIniciais={pendingAvaliacoes} criteriosIniciais={criterios} hasMore={hasMoreAvaliacoes} loading={loading} nextAvaliacoes={nextAvaliacoes} />
                 ) : (
                     <div className="w-full h-full flex flex-col flex-1 items-center justify-center gap-2 text-muted-foreground pt-5">
@@ -197,7 +201,7 @@ export function TabelaAvaliacoesAluno() {
                 )}
             </TabsContent>
             <TabsContent value='corrigidas' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-20">
-                <ListaAvaliacoes avaliacoesIniciais={listaAvaliacoes.data.filter((avaliacao) => avaliacao.status === "CORRIGIDA")} criteriosIniciais={criterios} hasMore={hasMoreAvaliacoes} loading={loading} nextAvaliacoes={nextAvaliacoes} />
+                <ListaAvaliacoes avaliacoesIniciais={avaliacoes.data.filter((avaliacao) => avaliacao.status === "CORRIGIDA")} criteriosIniciais={criterios} hasMore={hasMoreAvaliacoes} loading={loading} nextAvaliacoes={nextAvaliacoes} />
             </TabsContent>
         </Tabs>
     )

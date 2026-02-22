@@ -48,15 +48,6 @@ export interface ContextoAlunoProps {
             totalPages: number,
         }
     },
-    listaTemas: {
-        data: Tema[]
-        meta: {
-            total: number;
-            pagina: number;
-            limite: number;
-            totalPaginas: number;
-        };
-    }
     criterios: Criterio[]
     notificacoes: {
         title: string;

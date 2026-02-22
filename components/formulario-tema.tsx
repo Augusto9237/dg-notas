@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { AdicionarTema, EditarTema } from "@/actions/avaliacao"
+import { adicionarTema, EditarTema } from "@/actions/avaliacao"
 import { toast } from "sonner"
 import { Tema } from "@/app/generated/prisma"
 import { EditButton } from "./ui/edit-button"
@@ -65,7 +65,7 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
         const atualizarTema = await EditarTema(tema.id, valores.nome)
         toast.success(`O tema ${atualizarTema.nome} foi atualizado com sucesso`)
       } else {
-        const novoTema = await AdicionarTema(valores.nome)
+        const novoTema = await adicionarTema(valores.nome)
         toast.success(`O tema ${novoTema.nome} foi adicionado com sucesso`)
 
         // Envia notificações para todos os alunos

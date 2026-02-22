@@ -1,4 +1,4 @@
-import { ListarAvaliacoes, ListarCriterios, ListarTemas } from '@/actions/avaliacao';
+import { ListarAvaliacoes, ListarCriterios, listarTemas } from '@/actions/avaliacao';
 import { FormularioTema } from '@/components/formulario-tema';
 import { TabelaTemas } from '@/components/tabela-temas';
 import { Suspense } from 'react';

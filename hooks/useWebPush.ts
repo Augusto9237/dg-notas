@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { salvarPushSubscription, removerPushSubscription, buscarSubscriptionsPorUsuario } from "@/actions/notificacoes";
 import type { PushSubscriptionData } from "@/lib/webpush";
+import { atualizarCache } from "@/actions/cache";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -15,6 +16,10 @@ function urlBase64ToUint8Array(base64String: string) {
     outputArray[i] = rawData.charCodeAt(i);
   }
   return outputArray;
+}
+
+async function revalidarCacheServidor(tag: string) {
+  await atualizarCache(tag);
 }
 
 function isIOS() {
@@ -431,7 +436,6 @@ export default function useWebPush({ userId, handleMessages = true }: { userId: 
       messageHandler = (event: MessageEvent) => {
         if (event.data?.type === 'PUSH_NOTIFICATION_FOREGROUND') {
           const { title, body, data, tag } = event.data.data;
-          console.log('🔔 Notificação recebida em primeiro plano:', title);
           setNotificacoes({ title, body, data });
           toast.info(title, {
             id: tag,
@@ -439,10 +443,24 @@ export default function useWebPush({ userId, handleMessages = true }: { userId: 
             action: data?.url ? { label: "Ver", onClick: () => router.push(data.url) } : undefined,
             duration: 5000,
           });
+
+          if(data?.url === '/aluno/avaliacoes'){
+            revalidarCacheServidor(`listar-avaliacoes-aluno-${userId}`)
+            revalidarCacheServidor(`listar-temas-disponiveis-${userId}`)
+          }
+          if(data?.url === '/aluno/mentorias'){
+            revalidarCacheServidor(`listar-mentorias-aluno-${userId}`)
+          }
         }
         if (event.data?.type === 'REVALIDATE_DATA') {
-          console.log('🔄 Revalidando dados (solicitado pelo SW)');
-          router.refresh();
+
+          if(event.data.data.url === '/aluno/avaliacoes'){
+            revalidarCacheServidor(`listar-avaliacoes-aluno-${userId}`)
+            revalidarCacheServidor(`listar-temas-disponiveis-${userId}`)
+          }
+          if(event.data.data.url === '/aluno/mentorias'){
+            revalidarCacheServidor(`listar-mentorias-aluno-${userId}`)
+          }
         }
       };
 

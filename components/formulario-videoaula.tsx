@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { AdicionarTema, EditarTema } from "@/actions/avaliacao"
+import { adicionarTema, EditarTema } from "@/actions/avaliacao"
 import { toast } from "sonner"
 import { Tema, Videoaula } from "@/app/generated/prisma"
 import { EditButton } from "./ui/edit-button"

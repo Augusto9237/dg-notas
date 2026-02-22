@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { Ellipsis, FileCheck2 } from "lucide-react"
 
 import { Avaliacao, Prisma } from "@/app/generated/prisma"
-import { AlterarDisponibilidadeTema, DeletarTema, ListarTemas, ListarAvaliacoes } from "@/actions/avaliacao"
+import { AlterarDisponibilidadeTema, DeletarTema, listarTemas, ListarAvaliacoes } from "@/actions/avaliacao"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
@@ -62,7 +62,7 @@ export function TabelaTemas() {
     const buscarDados = async () => {
       setIsLoading(true)
       try {
-        const temas = await ListarTemas(busca || undefined, currentPage, 12)
+        const temas = await listarTemas(busca || undefined, currentPage, 12)
         setTemas(temas.data);
       } catch (error) {
         console.error("Erro ao buscar temas:", error)

@@ -90,7 +90,6 @@ async function broadcastToClients(type, data = {}) {
     return;
   }
   
-  console.log(`[SW] 📨 Broadcasting ${type} to ${clients.length} client(s)`);
   
   // Usa Promise.allSettled para evitar que um erro em um cliente impeça os outros
   await Promise.allSettled(
@@ -154,8 +153,7 @@ function buildNotificationOptions(data) {
 async function showNotificationWithRevalidation(title, options) {
   await self.registration.showNotification(title, options);
   console.log('[SW] ✅ Notificação exibida com sucesso');
-  
-  // Trigger data revalidation in all clients
+
   await broadcastToClients(MESSAGE_TYPES.REVALIDATE_DATA, {
     url: options.data.url,
     timestamp: Date.now()
@@ -181,6 +179,8 @@ function handleForegroundNotification(client, title, options) {
       data: options.data
     }
   });
+
+
 }
 
 /**

@@ -20,7 +20,7 @@ export default async function Page() {
     async function listaDadosAgenda() {
         'use cache: private'
 
-        cacheLife('hours')
+        cacheLife({ stale: 1800 })
         const [diasSemana, slotsHorario, professor] = await Promise.all([
             listarDiasSemana(),
             listarSlotsHorario(),

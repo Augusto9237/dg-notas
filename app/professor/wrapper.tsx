@@ -12,7 +12,7 @@ import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 import { InicializarNotificacoes } from "@/components/inicializar-notificacoes";
 import { ProvedorProfessor } from "@/context/provider-professor";
-import { ListarAvaliacoes, listarTemasMes, ListarTemas, ListarCriterios } from "@/actions/avaliacao";
+import { ListarAvaliacoes, listarTemasMes, listarTemas, ListarCriterios } from "@/actions/avaliacao";
 import { listarMentoriasMes } from "@/actions/mentoria";
 import { listarAlunosGoogle } from "@/actions/alunos";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
@@ -47,7 +47,7 @@ export default async function ProfessorWrapper({
   const [avaliacoes, mentorias, temas, alunos] = await Promise.all([
     ListarAvaliacoes(undefined, undefined, 1, 12),
     listarMentoriasMes(),
-    ListarTemas(),
+    listarTemas(),
     listarAlunosGoogle('', 1, 12)
   ]);
 

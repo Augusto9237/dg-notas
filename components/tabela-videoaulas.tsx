@@ -24,6 +24,8 @@ import { Skeleton } from "./ui/skeleton"
 import { deletarVideoaula, listarVideoaulas } from "@/actions/videoaulas"
 import { FormularioVideoaula } from "./formulario-videoaula"
 import { ModalVisualizarVideoaula } from "./modal-visualizar-aula"
+import { deleteObject, ref } from "firebase/storage"
+import { storage } from "@/lib/firebase"
 
 
 type Tema = Prisma.TemaGetPayload<{
@@ -83,16 +85,17 @@ export function TabelaVideoaulas({ videoaulas }: TabelaVideoaulasProps) {
   }, [busca, currentPage, videoaulas]);
 
 
-  function excluirVideoaula(id: number) {
+  function excluirVideoaula(id: number, titulo: string) {
     startTransition(async () => {
       try {
         await deletarVideoaula(id);
+        deleteObject(ref(storage, `videoaulas/${titulo}.mp4`));
         setListaVideoaulas(videoaulasAnteriores => videoaulasAnteriores.filter(videoaula => videoaula.id !== id));
-        toast.error("A videoaula foi excluído");
+        toast.error("A aula foi excluída");
 
       } catch (error) {
-        console.error("Erro ao excluir a videoaula:", error);
-        toast.error("Ocorreu um erro ao excluir a videoaula");
+        console.error("Erro ao excluir a aula:", error);
+        toast.error("Ocorreu um erro ao excluir a aula");
       }
     })
   }
@@ -165,7 +168,7 @@ export function TabelaVideoaulas({ videoaulas }: TabelaVideoaulasProps) {
                     <div className="flex items-center justify-center gap-4">
                       <ModalVisualizarVideoaula videoaula={videoaula} />
                       <FormularioVideoaula aula={videoaula} />
-                      <DeleteButton disabled={isPending} onClick={() => excluirVideoaula(videoaula.id)} />
+                      <DeleteButton disabled={isPending} onClick={() => excluirVideoaula(videoaula.id, videoaula.titulo)} />
                     </div>
                   </TableCell>
                 </TableRow>

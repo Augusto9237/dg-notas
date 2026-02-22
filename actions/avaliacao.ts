@@ -1,10 +1,28 @@
 'use server'
-import { cacheLife, revalidatePath, unstable_cache, updateTag } from "next/cache";
+import { cacheLife, cacheTag, revalidatePath, unstable_cache, updateTag } from "next/cache";
 import { Criterio, Tema } from "../app/generated/prisma";
 import { Avaliacao } from "../app/generated/prisma";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { atualizarCache } from "./cache";
+
+export async function verificarSessaoAdmin(): Promise<boolean> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    return !!(session?.user && session.user.role === 'admin');
+}
+
+export async function verificarSessaoAluno(alunoId: string): Promise<boolean> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    return !!(session?.user && session.user.role === 'aluno' && session.user.id === alunoId);
+}
+
 
 interface CriterioAvaliacaoInput {
     criterioId: number;
@@ -19,7 +37,7 @@ interface AdicionarAvaliacaoInput {
     status: 'ENVIADA' | 'CORRIGIDA';
 }
 
-export async function AdicionarTema(nome: string): Promise<Tema> {
+export async function adicionarTema(nome: string): Promise<Tema> {
     const session = await auth.api.getSession({
         headers: await headers()
     })
@@ -43,12 +61,9 @@ export async function AdicionarTema(nome: string): Promise<Tema> {
     }
 }
 
-export async function ListarTemas(busca?: string, page: number = 1, limit: number = 12) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-
-    if (!session?.user || session.user.role !== 'admin') {
+export async function listarTemas(busca?: string, page: number = 1, limit: number = 12) {
+    
+    if (!(await verificarSessaoAdmin())) {
         throw new Error('Usuário não autorizado');
     }
 
@@ -159,10 +174,7 @@ export async function listarTemasMes(month?: number, year?: number) {
 }
 
 export async function EditarTema(id: number, novoNome: string): Promise<Tema> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session?.user || session.user.role !== 'admin') {
+    if (!(await verificarSessaoAdmin())) {
         throw new Error('Usuário não autorizado');
     }
     try {
@@ -183,10 +195,7 @@ export async function EditarTema(id: number, novoNome: string): Promise<Tema> {
 }
 
 export async function AlterarDisponibilidadeTema(id: number, disponivel: boolean): Promise<Tema> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session?.user || session.user.role !== 'admin') {
+    if (!(await verificarSessaoAdmin())) {
         throw new Error('Usuário não autorizado');
     }
     try {
@@ -207,11 +216,7 @@ export async function AlterarDisponibilidadeTema(id: number, disponivel: boolean
 }
 
 export async function DeletarTema(id: number) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-
-    if (!session?.user || session.user.role !== 'admin') {
+    if (!(await verificarSessaoAdmin())) {
         throw new Error('Usuário não autorizado');
     }
 
@@ -267,10 +272,7 @@ export async function ListarCriterios() {
     }
 
 export async function EditarCriterio(id: number, nome: string, descricao: string, pontuacaoMax: number): Promise<Criterio> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session?.user || session.user.role !== 'admin') {
+    if (!(await verificarSessaoAdmin())) {
         throw new Error('Usuário não autorizado');
     }
     const resposta = await prisma.criterio.update({
@@ -323,7 +325,7 @@ export async function AdicionarAvaliacao({
             },
         });
         revalidatePath('/professor');
-        revalidatePath('/aluno');
+        atualizarCache(`listar-avaliacoes-aluno-${alunoId}`);
         return avaliacao;
     } catch (error) {
         console.error("Erro ao adicionar avaliação:", error);
@@ -342,6 +344,10 @@ export async function enviarRespostaAvaliacao(
     })
 
     if (!session?.user) {
+        throw new Error('Usuário não autorizado');
+    }
+
+    if (session.user.id !== idAluno) {
         throw new Error('Usuário não autorizado');
     }
 
@@ -366,9 +372,9 @@ export async function enviarRespostaAvaliacao(
                 notaFinal: 0, // Default score
             },
         });
-        updateTag('listar-avaliacoes-aluno');
-        updateTag('listarDadosAluno')
         
+        atualizarCache(`listar-avaliacoes-aluno-${idAluno}`);
+
         return avaliacaoCriada;
     } catch (error) {
         console.error("Erro ao enviar resposta da avaliação:", error);
@@ -381,11 +387,7 @@ export async function EditarAvaliacao(
     data: AdicionarAvaliacaoInput,
     correcao?: string
 ): Promise<Avaliacao> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-
-    if (!session?.user || session.user.role !== 'admin') {
+    if (!(await verificarSessaoAdmin())) {
         throw new Error('Usuário não autorizado');
     }
     try {
@@ -417,6 +419,8 @@ export async function EditarAvaliacao(
         ]);
 
         revalidatePath('/professor');
+        atualizarCache(`listar-avaliacoes-aluno-${data.alunoId}`);
+        
         return transaction[1];
     } catch (error) {
         console.error("Erro ao editar avaliação:", error);
@@ -448,13 +452,12 @@ export async function ListarAvaliacoesTemaId(temaId: number) {
 }
 
 export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, limit: number = 10, page: number = 1) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
+    'use cache'
+    cacheLife({stale: 1800})
+    cacheTag(`listar-avaliacoes-aluno-${alunoId}`)
+    console.log('ListarAvaliacoesAlunoId', alunoId)
 
-    if (!session?.user) {
-        throw new Error('Usuário não autorizado');
-    }
+
     try {
         // Construir o where clause dinamicamente
         const whereClause = {
@@ -512,15 +515,11 @@ export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, l
     }
 }
 
-export async function ListarTemasDisponiveis(alunoId: string, pagina: number = 1, limite: number = 10) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-
-    if (!session?.user) {
-        throw new Error('Usuário não autorizado');
-    }
-
+export async function listarTemasDisponiveis(alunoId: string, pagina: number = 1, limite: number = 10) {
+   'use cache'
+   cacheTag(`listar-temas-disponiveis-${alunoId}`)
+   cacheLife({stale: 300})
+   
     try {
         const [temas, total] = await Promise.all([
             prisma.tema.findMany({
@@ -570,14 +569,20 @@ export async function ListarTemasDisponiveis(alunoId: string, pagina: number = 1
 }
 
 export async function DeletarAvaliacao(id: number) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-
-    if (!session?.user || session.user.role !== 'admin') {
+    if (!(await verificarSessaoAdmin())) {
         throw new Error('Usuário não autorizado');
     }
     try {
+        // Busca o alunoId antes de deletar a avaliação para invalidar o cache dele corretamente
+        const avaliacaoExistente = await prisma.avaliacao.findUnique({
+            where: { id },
+            select: { alunoId: true }
+        });
+
+        if (!avaliacaoExistente) {
+            throw new Error('Avaliação não encontrada.');
+        }
+
         // Primeiro, deleta todos os critérios associados à avaliação
         await prisma.criterioAvaliacao.deleteMany({
             where: {
@@ -592,7 +597,7 @@ export async function DeletarAvaliacao(id: number) {
             },
         });
 
-        revalidatePath('/professor');
+        atualizarCache(`listar-avaliacoes-aluno-${avaliacaoExistente.alunoId}`);
     } catch (error) {
         console.error("Erro ao deletar avaliação:", error);
         throw error;

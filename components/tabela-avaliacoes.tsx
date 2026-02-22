@@ -132,9 +132,6 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, avaliaco
       await DeletarAvaliacao(id);
       await deleteObject(storageRef);
       toast.success("Avaliação excluída");
-      // Refresh the list
-      const newAvaliacoes = await ListarAvaliacoesAlunoId(aluno.id, busca, paginaAtual);
-      setListaAvaliacoes(newAvaliacoes);
     } catch (error) {
       console.log(error);
       toast.error('Algo deu errado, tente novamente!');

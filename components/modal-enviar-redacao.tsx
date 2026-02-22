@@ -22,6 +22,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from "./kibo-ui/dropzone";
 import { Spinner } from "./ui/spinner";
+import { atualizarCache } from "@/actions/cache";
 
 interface ModalEnviarRedacaoProps {
     tema: Tema;
@@ -71,6 +72,7 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                     `Uma redação sobre o tema "${tema.nome}" foi recebida!`,
                     '/professor/avaliacoes'
                 )
+                await atualizarCache('listar-avaliacoes-aluno');
 
             } catch (error) {
                 console.log(error)

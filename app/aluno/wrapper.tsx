@@ -1,5 +1,5 @@
 
-import { ListarAvaliacoesAlunoId, ListarCriterios, ListarTemasDisponiveis } from "@/actions/avaliacao";
+import { ListarAvaliacoesAlunoId, ListarCriterios, listarTemasDisponiveis } from "@/actions/avaliacao";
 import { listarMentoriasAluno } from "@/actions/mentoria";
 import { enviarNotificacaoParaTodos } from "@/actions/notificacoes";
 import { AppSidebarAluno } from "@/components/app-sidebar-aluno";
@@ -13,7 +13,7 @@ import { ProvedorTemas } from "@/context/provedor-temas";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { auth } from "@/lib/auth";
 import { Clock } from "lucide-react";
-import { cacheLife, cacheTag } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
@@ -55,8 +55,8 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
 
             return res
         }
-
         await avisoNovoAcesso();
+
 
         return (
             <>
@@ -90,26 +90,6 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
             return mentorias
         }
 
-        async function ListarAvaliacoes() {
-            'use cache: private'
-            cacheTag('listar-avaliacoes-aluno')
-
-            cacheLife({ revalidate: 900 })
-
-            const avaliacoes = await ListarAvaliacoesAlunoId(userId);
-            return avaliacoes;
-        }
-
-        async function ListarTemas() {
-            'use cache: private'
-            cacheTag('listar-temas-aluno')
-
-            cacheLife({ revalidate: 900 })
-
-            const temas = await ListarTemasDisponiveis(userId)
-
-            return temas
-        }
 
         const criterios = await ListarCriterios();
 
@@ -127,9 +107,8 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
                     <InicializarNotificacoes userId={userId} />
                     <ProvedorAluno
                         userId={userId}
-                        avaliacoes={(await ListarAvaliacoes())}
+                        // avaliacoes={(await ListarAvaliacoes())}
                         mentorias={(await listarMentorias())}
-                        temas={(await ListarTemas())}
                         criterios={criterios}
                     >
                         <SidebarProvider>

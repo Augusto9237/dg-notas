@@ -143,4 +143,5 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
                 />
             </div>
         )
-    }}
+    }
+}

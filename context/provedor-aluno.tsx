@@ -2,10 +2,11 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { ContextoAluno } from "./contexto-aluno";
-import { ListarAvaliacoesAlunoId, ListarTemasDisponiveis } from "@/actions/avaliacao";
+import { ListarAvaliacoesAlunoId, listarTemasDisponiveis } from "@/actions/avaliacao";
 import { listarMentoriasAluno } from "@/actions/mentoria";
 import { Criterio, Prisma } from "@/app/generated/prisma";
 import useWebPush from "@/hooks/useWebPush";
+import { updateTag } from "next/cache";
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
     include: {
@@ -32,19 +33,20 @@ export type Mentoria = Prisma.MentoriaGetPayload<{
         }
     }
 }>
+type Avaliacoes = {
+    data: AvaliacaoTema[]
+    meta: {
+        total: number,
+        page: number,
+        limit: number,
+        totalPages: number,
+    }
+}
 
 interface AlunoProviderProps {
     children: ReactNode
     userId: string
-    avaliacoes: {
-        data: AvaliacaoTema[]
-        meta: {
-            total: number,
-            page: number,
-            limit: number,
-            totalPages: number,
-        }
-    }
+
     mentorias: {
         data: Mentoria[]
         meta: {
@@ -54,31 +56,19 @@ interface AlunoProviderProps {
             totalPages: number,
         }
     }
-    temas: {
-        data: Tema[]
-        meta: {
-            total: number;
-            pagina: number;
-            limite: number;
-            totalPaginas: number;
-        };
-    }
     criterios: Criterio[]
 }
 
-export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas, criterios }: AlunoProviderProps) => {
+export const ProvedorAluno = ({ children, userId, mentorias, criterios }: AlunoProviderProps) => {
     const { notificacoes } = useWebPush({ userId });
     const [isLoading, setIsLoading] = useState(false);
-    const [listaAvaliacoes, setListaAvaliacoes] = useState<AlunoProviderProps['avaliacoes']>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
+    const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacoes>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
     const [listaMentorias, setListaMentorias] = useState<AlunoProviderProps['mentorias']>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
-    const [listaTemas, setListaTemas] = useState<AlunoProviderProps['temas']>({ data: [], meta: { total: 0, pagina: 1, limite: 10, totalPaginas: 0 } });
 
     // Atualiza o estado se as props mudarem (ex: revalidação do servidor)
     useEffect(() => {
-        setListaAvaliacoes(avaliacoes);
         setListaMentorias(mentorias);
-        setListaTemas(temas);
-    }, [avaliacoes, mentorias, temas]);
+    }, [mentorias]);
 
 
     // Gerenciamento de Notificações
@@ -91,12 +81,13 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas, 
 
             try {
                 if (url === '/aluno/avaliacoes') {
-                    const [novasAvaliacoes, novosTemas] = await Promise.all([
-                        ListarAvaliacoesAlunoId(userId),
-                        ListarTemasDisponiveis(userId)
-                    ]);
-                    setListaAvaliacoes(novasAvaliacoes);
-                    setListaTemas(novosTemas);
+                    // reloadAvaliacoes();
+                    // const [novasAvaliacoes, novosTemas] = await Promise.all([
+                    //     ListarAvaliacoesAlunoId(userId),
+                    //     listarTemasDisponiveis(userId)
+                    // ]);
+                    // setListaAvaliacoes(novasAvaliacoes);
+                    // setListaTemas(novosTemas);
                 }
 
                 if (url === '/aluno/mentorias') {
@@ -118,7 +109,6 @@ export const ProvedorAluno = ({ children, userId, avaliacoes, mentorias, temas, 
             isLoading,
             listaAvaliacoes,
             listaMentorias,
-            listaTemas,
             criterios,
             notificacoes
         }}>
