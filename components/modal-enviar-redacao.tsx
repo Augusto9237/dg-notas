@@ -72,8 +72,6 @@ export function ModalEnviarRedacao({ tema }: ModalEnviarRedacaoProps) {
                     `Uma redação sobre o tema "${tema.nome}" foi recebida!`,
                     '/professor/avaliacoes'
                 )
-                await atualizarCache('listar-avaliacoes-aluno');
-
             } catch (error) {
                 console.log(error)
                 toast.error('Erro! Tente Novamente')

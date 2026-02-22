@@ -374,6 +374,7 @@ export async function enviarRespostaAvaliacao(
         });
         
         atualizarCache(`listar-avaliacoes-aluno-${idAluno}`);
+        atualizarCache(`listar-temas-disponiveis-${idAluno}`);
 
         return avaliacaoCriada;
     } catch (error) {
@@ -455,8 +456,6 @@ export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, l
     'use cache'
     cacheLife({stale: 1800})
     cacheTag(`listar-avaliacoes-aluno-${alunoId}`)
-    console.log('ListarAvaliacoesAlunoId', alunoId)
-
 
     try {
         // Construir o where clause dinamicamente
