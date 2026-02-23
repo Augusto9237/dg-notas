@@ -107,7 +107,6 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
                     <InicializarNotificacoes userId={userId} />
                     <ProvedorAluno
                         userId={userId}
-                        // avaliacoes={(await ListarAvaliacoes())}
                         mentorias={(await listarMentorias())}
                         criterios={criterios}
                     >

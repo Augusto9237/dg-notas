@@ -20,7 +20,7 @@ export async function verificarSessaoAluno(alunoId: string): Promise<boolean> {
         headers: await headers()
     });
 
-    return !!(session?.user && session.user.role === 'aluno' && session.user.id === alunoId);
+    return !!(session?.user && session.user.role === 'user' && session.user.id === alunoId);
 }
 
 
@@ -452,7 +452,7 @@ export async function ListarAvaliacoesTemaId(temaId: number) {
     return avaliacoes;
 }
 
-export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, limit: number = 10, page: number = 1) {
+async function obterAvaliacoesAluno(alunoId: string, busca?: string, limit: number = 10, page: number = 1) {
     'use cache'
     cacheLife({stale: 1800})
     cacheTag(`listar-avaliacoes-aluno-${alunoId}`)
@@ -472,7 +472,7 @@ export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, l
             }),
         }
 
-        const [avaliacoes, total] = await Promise.all([
+        const [avaliacoes, total, aggregate] = await Promise.all([
             prisma.avaliacao.findMany({
                 where: whereClause,
                 include: {
@@ -488,8 +488,16 @@ export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, l
             }),
             prisma.avaliacao.count({
                 where: whereClause,
-            })
+            }),
+            prisma.avaliacao.aggregate({
+                where: whereClause,
+                _avg: {
+                    notaFinal: true,
+                },
+            }),
         ]);
+
+        const mediaGeral = (aggregate)._avg.notaFinal || 0;
 
         return {
             data: avaliacoes,
@@ -498,6 +506,7 @@ export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, l
                 page,
                 limit,
                 totalPages: Math.ceil(total / limit),
+                mediaGeral
             }
         };
     } catch (error) {
@@ -509,15 +518,26 @@ export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, l
                 page,
                 limit,
                 totalPages: 0,
+                mediaGeral: 0
             }
         };
     }
 }
 
-export async function listarTemasDisponiveis(alunoId: string, pagina: number = 1, limite: number = 10) {
-   'use cache'
-   cacheTag(`listar-temas-disponiveis-${alunoId}`)
-   cacheLife({stale: 300})
+export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, limit: number = 10, page: number = 1) {
+    const isOwner = await verificarSessaoAluno(alunoId);
+    const isAdmin = await verificarSessaoAdmin();
+    
+    if (!isOwner && !isAdmin) {
+        throw new Error('Acesso negado.');
+    }
+    return obterAvaliacoesAluno(alunoId, busca, limit, page);
+}
+
+async function obterTemasDisponiveis(alunoId: string, pagina: number = 1, limite: number = 10) {
+    'use cache'
+    cacheTag(`listar-temas-disponiveis-${alunoId}`)
+    cacheLife({stale: 300})
    
     try {
         const [temas, total] = await Promise.all([
@@ -565,6 +585,17 @@ export async function listarTemasDisponiveis(alunoId: string, pagina: number = 1
         console.error("Erro ao listar temas disponíveis:", error);
         throw error;
     }
+}
+
+
+export async function listarTemasDisponiveis(alunoId: string, pagina: number = 1, limite: number = 10) {
+    const isOwner = await verificarSessaoAluno(alunoId);
+    
+    if (!isOwner) {
+        throw new Error('Acesso negado.');
+    }
+
+    return obterTemasDisponiveis(alunoId, pagina, limite);
 }
 
 export async function DeletarAvaliacao(id: number) {

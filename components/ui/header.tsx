@@ -22,52 +22,35 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
 
 
 interface HeaderProps {
-  avaliacoes: Avaliacao[];
+  avaliacoes: {
+    data: Avaliacao[],
+    meta: {
+      total: number,
+      totalPages: number,
+      mediaGeral: number
+    }
+  }
 }
 
 export default function Header({ avaliacoes }: HeaderProps) {
-  const { notificacoes, listaMentorias } = useContext(ContextoAluno);
+  const { listaMentorias } = useContext(ContextoAluno);
   const { data: session } = authClient.useSession();
-  const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
+  const [listaAvaliacoes, setListaAvaliacoes] = useState<HeaderProps['avaliacoes']>({
+    data: [],
+    meta: {
+      total: 0,
+      totalPages: 0,
+      mediaGeral: 0
+    }
+  });
   const [isLoading, setIsLoading] = useState(false);
   const { subscribe, permission } = useWebPush({ userId: session?.user.id! })
 
   useEffect(() => {
+    setIsLoading(true)
     setListaAvaliacoes(avaliacoes);
+    setIsLoading(false)
   }, [avaliacoes]);
-
-  // Gerenciamento de Notificações
-  useEffect(() => {
-    const handleNotification = async () => {
-      if (!notificacoes?.data?.url) return;
-
-      const url = notificacoes.data.url;
-      setIsLoading(true);
-
-      try {
-        if (url === '/aluno/avaliacoes') {
-          const novasAvaliacoes = await ListarAvaliacoesAlunoId(session?.user.id!, '', 10000, 1)
-          setListaAvaliacoes(novasAvaliacoes.data);
-        }
-      } catch (error) {
-        console.error("Erro ao atualizar dados via notificação:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    handleNotification();
-  }, [notificacoes]);
-
-  // Cálculos derivados otimizados
-  const { mediaGeral, totalRedacoes } = useMemo(() => {
-    const total = listaAvaliacoes.length;
-    const soma = listaAvaliacoes.reduce((acc, curr) => acc + curr.notaFinal, 0);
-    return {
-      mediaGeral: total > 0 ? soma / total : 0,
-      totalRedacoes: total
-    };
-  }, [listaAvaliacoes]);
 
   // Renderizar um placeholder durante a hidratação
   if (!isLoading && !session) {
@@ -107,13 +90,13 @@ export default function Header({ avaliacoes }: HeaderProps) {
 
         {(permission === 'default' || permission === 'denied' || permission === null) ? (
           <div className="absolute top-5 right-5 min-[1025px]:hidden">
-            <Button size='icon'  onClick={subscribe}>
+            <Button size='icon' onClick={subscribe}>
               <BellOff />
             </Button>
           </div>
         ) : (
           <div className="absolute top-5 right-5 min-[1025px]:hidden">
-            <Button size='icon'  onClick={() => toast.success("Notificações já ativadas!")}>
+            <Button size='icon' onClick={() => toast.success("Notificações já ativadas!")}>
               <Bell />
             </Button>
           </div>
@@ -122,14 +105,14 @@ export default function Header({ avaliacoes }: HeaderProps) {
         <div className="grid grid-cols-3 gap-4 min-[1025px]:gap-5">
           <Card className="text-center bg-card/10 min-[1025px]:bg-card/100 rounded-lg backdrop-blur-sm border-none min-[1025px]:border-border gap-0 p-2 min-[1025px]:p-4">
             <CardTitle className="text-lg font-bold text-secondary">
-              {mediaGeral.toFixed(2).replace('.', ',')}
+              {listaAvaliacoes.meta.mediaGeral.toFixed(2).replace('.', ',')}
             </CardTitle>
             <CardDescription className="text-xs opacity-90 text-card min-[1025px]:text-muted-foreground dark:text-muted-foreground">Média Geral</CardDescription>
           </Card>
 
           <Card className="text-center bg-card/10 min-[1025px]:bg-card/100 rounded-lg backdrop-blur-sm border-none min-[1025px]:border-border gap-0 p-2 min-[1025px]:p-4">
             <CardTitle className="text-lg font-bold text-secondary">
-              {totalRedacoes}
+              {listaAvaliacoes.meta.total}
             </CardTitle>
             <CardDescription className="text-xs opacity-90 text-card min-[1025px]:text-muted-foreground dark:text-muted-foreground">Redações</CardDescription>
           </Card>
