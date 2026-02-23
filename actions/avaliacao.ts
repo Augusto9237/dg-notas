@@ -325,7 +325,7 @@ export async function AdicionarAvaliacao({
             },
         });
         revalidatePath('/professor');
-        atualizarCache(`listar-avaliacoes-aluno-${alunoId}`);
+        await atualizarCache(`listar-avaliacoes-aluno-${alunoId}`);
         return avaliacao;
     } catch (error) {
         console.error("Erro ao adicionar avaliação:", error);
@@ -373,8 +373,8 @@ export async function enviarRespostaAvaliacao(
             },
         });
         
-        atualizarCache(`listar-avaliacoes-aluno-${idAluno}`);
-        atualizarCache(`listar-temas-disponiveis-${idAluno}`);
+        await atualizarCache(`listar-avaliacoes-aluno-${idAluno}`);
+        await atualizarCache(`listar-temas-disponiveis-${idAluno}`);
 
         return avaliacaoCriada;
     } catch (error) {
@@ -420,7 +420,7 @@ export async function EditarAvaliacao(
         ]);
 
         revalidatePath('/professor');
-        atualizarCache(`listar-avaliacoes-aluno-${data.alunoId}`);
+        await atualizarCache(`listar-avaliacoes-aluno-${data.alunoId}`);
         
         return transaction[1];
     } catch (error) {
@@ -525,10 +525,14 @@ async function obterAvaliacoesAluno(alunoId: string, busca?: string, limit: numb
 }
 
 export async function ListarAvaliacoesAlunoId(alunoId: string, busca?: string, limit: number = 10, page: number = 1) {
-    const isOwner = await verificarSessaoAluno(alunoId);
-    const isAdmin = await verificarSessaoAdmin();
-    
-    if (!isOwner && !isAdmin) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) {
+        throw new Error("Usuário não autenticado")
+    }
+
+    if (session.user.id !== alunoId && session.user.role !== 'admin') {
         throw new Error('Acesso negado.');
     }
     return obterAvaliacoesAluno(alunoId, busca, limit, page);
@@ -589,10 +593,11 @@ async function obterTemasDisponiveis(alunoId: string, pagina: number = 1, limite
 
 
 export async function listarTemasDisponiveis(alunoId: string, pagina: number = 1, limite: number = 10) {
-    const isOwner = await verificarSessaoAluno(alunoId);
-    
-    if (!isOwner) {
-        throw new Error('Acesso negado.');
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) {
+        throw new Error("Usuário não autenticado")
     }
 
     return obterTemasDisponiveis(alunoId, pagina, limite);
@@ -627,7 +632,7 @@ export async function DeletarAvaliacao(id: number) {
             },
         });
 
-        atualizarCache(`listar-avaliacoes-aluno-${avaliacaoExistente.alunoId}`);
+        await atualizarCache(`listar-avaliacoes-aluno-${avaliacaoExistente.alunoId}`);
     } catch (error) {
         console.error("Erro ao deletar avaliação:", error);
         throw error;

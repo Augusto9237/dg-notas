@@ -7,6 +7,8 @@ import { ListaCompetenciasAluno } from '@/components/lista-competencias-aluno';
 import { DesempenhoAlunoGrafico } from '@/components/desempenho-aluno-grafico';
 import { listarMentoriasAluno } from '@/actions/mentoria';
 import { cacheTag } from 'next/cache';
+import { Suspense } from 'react';
+import Loading from '../loading';
 
 export default async function Page() {
   const session = await auth.api.getSession({
@@ -19,18 +21,21 @@ export default async function Page() {
   const userId = session.user.id;
 
   const avaliacoes = await ListarAvaliacoesAlunoId(userId)
+  const mentorias = await listarMentoriasAluno(userId)
 
 
   return (
-    <div className="w-full h-full max-h-screen overflow-hidden">
-      <Header avaliacoes={avaliacoes} />
-      <main className="sm:grid sm:grid-cols-2 flex flex-col  py-5 flex-1 overflow-hidden h-full max-h-[calc(100vh-156px)]">
-        <div className="flex flex-col gap-4 sm:p-5">
-          <h2 className="text-primary font-semibold max-sm:px-5">Suas Habilidades</h2>
-          <ListaCompetenciasAluno avaliacoes={avaliacoes.data} />
-        </div>
-        <DesempenhoAlunoGrafico avaliacoes={avaliacoes.data} userId={userId} />
-      </main>
-    </div>
+    <Suspense fallback={<Loading />}>
+      <div className="w-full h-full max-h-screen overflow-hidden">
+        <Header avaliacoes={avaliacoes} mentorias={mentorias} />
+        <main className="sm:grid sm:grid-cols-2 flex flex-col  py-5 flex-1 overflow-hidden h-full max-h-[calc(100vh-156px)]">
+          <div className="flex flex-col gap-4 sm:p-5">
+            <h2 className="text-primary font-semibold max-sm:px-5">Suas Habilidades</h2>
+            <ListaCompetenciasAluno avaliacoes={avaliacoes.data} />
+          </div>
+          <DesempenhoAlunoGrafico avaliacoes={avaliacoes.data} userId={userId} />
+        </main>
+      </div>
+    </ Suspense>
   );
 }

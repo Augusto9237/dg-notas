@@ -19,26 +19,13 @@ interface Props {
     avaliacoes: Avaliacao[]
 }
 export function ListaCompetenciasAluno({ avaliacoes }: Props) {
-    const { criterios, notificacoes } = useContext(ContextoAluno);
-    const { data: session } = authClient.useSession();
+    const { criterios } = useContext(ContextoAluno);
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
 
     useEffect(() => {
         setListaAvaliacoes(avaliacoes);
     }, [avaliacoes]);
 
-    useEffect(() => {
-        async function fetchAvaliacoes() {
-            if (!notificacoes?.data?.url) return;
-
-            const url = notificacoes.data.url;
-            if (url === '/aluno/avaliacoes') {
-                const novasAvaliacoes = await ListarAvaliacoesAlunoId(session?.user.id!, '', 10000, 1)
-                setListaAvaliacoes(novasAvaliacoes.data);
-            }
-        }
-        fetchAvaliacoes();
-    }, []);
 
     function calcularMediasPorCriterio(
         avaliacoes: Avaliacao[],

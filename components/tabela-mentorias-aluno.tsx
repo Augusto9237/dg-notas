@@ -44,10 +44,10 @@ interface TabelaMentoriasAlunoProps {
     professor: Professor;
     diasSemana: DiaSemana[];
     slotsHorario: SlotHorario[];
+    mentoriasIniciais: ListaMentorias;
 }
 
-export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: TabelaMentoriasAlunoProps) {
-    const { listaMentorias } = useContext(ContextoAluno);
+export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario, mentoriasIniciais }: TabelaMentoriasAlunoProps) {
     const [mentorias, setMentorias] = useState<ListaMentorias>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
@@ -56,9 +56,9 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
     const userId = session?.user.id;
 
     useEffect(() => {
-        setMentorias(listaMentorias);
-        setHasMore(listaMentorias.meta.total > listaMentorias.data.length);
-    }, [listaMentorias]);
+        setMentorias(mentoriasIniciais);
+        setHasMore(mentoriasIniciais.meta.total > mentoriasIniciais.data.length);
+    }, [mentoriasIniciais]);
 
     const hoje = new Date()
     const brasilTime = new Date(hoje.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
@@ -98,19 +98,19 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario }: Ta
             // Calcular a próxima página baseada no número atual de mentorias
             const mentoriasCarregadas = mentorias.data.length;
             const proximaPagina = Math.floor(mentoriasCarregadas / mentorias.meta.limit) + 1;
-            
+
             const mentoriasNovas = await listarMentoriasAluno(userId!, proximaPagina, mentorias.meta.limit);
-            
+
             // Adicionar novas mentorias às existentes
             setMentorias(prev => {
                 const novosData = [...prev.data, ...mentoriasNovas.data];
                 const totalCarregado = novosData.length;
-                
+
                 // Verificar se ainda há mais mentorias para carregar
                 if (totalCarregado >= prev.meta.total || mentoriasNovas.data.length < prev.meta.limit) {
                     setHasMore(false);
                 }
-                
+
                 return {
                     ...mentoriasNovas,
                     data: novosData,

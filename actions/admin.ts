@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { obterUrlImagem } from "@/lib/obter-imagem";
 import { prisma } from "@/lib/prisma"
+import { cacheTag } from "next/cache";
 import { cacheLife, revalidatePath } from "next/cache"
 import { headers } from "next/headers";
 
@@ -15,17 +16,11 @@ type AtualizarContaProfessorParams = {
   image?: string;
 }
 
-export async function obterProfessor() {
-  'use cache: private'
-
+async function dadosProfessor(){
+  'use cache'
   cacheLife('days')
+  cacheTag('perfil-professor')
 
-  const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session?.user) {
-        throw new Error('Usuário não autorizado');
-    }
   try {
     const resultado = await prisma.user.findFirst({
       where: {
@@ -51,6 +46,18 @@ export async function obterProfessor() {
     console.error("Erro ao obter professor:", error)
     return null
   }
+
+}
+
+export async function obterProfessor() {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session?.user) {
+        throw new Error('Usuário não autorizado');
+    }
+
+    return dadosProfessor()
 }
 
 export async function obterProfessorPorId(userId: string) {

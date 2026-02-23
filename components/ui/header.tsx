@@ -21,6 +21,19 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
 }>
 
 
+export type Mentoria = Prisma.MentoriaGetPayload<{
+  include: {
+    aluno: true,
+    professor: true,
+    horario: {
+      include: {
+        slot: true
+      }
+    }
+  }
+}>
+
+
 interface HeaderProps {
   avaliacoes: {
     data: Avaliacao[],
@@ -30,10 +43,16 @@ interface HeaderProps {
       mediaGeral: number
     }
   }
+  mentorias: {
+    data: Mentoria[],
+    meta: {
+      total: number,
+      totalPages: number,
+    }
+  }
 }
 
-export default function Header({ avaliacoes }: HeaderProps) {
-  const { listaMentorias } = useContext(ContextoAluno);
+export default function Header({ avaliacoes, mentorias }: HeaderProps) {
   const { data: session } = authClient.useSession();
   const [listaAvaliacoes, setListaAvaliacoes] = useState<HeaderProps['avaliacoes']>({
     data: [],
@@ -43,14 +62,22 @@ export default function Header({ avaliacoes }: HeaderProps) {
       mediaGeral: 0
     }
   });
+  const [listaMentorias, setListaMentorias] = useState<HeaderProps['mentorias']>({
+    data: [],
+    meta: {
+      total: 0,
+      totalPages: 0,
+    }
+  });
   const [isLoading, setIsLoading] = useState(false);
   const { subscribe, permission } = useWebPush({ userId: session?.user.id! })
 
   useEffect(() => {
     setIsLoading(true)
     setListaAvaliacoes(avaliacoes);
+    setListaMentorias(mentorias);
     setIsLoading(false)
-  }, [avaliacoes]);
+  }, [avaliacoes, mentorias]);
 
   // Renderizar um placeholder durante a hidratação
   if (!isLoading && !session) {

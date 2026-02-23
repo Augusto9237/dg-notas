@@ -46,29 +46,13 @@ type Avaliacoes = {
 interface AlunoProviderProps {
     children: ReactNode
     userId: string
-
-    mentorias: {
-        data: Mentoria[]
-        meta: {
-            total: number,
-            page: number,
-            limit: number,
-            totalPages: number,
-        }
-    }
     criterios: Criterio[]
 }
 
-export const ProvedorAluno = ({ children, userId, mentorias, criterios }: AlunoProviderProps) => {
+export const ProvedorAluno = ({ children, userId, criterios }: AlunoProviderProps) => {
     const { notificacoes } = useWebPush({ userId });
     const [isLoading, setIsLoading] = useState(false);
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacoes>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
-    const [listaMentorias, setListaMentorias] = useState<AlunoProviderProps['mentorias']>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
-
-    // Atualiza o estado se as props mudarem (ex: revalidação do servidor)
-    useEffect(() => {
-        setListaMentorias(mentorias);
-    }, [mentorias]);
 
 
     // Gerenciamento de Notificações
@@ -90,10 +74,10 @@ export const ProvedorAluno = ({ children, userId, mentorias, criterios }: AlunoP
                     // setListaTemas(novosTemas);
                 }
 
-                if (url === '/aluno/mentorias') {
-                    const novasMentorias = await listarMentoriasAluno(userId);
-                    setListaMentorias(novasMentorias);
-                }
+                // if (url === '/aluno/mentorias') {
+                //     const novasMentorias = await listarMentoriasAluno(userId);
+                //     setListaMentorias(novasMentorias);
+                // }
             } catch (error) {
                 console.error("Erro ao atualizar dados via notificação:", error);
             } finally {
@@ -108,7 +92,6 @@ export const ProvedorAluno = ({ children, userId, mentorias, criterios }: AlunoP
         <ContextoAluno.Provider value={{
             isLoading,
             listaAvaliacoes,
-            listaMentorias,
             criterios,
             notificacoes
         }}>

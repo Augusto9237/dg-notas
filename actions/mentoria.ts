@@ -2,7 +2,7 @@
 
 import { Mentoria, Prisma } from '@/app/generated/prisma';
 import { prisma } from '@/lib/prisma';
-import { cacheLife, revalidatePath, updateTag } from 'next/cache';
+import { cacheLife, cacheTag, revalidatePath, updateTag } from 'next/cache';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
 // Tipos para os parâmetros da função
@@ -203,7 +203,7 @@ export async function adicionarMentoria(
       { isolationLevel: 'Serializable' }
     );
 
-    updateTag('listar-mentorias-aluno');
+    updateTag(`listar-mentorias-aluno-${alunoId}`);
     revalidatePath('/professor/mentorias');
 
     return {
@@ -437,11 +437,12 @@ export async function listarMentoriasMes(mes?: number, ano?: number) {
  * @param limit - Número de itens por página
  * @returns Lista de mentorias do aluno com informações de paginação
  */
-export async function listarMentoriasAluno(
-  alunoId: string,
-  page: number = 1,
-  limit: number = 10
-) {
+
+async function obterMentoriasAluno(alunoId: string, page: number = 1, limit: number = 10) {
+  'use cache'
+  cacheTag(`listar-mentorias-aluno-${alunoId}`)
+
+  cacheLife({ revalidate: 1800 })
   try {
     const skip = (page - 1) * limit;
 
@@ -493,6 +494,22 @@ export async function listarMentoriasAluno(
       }
     }
   }
+}
+export async function listarMentoriasAluno(
+  alunoId: string,
+  page: number = 1,
+  limit: number = 10
+) {
+
+    const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    throw new Error('Usuário não autorizado');
+  }
+
+  return obterMentoriasAluno(alunoId, page, limit)
 }
 
 
@@ -652,7 +669,7 @@ export async function editarMentoria(
       });
     }
 
-    revalidatePath('/aluno/mentorias');
+    updateTag(`listar-mentorias-aluno-${mentoriaAtualizada.alunoId}`);
     revalidatePath('/professor/mentorias');
 
     return {

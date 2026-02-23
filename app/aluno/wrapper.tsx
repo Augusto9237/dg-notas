@@ -55,6 +55,7 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
 
             return res
         }
+
         await avisoNovoAcesso();
 
 
@@ -78,22 +79,7 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
     } else if (session.user.matriculado === true) {
 
         const userId = session.user.id;
-
-        async function listarMentorias() {
-            'use cache: private'
-            cacheTag('listar-mentorias-aluno')
-
-            cacheLife({ revalidate: 900 })
-
-            const mentorias = await listarMentoriasAluno(userId)
-
-            return mentorias
-        }
-
-
         const criterios = await ListarCriterios();
-
-
         return (
             <>
                 <ProvedorTemas
@@ -107,7 +93,6 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
                     <InicializarNotificacoes userId={userId} />
                     <ProvedorAluno
                         userId={userId}
-                        mentorias={(await listarMentorias())}
                         criterios={criterios}
                     >
                         <SidebarProvider>

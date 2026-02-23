@@ -1,6 +1,6 @@
 
 import { AgendarMentoriaAluno } from "@/components/agendar-mentoria-aluno"
-import { listarDiasSemana, listarSlotsHorario } from "@/actions/mentoria"
+import { listarDiasSemana, listarMentoriasAluno, listarSlotsHorario } from "@/actions/mentoria"
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers"
 import { obterProfessor } from "@/actions/admin";
@@ -19,22 +19,21 @@ export default async function Page() {
 
     async function listaDadosAgenda() {
         'use cache: private'
-
         cacheLife({ stale: 1800 })
-        const [diasSemana, slotsHorario, professor] = await Promise.all([
+        const [diasSemana, slotsHorario] = await Promise.all([
             listarDiasSemana(),
             listarSlotsHorario(),
-            obterProfessor()
         ])
 
         return {
             diasSemana,
             slotsHorario,
-            professor,
         }
     }
 
-    const { diasSemana, slotsHorario, professor } = await listaDadosAgenda()
+    const professor = await obterProfessor()
+    const mentorias = await listarMentoriasAluno(session.user.id)
+    const { diasSemana, slotsHorario } = await listaDadosAgenda()
 
     const diasAtivos = diasSemana.filter((dia) => dia.status)
     const horariosAtivos = slotsHorario.filter((horario) => horario.status)
@@ -61,7 +60,7 @@ export default async function Page() {
                     <h2 className="text-primary font-semibold">Suas Mentorias</h2>
                 </div>
                 <AgendarMentoriaAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professorId={professor.id} />
-                <TabelaMentoriasAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professor={professor} />
+                <TabelaMentoriasAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professor={professor} mentoriasIniciais={mentorias} />
             </main>
         </div>
     )
