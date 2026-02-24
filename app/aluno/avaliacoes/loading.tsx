@@ -24,8 +24,7 @@ export default function Loading() {
                                         <Skeleton className="h-6 w-16" />
                                     </div>
                                     <div className="flex justify-between w-full pb-10">
-                                        <Skeleton className="w-56 h-3" />
-                                        <Skeleton className="w-32 h-3" />
+                                        <Skeleton className="w-full h-3" />
                                     </div>
                                 </CardContent>
                                 <CardFooter className="px-4 pb-4 absolute inset-x-0 bottom-0">
