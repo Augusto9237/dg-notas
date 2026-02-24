@@ -245,9 +245,9 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
                   <Card className="py-4 rounded-md w-full">
                     <CardContent className="flex gap-2 items-center justify-start px-4">
                       <FileVideoCamera className="size-8" />
-                      <div>
-                        <p className="text-xs mb-2">{arquivo[0].name}</p>
-                        <Progress value={progresso} />
+                      <div className="w-full">
+                        <p className="text-start text-xs mb-2">{arquivo[0].name}</p>
+                        <Progress value={progresso} className="w-full" />
                       </div>
                     </CardContent>
                   </Card>

@@ -84,9 +84,13 @@ export async function listarVideoaulas(busca?: string, page: number = 1, limit: 
             }),
         };
 
+        const skip = (page - 1) * limit;
+
         const [videoaulas, total] = await Promise.all([
             prisma.videoaula.findMany({
-                where: whereClause
+                where: whereClause,
+                skip,
+                take: limit,
             }),
             prisma.videoaula.count({
                 where: whereClause,
