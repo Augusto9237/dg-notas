@@ -104,6 +104,7 @@ export async function adicionarTelefone(id: string, telefone: string) {
     if (session.user.id !== id) {
         throw new Error('Não autorizado');
     }
+    
     try {
         const aluno = await prisma.user.update({
             where: {

@@ -430,13 +430,7 @@ export async function listarMentoriasMes(mes?: number, ano?: number) {
     return [];
   }
 }
-/**
- * Função para listar todas as mentorias de um aluno a partir do ID com paginação
- * @param alunoId - ID do aluno
- * @param page - Número da página
- * @param limit - Número de itens por página
- * @returns Lista de mentorias do aluno com informações de paginação
- */
+
 
 async function obterMentoriasAluno(alunoId: string, page: number = 1, limit: number = 10) {
   'use cache'
@@ -734,7 +728,7 @@ export async function atualizarStatusMentoria(
       include: { aluno: true, horario: true },
     });
 
-    revalidatePath('/aluno/mentorias');
+    updateTag(`listar-mentorias-aluno-${mentoriaAtualizada.alunoId}`);
     revalidatePath('/professor/mentorias');
     return mentoriaAtualizada;
   } catch (error) {
@@ -764,7 +758,7 @@ export async function excluirMentoriaECascata(mentoriaId: number) {
     // Busca a mentoria para obter o horarioId
     const mentoria = await prisma.mentoria.findUnique({
       where: { id: mentoriaId },
-      select: { horarioId: true },
+      select: { horarioId: true, alunoId: true },
     });
 
     if (!mentoria) {
@@ -789,7 +783,7 @@ export async function excluirMentoriaECascata(mentoriaId: number) {
       });
     }
 
-    revalidatePath('/aluno/mentorias');
+    updateTag(`listar-mentorias-aluno-${mentoria.alunoId}`);
     revalidatePath('/professor/mentorias');
 
     return true;
@@ -816,7 +810,7 @@ export async function confirmarMentoria(mentoriaId: number) {
       },
     });
 
-    revalidatePath('/aluno/mentorias');
+    updateTag(`listar-mentorias-aluno-${mentoria.alunoId}`);
     revalidatePath('/professor/mentorias');
     return mentoria;
   } catch (error) {
