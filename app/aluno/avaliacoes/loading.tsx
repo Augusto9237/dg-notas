@@ -19,17 +19,17 @@ export default function Loading() {
                                 <CardContent className="p-4 relative h-full flex-1 flex flex-col justify-between">
                                     <div className="flex items-start justify-between">
                                         <div className="flex-1">
-                                            <Skeleton className="w-64 h-4" />
+                                            <Skeleton className="w-56 h-6" />
                                         </div>
                                         <Skeleton className="h-6 w-16" />
                                     </div>
                                     <div className="flex justify-between w-full pb-10">
-                                        <Skeleton className="w-64 h-3" />
+                                        <Skeleton className="w-56 h-3" />
                                         <Skeleton className="w-32 h-3" />
                                     </div>
                                 </CardContent>
                                 <CardFooter className="px-4 pb-4 absolute inset-x-0 bottom-0">
-                                    <Skeleton className="w-full h-9" />
+                                    <Skeleton className="w-full h-8" />
                                 </CardFooter>
                             </Card>
                         ))}
