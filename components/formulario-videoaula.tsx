@@ -34,6 +34,7 @@ import { Card, CardContent } from "./ui/card"
 import { storage } from "@/lib/firebase"
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"
 import { Progress } from "./ui/progress"
+import clsx from "clsx"
 
 const esquemaFormulario = z.object({
   titulo: z.string().min(3, "O titulo do video deve ter pelo menos 3 caracteres"),
@@ -237,6 +238,7 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
               onError={() => toast.error('Formato de arquivo não suportado!')}
               src={arquivo}
               maxFiles={1}
+              disabled={formulario.formState.isSubmitting}
               className="p-4"
             >
               <DropzoneEmptyState />
@@ -246,7 +248,7 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
                     <CardContent className="flex gap-2 items-center justify-start px-4">
                       <FileVideoCamera className="size-8" />
                       <div className="w-full">
-                        <p className="text-start text-xs mb-2">{arquivo[0].name}</p>
+                        <p className="text-start text-xs mb-2 truncate">{arquivo[0].name}</p>
                         <Progress value={progresso} className="w-full" />
                       </div>
                     </CardContent>
@@ -259,6 +261,7 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
               <Button
                 type="button"
                 variant='ghost'
+                className={clsx("w-full", formulario.formState.isSubmitting ? 'hidden' : '')}
                 onClick={() => {
                   formulario.reset({
                     titulo: aula?.titulo || "",
@@ -276,6 +279,7 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
               <Button
                 type="submit"
                 disabled={formulario.formState.isSubmitting}
+                className={clsx("w-full", formulario.formState.isSubmitting ? 'col-span-2' : '')}
               >
                 {formulario.formState.isSubmitting ? "Salvando..." : "Salvar"}
               </Button>
