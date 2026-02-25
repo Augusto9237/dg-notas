@@ -1,5 +1,0 @@
-# GET http://localhost:3000/api/cron/mentoria
-# Authorization: Bearer a5597df5de1d2b42fc75ea84a55561ce47d1612dffea8e1f59d6beab64d79452
-
-GET http://localhost:3000/api/cron/excluir-mentorias
-Authorization: Bearer a5597df5de1d2b42fc75ea84a55561ce47d1612dffea8e1f59d6beab64d79452
