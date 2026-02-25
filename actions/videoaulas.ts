@@ -1,7 +1,7 @@
 'use server'
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { cacheLife, cacheTag, revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 interface VideoaulaProps {
     titulo: string;
@@ -63,17 +63,14 @@ export async function editarVideoaula(id: number, data: VideoaulaProps) {
     }
 }
 
+async function obterAulas(busca?: string, page: number = 1, limit: number = 12) {
+    'use cache'
 
-export async function listarVideoaulas(busca?: string, page: number = 1, limit: number = 12) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
+    cacheLife('hours')
 
-    if (!session?.user) {
-        throw new Error('Usuário não autorizado');
-    }
+    cacheTag('listar-videoaulas')
 
-    try {
+      try {
         const whereClause = {
             // Só aplica o filtro se busca for fornecida e não vazia
             ...(busca && busca.trim() !== '' && {
@@ -111,6 +108,18 @@ export async function listarVideoaulas(busca?: string, page: number = 1, limit: 
         console.error("Erro ao listar Videoaulas:", error);
         throw error;
     }
+}
+
+export async function listarVideoaulas(busca?: string, page: number = 1, limit: number = 12) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user) {
+        throw new Error('Usuário não autorizado');
+    }
+
+    return await obterAulas(busca, page, limit);
 }
 
 export async function listarVideoaulaPorId(videoaulaId: number) {

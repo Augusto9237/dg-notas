@@ -23,21 +23,21 @@ export default function VideoPlayer({ videoUrl }: VideoPlayerProps) {
     }, [videoUrl])
 
     return (
-        <div ref={wrapperRef} className='w-full h-full'>
+        <div ref={wrapperRef} className='w-full h-auto aspect-video'>
             <ReactPlayer
                 src={videoUrl}
                 width='100%'
                 height='100%'
                 controls={true}
                 onReady={disableDownload}
+                light={<img src='/Sublogo1.svg' alt='Thumbnail' />}
+                style={{ width: '100%', height: 'auto' }}
                 config={{
                     html: {
-                        disableDownload: true,
                         attributes: {
-                            controlsList: 'nodownload'
-                        },
-                        forceHLS: false,
-                        forceVideo: true,
+                            controlsList: ['nodownload'],
+                            preload: 'metadata', // Baixa apenas as informações básicas estruturais do vídeo, salvando gigabytes de banda caso o aluno não dê play
+                        }
                     }
                 }}
             />

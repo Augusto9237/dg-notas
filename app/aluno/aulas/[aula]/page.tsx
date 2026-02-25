@@ -49,7 +49,7 @@ export default async function Page({
 
                 <main className="flex gap-5 justify-center sm:h-[600px] overflow-hidden">
                     <VideoPlayer videoUrl={videoaula.urlVideo} />
-                    <section className="max-sm:hidden w-sm">
+                    <section className="max-sm:hidden  w-3/4">
                         <h4 className="mb-4 text-sm leading-none font-semibold">Conteúdos</h4>
                         <ListaVideoaulas aulaId={Number(aulaId)} />
                     </section>
