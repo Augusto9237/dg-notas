@@ -31,6 +31,7 @@ import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes"
 import { format } from "date-fns"
 import { CalendarioAgendarMentoria } from "./calendario-agendar-mentoria"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion"
+import { Skeleton } from "./ui/skeleton"
 
 const formSchema = z.object({
     data: z.date({
@@ -86,6 +87,7 @@ export function AgendarMentoriaAluno({
     const [vagas, setVagas] = useState<Record<string, number>>({});
     const [accordionValue, setAccordionValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isCheckingVagas, setIsCheckingVagas] = useState(false);
     const { data: session } = authClient.useSession();
     const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -140,6 +142,7 @@ export function AgendarMentoriaAluno({
     const verificarVagas = useCallback(async (data: Date) => {
         if (!data || slotIds.length === 0) {
             setVagas({});
+            setIsCheckingVagas(false);
             return;
         }
 
@@ -160,6 +163,8 @@ export function AgendarMentoriaAluno({
         } catch (error) {
             console.error('Erro ao verificar vagas:', error);
             setVagas({});
+        } finally {
+            setIsCheckingVagas(false);
         }
     }, [slotIds, diaSemanaId]);
 
@@ -172,8 +177,11 @@ export function AgendarMentoriaAluno({
 
         if (!watchedData) {
             setVagas({});
+            setIsCheckingVagas(false);
             return;
         }
+
+        setIsCheckingVagas(true);
 
         // Debounce de 300ms para evitar chamadas excessivas
         debounceTimerRef.current = setTimeout(() => {
@@ -274,12 +282,6 @@ export function AgendarMentoriaAluno({
                     <DialogTitle className="text-center">
                         {mode === 'edit' ? 'Reagendar Mentoria' : 'Agendar Mentoria'}
                     </DialogTitle>
-                    <DialogDescription className="text-center text-xs">
-                        {mode === 'edit'
-                            ? 'Altere a data e horário da sua mentoria'
-                            : 'Selecione a data e horário para sua mentoria'
-                        }
-                    </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -312,20 +314,25 @@ export function AgendarMentoriaAluno({
                                                 <FormControl>
                                                     {watchedData ? (
                                                         <div className="grid grid-cols-3 gap-4 max-h-40 overflow-y-auto">
-                                                            {slotsHorario.map((slot) => (
-                                                                <Button
-                                                                    key={slot.id}
-                                                                    size="sm"
-                                                                    variant={field.value === String(slot.id) ? "outline" : "ghost"}
-                                                                    className={clsx('text-xs', field.value === String(slot.id) && "bg-primary/5")}
-                                                                    onClick={() => field.onChange(String(slot.id))}
-                                                                    disabled={vagas[slot.id] === 0}
-                                                                    type="button"
-                                                                >
-                                                                    {slot.nome}
-                                                                    {vagas[slot.id] === 0 && <span className="text-xs text-red-500 ml-1">(Lotado)</span>}
-                                                                </Button>
-                                                            ))}
+                                                            {isCheckingVagas ? (
+                                                                Array.from({ length: 6 }).map((_, index) => (
+                                                                    <Skeleton key={index} className="h-10 w-full rounded-lg" />
+                                                                ))
+                                                            ) : (
+                                                                slotsHorario.map((slot) => (
+                                                                    <Button
+                                                                        key={slot.id}
+                                                                        size="sm"
+                                                                        variant={field.value === String(slot.id) ? "outline" : "ghost"}
+                                                                        className={clsx('text-xs flex flex-col h-10', field.value === String(slot.id) && "bg-primary/5")}
+                                                                        onClick={() => field.onChange(String(slot.id))}
+                                                                        disabled={vagas[slot.id] === 0}
+                                                                        type="button"
+                                                                    >
+                                                                        <span>{slot.nome}</span>
+                                                                    </Button>
+                                                                ))
+                                                            )}
                                                         </div>
                                                     ) : (
                                                         <div className="flex items-center justify-center h-12 text-muted-foreground text-xs">

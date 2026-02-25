@@ -188,7 +188,7 @@ export function CalendarioAgendarMentoria({
   const renderizarBotaoData = (data: Date | null) => {
     if (!data) {
       // Renderiza um div vazio para manter a estrutura do grid
-      return <div key={`vazio-${Math.random()}`} className="h-11 w-full bg-background rounded-lg"></div>
+      return <div key={`vazio-${Math.random()}`} className="h-14 w-full bg-background rounded-lg"></div>
     }
 
     return (
@@ -197,7 +197,7 @@ export function CalendarioAgendarMentoria({
         type="button"
         onClick={() => handleCliqueNaData(data)}
         disabled={desabilitarData(data)}
-        className={clsx('relative h-11 rounded-lg border-border bg-background border-1 transition-all hover:border-foreground hover:bg-accent flex flex-col items-center justify-center',
+        className={clsx('relative h-14 rounded-lg border-border bg-background border-1 transition-all hover:border-primary hover:bg-accent flex flex-col items-center justify-center',
           estaSelecionado(data) && "border-primary bg-primary/5 text-primary",
           ehHoje(data) && "border-primary/50 bg-accent",
           desabilitarData(data) && "cursor-not-allowed hover:border-border hover:bg-muted opacity-50"
@@ -224,7 +224,7 @@ export function CalendarioAgendarMentoria({
           <ChevronRight className="size-6" />
         </Button>
       </div>
-      <div className="grid grid-cols-2 gap-x-5 gap-y-2">
+      <div className="grid grid-cols-2 gap-4">
         {paresDeDatasFiltradas.map((par, index) => (
           // Renderiza dois botões (ou divs vazios) para cada par de datas
           // Mantendo a estrutura de duas colunas por semana
