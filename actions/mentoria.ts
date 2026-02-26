@@ -41,6 +41,13 @@ export async function listarDiasSemana() {
 }
 
 export async function editarDiasSemana(id: number, status: boolean) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user || session?.user.role !== 'admin') {
+    throw new Error('Usuário não autorizado');
+  }
   try {
     await prisma.diaSemana.update({
       where: {
@@ -63,6 +70,13 @@ export async function listarSlotsHorario() {
 }
 
 export async function editarSlotsHorario(id: number, status: boolean) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user || session?.user.role !== 'admin') {
+    throw new Error('Usuário não autorizado');
+  }
   try {
     await prisma.slotHorario.update({
       where: {
@@ -88,6 +102,14 @@ export async function adicionarMentoria(
   params: AdicionarMentoriaParams
 ): Promise<AdicionarMentoriaResult> {
   const { professorId, alunoId, data, slotId, diaSemanaId, duracao = 20 } = params;
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    throw new Error('Usuário não autorizado');
+  }
 
   try {
     // Normalizar a data para evitar problemas com fuso horário
@@ -348,6 +370,14 @@ export async function verificarDisponibilidadeMultiplosSlots(
 }
 
 export async function listarMentoriasHorario(data?: Date) {
+const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    throw new Error('Usuário não autorizado');
+  }
+  
   try {
     // Inicializando os filtros
     const filtros: Prisma.HorarioWhereInput = {};
@@ -388,6 +418,14 @@ export async function listarMentoriasHorario(data?: Date) {
 }
 
 export async function listarMentoriasMes(mes?: number, ano?: number) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    throw new Error('Usuário não autorizado');
+  }
+  
   const now = new Date();
   const targetMes = mes ?? now.getMonth() + 1;
   const targetAno = ano ?? now.getFullYear();

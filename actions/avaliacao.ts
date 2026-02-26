@@ -123,6 +123,9 @@ export async function listarTemas(busca?: string, page: number = 1, limit: numbe
 }
 
 export async function listarTemasMes(month?: number, year?: number) {
+    if (!(await verificarSessaoAdmin())) {
+        throw new Error('Usuário não autorizado');
+    }
     try {
         const now = new Date();
 
@@ -221,28 +224,27 @@ export async function DeletarTema(id: number) {
     }
 
     try {
-        // First, delete all CriterioAvaliacao entries related to evaluations of this theme
-        await prisma.criterioAvaliacao.deleteMany({
-            where: {
-                avaliacao: {
-                    temaId: id
+        await prisma.$transaction([
+            prisma.criterioAvaliacao.deleteMany({
+                where: {
+                    avaliacao: {
+                        temaId: id
+                    }
                 }
-            }
-        });
+            }),
 
-        // Then delete all evaluations related to this theme
-        await prisma.avaliacao.deleteMany({
-            where: {
-                temaId: id,
-            },
-        });
+            prisma.avaliacao.deleteMany({
+                where: {
+                    temaId: id,
+                },
+            }),
 
-        // Finally delete the theme itself
-        await prisma.tema.delete({
-            where: {
-                id,
-            },
-        });
+            prisma.tema.delete({
+                where: {
+                    id,
+                },
+            }),
+        ]);
 
         revalidatePath('/professor/avaliacoes')
         revalidatePath('/professor')
@@ -640,6 +642,9 @@ export async function DeletarAvaliacao(id: number) {
 }
 
 export async function ListarAvaliacoes(month?: number, year?: number, page: number = 1, limit: number = 10) {
+    if (!(await verificarSessaoAdmin())) {
+        throw new Error('Usuário não autorizado');
+    }
     const now = new Date();
 
     // Se month e year forem undefined, retorna mês e ano atual

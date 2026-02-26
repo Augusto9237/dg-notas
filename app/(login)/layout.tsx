@@ -56,7 +56,6 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                     </LoginWrapper>
                 </Suspense>
                 <Toaster richColors theme="light" />
-                <SpeedInsights />
                 <Analytics />
             </body>
         </html >

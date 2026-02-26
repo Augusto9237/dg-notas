@@ -8,7 +8,7 @@ import { Progress } from './ui/progress';
 import { Badge } from './ui/badge';
 import { AlunoRanking, rankearMelhoresAlunos } from '@/lib/dashboard-utils';
 import { Prisma } from '@/app/generated/prisma';
-import { Suspense, useContext, useEffect, useState, useTransition } from 'react';
+import { useContext, useEffect, useState, useTransition } from 'react';
 import { ContextoProfessor } from '@/context/contexto-professor';
 import { ListarAvaliacoes } from '@/actions/avaliacao';
 import { useSearchParams } from 'next/navigation';

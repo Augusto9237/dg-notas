@@ -1,8 +1,10 @@
 'use server'
 import { Prisma } from "@/app/generated/prisma/client";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendWebPushNotifications } from "@/lib/webpush";
 import type { PushSubscriptionData, NotificationPayload } from "@/lib/webpush";
+import { headers } from "next/headers";
 
 
 /**
@@ -20,6 +22,14 @@ export async function salvarPushSubscription(
   // Validação de entrada
   if (!userId || !subscription?.endpoint || !subscription?.keys) {
     throw new Error('Parâmetros inválidos: userId e subscription são obrigatórios');
+  }
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user || session?.user.id !== userId) {
+    throw new Error('Usuário não autorizado');
   }
 
   try {
