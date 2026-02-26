@@ -134,7 +134,7 @@ export function FormularioCorrecao({ avaliacao }: FormularioAvaliacaoProps) {
         status: 'CORRIGIDA' as const,
       };
 
-      const correcaoUrl = `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.pdf`;
+      const correcaoUrl = `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`;
 
       if (arquivo) {
         await uploadBytes(storageRef, arquivo);
