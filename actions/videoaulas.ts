@@ -1,8 +1,26 @@
 'use server'
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { cacheLife, cacheTag, revalidatePath } from "next/cache";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 import { headers } from "next/headers";
+
+const R2_ENDPOINT = process.env.R2_ENDPOINT!
+const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID!
+const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY!
+const R2_BUCKET = process.env.R2_BUCKET_NAME || "dg-app-videos"
+
+const s3 = new S3Client({
+    region: "auto",
+    endpoint: R2_ENDPOINT,
+    credentials: {
+        accessKeyId: R2_ACCESS_KEY_ID,
+        secretAccessKey: R2_SECRET_ACCESS_KEY,
+    },
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
+})
+
 interface VideoaulaProps {
     titulo: string;
     descricao: string;
@@ -26,13 +44,15 @@ export async function adicionarVideoaula(data: VideoaulaProps) {
             }
         })
 
-        revalidatePath('/professor/videoaulas')
+        updateTag('listar-videoaulas')
         return true
     } catch (error) {
         console.log(error)
         return false
     }
 }
+
+
 
 export async function editarVideoaula(id: number, data: VideoaulaProps) {
     const session = await auth.api.getSession({
@@ -42,7 +62,7 @@ export async function editarVideoaula(id: number, data: VideoaulaProps) {
     if (!session?.user || session.user.role !== 'admin') {
         throw new Error('Usuário não autorizado');
     }
-    
+
     try {
         await prisma.videoaula.update({
             where: {
@@ -55,7 +75,7 @@ export async function editarVideoaula(id: number, data: VideoaulaProps) {
             }
         })
 
-        revalidatePath('/professor/videoaulas')
+        updateTag('listar-videoaulas')
         return true
     } catch (error) {
         console.log(error)
@@ -70,7 +90,7 @@ async function obterAulas(busca?: string, page: number = 1, limit: number = 12) 
 
     cacheTag('listar-videoaulas')
 
-      try {
+    try {
         const whereClause = {
             // Só aplica o filtro se busca for fornecida e não vazia
             ...(busca && busca.trim() !== '' && {
@@ -153,18 +173,31 @@ export async function deletarVideoaula(videoaulaId: number) {
     if (!session?.user || session.user.role !== 'admin') {
         throw new Error('Usuário não autorizado');
     }
-    
+
     try {
+        // 1. Deletar registro do banco de dados
         await prisma.videoaula.delete({
             where: {
                 id: videoaulaId
             }
         })
 
+        // 2. Se delete do banco foi bem-sucedido, deletar arquivo do R2
+        try {
+            const deletarVideo = new DeleteObjectCommand({
+                Bucket: R2_BUCKET,
+                Key: `videoaulas/${videoaulaId}.mp4`,
+            })
+            await s3.send(deletarVideo)
+        } catch (s3Error) {
+            // Log erro do S3, mas não falha a operação
+            console.error("Erro ao deletar arquivo do R2:", s3Error)
+        }
+
+        updateTag('listar-videoaulas')
         return true
     } catch (error) {
-        console.log(error)
-
+        console.error("Erro ao deletar videoaula:", error)
         return false
     }
 }

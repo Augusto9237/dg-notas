@@ -1,5 +1,4 @@
 'use client'
-
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -22,24 +21,20 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { adicionarTema, EditarTema } from "@/actions/avaliacao"
 import { toast } from "sonner"
-import { Tema, Videoaula } from "@/app/generated/prisma"
+import { Videoaula } from "@/app/generated/prisma"
 import { EditButton } from "./ui/edit-button"
-import { Textarea } from "./ui/textarea"
-import { enviarNotificacaoParaTodos } from "@/actions/notificacoes"
 import { adicionarVideoaula, editarVideoaula } from "@/actions/videoaulas"
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from "./kibo-ui/dropzone";
 import { Card, CardContent } from "./ui/card"
-import { storage } from "@/lib/firebase"
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"
 import { Progress } from "./ui/progress"
 import clsx from "clsx"
+import { useUploadR2 } from "@/hooks/use-upload-r2"
+import { Textarea } from "./ui/textarea"
 
 const esquemaFormulario = z.object({
   titulo: z.string().min(3, "O titulo do video deve ter pelo menos 3 caracteres"),
   descricao: z.string().min(3, "A descrição deve ter pelo menos 3 caracteres"),
-  // urlVideo: z.string().min(3, "O nome do tema deve ter pelo menos 3 caracteres"),
 })
 
 type ValoresFormulario = z.infer<typeof esquemaFormulario>
@@ -52,8 +47,9 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
   const [estaAberto, setEstaAberto] = useState(false)
   const [arquivo, setArquivo] = useState<File[] | undefined>();
   const [visualizarArquivo, setVisualizarArquivo] = useState<string | undefined>();
-  const [progresso, setProgresso] = useState(0);
   const ehModoEdicao = !!aula
+
+  const { progresso, uploadParaR2 } = useUploadR2()
 
   const formulario = useForm<ValoresFormulario>({
     resolver: zodResolver(esquemaFormulario),
@@ -71,7 +67,6 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
       })
       setArquivo(undefined)
       setVisualizarArquivo(undefined)
-      setProgresso(0)
     }
   }, [estaAberto, aula, formulario])
 
@@ -100,31 +95,13 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
 
     if (temArquivoNovo && arquivo![0]) {
       const extensao = arquivo![0].name.split('.').pop() || 'mp4'
-      const caminhoUnico = `videoaulas/${valores.titulo}.${extensao}`
-      const storageRef = ref(storage, caminhoUnico)
-      const uploadTask = uploadBytesResumable(storageRef, arquivo[0])
+      const nomeArquivo = `${valores.titulo}.${extensao}`
 
       try {
-        urlVideo = await new Promise<string>((resolve, reject) => {
-          uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-              setProgresso(progress)
-            },
-            reject,
-            async () => {
-              try {
-                const url = await getDownloadURL(uploadTask.snapshot.ref)
-                resolve(url)
-              } catch (err) {
-                reject(err)
-              }
-            }
-          )
-        })
+        const { urlPublica } = await uploadParaR2(arquivo![0], nomeArquivo)
+        urlVideo = urlPublica
       } catch (error) {
-        toast.error("Falha ao enviar o vídeo. Tente novamente.")
+        toast.error("Falha ao enviar o vídeo para o Cloudflare R2. Tente novamente.")
         console.error("Erro no upload:", error)
         return
       }
@@ -155,7 +132,6 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
       formulario.reset({ titulo: "", descricao: "" })
       setArquivo(undefined)
       setVisualizarArquivo(undefined)
-      setProgresso(0)
       setEstaAberto(false)
     } catch (error) {
       toast.error("Algo deu errado, tente novamente!")
@@ -171,7 +147,6 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
         if (!open) {
           setArquivo(undefined)
           setVisualizarArquivo(undefined)
-          setProgresso(0)
         }
       }}
     >
@@ -221,7 +196,7 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       placeholder={ehModoEdicao ? "Edite o tema" : "Digite a descrição da videoaula"}
                       disabled={formulario.formState.isSubmitting}
                       {...field}
@@ -269,7 +244,6 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
                   })
                   setArquivo(undefined)
                   setVisualizarArquivo(undefined)
-                  setProgresso(0)
                   setEstaAberto(false)
                 }}
 
