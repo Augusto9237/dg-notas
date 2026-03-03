@@ -58,14 +58,21 @@ export function rankearMelhoresAlunos(avaliacoes: Avaliacao[], quantidadeTemas: 
     });
 
     // Converte para array e calcula médias
-    const ranking = Array.from(alunosMap.entries()).map(([alunoId, dados]) => ({
-        alunoId,
-        nome: dados.nome,
-        email: dados.email || "", // Garante string vazia se for null
-        image: dados.image || null,
-        mediaFinal: Number((dados.somaNotas / quantidadeTemas).toFixed(2)),
-        totalAvaliacoes: dados.totalAvaliacoes
-    }));
+    const ranking = Array.from(alunosMap.entries()).map(([alunoId, dados]) => {
+        // Se não há temas, retorna média 0
+        const mediaFinal = quantidadeTemas > 0 
+            ? Number((dados.somaNotas / quantidadeTemas).toFixed(2))
+            : 0;
+
+        return {
+            alunoId,
+            nome: dados.nome,
+            email: dados.email || "", // Garante string vazia se for null
+            image: dados.image || null,
+            mediaFinal: Number.isFinite(mediaFinal) ? mediaFinal : 0, // Previne NaN ou Infinity
+            totalAvaliacoes: dados.totalAvaliacoes
+        };
+    });
 
     // Ordena por média decrescente e pega os 10 primeiros
     return ranking
