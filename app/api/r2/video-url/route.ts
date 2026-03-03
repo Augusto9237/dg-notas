@@ -30,6 +30,7 @@ export async function POST(request: Request) {
     const sessao = await auth.api.getSession({
       headers: request.headers,
     })
+    
     if (!sessao?.user) {
       return NextResponse.json(
         { error: "Não autorizado" },
