@@ -1,5 +1,9 @@
 'use client'
 import React, { useRef, useCallback, useState } from 'react'
+import { Spinner } from './ui/spinner'
+import { Button } from './ui/button'
+import { Play } from 'lucide-react'
+import Image from 'next/image'
 
 interface VideoPlayerProps {
     videoUrl: string  // chave do R2: "videoaulas/123-Aula-1.mp4"
@@ -88,7 +92,7 @@ export default function VideoPlayer({ videoUrl }: VideoPlayerProps) {
         }
     }, [urlAssinada, buscarUrlAssinada])
 
-  
+
     if (erro) {
         return (
             <div className="w-full aspect-video flex flex-col items-center justify-center gap-3 bg-muted text-muted-foreground rounded-md text-sm">
@@ -105,24 +109,22 @@ export default function VideoPlayer({ videoUrl }: VideoPlayerProps) {
 
     if (!playerAtivo) {
         return (
-            <div
-                className="w-full aspect-video relative cursor-pointer group"
-                onClick={handlePlay}
-            >
-                <img
+            <div className="w-full aspect-video relative cursor-pointer group">
+                <Image
                     src="/Sublogo1.svg"
                     alt="Thumbnail"
                     className="w-full h-full object-cover rounded-md"
+                    width={0}
+                    height={0}
+                    sizes="100vw"
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-md group-hover:bg-black/50 transition-colors">
                     {carregando ? (
-                        <div className="w-12 h-12 rounded-full border-4 border-white border-t-transparent animate-spin" />
+                        <Spinner />
                     ) : (
-                        <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                            <svg className="w-6 h-6 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z" />
-                            </svg>
-                        </div>
+                        <Button className='rounded-full size-12 hover:cursor-pointer' onClick={handlePlay}>
+                            <Play />
+                        </Button>
                     )}
                 </div>
             </div>

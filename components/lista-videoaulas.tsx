@@ -35,7 +35,7 @@ export function ListaVideoaulas({ aulaId }: ListaVideoaulasProps) {
 
     return (
         <ScrollArea className="w-full h-full">
-            <div className="h-full pb-12">
+            <div className="h-full pb-12 flex-1">
                 {loading === true ? (
                     <>
                         {Array.from({ length: 10 }).map((_, index) => (
