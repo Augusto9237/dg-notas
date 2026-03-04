@@ -233,7 +233,7 @@ export function FormularioCorrecao({ avaliacao }: FormularioAvaliacaoProps) {
             <Input
               placeholder="shadcn"
               type="file"
-              accept="application/jpg"
+              accept="image/jpeg,image/jpg"
               className="hidden"
               ref={inputRef}
               onChange={carregarArquivo}
