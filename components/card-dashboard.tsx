@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card"
 import { ReactNode, Suspense } from "react";
 import { Skeleton } from "./ui/skeleton";
+import { Badge } from "./ui/badge";
 
 interface CardDashboardProps {
     description: string;
@@ -34,19 +35,19 @@ export const CardSkeleton = () => {
 
 export function CardDashboard({ description, value, icon, footerText }: CardDashboardProps) {
     return (
-            <Card className="max-sm:gap-3 max-sm:px-5">
-                <CardHeader className="max-sm:p-0">
-                    <CardDescription className="max-sm:text-xs">{description}</CardDescription>
-                    <CardTitle className="text-2xl flex gap-2 items-center font-semibold @[250px]/card:text-3xl">
-                        {icon}
-                        {value}
-                    </CardTitle>
-                </CardHeader>
-                <CardFooter className="flex-col items-start gap-1.5 text-sm max-sm:p-0">
-                    <div className="line-clamp-1 flex gap-2 font-medium">
-                        {footerText}
-                    </div>
-                </CardFooter>
-            </Card>
+        <Card className="max-sm:gap-3 max-sm:px-5 max-h-[150px]">
+            <CardHeader className="max-sm:p-0 relative w-full">
+                <CardDescription className="max-sm:text-xs text-sm">{description}</CardDescription>
+                <CardTitle className="text-2xl flex gap-2 items-center font-semibold @[250px]/card:text-3xl">
+                    {value}
+                </CardTitle>
+                <div className="bg-primary-foreground/5 absolute right-5 max-sm:right-0 size-8 rounded-sm text-primary flex justify-center items-center">{icon}</div>
+            </CardHeader>
+            <CardFooter className="flex-col items-start gap-1.5 text-sm max-sm:p-0">
+                <Badge variant="outline">
+                    {footerText}
+                </Badge>
+            </CardFooter>
+        </Card>
     );
 }

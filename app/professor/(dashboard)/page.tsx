@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { TabelaTopAlunos } from "@/components/tabela-top-alunos";
 import { SeletorData } from "@/components/seletor-data";
 import { UltimasAvaliacoes } from "@/components/ultimas-avaliacoes";
-import { HeaderProfessor } from "@/components/header-professor";
+import { HeaderTeacher } from "@/components/header-professor";
 import { ListaCardsDashboard, } from "@/components/lista-cards-dashbord";
 import { Suspense } from "react";
 import { cacheLife, cacheTag, updateTag } from "next/cache";
@@ -66,18 +66,12 @@ export default async function Page({
     const ultimosTemas = temasMes.slice(0, 10)
 
     return (
-        <div className="w-full h-full min-h-screen relative pt-14 overflow-y-auto">
-            <HeaderProfessor>
-                <div className="flex flex-col">
-                    <h1 className="text-lg font-bold ">
-                        Olá, {session?.user.name}!
-                    </h1>
-                    <p className="text-xs text-muted-foreground leading-none">Dados de {mes && ano ? `${meses[Number(mes) - 1]} de ${ano}` : 'este mês'}</p>
-                </div>
+        <div className="w-full h-full min-h-screen relative pt-16 overflow-y-auto">
+            <HeaderTeacher title={`Olá, ${session?.user.name}!`} description="Bem - vindo ao seu Painel">
                 <div className="w-full flex-1 flex justify-end">
                     <SeletorData />
                 </div>
-            </HeaderProfessor>
+            </HeaderTeacher>
 
             <main className="flex flex-col gap-4 p-5 h-full">
                 <ListaCardsDashboard alunos={alunos.data} temas={temasMes} avaliacoes={(await listarAvaliacoesIniciais()).data} mentorias={mentorias} meses={meses} />

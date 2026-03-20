@@ -1,12 +1,24 @@
+import { Card, CardDescription, CardTitle } from "./ui/card";
 import { SidebarTrigger } from "./ui/sidebar";
+import type { ReactNode } from "react";
 
-export function HeaderProfessor({ children }: { children: React.ReactNode }) {
+interface HeaderProps {
+    title: string;
+    description: string;
+    children?: ReactNode;
+}
+
+export function HeaderTeacher({ title, description, children }: HeaderProps) {
     return (
-        <div className='h-16 px-5 py-2.5 inset-0 absolute w-full bg-background'>
-            <div className="flex gap-4 w-full items-center">
-                <SidebarTrigger />
+        <header className='h-16 items-center flex gap-4 px-5 w-full absolute inset-0 bg-background backdrop:blur-sm border-b border-border'>
+            <SidebarTrigger />
+            <div className="w-full">
+                <CardTitle className="md:text-lg leading-none">{title}</CardTitle>
+                <CardDescription className="max-md:text-xs truncate">{description}</CardDescription>
+            </div>
+            <div className="">
                 {children}
             </div>
-        </div>
+        </header>
     )
 }

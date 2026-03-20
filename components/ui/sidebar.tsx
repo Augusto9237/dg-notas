@@ -267,7 +267,7 @@ function SidebarTrigger({
       data-slot="sidebar-trigger"
       variant="ghost"
       size="icon"
-      className={cn("size-7 text-primary hover:text-primary hover:bg-card", className, isMobile ? "" : "min-[1025px]:hidden")}
+      className={cn("text-primary hover:text-primary hover:bg-card", className, isMobile ? "" : "min-[1025px]:hidden")}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()

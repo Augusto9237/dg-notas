@@ -53,7 +53,6 @@ interface ListaCardsDashboardProps {
     meses: string[]
 }
 
-
 export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, meses }: ListaCardsDashboardProps) {
     const { notificacoes } = useContext(ContextoProfessor);
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
@@ -117,28 +116,28 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
                 <CardDashboard
                     description="Média Geral"
                     value={mediaGeral.toFixed(2).replace('.', ',')}
-                    icon={<FaChartLine size={26} />}
+                    icon={<FaChartLine className="size-5"/>}
                     footerText={`Média geral de ${meses[Number(mes) - 1]}`}
                 />
 
                 <CardDashboard
-                    description="Total de Alunos"
+                    description="Alunos"
                     value={listaAlunos.length}
-                    icon={<Users size={26} />}
-                    footerText={`Cadastrados até ${meses[Number(mes) - 1]}`}
+                    icon={<Users className="size-5"/>}
+                    footerText={`Matriculados`}
                 />
 
                 <CardDashboard
-                    description="Total de Temas"
+                    description="Temas"
                     value={listaTemas.length}
-                    icon={<FileType size={26} />}
+                    icon={<FileType className="size-5"/>}
                     footerText={mes && ano ? `Temas de ${meses[Number(mes) - 1]}` : 'Temas do mês atual'}
                 />
 
                 <CardDashboard
-                    description="Total de Mentorias"
+                    description="Mentorias"
                     value={listaMentorias.length}
-                    icon={<RiUserStarLine size={26} />}
+                    icon={<RiUserStarLine className="size-5"/>}
                     footerText={mes && ano ? `Mentorias de ${meses[Number(mes) - 1]}` : 'Mentorias do mês atual'}
                 />
             </div>

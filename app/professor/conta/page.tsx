@@ -11,8 +11,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Loading from "../(dashboard)/loading";
-import { HeaderProfessor } from "@/components/header-professor";
 import InputFotoPerfil from "@/components/input-foto-perfil";
+import { HeaderTeacher } from "@/components/header-professor";
 
 export default async function Page() {
     const session = await auth.api.getSession({
@@ -32,14 +32,8 @@ export default async function Page() {
 
     return (
         <Suspense fallback={<Loading />}>
-            <div className="w-full h-full min-h-screen max-h-screen relative pt-14 overflow-hidden">
-                <HeaderProfessor>
-                    <div className="">
-                        <h1 className="text-xl font-bold">Sua Conta</h1>
-                        <p className="text-xs text-muted-foreground max-sm:leading-none max-sm:truncate">Gerencie suas informações</p>
-                    </div>
-                </HeaderProfessor>
-
+            <div className="w-full h-full min-h-screen max-h-screen relative pt-16 overflow-hidden">
+                <HeaderTeacher title="Sua Conta" description="Gerencie suas informações"/>
                 <main className="grid grid-cols-3 max-[1025px]:grid-rows-2 max-md:grid-cols-1 p-5 max-[1025px]:gap-y-5 min-md:gap-x-5 w-full h-full">
                     <InputFotoPerfil professor={professor!} fotoPerfil={fotoPerfil} />
 
