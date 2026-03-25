@@ -22,7 +22,6 @@ import clsx from "clsx";
 import Image from "next/image";
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from "./kibo-ui/dropzone";
 import { Spinner } from "./ui/spinner";
-import { atualizarCache } from "@/actions/cache";
 
 interface ModalEnviarRedacaoProps {
     tema: Tema;

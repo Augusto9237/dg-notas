@@ -8,6 +8,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+
+
 import { Input } from "@/components/ui/input"
 import { FilePen, FileText, Loader2, Upload } from "lucide-react"
 import { useEffect, useState, useMemo, memo, useRef, useContext } from "react"
@@ -19,7 +21,7 @@ import { Progress } from "./ui/progress"
 
 import { EditarAvaliacao, ListarCriterios } from "@/actions/avaliacao"
 import { toast } from "sonner"
-import { Criterio, Prisma } from "@/app/generated/prisma"
+import { Prisma } from "@/app/generated/prisma"
 import { Card } from "./ui/card"
 import clsx from "clsx"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
@@ -27,6 +29,7 @@ import { ref, uploadBytes } from "firebase/storage"
 import { storage } from "@/lib/firebase"
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes"
 import { ContextoProfessor } from "@/context/contexto-professor"
+import { StepperWithLabelOrientation } from "./stepper-with-label-orientation"
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -171,17 +174,17 @@ export function FormularioCorrecao({ avaliacao }: FormularioAvaliacaoProps) {
           </TooltipContent>
         </Tooltip>
       </DialogTrigger>
-      <DialogContent className="overflow-y-auto max-h-[95vh]">
+      <DialogContent className="overflow-y-auto max-h-[95vh] sm:max-w-xl w-full">
         <DialogHeader>
           <DialogTitle className="text-center max-sm:text-base">Correção</DialogTitle>
         </DialogHeader>
+        {/* <StepperWithLabelOrientation/> */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
             <div>
               <FormLabel>Tema</FormLabel>
               <FormDescription className="text-xs">{avaliacao.tema.nome}</FormDescription>
             </div>
-
 
             <div className="space-y-2">
               <FormLabel>Competências</FormLabel>
