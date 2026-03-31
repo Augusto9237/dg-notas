@@ -11,7 +11,7 @@ export default async function Page() {
 
     return (
         <Suspense fallback={<Loading />}>
-            <div className="w-full h-screen relative flex flex-col pt-14 max-lg:overflow-y-auto">
+            <div className="w-full h-screen relative flex flex-col pt-16 max-lg:overflow-y-auto">
                 <HeaderTeacher title="Configurações" description="Gerencie a aparência e informações da sua plataforma" />
 
                 <main className="grid grid-cols-3 max-lg:grid-cols-1 gap-5 p-5 w-full h-full flex-1 overflow-hidden">
