@@ -115,7 +115,7 @@ export function TabelaTopAlunos({ avaliacoes, quantidadeTemas }: TabelaAlunosPro
                     <p className='pt-1 leading-none'>{aluno.nome}</p>
                     <Badge>{aluno.mediaFinal}</Badge>
                   </div>
-                  <Progress value={(aluno.mediaFinal / 10)} />
+                  <Progress value={(aluno.mediaFinal / 10)} indicatorClassName="bg-gradient-to-r from-primary to-primary-foreground" />
                 </div>
               </Card>
             </Link>
