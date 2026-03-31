@@ -1,7 +1,13 @@
 'use client'
 
-import { Criterio, Prisma } from "@/app/generated/prisma";
+import {  Criterio, Prisma } from "@/app/generated/prisma";
 import { createContext } from "react";
+type Configuracao = Prisma.ConfiguracaoGetPayload<{
+    include: {
+        coresSistema: true,
+    }
+}>
+
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
     include: {
         aluno: true,
@@ -41,6 +47,7 @@ export type Notificacoes = {
 } | null
 
 interface ContextoProfessorProps {
+    configuracoes: Configuracao
     userId: string
     listaAvaliacoes: {
         data: AvaliacaoTema[]

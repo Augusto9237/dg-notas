@@ -6,8 +6,8 @@ import { Analytics } from '@vercel/analytics/next'
 import "../globals.css";
 import { Toaster } from 'sonner';
 import Loading from './loading';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import LoginWrapper from './wrapper';
+import { obterInformacoes } from '@/actions/configuracoes';
 
 const poppins = Poppins({
     weight: ['200', '300', '400', '500', '600', '700', '800', '900'], // Specify the weights you need
@@ -15,32 +15,38 @@ const poppins = Poppins({
     display: 'swap', // Or 'fallback' or 'optional'
 });
 
-export const metadata: Metadata = {
-    title: "DG - Curso de Redação",
-    description: 'Plataforma de correção de redações e agendamento de mentorias',
-    appleWebApp: {
-        capable: true,
-        statusBarStyle: 'default',
-        title: 'DG - Redação',
-    },
-    icons: {
-        apple: '/ios/180.png',
-    },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const informacoes = await obterInformacoes()
+
+    const metadata: Metadata = {
+        title: `${informacoes?.nomePlataforma}` || "Plataforma Educacional",
+        description: informacoes?.slogan || 'Plataforma educacional para aprimorar suas habilidades de redação.',
+        appleWebApp: {
+            capable: true,
+            statusBarStyle: 'default',
+            title: `${informacoes?.nomePlataforma}` || "Plataforma Educacional",
+        },
+        icons: {
+            apple: '/ios/180.png',
+        },
+    };
+
+    return metadata
+}
 
 interface RootLayoutProps {
     children: ReactNode
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
+    const configuracoes = await obterInformacoes()
 
     return (
         <html lang="pt-BR" suppressHydrationWarning>
             <head>
-                {/* ↓↓↓ ADICIONE ISTO ↓↓↓ */}
                 <meta name="apple-mobile-web-app-capable" content="yes" />
                 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-                <meta name="apple-mobile-web-app-title" content="DG - Redação" />
+                <meta name="apple-mobile-web-app-title" content={configuracoes?.nomePlataforma || 'App Educacional'} />
                 <link rel="apple-touch-icon" href="/ios/180.png" />
                 <meta
                     name="viewport"
@@ -51,7 +57,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 className={`${poppins.className} antialiased`}
             >
                 <Suspense fallback={<Loading />}>
-                    <LoginWrapper>
+                    <LoginWrapper configuracoes={configuracoes!}>
                         {children}
                     </LoginWrapper>
                 </Suspense>

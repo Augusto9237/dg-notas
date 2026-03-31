@@ -7,21 +7,15 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
-import { Logo } from "./ui/logo"
-import { FileChartLine, LogOut, Moon, Sun, Users } from "lucide-react"
-import { NavUsuario } from "./nav-usuario"
+import { FileChartLine, MonitorPlay } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { RiUserStarLine } from "react-icons/ri";
 import { MdOutlineDashboardCustomize } from "react-icons/md";
-import { Skeleton } from "./ui/skeleton"
-import { authClient } from "@/lib/auth-client"
-import { Button } from "./ui/button"
-import { Switch } from "./ui/switch"
 import { useTheme } from "next-themes"
 import { ThemeSwitcher } from "./kibo-ui/theme-switcher"
+import Image from "next/image"
 
-export function AppSidebarAluno() {
-  const { data: session, isPending } = authClient.useSession();
+export function AppSidebarAluno({ logo }: { logo: string }) {
   const { setTheme, theme } = useTheme()
   const path = usePathname()
 
@@ -29,7 +23,14 @@ export function AppSidebarAluno() {
     <Sidebar className="bg-primary border-none">
       <SidebarHeader className="max-h-16">
         <Link href="/aluno" className="w-full">
-          <Logo />
+          <Image
+            src={logo}
+            alt="Logo"
+            width={224}
+            height={56}
+            priority
+            className='w-56 h-14 object-cover'
+          />
         </Link>
       </SidebarHeader>
       <SidebarContent className="p-4 gap-4">
@@ -39,7 +40,7 @@ export function AppSidebarAluno() {
           isActive={path === '/aluno' ? true : false}
         >
 
-          <Link href="/aluno" className="flex gap-2 items-center">
+          <Link href="/aluno" prefetch className="flex gap-2 items-center">
             <MdOutlineDashboardCustomize />
             Início
           </Link>
@@ -54,6 +55,18 @@ export function AppSidebarAluno() {
           <Link href="/aluno/avaliacoes" className="flex gap-2 items-center">
             <FileChartLine />
             Avaliações
+          </Link>
+        </SidebarMenuButton>
+
+
+        <SidebarMenuButton
+          asChild
+          className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
+          isActive={path.includes("/aluno/aulas") ? true : false}
+        >
+          <Link href="/aluno/aulas/1" className="flex gap-2 items-center">
+            <MonitorPlay />
+            Aulas
           </Link>
         </SidebarMenuButton>
 

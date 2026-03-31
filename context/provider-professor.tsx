@@ -1,11 +1,17 @@
 'use client'
 
-import { Criterio, Prisma } from "@/app/generated/prisma"
+import {  Criterio, Prisma } from "@/app/generated/prisma"
 import { ReactNode, useEffect, useState } from "react"
 import { ContextoProfessor } from "./contexto-professor"
 import useWebPush from "@/hooks/useWebPush"
 import { listarMentoriasMes } from "@/actions/mentoria"
 import { ListarAvaliacoes, listarTemas } from "@/actions/avaliacao"
+
+type Configuracao = Prisma.ConfiguracaoGetPayload<{
+    include: {
+        coresSistema: true,
+    }
+}>
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
     include: {
@@ -41,6 +47,7 @@ export type Aluno = Prisma.UserGetPayload<{
 
 interface ProfessorProviderProps {
     children: ReactNode
+    configuracoes: Configuracao
     userId: string
     avaliacoes: {
         data: AvaliacaoTema[]
@@ -71,7 +78,7 @@ interface ProfessorProviderProps {
     }
 }
 
-export const ProvedorProfessor = ({ children, userId, avaliacoes, mentorias, temas, alunos, criterios }: ProfessorProviderProps) => {
+export const ProvedorProfessor = ({ children, configuracoes, userId, avaliacoes, mentorias, temas, alunos, criterios }: ProfessorProviderProps) => {
     const { notificacoes } = useWebPush({ userId })
     const [listaAvaliacoes, setListaAvaliacoes] = useState<ProfessorProviderProps['avaliacoes']>({ data: [], meta: { limit: 0, page: 0, total: 0, totalPages: 0 } });
     const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
@@ -119,6 +126,7 @@ export const ProvedorProfessor = ({ children, userId, avaliacoes, mentorias, tem
 
     return (
         <ContextoProfessor.Provider value={{
+            configuracoes,
             userId,
             listaAvaliacoes,
             listaMentorias,

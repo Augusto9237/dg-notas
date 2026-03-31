@@ -143,6 +143,10 @@ export function FormularioVideoaula({ aula }: FormularioTemaProps) {
     <Dialog
       open={estaAberto}
       onOpenChange={(open) => {
+        // Prevenir fechamento enquanto está enviando
+        if (!open && formulario.formState.isSubmitting) {
+          return
+        }
         setEstaAberto(open)
         if (!open) {
           setArquivo(undefined)

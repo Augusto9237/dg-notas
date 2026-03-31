@@ -1,10 +1,12 @@
+
 import Loading from '../loading';
 import { Suspense } from 'react';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ListarAvaliacoesTemaId } from '@/actions/avaliacao';
 import { TabelaAvaliacoesTema } from '@/components/tabela-avaliacoes-tema';
 import { calcularMedia } from '@/lib/media-geral';
 import { HeaderTeacher } from '@/components/header-professor';
+
+
 
 export default async function Page({
   params,

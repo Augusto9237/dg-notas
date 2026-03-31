@@ -18,12 +18,18 @@ import { listarAlunosGoogle } from "@/actions/alunos";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { ProvedorTemas } from "@/context/provedor-temas";
+import { Prisma } from "../generated/prisma";
 
+type ConfiguracaoComCores = Prisma.ConfiguracaoGetPayload<{
+  include: { coresSistema: true };
+}>;
 
 export default async function ProfessorWrapper({
   children,
+  configuracoes
 }: Readonly<{
   children: React.ReactNode;
+  configuracoes: ConfiguracaoComCores;
 }>) {
 
   const session = await auth.api.getSession({
@@ -64,9 +70,9 @@ export default async function ProfessorWrapper({
         <InstalarIos />
         <PwaInstallPrompt />
         <InicializarNotificacoes userId={userId} />
-        <ProvedorProfessor userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas} alunos={alunos} criterios={criterios}>
+        <ProvedorProfessor configuracoes={configuracoes} userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas} alunos={alunos} criterios={criterios}>
           <SidebarProvider>
-            <AppSidebar />
+            <AppSidebar logo={configuracoes.logoSistema} />
             <SidebarInset className="relative">
               {children}
             </SidebarInset>

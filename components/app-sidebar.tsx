@@ -15,8 +15,9 @@ import { RiUserStarLine } from "react-icons/ri";
 import { MdOutlineDashboardCustomize } from "react-icons/md";
 import { useTheme } from "next-themes"
 import { ThemeSwitcher } from "./kibo-ui/theme-switcher"
+import Image from "next/image"
 
-export function AppSidebar() {
+export function AppSidebar({ logo }: { logo: string }) {
   const path = usePathname()
   const { setTheme, theme } = useTheme()
 
@@ -24,7 +25,14 @@ export function AppSidebar() {
     <Sidebar className="bg-primary border-none">
       <SidebarHeader className="max-h-16">
         <Link href="/professor" className="w-full">
-          <Logo />
+          <Image
+            src={logo}
+            alt="Logo"
+            width={224}
+            height={56}
+            priority
+            className='w-56 h-14 object-cover'
+          />
         </Link>
       </SidebarHeader>
       <SidebarContent className="p-4 gap-4">

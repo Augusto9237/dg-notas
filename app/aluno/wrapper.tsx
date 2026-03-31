@@ -18,13 +18,19 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 import { Toaster } from "sonner";
+import { Prisma } from "../generated/prisma";
+
+type ConfiguracaoComCores = Prisma.ConfiguracaoGetPayload<{
+    include: { coresSistema: true };
+}>;
 
 interface RootLayoutProps {
     children: ReactNode
+    configuracoes: ConfiguracaoComCores | null;
 }
 
 
-export default async function AlunoWrapper({ children }: RootLayoutProps) {
+export default async function AlunoWrapper({ children, configuracoes }: RootLayoutProps) {
 
     const session = await auth.api.getSession({
         headers: await headers()
@@ -96,13 +102,13 @@ export default async function AlunoWrapper({ children }: RootLayoutProps) {
                         criterios={criterios}
                     >
                         <SidebarProvider>
-                            <AppSidebarAluno />
+                            <AppSidebarAluno logo={configuracoes?.logoSistema!} />
                             <SidebarInset className="relative">
                                 <FormularioTelefone user={session.user} />
                                 <main>
                                     {children}
                                 </main>
-                                <FooterAluno />
+                                <FooterAluno logo={configuracoes?.logoAplicativo!} />
                             </SidebarInset>
                         </SidebarProvider>
                         <Toaster richColors theme="light" />

@@ -29,7 +29,6 @@ import { EditButton } from "./ui/edit-button"
 import { Textarea } from "./ui/textarea"
 import { enviarNotificacaoParaTodos } from "@/actions/notificacoes"
 
-
 const esquemaFormulario = z.object({
   nome: z.string().min(3, "O nome do tema deve ter pelo menos 3 caracteres"),
 })

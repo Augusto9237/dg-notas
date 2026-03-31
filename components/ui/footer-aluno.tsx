@@ -9,9 +9,10 @@ import { RiUserStarLine } from "react-icons/ri";
 
 interface FooterAlunoProps {
     className?: string;
+    logo: string;
 }
 
-export const FooterAluno = ({ className }: FooterAlunoProps) => {
+export function FooterAluno({ className, logo }: FooterAlunoProps) {
     const pathname = usePathname();
 
     const routes = [
@@ -28,7 +29,7 @@ export const FooterAluno = ({ className }: FooterAlunoProps) => {
             active: pathname === "/aluno/avaliacoes",
         },
         {
-            icon: <Image src="/Símbolo4.svg" alt="logo" width={50} height={50} className="min-size-14.5 size-14.5 bg-primary -mt-10  rounded-full p-2 border border-4 shadow-lg shadow-primary/45 border-card" />,
+            icon: <Image src={logo} alt="logo" width={50} height={50} className="min-size-14.5 size-14.5 bg-primary -mt-10  rounded-full p-2 border-4 shadow-lg shadow-primary/45 border-card" />,
             href: "/aluno/#",
             label: "",
             active: pathname === "/aluno/#",

@@ -2,6 +2,7 @@
 import {
     ChevronDown,
     LogOut,
+    Settings,
     UserCog,
 } from "lucide-react"
 import {
@@ -91,6 +92,11 @@ export function NavUsuario() {
                 align="start"
                 sideOffset={4}
             >
+                <DropdownMenuItem onClick={() => router.push("/professor/configuracoes")} className="text-primary dark:text-foreground hover:text-primary">
+                    <Settings className="stroke-primary dark:stroke-foreground" />
+                    Configurações
+                </DropdownMenuItem>
+
                 <DropdownMenuItem onClick={() => router.push("/professor/conta")} className="text-primary dark:text-foreground hover:text-primary">
                     <UserCog className="stroke-primary dark:stroke-foreground" />
                     Sua conta

@@ -5,13 +5,15 @@ import { headers } from "next/headers";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
+import { Configuracao } from "../generated/prisma";
 
 interface RootLayoutProps {
     children: ReactNode
+    configuracoes: Configuracao
 }
 
 
-export default async function LoginWrapper({ children }: RootLayoutProps) {
+export default async function LoginWrapper({ children, configuracoes }: RootLayoutProps) {
     const session = await auth.api.getSession({
         headers: await headers() // you need to pass the headers object.
     })
@@ -32,7 +34,7 @@ export default async function LoginWrapper({ children }: RootLayoutProps) {
                 <div className="relative flex items-center justify-center bg-primary">
                     <div className="w-full max-w-md flex flex-col items-center justify-items-center">
                         <Image
-                            src="/Sublogo4.svg"
+                            src={configuracoes?.logoSistema}
                             alt="Logo"
                             width={488}
                             height={400}
@@ -44,7 +46,7 @@ export default async function LoginWrapper({ children }: RootLayoutProps) {
                 </div>
                 <div className="bg-muted relative hidden lg:block">
                     <Image
-                        src="/foto-1.jpeg"
+                        src={configuracoes?.fotoCapa || '/login-background.jpg'}
                         alt="Image"
                         fill
                         className="object-cover"

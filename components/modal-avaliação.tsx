@@ -69,7 +69,6 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
     try {
       const arquivo = ref(storage, path);
       const url = await getDownloadURL(arquivo);
-      console.log(url)
 
       download(url, `${nomeArquivo}.jpg`);
       toast.success('Download iniciado');
