@@ -195,7 +195,7 @@ export function IdentidadeVisual() {
     return (
         <Card className="h-full flex flex-col min-h-0">
             <CardHeader className="flex-shrink-0">
-                <CardTitle className="text-sm font-semibold text-muted-foreground">Identidade Visual</CardTitle>
+                <CardTitle >Identidade Visual</CardTitle>
             </CardHeader>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-fit h-full justify-between">
@@ -306,7 +306,7 @@ export function IdentidadeVisual() {
                             render={({ field: { ref: _refFav, value: _valFav, onChange, ...fieldProps } }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <div className="flex-1 space-y-5">
+                                        <div className="flex-1 space-y-5 h-full">
                                             <div className="relative flex-1 flex flex-col items-center justify-center p-5 border-2 border-dashed border-muted hover:border-primary hover:bg-primary/5 rounded-lg">
                                                 <input
                                                     type="file"
@@ -349,7 +349,8 @@ export function IdentidadeVisual() {
                                 </FormItem>
                             )}
                         />
-                        <div className="flex flex-col gap-2 flex-1">
+
+                        <div className="flex flex-col gap-2 flex-1 h-full">
                             <label htmlFor="cores-sistema" className="text-sm font-medium">Cores do Sistema</label>
                             <div className="grid grid-cols-4 gap-4">
                                 {form.watch("coresSistema").map((cor, indice) => (

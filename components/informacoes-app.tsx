@@ -1,6 +1,6 @@
 'use client'
 
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -36,7 +36,7 @@ const informacoesAppSchema = z.object({
 type InformacoesAppFormData = z.infer<typeof informacoesAppSchema>
 
 export default function InformacoesApp() {
-    const { configuracoes } = useContext(ContextoProfessor) // Se precisar de dados do contexto, pode desestruturar aqui
+    const { configuracoes } = useContext(ContextoProfessor)
     const [isEditMode, setIsEditMode] = useState(false)
 
     const formulario = useForm<InformacoesAppFormData>({
@@ -50,6 +50,17 @@ export default function InformacoesApp() {
             endereco: configuracoes.endereco
         }
     })
+
+    useEffect(() => {
+        formulario.reset({
+            nomePlataforma: configuracoes.nomePlataforma,
+            slogan: configuracoes.slogan,
+            emailContato: configuracoes.emailContato,
+            sobre: configuracoes.sobreCurso,
+            telefone: configuracoes.telefone,
+            endereco: configuracoes.endereco
+        })
+    }, [configuracoes])
 
     const handleInputFocus = () => {
         setIsEditMode(true)
@@ -84,7 +95,7 @@ export default function InformacoesApp() {
     return (
         <Card className="h-full flex flex-col min-h-fit">
             <CardHeader className="justify-between items-center">
-                <CardTitle className="text-sm font-semibold text-muted-foreground">Informações da Plataforma</CardTitle>
+                <CardTitle>Informações da Plataforma</CardTitle>
             </CardHeader>
             <CardContent className="flex-1 min-h-fit flex flex-col">
                 <Form {...formulario}>

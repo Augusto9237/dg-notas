@@ -127,7 +127,7 @@ export function FotoCapa() {
     return (
         <Card className="h-full flex flex-col min-h-0">
             <CardHeader className="flex-shrink-0">
-                <CardTitle className="text-sm font-semibold text-muted-foreground">Imagem de Capa</CardTitle>
+                <CardTitle>Imagem de Capa</CardTitle>
             </CardHeader>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
                 <CardContent className="flex flex-col gap-4 flex-1 min-h-0">
