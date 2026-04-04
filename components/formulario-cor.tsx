@@ -26,7 +26,7 @@ interface FormularioCorProps {
   onChange?: (novasCor: string) => void;
 }
 
-export function FormularioCor({ cor, label, onChange}: FormularioCorProps) {
+export function FormularioCor({ cor, label, onChange }: FormularioCorProps) {
   const [open, setOpen] = useState(false)
   const [corTemporaria, setCorTemporaria] = useState(cor)
 
@@ -56,7 +56,7 @@ export function FormularioCor({ cor, label, onChange}: FormularioCorProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex items-center gap-2 bg-background p-1 rounded-lg">
           <Button
             size='icon'
             type="button"
@@ -64,7 +64,10 @@ export function FormularioCor({ cor, label, onChange}: FormularioCorProps) {
             className="w-10 h-10 rounded-lg"
             title={label}
           />
-          <p className="text-xs font-medium">{label}</p>
+          <div className="flex flex-col gap-1">
+            <p className="text-xs font-medium">{label}</p>
+            <p className="text-xs text-muted-foreground">{cor}</p>
+          </div>
         </div>
       </DialogTrigger>
       <DialogContent>
@@ -78,7 +81,7 @@ export function FormularioCor({ cor, label, onChange}: FormularioCorProps) {
           defaultValue={cor}
           onChange={aoAlterarCorColorPicker}
         >
-          <ColorPickerSelection/>
+          <ColorPickerSelection />
           <div className="flex items-center gap-4">
             <ColorPickerEyeDropper />
             <div className="grid w-full gap-1">
