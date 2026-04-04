@@ -198,15 +198,15 @@ export function IdentidadeVisual() {
                 <CardTitle >Identidade Visual</CardTitle>
             </CardHeader>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-fit h-full justify-between">
-                    <CardContent className="flex flex-col gap-5 flex-1 overflow-y-auto min-h-0">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
+                    <CardContent className="flex flex-col gap-5 flex-1 min-h-0">
                         <FormField
                             control={form.control}
                             name="logoSistema"
                             render={({ field: { ref: _ref, value: _value, onChange, ...fieldProps } }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <div className="relative flex-1 flex flex-col gap-4 items-center justify-center p-5 border-2 border-dashed border-muted hover:border-primary hover:bg-primary/5 rounded-lg">
+                                <FormItem className="flex-1 min-h-0 flex flex-col">
+                                    <FormControl className="flex-1 min-h-0">
+                                        <div className="relative flex flex-col gap-4 items-center justify-center p-5 border-2 border-dashed border-muted hover:border-primary hover:bg-primary/5 rounded-lg">
                                             <input
                                                 type="file"
                                                 ref={referenciaInputArquivoLogo}
@@ -225,7 +225,7 @@ export function IdentidadeVisual() {
                                                     alt="Logo do sistema"
                                                     width={50}
                                                     height={50}
-                                                    className="object-cover h-full max-h-15 w-[80%]"
+                                                    className="object-cover h-full max-h-15 w-[70%]"
                                                 />
                                             )}
                                             <div className="text-center">
@@ -253,44 +253,42 @@ export function IdentidadeVisual() {
                             control={form.control}
                             name="logoAplicativo"
                             render={({ field: { ref: _refIcone, value: _valIcone, onChange, ...fieldProps } }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <div className="flex-1 space-y-5">
-                                            <div className="relative flex flex-1 flex-col items-center justify-center p-5 border-2 border-dashed border-muted hover:border-primary hover:bg-primary/5 rounded-lg">
-                                                <input
-                                                    type="file"
-                                                    ref={referenciaInputArquivoIcone}
-                                                    onChange={(e) => {
-                                                        onChange(e)
-                                                        aoAlterarArquivo(e, "icone")
-                                                    }}
-                                                    className="hidden"
-                                                    accept={TIPOS_IMAGEM_ACEITOS.join(",")}
-                                                    aria-label="Selecionar logo do aplicativo"
-                                                    {...fieldProps}
+                                <FormItem className="flex-1 min-h-0 flex flex-col">
+                                    <FormControl className="flex-1 min-h-0">
+                                        <div className="relative flex flex-col items-center justify-center p-5 border-2 border-dashed border-muted hover:border-primary hover:bg-primary/5 rounded-lg">
+                                            <input
+                                                type="file"
+                                                ref={referenciaInputArquivoIcone}
+                                                onChange={(e) => {
+                                                    onChange(e)
+                                                    aoAlterarArquivo(e, "icone")
+                                                }}
+                                                className="hidden"
+                                                accept={TIPOS_IMAGEM_ACEITOS.join(",")}
+                                                aria-label="Selecionar logo do aplicativo"
+                                                {...fieldProps}
+                                            />
+                                            {previewIcone && (
+                                                <Image
+                                                    src={previewIcone}
+                                                    alt="Logo do aplicativo"
+                                                    width={32}
+                                                    height={32}
+                                                    className="object-contain h-full max-h-16 w-full"
                                                 />
-                                                {previewIcone && (
-                                                    <Image
-                                                        src={previewIcone}
-                                                        alt="Logo do aplicativo"
-                                                        width={32}
-                                                        height={32}
-                                                        className="object-contain h-full max-h-16 w-full"
-                                                    />
-                                                )}
-                                                <div className="text-center">
-                                                    <p className="font-semibold text-sm">Logo do Aplicativo</p>
-                                                    <p className="text-xs text-muted-foreground">PNG, SVG ou JPEG. Máx 5MB.</p>
-                                                </div>
-                                                <Button
-                                                    type="button"
-                                                    size='icon'
-                                                    className="rounded-full absolute bottom-2 right-2"
-                                                    onClick={aoClicarNoIcone}
-                                                >
-                                                    <Camera />
-                                                </Button>
+                                            )}
+                                            <div className="text-center">
+                                                <p className="font-semibold text-sm">Logo do Aplicativo</p>
+                                                <p className="text-xs text-muted-foreground">PNG, SVG ou JPEG. Máx 5MB.</p>
                                             </div>
+                                            <Button
+                                                type="button"
+                                                size='icon'
+                                                className="rounded-full absolute bottom-2 right-2"
+                                                onClick={aoClicarNoIcone}
+                                            >
+                                                <Camera />
+                                            </Button>
                                         </div>
                                     </FormControl>
                                     <FormDescription>Selecione a logo do Aplicativo</FormDescription>
@@ -304,44 +302,42 @@ export function IdentidadeVisual() {
                             control={form.control}
                             name="favicon"
                             render={({ field: { ref: _refFav, value: _valFav, onChange, ...fieldProps } }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <div className="flex-1 space-y-5 h-full">
-                                            <div className="relative flex-1 flex flex-col items-center justify-center p-5 border-2 border-dashed border-muted hover:border-primary hover:bg-primary/5 rounded-lg">
-                                                <input
-                                                    type="file"
-                                                    ref={referenciaInputArquivoFavicon}
-                                                    onChange={(e) => {
-                                                        onChange(e)
-                                                        aoAlterarArquivo(e, "favicon")
-                                                    }}
-                                                    className="hidden"
-                                                    accept="image/x-icon"
-                                                    aria-label="Selecionar favicon do aplicativo"
-                                                    {...fieldProps}
+                                <FormItem className="flex-1 min-h-0 flex flex-col">
+                                    <FormControl className="flex-1 min-h-0">
+                                        <div className="relative flex flex-col items-center justify-center p-5 border-2 border-dashed border-muted hover:border-primary hover:bg-primary/5 rounded-lg">
+                                            <input
+                                                type="file"
+                                                ref={referenciaInputArquivoFavicon}
+                                                onChange={(e) => {
+                                                    onChange(e)
+                                                    aoAlterarArquivo(e, "favicon")
+                                                }}
+                                                className="hidden"
+                                                accept="image/x-icon"
+                                                aria-label="Selecionar favicon do aplicativo"
+                                                {...fieldProps}
+                                            />
+                                            {previewFavicon && (
+                                                <Image
+                                                    src={previewFavicon}
+                                                    alt="Favicon do aplicativo"
+                                                    width={32}
+                                                    height={32}
+                                                    className="object-contain h-full max-h-10 w-full"
                                                 />
-                                                {previewFavicon && (
-                                                    <Image
-                                                        src={previewFavicon}
-                                                        alt="Favicon do aplicativo"
-                                                        width={32}
-                                                        height={32}
-                                                        className="object-contain h-full max-h-14 w-full"
-                                                    />
-                                                )}
-                                                <div className="text-center">
-                                                    <p className="font-semibold text-sm">Favicon</p>
-                                                    <p className="text-xs text-muted-foreground">Apenas ICO. Máx 5MB.</p>
-                                                </div>
-                                                <Button
-                                                    type="button"
-                                                    size='icon'
-                                                    className="rounded-full absolute bottom-2 right-2"
-                                                    onClick={aoClicarNoFavicon}
-                                                >
-                                                    <Camera />
-                                                </Button>
+                                            )}
+                                            <div className="text-center">
+                                                <p className="font-semibold text-sm">Favicon</p>
+                                                <p className="text-xs text-muted-foreground">Apenas ICO. Máx 5MB.</p>
                                             </div>
+                                            <Button
+                                                type="button"
+                                                size='icon'
+                                                className="rounded-full absolute bottom-2 right-2"
+                                                onClick={aoClicarNoFavicon}
+                                            >
+                                                <Camera />
+                                            </Button>
                                         </div>
                                     </FormControl>
                                     <FormDescription>Selecione o icone do Sistema/Aplicativo</FormDescription>
@@ -350,9 +346,9 @@ export function IdentidadeVisual() {
                             )}
                         />
 
-                        <div className="flex flex-col gap-2 flex-1 h-full">
+                        <div className="flex flex-col gap-2 flex-shrink-0">
                             <label htmlFor="cores-sistema" className="text-sm font-medium">Cores do Sistema</label>
-                            <div className="grid grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 gap-4">
                                 {form.watch("coresSistema").map((cor, indice) => (
                                     <FormularioCor
                                         key={indice}
@@ -364,7 +360,8 @@ export function IdentidadeVisual() {
                             </div>
                             <FormDescription>Defina as cores do Sistema/Aplicativo</FormDescription>
                         </div>
-                        <div className="flex gap-4">
+
+                        <div className="grid grid-cols-2 gap-4">
                             <Button
                                 type="button"
                                 variant="ghost"
