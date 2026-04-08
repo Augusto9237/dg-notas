@@ -254,6 +254,7 @@ export function StepperWithLabelOrientation({ avaliacao, setIsOpen }: { avaliaca
 	function cancelar() {
 		setIsOpen(false);
 		form.reset();
+		setPrecorrigida(true)
 	}
 
 	return (
