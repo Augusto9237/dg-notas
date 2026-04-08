@@ -35,6 +35,7 @@ interface AdicionarAvaliacaoInput {
     criterios: CriterioAvaliacaoInput[];
     notaFinal: number;
     status: 'ENVIADA' | 'CORRIGIDA';
+    feedback?: string;
 }
 
 export async function adicionarTema(nome: string): Promise<Tema> {
@@ -260,6 +261,8 @@ export async function ListarCriterios() {
 
     cacheLife('days')
 
+    cacheTag('listar-criterios')
+
     try {
             const criterios = await prisma.criterio.findMany({
                 orderBy: {
@@ -288,6 +291,7 @@ export async function EditarCriterio(id: number, nome: string, descricao: string
         },
     });
     revalidatePath('/professor/temas')
+    updateTag('listar-criterios')
     return resposta;
 }
 
@@ -411,6 +415,7 @@ export async function EditarAvaliacao(
                             pontuacao: criterio.pontuacao,
                         })),
                     },
+                    feedback: data.feedback,
                     status: data.status
                 },
                 include: {
@@ -481,6 +486,15 @@ async function obterAvaliacoesAluno(alunoId: string, busca?: string, limit: numb
                     tema: true,
                     criterios: true,
                     aluno: true,
+                    professor: {
+                        select: {
+                            name: true,
+                            email: true,
+                            image: true,
+                            id: true,
+                            especialidade: true
+                        }
+                    }
                 },
                 orderBy: {
                     createdAt: 'desc',

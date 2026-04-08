@@ -7,11 +7,24 @@ import { Avaliacao, Criterio, CriterioAvaliacao, Prisma, Tema } from "@/app/gene
 import clsx from "clsx";
 
 
+type AvaliacaoCardProp = Prisma.AvaliacaoGetPayload<{
+    include: {
+        tema: true;
+        criterios: true;
+        professor: {
+            select: {
+                name: true;
+                email: true;
+                image: true;
+                id: true;
+                especialidade: true;
+            }
+        }
+    }
+}>;
+
 interface CardAvaliacaoProps {
-    avaliacao: (Avaliacao & {
-        tema: Tema;
-        criterios: CriterioAvaliacao[];
-    });
+    avaliacao: AvaliacaoCardProp;
     criterios: Criterio[];
 }
 

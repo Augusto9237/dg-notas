@@ -18,13 +18,17 @@ import { useEffect, useState } from "react";
 
 interface ModalFeedbackMentoriaProps {
     feedback: string
-    professor: User
+    professor: {
+        name: string;
+        image: string | null;
+        especialidade: string | null;
+    }
 }
 
 
 export function ModalFeedbackMentoria({ feedback, professor }: ModalFeedbackMentoriaProps) {
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-    
+
     useEffect(() => {
         async function fetchImage() {
             if (professor?.image) {
@@ -46,12 +50,12 @@ export function ModalFeedbackMentoria({ feedback, professor }: ModalFeedbackMent
                     Feedback
                 </Button>
             </DialogTrigger>
-            <DialogContent className="bg-card">
+            <DialogContent className="bg-card overflow-y-auto max-h-[90vh]">
                 <DialogHeader>
                     <DialogTitle className="text-center">Feedback</DialogTitle>
                 </DialogHeader>
-                <p>
-                    "{feedback}"
+                <p className="text-justify whitespace-pre-wrap max-sm:text-sm">
+                    {feedback}
                 </p>
                 <DialogFooter className="w-full flex flex-row items-center sm:justify-start">
                     <Avatar>

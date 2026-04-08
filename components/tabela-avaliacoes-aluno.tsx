@@ -12,7 +12,6 @@ import { Spinner } from './ui/spinner';
 import { ListarAvaliacoesAlunoId, listarTemasDisponiveis } from '@/actions/avaliacao';
 import { authClient } from '@/lib/auth-client';
 import { Badge } from './ui/badge';
-import { atualizarCache } from '@/actions/cache';
 
 type Tema = Prisma.TemaGetPayload<{
     include: {
@@ -48,11 +47,20 @@ interface ListaAvaliacoes {
     }
 }
 
+interface Professor {
+    id: string;
+    nome: string;
+    email: string;
+    telefone: string | null;
+    especialidade: string | null;
+    bio: string | null;
+    image: string | null;
+}
 
 
 interface TabelaAvaliacoesAlunoProps {
     avaliacoesIniciais: ListaAvaliacoes,
-    temasIniciais: ListaTemas
+    temasIniciais: ListaTemas,
 }
 
 export function TabelaAvaliacoesAluno({ avaliacoesIniciais, temasIniciais }: TabelaAvaliacoesAlunoProps) {

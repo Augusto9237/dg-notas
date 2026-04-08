@@ -156,7 +156,7 @@ export default function InputFotoPerfil({
 
     return (
         <Card className="w-full items-center overflow-hidden max-md:gap-3 relative">
-            <CardHeader className="w-full justify-center mt-2">
+            <CardHeader className="w-full justify-center">
                 <CardTitle>Perfil</CardTitle>
             </CardHeader>
             <CardContent className="h-full p-0 flex flex-col w-full items-center max-sm:gap-2">
