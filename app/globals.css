@@ -112,6 +112,23 @@
   --sidebar-ring: oklch(0.488 0.243 264.376);
 }
 
+.scanning-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+  box-shadow: 0 0 8px var(--secondary);
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  animation: scan 3s infinite linear;
+}
+
+@keyframes scan {
+  0% { top: 0; }
+  100% { top: 100%; }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

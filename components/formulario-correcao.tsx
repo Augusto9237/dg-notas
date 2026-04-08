@@ -54,7 +54,6 @@ interface FormularioAvaliacaoProps {
 }
 
 export function FormularioCorrecao({ avaliacao }: FormularioAvaliacaoProps) {
-  const { listaCriterios } = useContext(ContextoProfessor)
   const [isOpen, setIsOpen] = useState(false)
   const [arquivo, setArquivo] = useState<File | null>(null);
 
@@ -174,12 +173,14 @@ export function FormularioCorrecao({ avaliacao }: FormularioAvaliacaoProps) {
           </TooltipContent>
         </Tooltip>
       </DialogTrigger>
-      <DialogContent className="overflow-y-auto max-h-[95vh] sm:max-w-xl w-full">
-        <DialogHeader>
-          <DialogTitle className="text-center max-sm:text-base">Correção</DialogTitle>
+      <DialogContent className="flex flex-col h-[97vh] sm:h-[94vh]  w-full">
+        <DialogHeader className="shrink-0">
+          <DialogTitle className="text-center">{avaliacao.tema.nome.split(' - ')[0]}</DialogTitle>
         </DialogHeader>
-        {/* <StepperWithLabelOrientation/> */}
-        <Form {...form}>
+        <div className="flex-1 min-h-0 flex flex-col mt-2">
+          <StepperWithLabelOrientation avaliacao={avaliacao} setIsOpen={setIsOpen} />
+        </div>
+        {/* <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
             <div>
               <FormLabel>Tema</FormLabel>
@@ -288,7 +289,7 @@ export function FormularioCorrecao({ avaliacao }: FormularioAvaliacaoProps) {
               </DialogFooter>
             </div>
           </form>
-        </Form>
+        </Form> */}
       </DialogContent>
     </Dialog>
   )

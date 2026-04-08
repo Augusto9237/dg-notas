@@ -51,4 +51,9 @@ module.exports = {
   },
   reactCompiler: true,
   cacheComponents: true,
+   experimental: {
+    serverActions: {
+      bodySizeLimit: '8mb',
+    },
+  },
 }

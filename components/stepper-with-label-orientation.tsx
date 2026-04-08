@@ -5,7 +5,7 @@ import { StepStatus, useStepItemContext } from "@stepperize/react/primitives";
 
 import { Button } from "@/components/ui/button";
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from "./kibo-ui/dropzone";
-import { useContext, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState, useTransition } from "react";
 import Image from "next/image";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { useForm } from "react-hook-form";
@@ -16,13 +16,25 @@ import { ContextoProfessor } from "@/context/contexto-professor";
 import { Card, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Progress } from "./ui/progress";
+import { Textarea } from "./ui/textarea";
+import { corrigirRedacaoPorImagem } from "@/ia/gemini";
+import { Brain, BrainCircuit, Sparkles } from "lucide-react";
+import { toast } from "sonner";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storage } from "@/lib/firebase";
+import { EditarAvaliacao } from "@/actions/avaliacao";
+import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
+import { Separator } from "./ui/separator";
+import clsx from "clsx";
+import { Status, StatusIndicator } from "./kibo-ui/status";
 
 const formSchema = z.object({
 	tema: z.string().min(1, "Tema é obrigatório"),
 	criterios: z.record(z.string(), z.object({
 		pontuacao: z.number().min(0).max(200)
 	})),
-	reposta: z.string().optional()
+	reposta: z.string().optional(),
+	feedback: z.string().optional()
 })
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
@@ -87,20 +99,6 @@ const StepperTitleWrapper = ({ title }: { title: string }) => {
 	);
 };
 
-const StepperDescriptionWrapper = ({
-	description,
-}: { description?: string }) => {
-	if (!description) return null;
-	return (
-		<Stepper.Description
-			render={(domProps) => (
-				<p className="text-xs text-muted-foreground" {...domProps}>
-					{description}
-				</p>
-			)}
-		/>
-	);
-};
 
 const StepperSeparatorWithLabelOrientation = ({
 	status,
@@ -117,10 +115,21 @@ const StepperSeparatorWithLabelOrientation = ({
 	);
 };
 
-export function StepperWithLabelOrientation({ avaliacao }: { avaliacao: Avaliacao }) {
+export function StepperWithLabelOrientation({ avaliacao, setIsOpen }: { avaliacao: Avaliacao, setIsOpen: Dispatch<SetStateAction<boolean>> }) {
 	const { listaCriterios } = useContext(ContextoProfessor)
 	const [arquivo, setArquivo] = useState<File[] | undefined>();
 	const [visualizarArquivo, setVisualizarArquivo] = useState<string | undefined>();
+	const [precorrigida, setPrecorrigida] = useState(false)
+	const [isPending, startTransition] = useTransition()
+
+	useEffect(() => {
+		if (!avaliacao.correcao) return;
+		const fetchImg = async () => {
+			const img = await getDownloadURL(ref(storage, avaliacao.correcao!))
+			setVisualizarArquivo(img)
+		}
+		fetchImg()
+	}, [avaliacao])
 
 	const defaultValues = useMemo(() => {
 		if (avaliacao) {
@@ -129,13 +138,16 @@ export function StepperWithLabelOrientation({ avaliacao }: { avaliacao: Avaliaca
 				criterios: avaliacao.criterios.reduce((acc, crit) => {
 					acc[crit.criterioId] = { pontuacao: crit.pontuacao };
 					return acc;
-				}, {} as Record<string, { pontuacao: number }>)
+				}, {} as Record<string, { pontuacao: number }>),
+				feedback: avaliacao.feedback ?? '',
+				reposta: avaliacao.resposta ?? '',
 			};
 		}
 		return {
 			tema: "",
 			criterios: {},
-			reposta: ""
+			reposta: "",
+			feedback: ""
 		};
 	}, [avaliacao]);
 
@@ -164,16 +176,92 @@ export function StepperWithLabelOrientation({ avaliacao }: { avaliacao: Avaliaca
 		return "bg-red-500";
 	};
 
+	function correcaoImg() {
+		startTransition(async () => {
+			try {
+				if (!arquivo || arquivo.length === 0 || !visualizarArquivo) return;
+				const correcao = await corrigirRedacaoPorImagem(visualizarArquivo, arquivo[0].type, avaliacao.tema.nome)
+
+				const criterios = Object.fromEntries(
+					correcao.competencias.map(({ criterioId, pontuacao }) => [criterioId, { pontuacao }])
+				) as Record<string, { pontuacao: number }>;
+
+				form.setValue("criterios", criterios)
+				form.setValue("feedback", correcao.feedback)
+				toast.warning("Redação corrigida com sucesso! Confira a pontuação e o feedback.", {
+					icon: <Sparkles />
+				})
+				setPrecorrigida(true)
+			} catch (error) {
+				toast.error("Erro ao corrigir redação!")
+				console.error(error)
+			}
+		})
+	}
+
 	const calcularNotaFinal = (criterios: Record<string, { pontuacao: number }>) => {
 		return Object.values(criterios || {}).reduce((acc: number, curr: { pontuacao: number }) => acc + (curr?.pontuacao || 0), 0);
 	};
+
+	function transformarCriterios(criterios: Record<string, unknown>) {
+		return Object.entries(criterios).map(([criterioId, data]) => {
+			const criterioData = data as { pontuacao: number };
+			return {
+				criterioId: Number(criterioId),
+				pontuacao: criterioData.pontuacao,
+			};
+		});
+	}
+
+	async function onSubmit(values: z.infer<typeof formSchema>) {
+		const storageRef = ref(storage, `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`);
+		try {
+			if (!values.tema || !values.criterios) {
+				throw new Error('Tema e critérios são obrigatórios');
+			}
+
+			const criteriosFormatados = transformarCriterios(values.criterios);
+			const notaFinal = calcularNotaFinal(values.criterios);
+
+			const dadosAvaliacao = {
+				alunoId: avaliacao.alunoId,
+				temaId: avaliacao.temaId,
+				criterios: criteriosFormatados,
+				feedback: values.feedback,
+				notaFinal: notaFinal,
+				status: 'CORRIGIDA' as const,
+			};
+
+			const correcaoUrl = `correcoes/${avaliacao.id}/${avaliacao.aluno.email}_correcao.jpg`;
+
+			if (arquivo) {
+				await uploadBytes(storageRef, arquivo[0]);
+			}
+
+			await EditarAvaliacao(avaliacao.id, dadosAvaliacao, correcaoUrl);
+			toast.success('Avaliação corrigida com sucesso');
+
+			setIsOpen(false);
+			form.reset();
+			await enviarNotificacaoParaUsuario(avaliacao.alunoId, 'Correção', `Sua redação foi corrigida! Sua nota final: ${notaFinal}`, `/aluno/avaliacoes`)
+
+		} catch (error) {
+			toast.error('Erro ao salvar a avaliação, tente novamente!')
+			console.error('Erro ao enviar avaliação:', error);
+		}
+	}
+
+	function cancelar() {
+		setIsOpen(false);
+		form.reset();
+	}
 
 	return (
 		<Form {...form}>
 			<Stepper.Root className="w-full h-full flex flex-col space-y-4 min-h-0" orientation="horizontal">
 				{({ stepper }) => (
 					<>
-						<Stepper.List className="flex list-none gap-2 flex-row items-center justify-between shrink-0">
+						<Stepper.List className="flex list-none gap-2 flex-row items-center w-full justify-between shrink-0">
 							{stepper.state.all.map((stepData, index) => {
 								const currentIndex = stepper.state.current.index;
 								const status = index < currentIndex ? "success" : index === currentIndex ? "active" : "inactive";
@@ -186,6 +274,10 @@ export function StepperWithLabelOrientation({ avaliacao }: { avaliacao: Avaliaca
 										className="group peer relative flex w-full flex-col items-center justify-center gap-2"
 									>
 										<StepperTriggerWrapper />
+										<Status status="degraded" className={clsx("absolute top-0 right-12 bg-transparent", !precorrigida && "hidden")}>
+											<StatusIndicator />
+										</Status>
+
 										<StepperSeparatorWithLabelOrientation
 											status={status}
 											isLast={isLast}
@@ -200,31 +292,46 @@ export function StepperWithLabelOrientation({ avaliacao }: { avaliacao: Avaliaca
 						<div className="flex-1 min-h-0 flex flex-col">
 							{stepper.flow.switch({
 								"step-1": () =>
-									<div className="flex-1 min-h-0 flex flex-col">
+									<div className="flex-1 min-h-0 flex flex-col gap-5">
 										<Dropzone
 											accept={{ "images": [".jpg", ".jpeg"] }}
 											onDrop={handleDrop}
 											src={arquivo}
 											maxFiles={1}
-											className="p-4 flex-1 flex flex-col min-h-0"
+											className={clsx("p-4 flex-1 flex flex-col min-h-0 relative", isPending && "border-none")}
+											disabled={isPending}
 										>
-											<DropzoneEmptyState />
-											<DropzoneContent>
-												{visualizarArquivo && (
-													<div className="relative w-full h-full flex-1 min-h-0">
-														<Image
-															className="object-contain"
-															src={visualizarArquivo}
-															alt=""
-															fill
-															sizes="100vw"
-														/>
-													</div>
-												)}
-											</DropzoneContent>
+											{!arquivo && <DropzoneContent />}
+											{!visualizarArquivo && <DropzoneEmptyState />}
+											{visualizarArquivo && (
+												<div className="relative w-full h-full flex-1 min-h-0">
+													<Image
+														className="object-contain"
+														src={visualizarArquivo}
+														alt="Visualização do arquivo"
+														fill
+														sizes="100vw"
+													/>
+												</div>
+											)}
+											<div className={clsx("absolute inset-0 flex items-center justify-center bg-background/80 border-secondary border-2", !isPending && "hidden")}>
+												<div className="scanning-line"></div>
+												<p className="flex items-center gap-2 text-accent-foreground font-semibold ">
+													<Brain />
+													Gerando correção, aguarde...
+												</p>
+											</div>
 										</Dropzone>
+										<Button
+											onClick={correcaoImg}
+											disabled={isPending || visualizarArquivo === undefined || !arquivo}
+											variant={visualizarArquivo === undefined || !arquivo ? "ghost" : 'secondary'}
+										>
+											<Sparkles />
+											{isPending ? "Corrigindo" : "Pré-correção Automática"}
+										</Button>
 									</div>,
-								"step-2": (data) =>
+								"step-2": () =>
 									<div className="space-y-4">
 										<FormLabel>Competências</FormLabel>
 										{listaCriterios.map((criterio, i) => (
@@ -272,34 +379,48 @@ export function StepperWithLabelOrientation({ avaliacao }: { avaliacao: Avaliaca
 										))}
 									</div>,
 								"step-3": () =>
-									<div className="space-y-5">
-										<div className="space-y-2">
-											<FormLabel>Resumo da correção</FormLabel>
+									<div className="flex-1 flex flex-col gap-5 min-h-0">
+										<div className="space-y-2 shrink-0">
+											<FormLabel>Pontuação</FormLabel>
 											<div className="flex flex-col gap-2">
 												{Object.entries(form.getValues("criterios")).map(([criterioId, data]) => {
 													const criterio = listaCriterios.find((c) => c.id === Number(criterioId));
 													return (
-														<div key={criterioId} className="flex justify-between items-center">
-															<span className="text-sm font-semibold">{criterio?.nome}</span>
-															<span className="text-sm">{data.pontuacao}</span>
+														<div key={criterioId} className="flex justify-between items-center border-b border-border py-2">
+															<span className="text-sm">{criterio?.nome}</span>
+															<span className="text-sm text-muted-foreground">{data.pontuacao}</span>
 														</div>
 													);
 												})}
 											</div>
 										</div>
-										<div>
-											<div className="flex justify-between text-lg font-semibold w-full">
-												<span>Nota Final:</span>
-												<span>
-													{calcularNotaFinal(form.watch('criterios'))}/1000
-												</span>
-											</div>
+										<div className="flex-1 min-h-0 w-full flex flex-col">
+											<FormField
+												control={form.control}
+												name="feedback"
+												render={({ field }) => (
+													<FormItem className="flex-1 flex flex-col min-h-0">
+														<FormLabel className="shrink-0">Feedback</FormLabel>
+														<FormControl>
+															<Textarea {...field} className="flex-1 min-h-0 w-full resize-none" />
+														</FormControl>
+														<FormMessage className="shrink-0" />
+													</FormItem>
+												)}
+											/>
 										</div>
-									</div>,
+										<Separator />
+										<div className="flex justify-between items-center font-semibold text-lg">
+											<span className="">Nota Final:</span>
+											<span className="">
+												{calcularNotaFinal(form.watch('criterios'))}<span className="text-sm font-normal text-muted-foreground">/1000</span>
+											</span>
+										</div>
+									</div>
 							})}
 						</div>
-						<Stepper.Actions className="flex justify-end gap-4 shrink-0">
-							{!stepper.state.isLast && (
+						<Stepper.Actions className="grid grid-cols-2 gap-4 pt-4">
+							{!stepper.state.isLast ? (
 								<Stepper.Prev
 									render={(domProps) => (
 										<Button
@@ -311,18 +432,27 @@ export function StepperWithLabelOrientation({ avaliacao }: { avaliacao: Avaliaca
 										</Button>
 									)}
 								/>
+							) : (
+								<Button
+									type="button"
+									variant="ghost"
+									onClick={() => { stepper.navigation.reset(); cancelar(); }}
+								>
+									Cancelar
+								</Button>
 							)}
 							{stepper.state.isLast ? (
 								<Button
 									type="button"
-									onClick={() => stepper.navigation.reset()}
+									onClick={form.handleSubmit(onSubmit)}
+									disabled={form.formState.isSubmitting}
 								>
-									Reset
+									Salvar
 								</Button>
 							) : (
 								<Stepper.Next
 									render={(domProps) => (
-										<Button type="button" {...domProps}>
+										<Button type="button" {...domProps} disabled={isPending}>
 											Proximo
 										</Button>
 									)}

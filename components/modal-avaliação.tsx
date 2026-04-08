@@ -18,11 +18,20 @@ import { getDownloadURL, ref } from "firebase/storage"
 import { storage } from "@/lib/firebase"
 import useDownloader from "react-use-downloader";
 import { toast } from "sonner"
+import { ModalFeedbackMentoria } from "./modal-feedback-mentoria"
 
 type AvaliacaoProp = Prisma.AvaliacaoGetPayload<{
   include: {
-    tema: true
-
+    tema: true;
+    professor: {
+      select: {
+        name: true;
+        email: true;
+        image: true;
+        id: true;
+        especialidade: true;
+      }
+    }
   };
 }>;
 
@@ -30,6 +39,8 @@ interface ModalAvaliacaoProps {
   avaliacao: AvaliacaoProp & { criterios: CriterioAvaliacao[] };
   criterios: Criterio[]
 }
+
+
 
 export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -133,12 +144,16 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
         </div>
 
         <Separator className="w-muted" />
-        <Button
-          onClick={() => baixarArquivo(avaliacao.correcao!, avaliacao.tema.nome)}
-        >
-          {carregando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download />}
-          {carregando ? 'Baixando' : 'Baixar Correção'}
-        </Button>
+        <div className="grid grid-cols-2 gap-4">
+          <ModalFeedbackMentoria feedback={avaliacao.feedback || ''} professor={avaliacao.professor!} />
+          <Button
+            onClick={() => baixarArquivo(avaliacao.correcao!, avaliacao.tema.nome)}
+            size="sm"
+          >
+            {carregando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download />}
+            {carregando ? 'Baixando' : 'Baixar Correção'}
+          </Button>
+        </div>
 
       </DialogContent>
     </Dialog >

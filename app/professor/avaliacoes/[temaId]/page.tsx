@@ -5,6 +5,7 @@ import { ListarAvaliacoesTemaId } from '@/actions/avaliacao';
 import { TabelaAvaliacoesTema } from '@/components/tabela-avaliacoes-tema';
 import { calcularMedia } from '@/lib/media-geral';
 import { HeaderTeacher } from '@/components/header-professor';
+import { CardDescription, CardTitle } from '@/components/ui/card';
 
 
 
@@ -21,8 +22,8 @@ export default async function Page({
       <div className="w-full h-full min-h-screen relative pt-16 overflow-y-auto">
         <HeaderTeacher title={`Tema - ${tema}`} description={avaliacoesTema.length > 0 ? avaliacoesTema[0].tema.nome : ""}>
           <div className='flex flex-col justify-center w-full flex-1 items-end'>
-            <h1 className="text-xl max-sm:text-lg font-bold">{calcularMedia(avaliacoesTema).toFixed(2).replace('.', ',')}</h1>
-            <p className="text-xs text-muted-foreground max-sm:leading-none truncate">Média Geral</p>
+            <CardTitle className="md:text-lg leading-none">{calcularMedia(avaliacoesTema).toFixed(2).replace('.', ',')}</CardTitle>
+            <CardDescription className="max-md:text-xs truncate">Média Geral</CardDescription>
           </div>
         </HeaderTeacher>
 

@@ -33,12 +33,12 @@ export default async function Page() {
     return (
         <Suspense fallback={<Loading />}>
             <div className="w-full h-full min-h-screen max-h-screen relative pt-16 overflow-hidden">
-                <HeaderTeacher title="Sua Conta" description="Gerencie suas informações"/>
+                <HeaderTeacher title="Sua Conta" description="Gerencie suas informações" />
                 <main className="grid grid-cols-3 max-[1025px]:grid-rows-2 max-md:grid-cols-1 p-5 max-[1025px]:gap-y-5 min-md:gap-x-5 w-full h-full">
                     <InputFotoPerfil professor={professor!} fotoPerfil={fotoPerfil} />
 
                     <Card className="col-span-2 max-sm:gap-4">
-                        <CardHeader className="flex justify-between items-center py-0">
+                        <CardHeader className="flex justify-between">
                             <CardTitle>Informações Pessoais</CardTitle>
                             <FormularioConta professor={professor!} />
                         </CardHeader>
