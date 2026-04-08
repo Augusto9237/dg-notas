@@ -24,6 +24,15 @@ type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
         aluno: true,
         criterios: true,
         tema: true,
+        professor: {
+            select: {
+                name: true;
+                email: true;
+                image: true;
+                id: true;
+                especialidade: true;
+            }
+        }
     }
 }>
 
@@ -37,7 +46,7 @@ interface ListaTemas {
     };
 }
 
-interface ListaAvaliacoes {
+interface ListaAvaliacoesPaginada {
     data: AvaliacaoTema[]
     meta: {
         total: number,
@@ -59,14 +68,14 @@ interface Professor {
 
 
 interface TabelaAvaliacoesAlunoProps {
-    avaliacoesIniciais: ListaAvaliacoes,
+    avaliacoesIniciais: ListaAvaliacoesPaginada,
     temasIniciais: ListaTemas,
 }
 
 export function TabelaAvaliacoesAluno({ avaliacoesIniciais, temasIniciais }: TabelaAvaliacoesAlunoProps) {
     const { criterios } = useContext(ContextoAluno);
     const [temas, setTemas] = useState<ListaTemas>({ data: [], meta: { total: 0, pagina: 1, limite: 10, totalPaginas: 0 } });
-    const [avaliacoes, setAvaliacoes] = useState<ListaAvaliacoes>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
+    const [avaliacoes, setAvaliacoes] = useState<ListaAvaliacoesPaginada>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const [hasMoreAvaliacoes, setHasMoreAvaliacoes] = useState(true);
