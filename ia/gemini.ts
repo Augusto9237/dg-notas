@@ -10,7 +10,6 @@ if (!apiKey) {
   console.warn("A variável de ambiente GEMINI_API_KEY não está definida.");
 }
 
-// Inicializa a SDK do Gemini
 const genAI = new GoogleGenerativeAI(apiKey || "");
 
 const SYSTEM_PROMPT = `Você é um professor especialista na correção de redações do ENEM, seguindo rigorosamente os critérios oficiais do Inep vigentes em 2025. Você receberá o tema da redação e o texto do aluno. Sua tarefa é avaliar o texto e retornar EXCLUSIVAMENTE um objeto JSON válido, sem nenhum texto fora do JSON.
@@ -58,8 +57,55 @@ const model = genAI.getGenerativeModel({
   systemInstruction: SYSTEM_PROMPT,
   generationConfig: {
     responseMimeType: "application/json",
-  }
+  },
 });
+
+// Erros que justificam retry (temporários)
+const RETRYABLE_STATUS_CODES = new Set([429, 500, 502, 503, 504]);
+const MAX_RETRIES = 3;
+const BASE_DELAY_MS = 1000;
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function generateWithRetry(
+  parts: Parameters<typeof model.generateContent>[0]
+): Promise<string> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      const result = await model.generateContent(parts);
+      return result.response.text();
+    } catch (error: unknown) {
+      lastError = error;
+
+      const status =
+        error instanceof Error && "status" in error
+          ? (error as { status?: number }).status
+          : undefined;
+
+      const isRetryable = status !== undefined && RETRYABLE_STATUS_CODES.has(status);
+
+      if (!isRetryable) {
+        // Erro não recuperável (ex: 400, 401, 403) — não adianta tentar de novo
+        throw error;
+      }
+
+      if (attempt < MAX_RETRIES - 1) {
+        // Backoff exponencial com jitter: 1s, 2s, 4s (± até 300ms aleatório)
+        const delay = BASE_DELAY_MS * Math.pow(2, attempt) + Math.random() * 300;
+        console.warn(
+          `[Gemini] Tentativa ${attempt + 1} falhou com status ${status}. Retentando em ${Math.round(delay)}ms...`
+        );
+        await sleep(delay);
+      }
+    }
+  }
+
+  throw lastError;
+}
 
 export interface CorrecaoRedacaoResult {
   competencias: Array<{
@@ -69,48 +115,43 @@ export interface CorrecaoRedacaoResult {
   feedback: string;
 }
 
-/**
- * Corrige uma redação a partir de uma imagem (foto do manuscrito) utilizando o modelo Gemini configurado.
- * @param imagemBase64 A imagem da redação do aluno no formato base64.
- * @param mimeType O mime type da imagem (ex: 'image/jpeg', 'image/png').
- * @param tema (Opcional) O tema da redação.
- * @returns Um objeto contendo a pontuação das competências e o feedback em Markdown.
- */
-export async function corrigirRedacaoPorImagem(imagemBase64: string, mimeType: string, tema?: string): Promise<CorrecaoRedacaoResult> {
-      const session = await auth.api.getSession({
-          headers: await headers()
-      })
+export async function corrigirRedacaoPorImagem(
+  imagemBase64: string,
+  mimeType: string,
+  tema?: string
+): Promise<CorrecaoRedacaoResult> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-      if (!session?.user) {
-        throw new Error("Usuário não autenticado");
-      }
+  if (!session?.user) {
+    throw new Error("Usuário não autenticado");
+  }
 
-      if (session.user.role !== 'admin') {
-        throw new Error("Usuário não autorizado");
-      }
-      const promptText = tema 
+  if (session.user.role !== "admin") {
+    throw new Error("Usuário não autorizado");
+  }
+
+  const promptText = tema
     ? `Tema da redação: ${tema}\n\nPor favor, transcreva (mentalmente) a redação da foto em anexo e corrija-a conforme as instruções do sistema estabelecidas. Considere possíveis problemas de legibilidade da caligrafia, seja justo mas rigoroso.`
     : `Por favor, transcreva (mentalmente) a redação da foto em anexo e corrija-a conforme as instruções do sistema estabelecidas. Considere possíveis problemas de legibilidade da caligrafia, seja justo mas rigoroso.`;
 
-  // Limpa o base64 caso venha com o formato de Data URI (ex: data:image/jpeg;base64,...)
-  const base64Data = imagemBase64.includes("base64,") 
-    ? imagemBase64.split("base64,")[1] 
+  const base64Data = imagemBase64.includes("base64,")
+    ? imagemBase64.split("base64,")[1]
     : imagemBase64;
 
   const imagePart = {
     inlineData: {
       data: base64Data,
-      mimeType: mimeType,
+      mimeType,
     },
   };
 
   try {
-    const result = await model.generateContent([promptText, imagePart]);
-    const response = await result.response;
-    const jsonText = response.text();
+    const jsonText = await generateWithRetry([promptText, imagePart]);
     return JSON.parse(jsonText) as CorrecaoRedacaoResult;
   } catch (error) {
     console.error("Erro ao corrigir redação por imagem:", error);
-    throw new Error("Falha ao corrigir a redação com a imagem usando a API do Gemini.");
+    throw new Error("Falha ao corrigir a redação. Por favor, tente novamente em alguns instantes.");
   }
 }
