@@ -121,7 +121,7 @@ export function TabelaVideoaulas({ videoaulas }: TabelaVideoaulasProps) {
   return (
     <div className='bg-card rounded-lg shadow-sm p-5 flex flex-col gap-4 h-full flex-1 justify-between'>
       <div className="flex items-center max-w-md relative">
-        <InputBusca placeholder='Buscar por Tema' />
+        <InputBusca placeholder='Buscar por Título' />
       </div>
       <div className='w-full h-full flex-1'>
         <Table className='h-full'>
@@ -161,7 +161,7 @@ export function TabelaVideoaulas({ videoaulas }: TabelaVideoaulasProps) {
                 <TableRow key={videoaula.id}>
                   <TableCell className="w-[54px]">{videoaula.id}</TableCell>
                   <TableCell className="max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[300px] xl:max-w-[400px] 2xl:max-w-[500px] truncate" title={videoaula.titulo}>{videoaula.titulo}</TableCell>
-                  <TableCell className="max-w-[100px] sm:max-w-[150px] md:max-w-[250px] lg:max-w-[350px] xl:max-w-[450px] 2xl:max-w-[600px] truncate" title={videoaula.descricao}>{videoaula.descricao}</TableCell>
+                  <TableCell className="max-w-[100px] sm:max-w-[150px] md:max-w-[250px] lg:max-w-[350px] xl:max-w-[450px] truncate" title={videoaula.descricao}>{videoaula.descricao}</TableCell>
                   <TableCell className="max-w-[100px] sm:max-w-[120px] md:max-w-[150px] lg:max-w-[250px] xl:max-w-[350px] 2xl:max-w-[450px] truncate" title={videoaula.urlVideo}>{videoaula.urlVideo}</TableCell>
                   <TableCell>{format(new Date(videoaula.createdAt), "dd/MM/yyyy")}</TableCell>
                   <TableCell className="w-[54px]">
