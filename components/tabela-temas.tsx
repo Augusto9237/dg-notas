@@ -162,7 +162,7 @@ export function TabelaTemas() {
               temas.map((tema) => (
                 <TableRow key={tema.id}>
                   <TableCell className="w-[54px]">{tema.id}</TableCell>
-                  <TableCell>{tema.nome}</TableCell>
+                  <TableCell className="max-w-[150px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px] xl:max-w-[700px] 2xl:max-w-[1000px] truncate" title={tema.nome}>{tema.nome}</TableCell>
                   <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
                   <TableCell className="text-center">
                     <Switch
