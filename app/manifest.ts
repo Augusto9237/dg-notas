@@ -1,10 +1,14 @@
+import { obterInformacoes } from '@/actions/configuracoes'
 import type { MetadataRoute } from 'next'
 
-export default function manifest(): MetadataRoute.Manifest {
+
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const informacoes = await obterInformacoes()
+
   return {
-    name: 'DG - Curso de Redação',
-    short_name: 'DG - Redação',
-    description: 'A plataforma de curso de redação',
+    name: informacoes?.nomePlataforma || 'DG - Curso de Redação',
+    short_name: informacoes?.nomePlataforma || 'DG - Redação',
+    description: informacoes?.logoSistema || 'A plataforma de curso de redação',
     start_url: '/',
     scope: '/',
     orientation: 'portrait-primary',
