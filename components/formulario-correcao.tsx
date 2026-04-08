@@ -173,7 +173,7 @@ export function FormularioCorrecao({ avaliacao }: FormularioAvaliacaoProps) {
           </TooltipContent>
         </Tooltip>
       </DialogTrigger>
-      <DialogContent className="flex flex-col h-[98vh] sm:h-[94vh]  w-full">
+      <DialogContent className="flex flex-col sm:h-[96vh]  w-full">
         <DialogHeader className="shrink-0">
           <DialogTitle className="text-center">{avaliacao.tema.nome.split(' - ')[0]}</DialogTitle>
         </DialogHeader>
