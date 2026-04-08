@@ -7,7 +7,7 @@ import { Avaliacao, Criterio, CriterioAvaliacao, Prisma, Tema } from "@/app/gene
 import clsx from "clsx";
 
 
-type AvaliacaoCardProp = Prisma.AvaliacaoGetPayload<{
+export type AvaliacaoCardProp = Prisma.AvaliacaoGetPayload<{
     include: {
         tema: true;
         criterios: true;

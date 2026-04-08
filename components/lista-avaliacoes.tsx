@@ -2,15 +2,12 @@
 
 import { Avaliacao, Criterio, CriterioAvaliacao, Tema } from "@/app/generated/prisma";
 import { useEffect, useState } from "react";
-import { CardAvaliacao } from "./card-avaliacao";
+import { CardAvaliacao, AvaliacaoCardProp } from "./card-avaliacao";
 import { Spinner } from "./ui/spinner";
 import InfiniteScroll from "./ui/infinite-scroll";
 
 interface ListaAvaliacoesProps {
-    avaliacoesIniciais: (Avaliacao & {
-        tema: Tema;
-        criterios: CriterioAvaliacao[];
-    })[];
+    avaliacoesIniciais: AvaliacaoCardProp[];
     criteriosIniciais: Criterio[];
     hasMore: boolean;
     loading: boolean;
