@@ -333,7 +333,7 @@ export function StepperWithLabelOrientation({ avaliacao, setIsOpen }: { avaliaca
 										</Button>
 									</div>,
 								"step-2": () =>
-									<div className="space-y-4">
+									<div className="space-y-4 overflow-y-auto flex-1">
 										<FormLabel>Competências</FormLabel>
 										{listaCriterios.map((criterio, i) => (
 											<FormField
