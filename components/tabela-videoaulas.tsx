@@ -161,7 +161,7 @@ export function TabelaVideoaulas({ videoaulas }: TabelaVideoaulasProps) {
                 <TableRow key={videoaula.id}>
                   <TableCell className="w-[54px]">{videoaula.id}</TableCell>
                   <TableCell>{videoaula.titulo}</TableCell>
-                  <TableCell>{videoaula.descricao}</TableCell>
+                  <TableCell className="max-w-[150px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px] xl:max-w-[700px] 2xl:max-w-[1000px] truncate" title={videoaula.descricao}>{videoaula.descricao}</TableCell>
                   <TableCell className="truncate max-w-sm">{videoaula.urlVideo}</TableCell>
                   <TableCell>{format(new Date(videoaula.createdAt), "dd/MM/yyyy")}</TableCell>
                   <TableCell className="w-[54px]">
