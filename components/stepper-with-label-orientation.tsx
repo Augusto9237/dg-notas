@@ -27,6 +27,7 @@ import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
 import { Separator } from "./ui/separator";
 import clsx from "clsx";
 import { Status, StatusIndicator } from "./kibo-ui/status";
+import { comprimirImagemParaBase64 } from "@/lib/image-utils";
 
 const formSchema = z.object({
 	tema: z.string().min(1, "Tema é obrigatório"),
@@ -180,7 +181,8 @@ export function StepperWithLabelOrientation({ avaliacao, setIsOpen }: { avaliaca
 		startTransition(async () => {
 			try {
 				if (!arquivo || arquivo.length === 0 || !visualizarArquivo) return;
-				const correcao = await corrigirRedacaoPorImagem(visualizarArquivo, arquivo[0].type, avaliacao.tema.nome)
+				const base64Otimizado = await comprimirImagemParaBase64(arquivo[0]);
+				const correcao = await corrigirRedacaoPorImagem(base64Otimizado, arquivo[0].type, avaliacao.tema.nome)
 
 				const criterios = Object.fromEntries(
 					correcao.competencias.map(({ criterioId, pontuacao }) => [criterioId, { pontuacao }])

@@ -1,8 +1,22 @@
 'use server'
 import { prisma } from "@/lib/prisma"
 import { cacheLife, cacheTag, revalidateTag, updateTag } from "next/cache"
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export async function adicionarInformacoes(nomePlataforma: string, slogan: string, emailContato: string, telefone: string, endereco: string, sobreCurso: string) {
+      const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    
+    if (!session) {
+        throw new Error("Sessão não encontrada")
+    }
+
+    if (session.user.role !== 'admin') {
+        throw new Error("Usuário não autorizado")
+    }
+    
     await prisma.configuracao.update({
         where: {
             id: 1 // Supondo que você tenha um ID único para as configurações
@@ -25,6 +39,18 @@ export async function adicionarLogo(
     favicon: string,
     coresSistema: { id?: number; cor: string; valor: string }[]
 ) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    
+    if (!session) {
+        throw new Error("Sessão não encontrada")
+    }
+
+    if (session.user.role !== 'admin') {
+        throw new Error("Usuário não autorizado")
+    }
+
     await prisma.$transaction(async (tx) => {
         await tx.configuracao.update({
             where: {
@@ -64,6 +90,18 @@ export async function adicionarLogo(
 }
 
 export async function adicionarFotoCapa(fotoCapa: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    
+    if (!session) {
+        throw new Error("Sessão não encontrada")
+    }
+
+    if (session.user.role !== 'admin') {
+        throw new Error("Usuário não autorizado")
+    }
+    
     await prisma.configuracao.update({
         where: {
             id: 1 // Supondo que você tenha um ID único para as configurações

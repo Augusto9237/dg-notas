@@ -81,7 +81,7 @@ async function getActiveModel() {
   // 2. Cria um novo Context Cache Explícito
   try {
     const cache = await cacheManager.create({
-      model: "models/gemini-2.5-flash",
+      model: "models/gemini-3-flash-preview",
       displayName: "enem-system-prompt",
       systemInstruction: {
         role: "system",
@@ -111,7 +111,7 @@ async function getActiveModel() {
     
     // 3. Fallback: Retorna o modelo normal se o cache for recusado pela API
     return genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash-preview",
       systemInstruction: {
         role: "system",
         parts: [{ text: SYSTEM_PROMPT }],

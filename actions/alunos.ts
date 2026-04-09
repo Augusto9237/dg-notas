@@ -72,8 +72,14 @@ export async function BuscarAlunoGooglePorId(id: string) {
     })
 
     if (!session?.user) {
+        throw new Error('Usuário não autenticado');
+    }
+
+    // Permite se for o próprio aluno buscando seus dados, ou um professor (admin)
+    if (session.user.id !== id && session.user.role !== 'admin') {
         throw new Error('Usuário não autorizado');
     }
+
     try {
         const aluno = await prisma.user.findFirst({
             where: {
