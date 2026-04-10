@@ -50,7 +50,7 @@ export function ListaVideoaulas({ aulaId }: ListaVideoaulasProps) {
                         {videoaulas.map((videoaula) => (
                             <Link href={`/aluno/aulas/${videoaula.id}`} key={videoaula.id}>
                                 <div className={clsx("text-sm flex gap-2 items-center text-muted-foreground p-2 rounded-sm", aulaId === videoaula.id && 'text-primary font-semibold bg-primary/5')}>
-                                    {aulaId === videoaula.id ? <CirclePlay size={18} /> : <Video size={18} />}
+                                    {aulaId === videoaula.id ? <CirclePlay className="size-4" /> : <Video className="size-4"/>}
                                     {videoaula.titulo}
                                 </div>
                                 <Separator className="my-2" />
