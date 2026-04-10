@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useTransition } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
 import { format } from "date-fns"
 import { toast } from "sonner"
 import { Ellipsis } from "lucide-react"
@@ -27,13 +26,6 @@ import { ModalVisualizarVideoaula } from "./modal-visualizar-aula"
 import { deleteObject, ref } from "firebase/storage"
 import { storage } from "@/lib/firebase"
 
-
-type Tema = Prisma.TemaGetPayload<{
-  include: {
-    professor: true,
-    Avaliacao: true
-  }
-}>
 
 interface TabelaVideoaulasProps {
   videoaulas: {
@@ -106,7 +98,7 @@ export function TabelaVideoaulas({ videoaulas }: TabelaVideoaulasProps) {
     router.push(`${pathname}?${params.toString()}`)
   };
 
-  function handlePreviousPage() {
+  const handlePreviousPage = () => {
     if (currentPage > 1) {
       handlePageChange(currentPage - 1);
     }
@@ -123,16 +115,16 @@ export function TabelaVideoaulas({ videoaulas }: TabelaVideoaulasProps) {
       <div className="flex items-center max-w-md relative">
         <InputBusca placeholder='Buscar por Título' />
       </div>
-      <div className='w-full h-full flex-1'>
-        <Table className='h-full'>
+      <div className='w-full h-full sm:overflow-x-auto'>
+        <Table className='w-full table-fixed'>
           <TableHeader>
             <TableRow>
-              <TableHead>Id</TableHead>
-              <TableHead>Título</TableHead>
-              <TableHead>Descrição</TableHead>
-              <TableHead >Url do Video</TableHead>
-              <TableHead className="text-center max-w-[54px]">Data</TableHead>
-              <TableHead className="text-center max-w-[54px]">
+              <TableHead className="w-[54px]">Id</TableHead>
+              <TableHead className="w-md max-sm:w-sm">Título</TableHead>
+              <TableHead className="w-sm">Descrição</TableHead>
+              <TableHead className="w-[160px]">Url do Video</TableHead>
+              <TableHead className="text-center w-[120px]">Data</TableHead>
+              <TableHead className="w-[120px] text-center">
                 <div className='flex justify-center w-full'>
                   <Ellipsis />
                 </div>
@@ -152,19 +144,19 @@ export function TabelaVideoaulas({ videoaulas }: TabelaVideoaulasProps) {
               </>
             ) : listaVideoaulas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   Nenhuma aula encontrada
                 </TableCell>
               </TableRow>
             ) : (
               listaVideoaulas.map((videoaula) => (
                 <TableRow key={videoaula.id}>
-                  <TableCell className="w-[54px]">{videoaula.id}</TableCell>
-                  <TableCell className="max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[300px] xl:max-w-[400px] 2xl:max-w-[500px] truncate" title={videoaula.titulo}>{videoaula.titulo}</TableCell>
-                  <TableCell className="max-w-[100px] sm:max-w-[150px] md:max-w-[250px] lg:max-w-[350px] xl:max-w-[450px] truncate" title={videoaula.descricao}>{videoaula.descricao}</TableCell>
-                  <TableCell className="max-w-[100px] sm:max-w-[120px] md:max-w-[150px] lg:max-w-[250px] xl:max-w-[350px] 2xl:max-w-[450px] truncate" title={videoaula.urlVideo}>{videoaula.urlVideo}</TableCell>
-                  <TableCell>{format(new Date(videoaula.createdAt), "dd/MM/yyyy")}</TableCell>
-                  <TableCell className="w-[54px]">
+                  <TableCell>{videoaula.id}</TableCell>
+                  <TableCell className="truncate w-md max-sm:w-sm" title={videoaula.titulo}>{videoaula.titulo}</TableCell>
+                  <TableCell className="truncate w-sm" title={videoaula.descricao}>{videoaula.descricao}</TableCell>
+                  <TableCell className="truncate w-[160px]" title={videoaula.urlVideo}>{videoaula.urlVideo}</TableCell>
+                  <TableCell className="text-center w-[100px]">{format(new Date(videoaula.createdAt), "dd/MM/yyyy")}</TableCell>
+                  <TableCell>
                     <div className="flex items-center justify-center gap-4">
                       <ModalVisualizarVideoaula videoaula={videoaula} />
                       <FormularioVideoaula aula={videoaula} />
