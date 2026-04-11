@@ -44,7 +44,8 @@ model Tema {
   updatedAt   DateTime @updatedAt
 
   disponivel Boolean @default(true)
-
+  entrega    DateTime?
+  
   Avaliacao Avaliacao[]
 }
 

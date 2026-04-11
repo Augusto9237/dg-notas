@@ -27,9 +27,11 @@ import { Tema } from "@/app/generated/prisma"
 import { EditButton } from "./ui/edit-button"
 import { Textarea } from "./ui/textarea"
 import { enviarNotificacaoParaTodos } from "@/actions/notificacoes"
+import { DatePickerInput } from "./ui/data-picker-input"
 
 const esquemaFormulario = z.object({
   nome: z.string().min(3, "O nome do tema deve ter pelo menos 3 caracteres"),
+  entrega: z.date().optional(),
 })
 
 type ValoresFormulario = z.infer<typeof esquemaFormulario>
@@ -40,6 +42,7 @@ interface FormularioTemaProps {
 
 export function FormularioTema({ tema }: FormularioTemaProps) {
   const [estaAberto, setEstaAberto] = useState(false)
+  const [open, setOpen] = useState(false)
   const ehModoEdicao = !!tema
 
   const formulario = useForm<ValoresFormulario>({
@@ -126,6 +129,25 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
                       placeholder={ehModoEdicao ? "Edite o tema" : "Digite o novo tema"}
                       {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={formulario.control}
+              name="entrega"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Entregar até</FormLabel>
+                  <FormControl>
+                 <DatePickerInput
+                    setDateValue={(date: Date) => {
+                      field.onChange(date)
+                    }}
+                    dateValue={field.value}
+                  />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
