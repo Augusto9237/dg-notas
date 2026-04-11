@@ -133,7 +133,8 @@ export function TabelaTemas() {
               <TableHead>Id</TableHead>
               <TableHead>Tema</TableHead>
               <TableHead>Data</TableHead>
-              <TableHead className="text-center max-w-[54px]">Disponível</TableHead>
+              <TableHead>Data de Entrega</TableHead>
+              <TableHead className="text-center max-w-[100px]">Disponível</TableHead>
               <TableHead className="text-center max-w-[54px]">
                 <div className='flex justify-center w-full'>
                   <Ellipsis />
@@ -164,6 +165,7 @@ export function TabelaTemas() {
                   <TableCell className="w-[54px]">{tema.id}</TableCell>
                   <TableCell className="max-w-[150px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px] xl:max-w-[700px] 2xl:max-w-[1000px] truncate" title={tema.nome}>{tema.nome}</TableCell>
                   <TableCell>{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
+                  <TableCell>{tema.entrega ? format(new Date(tema.entrega!), "dd/MM/yyyy") : '-'}</TableCell>
                   <TableCell className="text-center">
                     <Switch
                       checked={tema.disponivel}

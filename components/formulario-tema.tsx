@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Plus } from "lucide-react"
+import { Loader2, Plus } from "lucide-react"
 import { useState, useEffect } from "react"
 import {
   Dialog,
@@ -28,6 +28,7 @@ import { EditButton } from "./ui/edit-button"
 import { Textarea } from "./ui/textarea"
 import { enviarNotificacaoParaTodos } from "@/actions/notificacoes"
 import { DatePickerInput } from "./ui/data-picker-input"
+import clsx from "clsx"
 
 const esquemaFormulario = z.object({
   nome: z.string().min(3, "O nome do tema deve ter pelo menos 3 caracteres"),
@@ -42,13 +43,13 @@ interface FormularioTemaProps {
 
 export function FormularioTema({ tema }: FormularioTemaProps) {
   const [estaAberto, setEstaAberto] = useState(false)
-  const [open, setOpen] = useState(false)
   const ehModoEdicao = !!tema
 
   const formulario = useForm<ValoresFormulario>({
     resolver: zodResolver(esquemaFormulario),
     defaultValues: {
       nome: tema?.nome || "",
+      entrega: tema?.entrega || undefined,
     },
   })
 
@@ -56,17 +57,18 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
     if (estaAberto) {
       formulario.reset({
         nome: tema?.nome || "",
+        entrega: tema?.entrega || undefined,
       })
     }
   }, [estaAberto, tema, formulario])
 
-  async function aoEnviar(valores: ValoresFormulario) {
+  async function aoEnviar(values: ValoresFormulario) {
     try {
       if (ehModoEdicao) {
-        const atualizarTema = await EditarTema(tema.id, valores.nome)
+        const atualizarTema = await EditarTema(tema.id, values.nome, values.entrega)
         toast.success(`O tema ${atualizarTema.nome} foi atualizado com sucesso`)
       } else {
-        const novoTema = await adicionarTema(valores.nome)
+        const novoTema = await adicionarTema(values.nome, values.entrega)
         toast.success(`O tema ${novoTema.nome} foi adicionado com sucesso`)
 
         // Envia notificações para todos os alunos
@@ -142,12 +144,12 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
                 <FormItem>
                   <FormLabel>Entregar até</FormLabel>
                   <FormControl>
-                 <DatePickerInput
-                    setDateValue={(date: Date) => {
-                      field.onChange(date)
-                    }}
-                    dateValue={field.value}
-                  />
+                    <DatePickerInput
+                      setDateValue={(date: Date) => {
+                        formulario.setValue('entrega', date)
+                      }}
+                      dateValue={field.value}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -162,15 +164,18 @@ export function FormularioTema({ tema }: FormularioTemaProps) {
                   formulario.reset()
                   setEstaAberto(false)
                 }}
-
+                disabled={formulario.formState.isSubmitting}
+                className={clsx(formulario.formState.isSubmitting && 'hidden')}
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
                 disabled={formulario.formState.isSubmitting}
+                className={clsx(formulario.formState.isSubmitting && 'cursor-not-allowed col-span-2')}
               >
-                {formulario.formState.isSubmitting ? "Salvando..." : "Salvar"}
+                {formulario.formState.isSubmitting ? <Loader2 className="animate-spin" /> : null}
+                {formulario.formState.isSubmitting ? "Salvando" : "Salvar"}
               </Button>
             </div>
           </form>

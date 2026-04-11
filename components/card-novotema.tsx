@@ -19,7 +19,7 @@ export function CardNovoTema({ tema }: CardNovoTemaProps) {
 
     return (
         <Card
-            className="cursor-pointer bg-linear-to-r from-secondary/5 to-secondary/10 border-secondary hover:shadow-md transition-shadow p-0 min-h-[160px] h-full max-h-[160px] gap-0 relative"
+            className="cursor-pointer bg-linear-to-r from-secondary/5 to-secondary/10 border-secondary hover:shadow-md transition-shadow p-0 min-h-[160px] h-full max-h-[160px] max-sm:max-h-fit gap-0 relative"
         >
             <CardContent className="p-4 relative h-full flex-1 flex flex-col justify-between">
                 <div className="flex items-start justify-between">
@@ -41,7 +41,7 @@ export function CardNovoTema({ tema }: CardNovoTemaProps) {
                         {tema.professor.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                        {new Date(tema.createdAt).toLocaleDateString("pt-BR")}
+                        Entrega até: {tema.entrega ? new Date(tema.entrega).toLocaleDateString("pt-BR") : "Sem data"}
                     </p>
                 </div>
             </CardContent>
