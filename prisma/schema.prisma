@@ -42,7 +42,6 @@ model Tema {
   professor   User     @relation("AvaliacoesProfessor", fields: [professorId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
   disponivel Boolean @default(true)
   entrega    DateTime?
   
