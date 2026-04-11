@@ -38,7 +38,7 @@ interface AdicionarAvaliacaoInput {
     feedback?: string;
 }
 
-export async function adicionarTema(nome: string): Promise<Tema> {
+export async function adicionarTema(nome: string, entrega?: Date): Promise<Tema> {
     const session = await auth.api.getSession({
         headers: await headers()
     })
@@ -52,6 +52,7 @@ export async function adicionarTema(nome: string): Promise<Tema> {
             data: {
                 nome,
                 professorId: session.user.id,
+                entrega: entrega,
             },
         });
         revalidatePath('/professor')
@@ -177,7 +178,7 @@ export async function listarTemasMes(month?: number, year?: number) {
     }
 }
 
-export async function EditarTema(id: number, novoNome: string): Promise<Tema> {
+export async function EditarTema(id: number, novoNome: string, entrega?: Date): Promise<Tema> {
     if (!(await verificarSessaoAdmin())) {
         throw new Error('Usuário não autorizado');
     }
@@ -188,6 +189,7 @@ export async function EditarTema(id: number, novoNome: string): Promise<Tema> {
             },
             data: {
                 nome: novoNome,
+                entrega: entrega,
             },
         });
         revalidatePath('/professor')
