@@ -50,14 +50,13 @@ export default async function ProfessorWrapper({
   const userId = session.user.id;
 
   // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
-  const [avaliacoes, mentorias, temas, alunos] = await Promise.all([
+  const [avaliacoes, mentorias, temas, alunos, criterios] = await Promise.all([
     ListarAvaliacoes(undefined, undefined, 1, 12),
     listarMentoriasMes(),
     listarTemas(),
-    listarAlunosGoogle('', 1, 12)
+    listarAlunosGoogle('', 1, 12),
+    ListarCriterios()
   ]);
-
-  const criterios = await ListarCriterios();
 
   return (
     <>

@@ -1,12 +1,9 @@
 'use client'
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import { ContextoAluno } from "./contexto-aluno";
-import { ListarAvaliacoesAlunoId, listarTemasDisponiveis } from "@/actions/avaliacao";
-import { listarMentoriasAluno } from "@/actions/mentoria";
 import { Criterio, Prisma } from "@/app/generated/prisma";
 import useWebPush from "@/hooks/useWebPush";
-import { updateTag } from "next/cache";
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
     include: {
@@ -54,39 +51,6 @@ export const ProvedorAluno = ({ children, userId, criterios }: AlunoProviderProp
     const [isLoading, setIsLoading] = useState(false);
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacoes>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
 
-
-    // Gerenciamento de Notificações
-    useEffect(() => {
-        const handleNotification = async () => {
-            if (!notificacoes?.data?.url) return;
-
-            const url = notificacoes.data.url;
-            setIsLoading(true);
-
-            try {
-                if (url === '/aluno/avaliacoes') {
-                    // reloadAvaliacoes();
-                    // const [novasAvaliacoes, novosTemas] = await Promise.all([
-                    //     ListarAvaliacoesAlunoId(userId),
-                    //     listarTemasDisponiveis(userId)
-                    // ]);
-                    // setListaAvaliacoes(novasAvaliacoes);
-                    // setListaTemas(novosTemas);
-                }
-
-                // if (url === '/aluno/mentorias') {
-                //     const novasMentorias = await listarMentoriasAluno(userId);
-                //     setListaMentorias(novasMentorias);
-                // }
-            } catch (error) {
-                console.error("Erro ao atualizar dados via notificação:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        handleNotification();
-    }, [notificacoes]);
 
     return (
         <ContextoAluno.Provider value={{

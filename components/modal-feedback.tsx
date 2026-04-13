@@ -10,13 +10,12 @@ import {
 
 import { Button } from "./ui/button";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
-import { User } from "@/app/generated/prisma";
 import { Avatar } from "./ui/avatar";
 import Image from "next/image";
 import { obterUrlImagem } from "@/lib/obter-imagem";
 import { useEffect, useState } from "react";
 
-interface ModalFeedbackMentoriaProps {
+interface ModalFeedbackProps {
     feedback: string
     professor: {
         name: string;
@@ -26,7 +25,7 @@ interface ModalFeedbackMentoriaProps {
 }
 
 
-export function ModalFeedbackMentoria({ feedback, professor }: ModalFeedbackMentoriaProps) {
+export function ModalFeedback({ feedback, professor }: ModalFeedbackProps) {
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
     useEffect(() => {

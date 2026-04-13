@@ -17,10 +17,13 @@ export async function adicionarInformacoes(nomePlataforma: string, slogan: strin
         throw new Error("Usuário não autorizado")
     }
     
+    const configuracao = await prisma.configuracao.findFirst()
+    if (!configuracao) {
+        throw new Error('Registro de configurações não encontrado')
+    }
+
     await prisma.configuracao.update({
-        where: {
-            id: 1 // Supondo que você tenha um ID único para as configurações
-        },
+        where: { id: configuracao.id },
         data: {
             nomePlataforma,
             slogan,
@@ -52,10 +55,13 @@ export async function adicionarLogo(
     }
 
     await prisma.$transaction(async (tx) => {
+        const configuracao = await tx.configuracao.findFirst()
+        if (!configuracao) {
+            throw new Error('Registro de configurações não encontrado')
+        }
+
         await tx.configuracao.update({
-            where: {
-                id: 1 // Supondo que você tenha um ID único para as configurações
-            },
+            where: { id: configuracao.id },
             data: {
                 logoAplicativo,
                 logoSistema,
@@ -63,7 +69,6 @@ export async function adicionarLogo(
             },
         })
 
-        // Apenas edita cores já existentes e já vinculadas à Configuracao(id=1)
         for (const corSistema of coresSistema ?? []) {
             if (!corSistema.id || corSistema.id <= 0) {
                 throw new Error("Para editar cores existentes, é obrigatório informar o id de CorSistema.")
@@ -71,7 +76,7 @@ export async function adicionarLogo(
             const resultado = await tx.corSistema.updateMany({
                 where: {
                     id: corSistema.id,
-                    configuracaos: { some: { id: 1 } },
+                    configuracaos: { some: { id: configuracao.id } },
                 },
                 data: {
                     cor: corSistema.cor,
@@ -81,7 +86,7 @@ export async function adicionarLogo(
 
             if (resultado.count === 0) {
                 throw new Error(
-                    `CorSistema(id=${corSistema.id}) não encontrada ou não vinculada à Configuracao(id=1)`
+                    `CorSistema(id=${corSistema.id}) não encontrada ou não vinculada à configuração ativa`
                 )
             }
         }
@@ -102,13 +107,14 @@ export async function adicionarFotoCapa(fotoCapa: string) {
         throw new Error("Usuário não autorizado")
     }
     
+    const configuracao = await prisma.configuracao.findFirst()
+    if (!configuracao) {
+        throw new Error('Registro de configurações não encontrado')
+    }
+
     await prisma.configuracao.update({
-        where: {
-            id: 1 // Supondo que você tenha um ID único para as configurações
-        },
-        data: {
-            fotoCapa
-        }
+        where: { id: configuracao.id },
+        data: { fotoCapa }
     })
     updateTag('configuracoes-app')
 
@@ -121,10 +127,7 @@ export async function obterInformacoes() {
 
     cacheTag('configuracoes-app')
 
-    const configuracao = await prisma.configuracao.findUnique({
-        where: {
-            id: 1
-        },
+    const configuracao = await prisma.configuracao.findFirst({
         include: {
             coresSistema: true,
         },

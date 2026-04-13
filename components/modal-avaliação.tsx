@@ -18,7 +18,7 @@ import { getDownloadURL, ref } from "firebase/storage"
 import { storage } from "@/lib/firebase"
 import useDownloader from "react-use-downloader";
 import { toast } from "sonner"
-import { ModalFeedbackMentoria } from "./modal-feedback-mentoria"
+import { ModalFeedback } from "./modal-feedback"
 
 type AvaliacaoProp = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -145,7 +145,7 @@ export function ModalAvaliacao({ avaliacao, criterios }: ModalAvaliacaoProps) {
 
         <Separator className="w-muted" />
         <div className="grid grid-cols-2 gap-4">
-          <ModalFeedbackMentoria feedback={avaliacao.feedback || ''} professor={avaliacao.professor!} />
+          <ModalFeedback feedback={avaliacao.feedback || ''} professor={avaliacao.professor!} />
           <Button
             onClick={() => baixarArquivo(avaliacao.correcao!, avaliacao.tema.nome)}
             size="sm"

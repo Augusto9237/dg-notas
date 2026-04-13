@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useState, useEffect } from "react";
-import { ModalFeedbackMentoria } from "./modal-feedback-mentoria";
+import { ModalFeedback } from "./modal-feedback";
 import { obterUrlImagem } from "@/lib/obter-imagem";
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
 import { authClient } from "@/lib/auth-client";
@@ -91,7 +91,7 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentori
                                 {avatarUrl ? (
                                     <Image alt={mentoria.professor?.name || '/avatar-placeholder'} src={avatarUrl} height={40} width={40} className="object-cover" />
                                 ) : (
-                                    <Skeleton className="size-full"/>
+                                    <Skeleton className="size-full" />
                                 )}
                             </Avatar>
                             <div className="space-y-1">
@@ -119,7 +119,7 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentori
 
             <CardFooter className="p-4 pt-0">
                 {mentoria.status === "REALIZADA" ? (
-                    <ModalFeedbackMentoria feedback={mentoria.feedback ?? ''} professor={mentoria.professor!} />
+                    <ModalFeedback feedback={mentoria.feedback ?? ''} professor={mentoria.professor!} />
                 ) : (
                     <div className="gap-5 overflow-hidden grid grid-cols-2 w-full">
                         <AgendarMentoriaAluno professorId={mentoria.professorId || ''} mentoriaData={mentoria} mode="edit" diasSemana={diasSemana} slotsHorario={slotsHorario} />

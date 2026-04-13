@@ -1,6 +1,6 @@
 'use client'
 
-import {  Criterio, Prisma } from "@/app/generated/prisma"
+import { Criterio, Prisma } from "@/app/generated/prisma"
 import { ReactNode, useEffect, useState } from "react"
 import { ContextoProfessor } from "./contexto-professor"
 import useWebPush from "@/hooks/useWebPush"
@@ -80,19 +80,12 @@ interface ProfessorProviderProps {
 
 export const ProvedorProfessor = ({ children, configuracoes, userId, avaliacoes, mentorias, temas, alunos, criterios }: ProfessorProviderProps) => {
     const { notificacoes } = useWebPush({ userId })
-    const [listaAvaliacoes, setListaAvaliacoes] = useState<ProfessorProviderProps['avaliacoes']>({ data: [], meta: { limit: 0, page: 0, total: 0, totalPages: 0 } });
-    const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
-    const [listaTemas, setListaTemas] = useState<ProfessorProviderProps['temas']>({ data: [], meta: { total: 0, page: 0, limit: 0, totalPages: 0 } });
-    const [listaAlunos, setListaAlunos] = useState<Aluno[]>([]);
+    const [listaAvaliacoes, setListaAvaliacoes] = useState(avaliacoes);
+    const [listaMentorias, setListaMentorias] = useState(mentorias);
+    const [listaTemas, setListaTemas] = useState(temas);
+    const [listaAlunos, setListaAlunos] = useState(alunos.data);
 
     const [carregamento, setCarregamento] = useState(false);
-
-    useEffect(() => {
-        setListaAvaliacoes(avaliacoes);
-        setListaMentorias(mentorias);
-        setListaTemas(temas);
-        setListaAlunos(alunos.data);
-    }, [avaliacoes, mentorias, temas, alunos]);
 
     useEffect(() => {
         const handleNotification = async () => {
