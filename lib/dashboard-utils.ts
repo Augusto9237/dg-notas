@@ -29,60 +29,35 @@ export function calcularMediaGeral(avaliacoes: { notaFinal: number }[]): number 
     return media;
 }
 
-export function rankearMelhoresAlunos(avaliacoes: Avaliacao[], ultimoTemaId?: number): AlunoRanking[] {
-    if (!avaliacoes || avaliacoes.length === 0 || !ultimoTemaId) return [];
+export function rankearMelhoresAlunos(avaliacoes: Avaliacao[]): AlunoRanking[] {
+    if (!avaliacoes?.length) return [];
 
-    // 1. Filtrar as avaliações para manter apenas as referentes ao último tema passado na função
-    const avaliacoesUltimoTema = avaliacoes.filter(av => av.tema?.id === ultimoTemaId);
+    // 1. Encontra o ID do tema mais recente (maior ID) de forma segura
+    const maiorTemaId = avaliacoes.reduce((max, av) => Math.max(max, av.temaId || -1), -1);
+    
+    if (maiorTemaId === -1) return [];
 
-    // 2. Pegar a última avaliação de cada aluno para este tema específico
-    const alunosMap = new Map<string, {
-        nome: string;
-        email: string;
-        image: string | null;
-        ultimaNota: number;
-        dataAvaliacao: number;
-    }>();
+    // 2. Filtra as avaliações do último tema e ordena da mais ANTIGA para a mais RECENTE
+    const avaliacoesDoUltimoTema = avaliacoes
+        .filter(av => av.temaId === maiorTemaId)
+        .sort((a, b) => (new Date(a.createdAt).getTime() || 0) - (new Date(b.createdAt).getTime() || 0));
 
-    avaliacoesUltimoTema.forEach(avaliacao => {
-        const { alunoId, notaFinal, aluno, createdAt } = avaliacao;
-        
-        // Tratamento flexível para a data (evitando erros caso Prisma envie como string)
-        const createdAtValue = createdAt;
-        const dataAv = typeof createdAtValue === 'string' || typeof createdAtValue === 'number'
-            ? new Date(createdAtValue).getTime()
-            : createdAtValue instanceof Date ? createdAtValue.getTime() : 0;
+    // 3. Mantém apenas a avaliação mais recente por aluno
+    // Como está ordenado (antiga -> recente), a última ocorrência do aluno sobrescreve as anteriores no Map
+    const avaliacoesRecentes = new Map(avaliacoesDoUltimoTema.map(av => [av.alunoId, av]));
 
-        const existente = alunosMap.get(alunoId);
-        
-        // Se o aluno ainda não está no map, ou se a avaliação atual é mais recente que a armazenada
-        if (!existente || dataAv > existente.dataAvaliacao) {
-            alunosMap.set(alunoId, {
-                nome: aluno.name,
-                email: aluno.email,
-                image: aluno.image,
-                ultimaNota: notaFinal,
-                dataAvaliacao: dataAv
-            });
-        }
-    });
-
-    // 3. Converter para array
-    const ranking = Array.from(alunosMap.entries()).map(([alunoId, dados]) => {
-        return {
-            alunoId,
-            nome: dados.nome,
-            email: dados.email || "", // Garante string vazia se for null
-            image: dados.image || null,
-            mediaFinal: Number.isFinite(dados.ultimaNota) ? dados.ultimaNota : 0, // Previne NaN ou Infinity
-            totalAvaliacoes: 1 // Como consideramos apenas a nota do último tema, o total refletido é 1
-        };
-    });
-
-    // 4. Ordenar pelas notas (decrescente) e pegar os 10 primeiros
-    return ranking
-        .sort((a, b) => b.mediaFinal - a.mediaFinal)
-        .slice(0, 10)
+    // 4. Converte, ordena pelas maiores notas e extrai o Top 10
+    return Array.from(avaliacoesRecentes.values())
+        .map(av => ({
+            alunoId: av.alunoId,
+            nome: av.aluno.name,
+            email: av.aluno.email || "",
+            image: av.aluno.image || null,
+            mediaFinal: Number.isFinite(av.notaFinal) ? av.notaFinal : 0,
+            totalAvaliacoes: 1
+        }))
+        .sort((a, b) => b.mediaFinal - a.mediaFinal) // Maior nota primeiro
+        .slice(0, 10)                                // Pega os 10 primeiros
         .map((aluno, index) => ({
             posicao: index + 1,
             ...aluno

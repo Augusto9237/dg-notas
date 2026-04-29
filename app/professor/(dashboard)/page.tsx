@@ -64,10 +64,8 @@ export default async function Page({
     ]
 
     const ultimosTemas = temasMes.slice(0, 10)
-
     // Avaliações para não chamar múltiplas vezes
     const avaliacoesIniciais = await listarAvaliacoesIniciais();
-
     return (
         <div className="w-full h-full min-h-screen relative pt-16 overflow-y-auto">
             <HeaderTeacher title={`Olá, ${session?.user.name}!`} description="Bem - vindo ao seu Painel">
@@ -81,7 +79,7 @@ export default async function Page({
 
                 <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
                     <UltimasAvaliacoes temasMes={ultimosTemas} avaliacoes={avaliacoesIniciais.data} />
-                    <TabelaTopAlunos avaliacoes={avaliacoesIniciais.data} ultimotemaId={temasMes.filter((t) => t.disponivel === true)[0]?.id} />
+                    <TabelaTopAlunos avaliacoes={avaliacoesIniciais.data} />
                 </div>
             </main >
         </div >
