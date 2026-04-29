@@ -81,7 +81,7 @@ export default async function Page({
 
                 <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
                     <UltimasAvaliacoes temasMes={ultimosTemas} avaliacoes={avaliacoesIniciais.data} />
-                    <TabelaTopAlunos avaliacoes={avaliacoesIniciais.data} ultimotemaId={temasMes[0]?.id} />
+                    <TabelaTopAlunos avaliacoes={avaliacoesIniciais.data} ultimotemaId={temasMes.filter((t) => t.disponivel === true)[0]?.id} />
                 </div>
             </main >
         </div >
