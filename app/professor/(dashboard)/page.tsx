@@ -65,6 +65,9 @@ export default async function Page({
 
     const ultimosTemas = temasMes.slice(0, 10)
 
+    // Avaliações para não chamar múltiplas vezes
+    const avaliacoesIniciais = await listarAvaliacoesIniciais();
+
     return (
         <div className="w-full h-full min-h-screen relative pt-16 overflow-y-auto">
             <HeaderTeacher title={`Olá, ${session?.user.name}!`} description="Bem - vindo ao seu Painel">
@@ -74,11 +77,11 @@ export default async function Page({
             </HeaderTeacher>
 
             <main className="flex flex-col gap-4 p-5 h-full">
-                <ListaCardsDashboard alunos={alunos.data} temas={temasMes} avaliacoes={(await listarAvaliacoesIniciais()).data} mentorias={mentorias} meses={meses} />
+                <ListaCardsDashboard alunos={alunos.data} temas={temasMes} avaliacoes={avaliacoesIniciais.data} mentorias={mentorias} meses={meses} />
 
                 <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
-                    <UltimasAvaliacoes temasMes={ultimosTemas} avaliacoes={(await listarAvaliacoesIniciais()).data} />
-                    <TabelaTopAlunos avaliacoes={(await listarAvaliacoesIniciais()).data} quantidadeTemas={temasMes.length} />
+                    <UltimasAvaliacoes temasMes={ultimosTemas} avaliacoes={avaliacoesIniciais.data} />
+                    <TabelaTopAlunos avaliacoes={avaliacoesIniciais.data} ultimotemaId={temasMes[0]?.id} />
                 </div>
             </main >
         </div >
