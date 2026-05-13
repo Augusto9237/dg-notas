@@ -4,7 +4,7 @@ import "../globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ProfessorWrapper from "./wrapper";
 import { Suspense } from "react";
-import Loading from "./(dashboard)/loading";
+import Loading from "./loading";
 import { Analytics } from "@vercel/analytics/next";
 import { obterInformacoes } from "@/actions/configuracoes";
 

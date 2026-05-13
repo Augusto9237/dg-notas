@@ -12,8 +12,9 @@ export async function listarAlunosGoogle(busca?: string, page: number = 1, limit
     if (!session) {
         throw new Error("Usuário não autenticado");
     }
-    if (session.user.role !== 'admin') {
-        throw new Error("Usuário não autorizado");
+   
+    if (session.user.role !== 'admin' && session.user.role !== 'assistente') {
+        throw new Error('Usuário não autorizado');
     }
 
     try {

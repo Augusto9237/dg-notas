@@ -15,6 +15,14 @@ export async function verificarSessaoAdmin(): Promise<boolean> {
     return !!(session?.user && session.user.role === 'admin');
 }
 
+export async function verificarSessaoProfessor(professorId: string): Promise<boolean> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    return !!(session?.user && session.user.role === 'professor' && session.user.id === professorId);
+}
+
 export async function verificarSessaoAluno(alunoId: string): Promise<boolean> {
     const session = await auth.api.getSession({
         headers: await headers()
@@ -64,8 +72,15 @@ export async function adicionarTema(nome: string, entrega?: Date): Promise<Tema>
 }
 
 export async function listarTemas(busca?: string, page: number = 1, limit: number = 12) {
-    
-    if (!(await verificarSessaoAdmin())) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) {
+        throw new Error("Usuário não autenticado")
+    }
+
+    const role = session.user.role as string;
+    if (role !== 'admin' && role !== 'assistente') {
         throw new Error('Usuário não autorizado');
     }
 
@@ -124,10 +139,77 @@ export async function listarTemas(busca?: string, page: number = 1, limit: numbe
     }
 }
 
-export async function listarTemasMes(month?: number, year?: number) {
-    if (!(await verificarSessaoAdmin())) {
-        throw new Error('Usuário não autorizado');
+export async function listarTemasProfessor(professorId: string, busca?: string, page: number = 1, limit: number = 12) {
+    if(!(await verificarSessaoProfessor(professorId))){
+         throw new Error('Usuário não autorizado');
     }
+
+    try {
+        const whereClause = {
+            professorId: professorId,
+            // Só aplica o filtro de nome se busca for fornecida e não vazia
+            ...(busca && busca.trim() !== '' && {
+                nome: {
+                    contains: busca.trim(),
+                    mode: 'insensitive' as const,
+                },
+            }),
+        };
+
+        const [temas, total] = await Promise.all([
+            prisma.tema.findMany({
+                where: whereClause,
+                orderBy: {
+                    createdAt: 'desc',
+                },
+                include: {
+                    Avaliacao: true,
+                    _count: {
+                        select: {
+                            Avaliacao: {
+                                where: { 
+                                    status: { 
+                                        in: ['ENVIADA', 'CORRIGIDA'] 
+                                    }
+                                },
+                            }
+                        }
+                    }
+                    },
+                take: limit,
+                skip: (page - 1) * limit,
+            }),
+            prisma.tema.count({
+                where: whereClause,
+            })
+        ]);
+
+        return {
+            data: temas,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            }
+        };
+    } catch (error) {
+        console.error("Erro ao listar temas:", error);
+        throw error;
+    }
+}
+
+export async function listarTemasMes(month?: number, year?: number, professorId?: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) {
+        throw new Error("Usuário não autenticado")
+    }
+    if(session.user.role !== 'assistente' && session.user.role !== 'professor' && session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado')
+    }
+    
     try {
         const now = new Date();
 
@@ -159,6 +241,7 @@ export async function listarTemasMes(month?: number, year?: number) {
                 gte: startDate,
                 lt: endDate,
             },
+            ...(professorId && { professorId }),
         };
 
         const temas = await prisma.tema.findMany({
@@ -168,6 +251,7 @@ export async function listarTemasMes(month?: number, year?: number) {
             },
             include: {
                 professor: true,
+                Avaliacao: true,
             }, // Limita o retorno a apenas 10 registros
         });
 
@@ -658,9 +742,18 @@ export async function DeletarAvaliacao(id: number) {
 }
 
 export async function ListarAvaliacoes(month?: number, year?: number, page: number = 1, limit: number = 10) {
-    if (!(await verificarSessaoAdmin())) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) {
+        throw new Error("Usuário não autenticado")
+    }
+
+    const role = session.user.role as string;
+    if (role !== 'admin' && role !== 'assistente') {
         throw new Error('Usuário não autorizado');
     }
+
     const now = new Date();
 
     // Se month e year forem undefined, retorna mês e ano atual

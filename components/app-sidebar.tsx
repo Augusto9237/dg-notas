@@ -16,6 +16,7 @@ import { MdOutlineDashboardCustomize } from "react-icons/md";
 import { useTheme } from "next-themes"
 import { ThemeSwitcher } from "./kibo-ui/theme-switcher"
 import Image from "next/image"
+import { PiChalkboardTeacherFill, PiStudentFill } from "react-icons/pi"
 
 export function AppSidebar({ logo }: { logo: string }) {
   const path = usePathname()
@@ -24,7 +25,7 @@ export function AppSidebar({ logo }: { logo: string }) {
   return (
     <Sidebar className="bg-primary border-none">
       <SidebarHeader className="max-h-16">
-        <Link href="/professor" className="w-full">
+        <Link href="/admin" className="w-full">
           <Image
             src={logo}
             alt="Logo"
@@ -39,10 +40,10 @@ export function AppSidebar({ logo }: { logo: string }) {
         <SidebarMenuButton
           asChild
           className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
-          isActive={path === '/professor' ? true : false}
+          isActive={path === '/admin' ? true : false}
         >
 
-          <Link href="/professor" className="flex gap-2 items-center">
+          <Link href="/admin" className="flex gap-2 items-center">
             <MdOutlineDashboardCustomize />
             Início
           </Link>
@@ -51,10 +52,10 @@ export function AppSidebar({ logo }: { logo: string }) {
         <SidebarMenuButton
           asChild
           className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
-          isActive={path === '/professor/alunos' ? true : false}
+          isActive={path === '/admin/alunos'}
         >
-          <Link href="/professor/alunos" className="flex gap-2 items-center">
-            <Users />
+          <Link href="/admin/alunos" className="flex gap-2 items-center">
+            <PiStudentFill />
             Alunos
           </Link>
         </SidebarMenuButton>
@@ -62,9 +63,9 @@ export function AppSidebar({ logo }: { logo: string }) {
         <SidebarMenuButton
           asChild
           className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
-          isActive={path === '/professor/aulas' ? true : false}
+          isActive={path === '/admin/aulas'}
         >
-          <Link href="/professor/aulas" className="flex gap-2 items-center">
+          <Link href="/admin/aulas" className="flex gap-2 items-center">
             <MonitorPlay />
             Aulas
           </Link>
@@ -73,9 +74,9 @@ export function AppSidebar({ logo }: { logo: string }) {
         <SidebarMenuButton
           asChild
           className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
-          isActive={path === '/professor/avaliacoes' ? true : false}
+          isActive={path === '/admin/avaliacoes'}
         >
-          <Link href="/professor/avaliacoes" className="flex gap-2 items-center">
+          <Link href="/admin/avaliacoes" className="flex gap-2 items-center">
             <FileChartLine />
             Avaliações
           </Link>
@@ -84,9 +85,20 @@ export function AppSidebar({ logo }: { logo: string }) {
         <SidebarMenuButton
           asChild
           className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
-          isActive={path === '/professor/mentorias' ? true : false}
+          isActive={path === '/admin/usuarios'}
         >
-          <Link href="/professor/mentorias " className="flex gap-2 items-center">
+          <Link href="/admin/usuarios" className="flex gap-2 items-center">
+            <Users />
+            Usuários
+          </Link>
+        </SidebarMenuButton>
+
+        <SidebarMenuButton
+          asChild
+          className="text-base text-muted dark:text-foreground hover:text-muted font-semibold hover:bg-background/5"
+          isActive={path === '/admin/mentorias'}
+        >
+          <Link href="/admin/mentorias " className="flex gap-2 items-center">
             <RiUserStarLine />
             Mentorias
           </Link>
@@ -96,7 +108,7 @@ export function AppSidebar({ logo }: { logo: string }) {
         <div className="w-full items-center text-center justify-center pb-2 max-[1025px]:hidden">
           <ThemeSwitcher className="w-20 mx-auto" defaultValue="system" onChange={setTheme} value={(theme as "light" | "dark" | "system" | undefined)} />
         </div>
-        <NavUsuario />
+        <NavUsuario role="admin" />
       </SidebarFooter>
     </Sidebar>
   )

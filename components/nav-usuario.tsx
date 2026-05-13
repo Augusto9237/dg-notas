@@ -23,8 +23,12 @@ import { useEffect, useState } from "react"
 import { obterUrlImagem } from "@/lib/obter-imagem";
 import Image from "next/image"
 
+interface NavUsuarioProps {
+    role: 'admin' | 'professor' | 'assistente'
+}
 
-export function NavUsuario() {
+
+export function NavUsuario({ role }: NavUsuarioProps) {
     const [isClient, setIsClient] = useState(false)
     const { data: session, isPending } = authClient.useSession();
     const [avatarImagem, setAvatarImagem] = useState<string | null>(null);
@@ -82,7 +86,9 @@ export function NavUsuario() {
 
                     <div className="grid flex-1 text-left text-sm dark:text-foreground leading-tight gap-1">
                         <span className="truncate font-semibold">{session?.user.name}</span>
-                        <span className="truncate text-xs text-muted dark:text-accent-foreground">Administrador(a)</span>
+                        <span className="truncate text-xs text-muted dark:text-accent-foreground">
+                            {role === 'admin' ? 'Administrador(a)' : role === 'professor' ? 'Professor(a)' : 'Assistente'}
+                        </span>
                     </div>
                     <ChevronDown className="ml-auto size-4 dark:stroke-accent-foreground" />
                 </div>
@@ -92,12 +98,14 @@ export function NavUsuario() {
                 align="start"
                 sideOffset={4}
             >
-                <DropdownMenuItem onClick={() => router.push("/professor/configuracoes")} className="text-primary dark:text-foreground hover:text-primary">
-                    <Settings className="stroke-primary dark:stroke-foreground" />
-                    Configurações
-                </DropdownMenuItem>
+                {role === 'admin' && (
+                    <DropdownMenuItem onClick={() => router.push("/admin/configuracoes")} className="text-primary dark:text-foreground hover:text-primary">
+                        <Settings className="stroke-primary dark:stroke-foreground" />
+                        Configurações
+                    </DropdownMenuItem>
+                )}
 
-                <DropdownMenuItem onClick={() => router.push("/professor/conta")} className="text-primary dark:text-foreground hover:text-primary">
+                <DropdownMenuItem onClick={() => router.push(`/${role}/conta`)} className="text-primary dark:text-foreground hover:text-primary">
                     <UserCog className="stroke-primary dark:stroke-foreground" />
                     Sua conta
                 </DropdownMenuItem>

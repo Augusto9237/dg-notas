@@ -8,16 +8,16 @@ import { ChevronRight } from "lucide-react";
 
 type TemasMes = Prisma.TemaGetPayload<{
     include: {
-        professor: true,
+        Avaliacao: true
     }
 }>
 
-export function UltimasAvaliacoes({ temasMes, avaliacoes }: { temasMes: TemasMes[]; avaliacoes: Avaliacao[] }) {
+export function UltimasAvaliacoes({ temasMes }: { temasMes: TemasMes[] }) {
     return (
         <Card className="gap-5 p-5 h-full w-full overflow-hidden">
             <CardHeader className="p-0 flex justify-between items-start">
                 <CardTitle>Últimas Avaliações</CardTitle>
-                <Link href="/professor/avaliacoes" className='flex  items-center text-sm text-primary '>
+                <Link href="/admin/avaliacoes" className='flex  items-center text-sm text-primary '>
                     <p className='leading-relaxed max-sm:hidden'>Ver todas</p>
                     <p className='sm:hidden leading-none'>Todas</p>
                     <ChevronRight className="max-sm:size-[16px] size-[20px]" />
@@ -46,9 +46,9 @@ export function UltimasAvaliacoes({ temasMes, avaliacoes }: { temasMes: TemasMes
                                     <TableCell className="w-[120px]">{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
                                     <TableCell className="w-[100px] text-center">
                                         <Badge
-                                            variant={avaliacoes.filter((avaliacao) => avaliacao.temaId === tema.id && avaliacao.resposta.length > 0).length > 0 ? 'default' : 'outline'}
+                                            variant={tema.Avaliacao.filter(avaliacao => avaliacao.resposta.length > 0).length > 0 ? 'default' : 'outline'}
                                         >
-                                            {avaliacoes.filter((avaliacao) => avaliacao.temaId === tema.id && avaliacao.resposta.length > 0).length}
+                                            {tema.Avaliacao.filter(avaliacao => avaliacao.resposta.length > 0).length}
                                         </Badge>
                                     </TableCell>
                                 </TableRow>

@@ -60,6 +60,133 @@ export async function obterProfessor() {
     return dadosProfessor()
 }
 
+export async function listarUsuarios(busca?: string, page: number = 1, limit: number = 12) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session || session.user.role !== 'admin') {
+        throw new Error("Usuário não autorizado")
+    }
+    
+    try {
+        const skip = (page - 1) * limit;
+        const whereClause = {
+            role: {
+                in: ['assistente', 'professor']
+            },
+            ...(busca && busca.trim() !== '' && {
+                email: {
+                    contains: busca.trim(),
+                    mode: 'insensitive' as const,
+                },
+            }),
+        };
+
+        const [usuarios, total] = await prisma.$transaction([
+            prisma.user.findMany({
+                where: whereClause,
+                take: limit,
+                skip: skip,
+                orderBy: {
+                    name: 'asc'
+                }
+            }),
+            prisma.user.count({
+                where: whereClause,
+            })
+        ]);
+
+        return {
+            data: usuarios,
+            total,
+            pagina: page,
+            limite: limit,
+            totalPaginas: Math.ceil(total / limit)
+        };
+    } catch (error) {
+        console.error("Erro ao listar professores:", error);
+        throw error;
+    }
+}
+
+export async function removerUsuario(idUsuario: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session || session.user.role !== 'admin') {
+        throw new Error("Usuário não autorizado")
+    }
+    try {
+        // Usa a API do admin ou prisma para deletar/banir
+        await prisma.user.delete({
+            where: { id: idUsuario }
+        });
+        revalidatePath('/admin/usuarios')
+        return { success: true, message: 'Usuário removido com sucesso' }
+    } catch (error) {
+        console.error("Erro ao remover usuário", error)
+        throw error
+    }
+}
+
+export async function listarProfessores(busca?: string, page: number = 1, limit: number = 12) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) {
+        throw new Error("Usuário não autorizado")
+    }
+    
+    try {
+        const skip = (page - 1) * limit;
+        const whereClause = {
+            role: {
+                in: ['admin', 'professor']
+            },
+            ...(busca && busca.trim() !== '' && {
+                name: {
+                    contains: busca.trim(),
+                    mode: 'insensitive' as const,
+                },
+            }),
+        };
+
+        const [professores, total] = await prisma.$transaction([
+            prisma.user.findMany({
+                where: whereClause,
+                take: limit,
+                skip: skip,
+                orderBy: {
+                    name: 'asc'
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    image: true,
+                    telefone: true,
+                    especialidade: true,
+                    bio: true
+                }
+            }),
+            prisma.user.count({
+                where: whereClause,
+            })
+        ]);
+
+        return {
+            data: professores,
+            total,
+            pagina: page,
+            limite: limit,
+            totalPaginas: Math.ceil(total / limit)
+        };
+    } catch (error) {
+        console.error("Erro ao listar professores:", error);
+        throw error;
+    }
+}
+
 export async function obterProfessorPorId(userId: string) {
   const session = await auth.api.getSession({
         headers: await headers()

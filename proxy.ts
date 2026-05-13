@@ -19,7 +19,9 @@ export async function proxy(request: NextRequest) {
 export const config = {
     matcher: [
         '/aluno/:path*',
-        '/professor/:path*'
+        '/professor/:path*',
+        '/assistente/:path*',
+        '/admin/:path*'
     ]
 }
 

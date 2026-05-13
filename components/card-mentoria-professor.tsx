@@ -18,7 +18,7 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 
 interface CardMentoriaAlunoProps {
     mentoria: Mentoria;
-    onclick: () => void;
+    onclick?: () => void;
 }
 
 const STATUS_VARIANTES = {

@@ -1,9 +1,9 @@
 import { Suspense } from "react";
-import Loading from "../(dashboard)/loading";
 import { FormularioVideoaula } from "@/components/formulario-videoaula";
 import { listarVideoaulas } from "@/actions/videoaulas";
 import { TabelaVideoaulas } from "@/components/tabela-videoaulas";
 import { HeaderTeacher } from "@/components/header-professor";
+import Loading from "../loading";
 
 export default async function Page() {
   const videoaulas = await listarVideoaulas()

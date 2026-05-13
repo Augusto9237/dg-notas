@@ -5,20 +5,20 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 import { InicializarNotificacoes } from "@/components/inicializar-notificacoes";
 import { ProvedorProfessor } from "@/context/provider-professor";
-import { ListarAvaliacoes, listarTemasMes, listarTemas, ListarCriterios } from "@/actions/avaliacao";
-import { listarMentoriasMes } from "@/actions/mentoria";
+import { ListarAvaliacoes, listarTemasMes, listarTemas, ListarCriterios, listarTemasProfessor } from "@/actions/avaliacao";
+import { listarMentoriasMes, listarMentoriasProfessor } from "@/actions/mentoria";
 import { listarAlunosGoogle } from "@/actions/alunos";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { ProvedorTemas } from "@/context/provedor-temas";
 import { Prisma } from "../generated/prisma";
+import { AppSidebarProfessor } from "@/components/app-sidebar-professor";
 
 type ConfiguracaoComCores = Prisma.ConfiguracaoGetPayload<{
   include: { coresSistema: true };
@@ -40,7 +40,7 @@ export default async function ProfessorWrapper({
     redirect('/')
   }
 
-  if (session.user.role !== 'admin') {
+  if (session.user.role !== 'professor') {
     await auth.api.signOut({
       headers: await headers()
     })
@@ -50,11 +50,9 @@ export default async function ProfessorWrapper({
   const userId = session.user.id;
 
   // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
-  const [avaliacoes, mentorias, temas, alunos, criterios] = await Promise.all([
-    ListarAvaliacoes(undefined, undefined, 1, 12),
-    listarMentoriasMes(),
-    listarTemas(),
-    listarAlunosGoogle('', 1, 12),
+  const [mentorias, temas, criterios] = await Promise.all([
+    listarMentoriasProfessor(userId),
+    listarTemasProfessor(userId),
     ListarCriterios()
   ]);
 
@@ -69,9 +67,9 @@ export default async function ProfessorWrapper({
         <InstalarIos />
         <PwaInstallPrompt />
         <InicializarNotificacoes userId={userId} />
-        <ProvedorProfessor configuracoes={configuracoes} userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas} alunos={alunos} criterios={criterios}>
+        <ProvedorProfessor configuracoes={configuracoes} userId={userId} mentorias={mentorias} temas={temas} criterios={criterios}>
           <SidebarProvider>
-            <AppSidebar logo={configuracoes.logoSistema} />
+            <AppSidebarProfessor logo={configuracoes.logoSistema} />
             <SidebarInset className="relative">
               {children}
             </SidebarInset>

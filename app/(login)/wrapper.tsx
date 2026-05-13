@@ -20,6 +20,8 @@ export default async function LoginWrapper({ children, configuracoes }: RootLayo
 
     if (session?.user) {
         if (session.user.role === 'admin') {
+            redirect('/admin')
+        } else if (session.user.role === 'professor') {
             redirect('/professor')
         } else {
             redirect('/aluno')

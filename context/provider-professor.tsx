@@ -34,7 +34,6 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 
 type Tema = Prisma.TemaGetPayload<{
     include: {
-        professor: true
         Avaliacao: true
     }
 }>
@@ -49,15 +48,6 @@ interface ProfessorProviderProps {
     children: ReactNode
     configuracoes: Configuracao
     userId: string
-    avaliacoes: {
-        data: AvaliacaoTema[]
-        meta: {
-            limit: number;
-            page: number;
-            total: number;
-            totalPages: number;
-        }
-    }
     mentorias: Mentoria[]
     temas: {
         data: Tema[]
@@ -69,21 +59,12 @@ interface ProfessorProviderProps {
         };
     }
     criterios: Criterio[];
-    alunos: {
-        data: Aluno[]
-        total: number
-        pagina: number
-        limite: number
-        totalPaginas: number
-    }
 }
 
-export const ProvedorProfessor = ({ children, configuracoes, userId, avaliacoes, mentorias, temas, alunos, criterios }: ProfessorProviderProps) => {
+export const ProvedorProfessor = ({ children, configuracoes, userId, mentorias, temas, criterios }: ProfessorProviderProps) => {
     const { notificacoes } = useWebPush({ userId })
-    const [listaAvaliacoes, setListaAvaliacoes] = useState(avaliacoes);
     const [listaMentorias, setListaMentorias] = useState(mentorias);
     const [listaTemas, setListaTemas] = useState(temas);
-    const [listaAlunos, setListaAlunos] = useState(alunos.data);
 
     const [carregamento, setCarregamento] = useState(false);
 
@@ -98,7 +79,6 @@ export const ProvedorProfessor = ({ children, configuracoes, userId, avaliacoes,
                 if (url === '/professor/avaliacoes') {
                     const novasAvaliacoes = await ListarAvaliacoes(undefined, undefined, 1, 10);
                     const novosTemas = await listarTemas()
-                    setListaAvaliacoes(novasAvaliacoes);
                     setListaTemas(novosTemas)
 
                 }
@@ -121,13 +101,8 @@ export const ProvedorProfessor = ({ children, configuracoes, userId, avaliacoes,
         <ContextoProfessor.Provider value={{
             configuracoes,
             userId,
-            listaAvaliacoes,
             listaMentorias,
             listaTemas,
-            listaAlunos,
-            totalPaginas: alunos.totalPaginas,
-            pagina: alunos.pagina,
-            limite: alunos.limite,
             notificacoes,
             listaCriterios: criterios
         }}>

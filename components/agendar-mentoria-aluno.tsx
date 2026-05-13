@@ -16,6 +16,14 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -32,8 +40,11 @@ import { format } from "date-fns"
 import { CalendarioAgendarMentoria } from "./calendario-agendar-mentoria"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion"
 import { Skeleton } from "./ui/skeleton"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { listarProfessores } from "@/actions/admin"
 
 const formSchema = z.object({
+    professorId: z.string(),
     data: z.date({
         message: "Data é obrigatória",
     }),
@@ -55,6 +66,12 @@ interface AgendarMentoriaAlunoProps {
     diasSemana: DiaSemana[]
     slotsHorario: SlotHorario[]
     professorId: string;
+    professores?: {
+        name: string;
+        id: string;
+        especialidade: string | null;
+        image: string | null;
+    }[];
     mode?: 'create' | 'edit';
     usuario?: 'professor' | 'aluno';
     mentoriaData?: Mentoria;
@@ -85,11 +102,22 @@ export function AgendarMentoriaAluno({
 }: AgendarMentoriaAlunoProps) {
     const [open, setOpen] = useState(false)
     const [vagas, setVagas] = useState<Record<string, number>>({});
+    const [professores, setProfessores] = useState<AgendarMentoriaAlunoProps['professores']>([])
     const [accordionValue, setAccordionValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isCheckingVagas, setIsCheckingVagas] = useState(false);
     const { data: session } = authClient.useSession();
     const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        const buscarProfessores = async () => {
+            setIsLoading(true)
+            const data = await listarProfessores()
+            setProfessores(data.data)
+            setIsLoading(false)
+        }
+        buscarProfessores()
+    }, [])
 
     // Memoizar a data inicial para evitar recálculos
     const initialDate = useMemo(() => {
@@ -105,6 +133,7 @@ export function AgendarMentoriaAluno({
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            professorId: professorId || '',
             horario: mode === 'edit' && mentoriaData
                 ? String(mentoriaData.horario.slotId)
                 : '',
@@ -119,16 +148,18 @@ export function AgendarMentoriaAluno({
             const dataCorrigida = convertUTCToLocalDate(mentoriaData.horario.data);
 
             form.reset({
+                professorId: mentoriaData.professorId || professorId || '',
                 horario: String(mentoriaData.horario.slotId),
                 data: dataCorrigida
             });
         } else if (mode === 'create') {
             form.reset({
+                professorId: professorId || '',
                 horario: '',
                 data: undefined,
             });
         }
-    }, [mode, mentoriaData, form, initialDate]);
+    }, [mode, mentoriaData, form, initialDate, professorId]);
 
     const watchedData = form.watch('data');
 
@@ -180,9 +211,7 @@ export function AgendarMentoriaAluno({
             setIsCheckingVagas(false);
             return;
         }
-
         setIsCheckingVagas(true);
-
         // Debounce de 300ms para evitar chamadas excessivas
         debounceTimerRef.current = setTimeout(() => {
             verificarVagas(watchedData);
@@ -218,7 +247,7 @@ export function AgendarMentoriaAluno({
 
     // Memoizar função de submit
     const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
-        if (!professorId || !session?.user.id) return
+        if (!values.professorId || !session?.user.id) return
 
         if (mode === 'edit' && mentoriaData) {
             const response = await editarMentoria({
@@ -233,7 +262,7 @@ export function AgendarMentoriaAluno({
                 return;
             } else if (response.success === true) {
                 toast.success(response.message);
-                await enviarNotificacaoParaUsuario(usuario === 'aluno' ? professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria reagendada', `${session?.user.name} reagendou uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
+                await enviarNotificacaoParaUsuario(usuario === 'aluno' ? values.professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria reagendada', `${session?.user.name} reagendou uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
                 form.reset();
                 setOpen(false);
                 setIsOpen?.(false)
@@ -242,7 +271,7 @@ export function AgendarMentoriaAluno({
         } else {
             const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === values.data.getDay())?.id || 0;
             const response = await adicionarMentoria({
-                professorId,
+                professorId: values.professorId,
                 alunoId: session.user.id,
                 data: values.data,
                 slotId: Number(values.horario),
@@ -253,14 +282,14 @@ export function AgendarMentoriaAluno({
                 return;
             } else if (response.success === true) {
                 toast.success(response.message);
-                await enviarNotificacaoParaUsuario(usuario === 'aluno' ? professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria agendada', `${session?.user.name} agendou uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
+                await enviarNotificacaoParaUsuario(usuario === 'aluno' ? values.professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria agendada', `${session?.user.name} agendou uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
                 form.reset();
                 setOpen(false);
                 setIsOpen?.(false)
                 return;
             }
         }
-        await enviarNotificacaoParaUsuario(usuario === 'aluno' ? professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria agendada', `${session?.user.name} ${mode === 'edit' ? 'reagendou' : 'agendou'} uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
+        await enviarNotificacaoParaUsuario(usuario === 'aluno' ? values.professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria agendada', `${session?.user.name} ${mode === 'edit' ? 'reagendou' : 'agendou'} uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
     }, [mode, mentoriaData, session?.user.id, session?.user.name, diasSemana, form, setIsOpen, professorId, slotsHorario, usuario]);
 
     return (
@@ -287,13 +316,49 @@ export function AgendarMentoriaAluno({
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <FormField
                             control={form.control}
+                            name="professorId"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Professor(a)</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                                        <SelectTrigger className="w-full py-3 data-[size=default]:h-12.5">
+                                            <SelectValue placeholder="Selecione um professor" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                {isLoading ?
+                                                    <Skeleton className="h-12.5 w-full" />
+                                                    : professores?.map((professor) => (
+                                                        <SelectItem key={professor.id} value={professor.id}>
+                                                            <div className="flex items-center gap-2">
+                                                                <Avatar>
+                                                                    <AvatarImage src={professor.image ?? ''} />
+                                                                    <AvatarFallback>{professor.name.charAt(0)}</AvatarFallback>
+                                                                </Avatar>
+                                                                <div className="flex flex-col text-xs">
+                                                                    {professor.name}
+                                                                    <span className="text-xs text-muted-foreground">{professor.especialidade}</span>
+                                                                </div>
+                                                            </div>
+                                                        </SelectItem>
+                                                    ))}
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
                             name="data"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
                                     <FormLabel>Data</FormLabel>
                                     <CalendarioAgendarMentoria
-                                        primeiroDiaSemana={diasSemana[0].dia}
-                                        segundoDiaSemana={diasSemana[1].dia}
+                                        primeiroDiaSemana={diasSemana[0]?.dia ?? 0}
+                                        segundoDiaSemana={diasSemana[1]?.dia ?? 0}
                                         selecionado={field.value}
                                         aoSelecionar={field.onChange}
                                     />

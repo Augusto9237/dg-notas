@@ -14,6 +14,7 @@ import { ListarAvaliacoes } from '@/actions/avaliacao';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Skeleton } from './ui/skeleton';
+import { ContextoAdmin } from '@/context/contexto-admin';
 
 const TabelaTopAlunosSkeleton = () => {
   return (
@@ -53,8 +54,8 @@ interface TabelaAlunosProps {
   avaliacoes: Avaliacao[]
 }
 
-export function TabelaTopAlunos({ avaliacoes}: TabelaAlunosProps) {
-  const { notificacoes } = useContext(ContextoProfessor)
+export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
+  const { notificacoes } = useContext(ContextoAdmin)
   const [alunos, setAlunos] = useState<AlunoRanking[]>([])
   const [isLoading, setIsLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -63,7 +64,7 @@ export function TabelaTopAlunos({ avaliacoes}: TabelaAlunosProps) {
   const mes = params.get('mes');
   const ano = params.get('ano')
 
- 
+
   useEffect(() => {
     const top10 = rankearMelhoresAlunos(avaliacoes);
     setAlunos(top10)

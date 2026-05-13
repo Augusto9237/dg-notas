@@ -13,6 +13,7 @@ import { RiUserStarLine } from "react-icons/ri";
 import { FaChartLine } from "react-icons/fa";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { CardDashboard, CardSkeleton } from "./card-dashboard";
+import { ContextoAdmin } from "@/context/contexto-admin";
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
     include: {
@@ -54,7 +55,7 @@ interface ListaCardsDashboardProps {
 }
 
 export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, meses }: ListaCardsDashboardProps) {
-    const { notificacoes } = useContext(ContextoProfessor);
+    const { notificacoes } = useContext(ContextoAdmin);
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
     const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
     const [listaTemas, setListaTemas] = useState<Tema[]>([]);
@@ -116,28 +117,28 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
                 <CardDashboard
                     description="Média Geral"
                     value={mediaGeral.toFixed(2).replace('.', ',')}
-                    icon={<FaChartLine className="size-5"/>}
+                    icon={<FaChartLine className="size-5" />}
                     footerText={`Média geral de ${meses[Number(mes) - 1]}`}
                 />
 
                 <CardDashboard
                     description="Alunos"
                     value={listaAlunos.length}
-                    icon={<Users className="size-5"/>}
+                    icon={<Users className="size-5" />}
                     footerText={`Matriculados`}
                 />
 
                 <CardDashboard
                     description="Temas"
                     value={listaTemas.length}
-                    icon={<FileType className="size-5"/>}
+                    icon={<FileType className="size-5" />}
                     footerText={mes && ano ? `Temas de ${meses[Number(mes) - 1]}` : 'Temas do mês atual'}
                 />
 
                 <CardDashboard
                     description="Mentorias"
                     value={listaMentorias.length}
-                    icon={<RiUserStarLine className="size-5"/>}
+                    icon={<RiUserStarLine className="size-5" />}
                     footerText={mes && ano ? `Mentorias de ${meses[Number(mes) - 1]}` : 'Mentorias do mês atual'}
                 />
             </div>

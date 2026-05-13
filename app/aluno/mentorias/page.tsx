@@ -3,7 +3,7 @@ import { AgendarMentoriaAluno } from "@/components/agendar-mentoria-aluno"
 import { listarDiasSemana, listarMentoriasAluno, listarSlotsHorario } from "@/actions/mentoria"
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers"
-import { obterProfessor } from "@/actions/admin";
+import { listarProfessores, obterProfessor } from "@/actions/admin";
 import { TabelaMentoriasAluno } from "@/components/tabela-mentorias-aluno";
 import { Suspense } from "react";
 import Loading from "./loading";

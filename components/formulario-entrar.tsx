@@ -1,9 +1,8 @@
 'use client'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { FcGoogle } from "react-icons/fc";
-import { PiStudentFill, PiChalkboardTeacherFill } from "react-icons/pi";
+import { PiStudentFill } from "react-icons/pi";
 
 import {
   Card,
@@ -34,7 +33,7 @@ import { signInSchema, type SignInFormData } from "@/lib/validations/auth"
 import { authClient } from "@/lib/auth-client"
 import Link from "next/link"
 import { useState } from "react";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, UserLock } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -63,7 +62,7 @@ export function FormularioEntrar() {
       await authClient.signIn.email({
         email: data.email,
         password: data.password,
-        callbackURL: "/professor",
+        callbackURL: '/admin',
         fetchOptions: {
           onResponse: () => {
             form.setValue("password", "")
@@ -74,7 +73,7 @@ export function FormularioEntrar() {
           },
           onSuccess: async () => {
             toast.success("Autenticação efetuada com sucesso!")
-            router.push("/professor")
+            router.push("/admin")
           }
         },
       })
@@ -92,8 +91,8 @@ export function FormularioEntrar() {
           Aluno(a)
         </TabsTrigger>
         <TabsTrigger value="professor" className="text-card/50 data-[state=active]:text-card">
-          <PiChalkboardTeacherFill />
-          Professor(a)
+          <UserLock />
+          Colaborador(a)
         </TabsTrigger>
       </TabsList>
 
@@ -123,9 +122,9 @@ export function FormularioEntrar() {
       <TabsContent value="professor">
         <Card className="h-[346px] bg-primary border-none shadow-none gap-5">
           <CardHeader className="justify-center text-center">
-            <CardTitle className="text-background">Professor(a)</CardTitle>
+            <CardTitle className="text-background">Colaborador(a)</CardTitle>
             <CardDescription className="text-background/50">
-              Entre na sua conta de professor
+              Entre na sua conta de Colaborador(a)
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5">

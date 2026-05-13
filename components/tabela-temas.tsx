@@ -18,7 +18,7 @@ import { InputBusca } from "./input-busca"
 import { Button } from "./ui/button"
 import { Switch } from "./ui/switch"
 import { enviarNotificacaoParaTodos } from "@/actions/notificacoes"
-import { ContextoProfessor } from "@/context/contexto-professor"
+import { ContextoAdmin } from "@/context/contexto-admin"
 import {
   Pagination,
   PaginationContent,
@@ -38,7 +38,7 @@ type Tema = Prisma.TemaGetPayload<{
 }>
 
 export function TabelaTemas() {
-  const { listaTemas } = useContext(ContextoProfessor)
+  const { listaTemas } = useContext(ContextoAdmin)
   const [temas, setTemas] = useState<Tema[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);

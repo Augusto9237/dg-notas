@@ -21,6 +21,13 @@ export const signUpSchema = z.object({
   confirmPassword: z
     .string()
     .min(1, "Confirmação de senha é obrigatória"),
+
+  role: z
+    .string()
+    .default("user")
+    .optional()
+,
+
   image: z
     .instanceof(File)
     .optional()

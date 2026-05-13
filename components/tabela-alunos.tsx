@@ -35,6 +35,7 @@ import { Switch } from './ui/switch';
 import { enviarNotificacaoParaUsuario } from '@/actions/notificacoes';
 import Image from 'next/image';
 import { Skeleton } from './ui/skeleton';
+import { ContextoAdmin } from '@/context/contexto-admin';
 
 type Aluno = Prisma.UserGetPayload<{
   include: {
@@ -43,7 +44,7 @@ type Aluno = Prisma.UserGetPayload<{
 }>
 
 export function TabelaAlunos() {
-  const { listaAlunos, totalPaginas, limite } = useContext(ContextoProfessor)
+  const { listaAlunos, totalPaginas, limite } = useContext(ContextoAdmin)
   const [isPending, startTransition] = useTransition()
   const [alunos, setAlunos] = useState<Aluno[]>(listaAlunos || [])
   const searchParams = useSearchParams()

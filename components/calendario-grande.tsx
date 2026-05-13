@@ -30,6 +30,8 @@ import { ModalMentoriaProfessor } from "./modal-mentoria-professor"
 import { TbClockCheck } from "react-icons/tb"
 import { RiUserStarLine } from "react-icons/ri"
 import { ContextoProfessor } from "@/context/contexto-professor"
+import { ContextoAdmin } from "@/context/contexto-admin"
+import { ContextoAssistente } from "@/context/contexto-assistente"
 
 // Types
 type Mentoria = Prisma.MentoriaGetPayload<{
@@ -138,7 +140,7 @@ const CelulaHorario = React.memo(
         ) : (
           <>
             {mentoriasDoSlot.map((mentoria) => (
-              <ModalMentoriaProfessor key={mentoria.id} mentoria={mentoria} setListaMentorias={setListaMentorias} diasSemana={diasSemana} slotsHorario={slotsHorario} />
+              <ModalMentoriaProfessor key={mentoria.id} mentoria={mentoria} diasSemana={diasSemana} slotsHorario={slotsHorario} />
             ))}
             {Array.from({ length: 4 - mentoriasDoSlot.length }).map((_, index) => (
               <div key={index} className="flex items-center justify-center text-muted-foreground text-xs max-sm:h-9 sm:min-h-[50px] md:min-h-[60px] h-full bg-background/30 rounded-lg">
@@ -158,7 +160,10 @@ export function CalendarioGrande({
   diasSemana,
   slotsHorario
 }: CalendarioGrandeProps) {
-  const { listaMentorias: mentorias } = useContext(ContextoProfessor)
+  const contextoProfessor = useContext(ContextoProfessor)
+  const contextoAdmin = useContext(ContextoAdmin)
+  const contextoAssistente = useContext(ContextoAssistente)
+  const mentorias = contextoProfessor?.listaMentorias || contextoAdmin?.listaMentorias || contextoAssistente?.listaMentorias || []
   const [statusSelecionado, setStatusSelecionado] = useState<string>("TODAS")
   const [semanaAtual, setSemanaAtual] = useState(obterInicioSemanaAtual)
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([])

@@ -170,7 +170,7 @@ export default function InputFotoPerfil({
                         aria-label="Selecionar foto de perfil"
                     />
                     <div className="relative group w-full">
-                        <Avatar className="size-full max-md:size-52 min-size-full min-h-full border-4 border-primary shadow-lg">
+                        <Avatar className="size-full max-md:size-52 min-size-52 border-4 border-primary shadow-lg">
                             <AvatarImage
                                 src={urlImagemExibida || '/avatar-placeholder.png'}
                                 alt={nomeProfessor || "Avatar"}

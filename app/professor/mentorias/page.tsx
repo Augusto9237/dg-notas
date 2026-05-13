@@ -18,7 +18,7 @@ export default async function Page() {
         <Suspense fallback={<Loading />}>
             <div className="w-full h-full min-h-screen max-h-screen relative pt-16 overflow-hidden">
                 <HeaderTeacher title="Mentorias" description="Lista de mentorias">
-                        <AjustarAgenda diasSemana={diasSemana} slotsHorario={slotsHorario} />
+
                 </HeaderTeacher>
                 <main className="flex flex-col p-5 h-full flex-1 overflow-hidden max-h-[100vh - 3.5rem]">
                     <CalendarioGrande diasSemana={diasAtivos} slotsHorario={horariosAtivos} />

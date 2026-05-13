@@ -1,6 +1,6 @@
 'use client'
 
-import {  Criterio, Prisma } from "@/app/generated/prisma";
+import { Criterio, Prisma } from "@/app/generated/prisma";
 import { createContext } from "react";
 type Configuracao = Prisma.ConfiguracaoGetPayload<{
     include: {
@@ -8,13 +8,6 @@ type Configuracao = Prisma.ConfiguracaoGetPayload<{
     }
 }>
 
-type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
-    include: {
-        aluno: true,
-        criterios: true,
-        tema: true,
-    }
-}>
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -29,14 +22,7 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 
 type Tema = Prisma.TemaGetPayload<{
     include: {
-        professor: true
         Avaliacao: true
-    }
-}>
-
-type Aluno = Prisma.UserGetPayload<{
-    include: {
-        avaliacoesComoAluno: true,
     }
 }>
 
@@ -49,15 +35,6 @@ export type Notificacoes = {
 interface ContextoProfessorProps {
     configuracoes: Configuracao
     userId: string
-    listaAvaliacoes: {
-        data: AvaliacaoTema[]
-        meta: {
-            limit: number;
-            page: number;
-            total: number;
-            totalPages: number;
-        }
-    }
     listaMentorias: Mentoria[]
     listaTemas: {
         data: Tema[]
@@ -69,10 +46,6 @@ interface ContextoProfessorProps {
         };
     }
     listaCriterios: Criterio[];
-    listaAlunos: Aluno[]
-    totalPaginas: number
-    pagina: number
-    limite: number
     notificacoes: Notificacoes
 }
 

@@ -37,7 +37,6 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 
 interface ModalMentoriaProfessorProps {
     mentoria: Mentoria;
-    setListaMentorias: React.Dispatch<React.SetStateAction<Mentoria[]>>
     diasSemana: DiaSemana[]
     slotsHorario: SlotHorario[]
 }
@@ -285,7 +284,7 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
                                                         size='default'
                                                         diasSemana={diasSemana}
                                                         slotsHorario={slotsHorario}
-                                                        professorId={mentoria.professorId ?? ''}
+                                                        professorId={mentoria.professorId!}
                                                     />
                                                     <Button
                                                         variant='ghost'
