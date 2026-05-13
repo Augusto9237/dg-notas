@@ -5,13 +5,13 @@ import { Button } from "./ui/button";
 import { Camera } from "lucide-react";
 import { useContext, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ContextoProfessor } from "@/context/contexto-professor";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { adicionarFotoCapa, adicionarLogo } from "@/actions/configuracoes";
+import { ContextoAdmin } from "@/context/contexto-admin";
 
 // Constantes
 const TAMANHO_MAXIMO_ARQUIVO_MB = 5
@@ -63,7 +63,7 @@ function criarPreviewArquivo(arquivo: File): Promise<string> {
 }
 
 export function FotoCapa() {
-    const { configuracoes } = useContext(ContextoProfessor)
+    const { configuracoes } = useContext(ContextoAdmin)
 
     const [previewFoto, setPreviewFoto] = useState<string | null>(configuracoes?.fotoCapa || "/foto-1.jpeg")
     const referenciaInputArquivo = useRef<HTMLInputElement>(null)

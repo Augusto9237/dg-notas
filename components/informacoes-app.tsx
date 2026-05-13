@@ -11,7 +11,7 @@ import { Textarea } from "./ui/textarea"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "./ui/form"
 import { toast } from 'sonner'
 import { adicionarInformacoes } from '@/actions/configuracoes'
-import { ContextoProfessor } from '@/context/contexto-professor'
+import { ContextoAdmin } from '@/context/contexto-admin'
 
 // Schema de validação com Zod
 const informacoesAppSchema = z.object({
@@ -36,7 +36,7 @@ const informacoesAppSchema = z.object({
 type InformacoesAppFormData = z.infer<typeof informacoesAppSchema>
 
 export default function InformacoesApp() {
-    const { configuracoes } = useContext(ContextoProfessor)
+    const { configuracoes } = useContext(ContextoAdmin)
     const [isEditMode, setIsEditMode] = useState(false)
 
     const formulario = useForm<InformacoesAppFormData>({

@@ -5,15 +5,15 @@ import { Button } from "./ui/button";
 import { Camera } from "lucide-react";
 import { useContext, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ContextoProfessor } from "@/context/contexto-professor";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { core, z } from "zod";
+import { z } from "zod";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { adicionarLogo } from "@/actions/configuracoes";
 import { FormularioCor } from "./formulario-cor";
 import { Form, FormField, FormItem, FormControl, FormMessage, FormDescription } from "./ui/form";
+import { ContextoAdmin } from "@/context/contexto-admin";
 
 // Constantes
 const TAMANHO_MAXIMO_ARQUIVO_MB = 5
@@ -72,7 +72,7 @@ function criarPreviewArquivo(arquivo: File): Promise<string> {
 
 
 export function IdentidadeVisual() {
-    const { configuracoes } = useContext(ContextoProfessor)
+    const { configuracoes } = useContext(ContextoAdmin)
     const [previewLogo, setPreviewLogo] = useState<string | null>(configuracoes?.logoSistema || null)
     const [previewIcone, setPreviewIcone] = useState<string | null>(configuracoes?.logoAplicativo || null)
     const [previewFavicon, setPreviewFavicon] = useState<string | null>(configuracoes?.favicon || null)
