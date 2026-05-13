@@ -64,7 +64,6 @@ export default async function Page({
 
     const diasAtivos = diasSemana.filter((dia) => dia.status === true)
     const horariosAtivos = slotsHorario.filter((horario) => horario.status === true)
-    console.log("mentorias", mentorias)
 
     return (
         <div className="w-full h-full min-h-screen relative pt-16 overflow-y-auto">
@@ -87,7 +86,7 @@ export default async function Page({
                             <CardDescription>{format(new Date(), 'dd/MM/yyyy')}</CardDescription>
                         </CardHeader>
                         <CardContent className="flex flex-col">
-                            {mentorias.map((mentoria) => (
+                            {mentoriasHoje.map((mentoria) => (
                                 <ModalMentoriaProfessor key={mentoria.id} mentoria={mentoria} diasSemana={diasAtivos} slotsHorario={horariosAtivos} />
                             ))}
                         </CardContent>
