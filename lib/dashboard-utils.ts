@@ -39,7 +39,7 @@ export function rankearMelhoresAlunos(avaliacoes: Avaliacao[]): AlunoRanking[] {
 
     // 2. Filtra as avaliações do último tema e ordena da mais ANTIGA para a mais RECENTE
     const avaliacoesDoUltimoTema = avaliacoes
-        .filter(av => av.temaId === maiorTemaId)
+        .filter(av => av.temaId === maiorTemaId && av.status === "CORRIGIDA")
         .sort((a, b) => (new Date(a.createdAt).getTime() || 0) - (new Date(b.createdAt).getTime() || 0));
 
     // 3. Mantém apenas a avaliação mais recente por aluno
