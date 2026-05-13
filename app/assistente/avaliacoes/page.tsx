@@ -4,6 +4,7 @@ import { TabelaTemas } from '@/components/tabela-temas';
 import { Suspense } from 'react';
 import Loading from './loading';
 import { HeaderTeacher } from '@/components/header-professor';
+import { TabelaTemasAssistente } from '@/components/tabela-temas -assistente';
 
 export default async function Page() {
 
@@ -17,7 +18,7 @@ export default async function Page() {
         </HeaderTeacher>
 
         <main className="flex flex-col p-5 h-full">
-          <TabelaTemas />
+          <TabelaTemasAssistente />
         </main>
       </div>
     </Suspense>

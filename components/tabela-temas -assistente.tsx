@@ -28,6 +28,7 @@ import {
   PaginationNext,
 } from "./ui/pagination"
 import { Skeleton } from "./ui/skeleton"
+import { ContextoAssistente } from "@/context/contexto-assistente"
 
 
 type Tema = Prisma.TemaGetPayload<{
@@ -37,8 +38,8 @@ type Tema = Prisma.TemaGetPayload<{
   }
 }>
 
-export function TabelaTemas() {
-  const { listaTemas } = useContext(ContextoAdmin)
+export function TabelaTemasAssistente() {
+  const { listaTemas } = useContext(ContextoAssistente)
   const [temas, setTemas] = useState<Tema[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -175,7 +176,7 @@ export function TabelaTemas() {
                   </TableCell>
                   <TableCell className="w-[54px]">
                     <div className="flex items-center justify-center gap-4">
-                      <Link href={tema.Avaliacao.length > 0 ? `/admin/avaliacoes/${tema.id}` : '/admin/avaliacoes'} passHref>
+                      <Link href={tema.Avaliacao.length > 0 ? `/assistente/avaliacoes/${tema.id}` : '/assistente/avaliacoes'} passHref>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
