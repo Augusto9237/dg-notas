@@ -101,7 +101,7 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
         handleNotification();
     }, [notificacoes])
 
-    const mediaGeral = calcularMediaGeral(listaAvaliacoes);
+    const mediaGeral = calcularMediaGeral(listaAvaliacoes.filter(av => av.status === "CORRIGIDA"));
 
     if (mes === null || ano === null) {
         return (
