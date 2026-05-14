@@ -140,12 +140,11 @@ export function TabelaUsuarios({ initialData }: TabelaUsuariosProps) {
                   <TableCell className='text-muted-foreground'>{user.telefone || '-'}</TableCell>
                   <TableCell className='text-muted-foreground capitalize'>{user.role || '-'}</TableCell>
                   <TableCell className='text-muted-foreground'>{user.especialidade || '-'}</TableCell>
-
-                  <TableCell className="text-center">
-                  <div className="flex items-center justify-center gap-4">
-                    <FormularioUsuario user={user}/>
-                    <DeleteButton onClick={() => handleExcluir(user.id)} />
-                      </div>
+                  <TableCell className="w-[54px]">
+                    <div className="flex items-center justify-center gap-4">
+                      <FormularioUsuario user={user} />
+                      <DeleteButton onClick={() => handleExcluir(user.id)} />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
