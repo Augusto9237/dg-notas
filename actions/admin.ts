@@ -174,8 +174,15 @@ export async function listarProfessores(busca?: string, page: number = 1, limit:
             })
         ]);
 
+        const professoresComImagem = await Promise.all(
+            professores.map(async (professor) => ({
+                ...professor,
+                image: professor.image ? await obterUrlImagem(professor.image) : null,
+            }))
+        );
+
         return {
-            data: professores,
+            data: professoresComImagem,
             total,
             pagina: page,
             limite: limit,
