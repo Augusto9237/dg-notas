@@ -27,6 +27,7 @@ import { DeleteButton } from './ui/delete-button';
 import Image from 'next/image';
 import { Skeleton } from './ui/skeleton';
 import { removerUsuario } from '@/actions/admin';
+import { FormularioUsuario } from './formulario-usuario';
 
 type Professor = Prisma.UserGetPayload<{}>
 
@@ -141,7 +142,10 @@ export function TabelaUsuarios({ initialData }: TabelaUsuariosProps) {
                   <TableCell className='text-muted-foreground'>{user.especialidade || '-'}</TableCell>
 
                   <TableCell className="text-center">
+                  <div className="flex items-center justify-center gap-4">
+                    <FormularioUsuario user={user}/>
                     <DeleteButton onClick={() => handleExcluir(user.id)} />
+                      </div>
                   </TableCell>
                 </TableRow>
               ))

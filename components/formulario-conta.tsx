@@ -105,12 +105,6 @@ export function FormularioConta({ professor }: FormularioContaProps) {
         },
     })
 
-    const handleImageChange = (file: File | undefined) => {
-        if (file) {
-            setImagePreview(file);
-        }
-    }
-
     const onSubmit = async (data: SignUpFormData) => {
         try {
 
