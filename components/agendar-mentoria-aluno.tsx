@@ -335,7 +335,7 @@ export function AgendarMentoriaAluno({
                                                                     <AvatarImage className="object-cover" src={professor.image ?? ''} />
                                                                     <AvatarFallback>{professor.name.charAt(0)}</AvatarFallback>
                                                                 </Avatar>
-                                                                <div className="flex flex-col text-xs">
+                                                                <div className="flex flex-col text-xs items-start">
                                                                     {professor.name}
                                                                     <span className="text-xs text-muted-foreground">{professor.especialidade}</span>
                                                                 </div>
