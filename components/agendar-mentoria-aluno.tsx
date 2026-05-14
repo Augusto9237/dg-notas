@@ -332,7 +332,7 @@ export function AgendarMentoriaAluno({
                                                         <SelectItem key={professor.id} value={professor.id}>
                                                             <div className="flex items-center gap-2">
                                                                 <Avatar>
-                                                                    <AvatarImage src={professor.image ?? ''} />
+                                                                    <AvatarImage className="object-cover" src={professor.image ?? ''} />
                                                                     <AvatarFallback>{professor.name.charAt(0)}</AvatarFallback>
                                                                 </Avatar>
                                                                 <div className="flex flex-col text-xs">
