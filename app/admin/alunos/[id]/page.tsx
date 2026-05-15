@@ -1,5 +1,5 @@
 
-import { ListarAvaliacoesAlunoId } from '@/actions/avaliacao';
+import { ListarAvaliacoesAlunoId, ListarCriterios } from '@/actions/avaliacao';
 import { BuscarAlunoGooglePorId } from '@/actions/alunos';
 import { TabelaAvaliacoes } from '@/components/tabela-avaliacoes';
 import { Suspense } from 'react';
@@ -13,7 +13,8 @@ export default async function Page({
   params: Promise<{ id: string }>
 }) {
   const alunoId = (await params).id
-  const aluno = await BuscarAlunoGooglePorId(alunoId)
+  const aluno = await BuscarAlunoGooglePorId(alunoId);
+  const criterios = await ListarCriterios()
 
   // Verificar se o aluno existe
   if (!aluno) {
@@ -38,7 +39,7 @@ export default async function Page({
           <RelatorioEvolucao aluno={{ id: alunoId, nome: aluno.name, email: aluno.email, image: aluno.image || '', telefone: aluno.telefone || '', criado: aluno.createdAt }} avaliacoes={avaliacoes.data} />
         </HeaderTeacher>
         <main className="flex flex-col p-5 h-full">
-          <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoes} />
+          <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoes} criterios={criterios}/>
         </main>
       </div>
     </Suspense>

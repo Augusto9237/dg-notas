@@ -11,8 +11,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Prisma } from "@/app/generated/prisma";
-import { ContextoProfessor } from "@/context/contexto-professor";
+import { Criterio, Prisma } from "@/app/generated/prisma";
 import { Card, } from "./ui/card";
 import { Input } from "./ui/input";
 import { Progress } from "./ui/progress";
@@ -116,8 +115,7 @@ const StepperSeparatorWithLabelOrientation = ({
 	);
 };
 
-export function StepperWithLabelOrientation({ avaliacao, setIsOpen }: { avaliacao: Avaliacao, setIsOpen: Dispatch<SetStateAction<boolean>> }) {
-	const { listaCriterios } = useContext(ContextoProfessor)
+export function StepperWithLabelOrientation({ avaliacao, setIsOpen, criterios}: { avaliacao: Avaliacao, setIsOpen: Dispatch<SetStateAction<boolean>>, criterios: Criterio[]}) {
 	const [arquivo, setArquivo] = useState<File[] | undefined>();
 	const [visualizarArquivo, setVisualizarArquivo] = useState<string | undefined>();
 	const [precorrigida, setPrecorrigida] = useState(false)
@@ -337,7 +335,7 @@ export function StepperWithLabelOrientation({ avaliacao, setIsOpen }: { avaliaca
 								"step-2": () =>
 									<div className="space-y-4 overflow-y-auto flex-1">
 										<FormLabel>Competências</FormLabel>
-										{listaCriterios.map((criterio, i) => (
+										{criterios.map((criterio, i) => (
 											<FormField
 												key={criterio.id}
 												control={form.control}
@@ -387,7 +385,7 @@ export function StepperWithLabelOrientation({ avaliacao, setIsOpen }: { avaliaca
 											<FormLabel>Pontuação</FormLabel>
 											<div className="flex flex-col gap-2">
 												{Object.entries(form.getValues("criterios")).map(([criterioId, data]) => {
-													const criterio = listaCriterios.find((c) => c.id === Number(criterioId));
+													const criterio = criterios.find((c) => c.id === Number(criterioId));
 													return (
 														<div key={criterioId} className="flex justify-between items-center border-b border-border py-2">
 															<span className="text-sm">{criterio?.nome}</span>

@@ -16,19 +16,14 @@ import { useEffect, useState, useMemo, memo, useRef, useContext } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Progress } from "./ui/progress"
 
-import { EditarAvaliacao, ListarCriterios } from "@/actions/avaliacao"
+import { EditarAvaliacao } from "@/actions/avaliacao"
 import { toast } from "sonner"
-import { Prisma } from "@/app/generated/prisma"
-import { Card } from "./ui/card"
-import clsx from "clsx"
+import { Criterio, Prisma } from "@/app/generated/prisma"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 import { ref, uploadBytes } from "firebase/storage"
 import { storage } from "@/lib/firebase"
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes"
-import { ContextoProfessor } from "@/context/contexto-professor"
 import { StepperWithLabelOrientation } from "./stepper-with-label-orientation"
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
@@ -51,9 +46,10 @@ type FormValues = z.infer<typeof formSchema>
 
 interface FormularioAvaliacaoProps {
   avaliacao: Avaliacao
+  criterios: Criterio[]
 }
 
-export function FormularioCorrecao({ avaliacao }: FormularioAvaliacaoProps) {
+export function FormularioCorrecao({ avaliacao, criterios }: FormularioAvaliacaoProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [arquivo, setArquivo] = useState<File | null>(null);
 
@@ -178,118 +174,8 @@ export function FormularioCorrecao({ avaliacao }: FormularioAvaliacaoProps) {
           <DialogTitle className="text-center">{avaliacao.tema.nome.split(' - ')[0]}</DialogTitle>
         </DialogHeader>
         <div className="flex-1 min-h-0 flex flex-col mt-2">
-          <StepperWithLabelOrientation avaliacao={avaliacao} setIsOpen={setIsOpen} />
+          <StepperWithLabelOrientation avaliacao={avaliacao} setIsOpen={setIsOpen} criterios={criterios} />
         </div>
-        {/* <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
-            <div>
-              <FormLabel>Tema</FormLabel>
-              <FormDescription className="text-xs">{avaliacao.tema.nome}</FormDescription>
-            </div>
-
-            <div className="space-y-2">
-              <FormLabel>Competências</FormLabel>
-              {listaCriterios.map((criterio, i) => (
-                <FormField
-                  key={criterio.id}
-                  control={form.control}
-                  name={`criterios.${criterio.id}.pontuacao`}
-                  render={({ field }) => {
-                    const currentValue = field.value || 0;
-                    return (
-                      <FormItem >
-                        <Card className="gap-2 p-4">
-                          <div className="flex justify-between items-start gap-2">
-                            <div className="space-y-1">
-                              <FormLabel className="max-sm:text-sm">{i + 1} - {criterio.nome}</FormLabel>
-                              <FormDescription className="text-xs">{criterio.descricao}</FormDescription>
-                            </div>
-
-                            <FormControl>
-                              <Input
-                                type="number"
-                                className="min-w-16 w-16 px-1.5"
-                                value={currentValue}
-                                onChange={(e) => field.onChange(Number(e.target.value) || 0)}
-                                min={0}
-                                max={200}
-                              />
-                            </FormControl>
-
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs text-muted-foreground">0</span>
-                            <span className="text-xs text-muted-foreground">200</span>
-                          </div>
-                          <Progress
-                            value={(currentValue / 200) * 100}
-                            indicatorClassName={getGradeColor(currentValue, 200)}
-                          />
-                          <FormMessage />
-                        </Card>
-                      </FormItem>
-                    );
-                  }}
-                />
-              ))}
-            </div>
-
-            <Input
-              placeholder="shadcn"
-              type="file"
-              accept="image/jpeg,image/jpg"
-              className="hidden"
-              ref={inputRef}
-              onChange={carregarArquivo}
-            />
-            <Button
-              type="button"
-              onClick={handleButtonClick}
-              variant={arquivo === null ? 'ghost' : 'outline'}
-              className={arquivo === null ? "bg-background border border-accent-foreground" : "bg-primary/10"}
-            >
-              {arquivo === null ? (
-                <>
-                  <Upload />
-                  Enviar arquivo de correção
-                </>
-              ) : (
-                <>
-                  <FileText />
-                  Arquivo carregado
-                </>
-              )}
-            </Button>
-
-            <div className="flex flex-col justify-between items-center pt-4 gap-4 border-t border-muted">
-              <div className="flex justify-between text-lg font-semibold w-full">
-                <span>Nota Final:</span>
-                <span>
-                  {calcularNotaFinal(form.watch('criterios'))}/1000
-                </span>
-              </div>
-              <DialogFooter className="grid grid-cols-2 gap-4 w-full">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className={clsx(form.formState.isSubmitting && 'hidden')}
-                  onClick={() => setIsOpen(false)}
-
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  className={clsx(form.formState.isSubmitting && 'col-span-2')}
-                  disabled={form.formState.isSubmitting}
-                >
-                  {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {form.formState.isSubmitting ? 'Salvando' : 'Salvar'}
-                </Button>
-              </DialogFooter>
-            </div>
-          </form>
-        </Form> */}
       </DialogContent>
     </Dialog>
   )

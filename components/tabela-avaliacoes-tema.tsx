@@ -22,7 +22,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Ellipsis, FileDown } from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { useSearchParams } from 'next/navigation';
-import { Prisma } from '@/app/generated/prisma';
+import { Criterio, Prisma } from '@/app/generated/prisma';
 import { FormularioCorrecao } from './formulario-correcao';
 import { ref, getDownloadURL, deleteObject } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
@@ -43,9 +43,10 @@ type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
 
 interface TabelaAvaliacoesTemaProps {
   avaliacoes: AvaliacaoTema[]
+  criterios: Criterio[]
 }
 
-export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) {
+export function TabelaAvaliacoesTema({ avaliacoes, criterios }: TabelaAvaliacoesTemaProps) {
   const [carregando, setCarregando] = useState(false)
   const [listaAvaliacoes, setListaAvaliacoes] = useState<TabelaAvaliacoesTemaProps['avaliacoes']>([])
   const searchParams = useSearchParams()
@@ -218,7 +219,7 @@ export function TabelaAvaliacoesTema({ avaliacoes }: TabelaAvaliacoesTemaProps) 
                         </TooltipContent>
                       </Tooltip>
 
-                      <FormularioCorrecao avaliacao={avaliacao} />
+                      <FormularioCorrecao avaliacao={avaliacao} criterios={criterios} />
 
                       <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id, avaliacao.resposta)} />
                     </div>

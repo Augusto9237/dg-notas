@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { Ellipsis, FileCheck2 } from "lucide-react"
 
 import { Avaliacao, Prisma } from "@/app/generated/prisma"
-import { AlterarDisponibilidadeTema, DeletarTema, listarTemas, ListarAvaliacoes } from "@/actions/avaliacao"
+import { AlterarDisponibilidadeTema, DeletarTema, listarTemas } from "@/actions/avaliacao"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
@@ -38,7 +38,7 @@ type Tema = Prisma.TemaGetPayload<{
 }>
 
 export function TabelaTemas() {
-  const { listaTemas } = useContext(ContextoAdmin)
+  const { listaTemas, listaCriterios } = useContext(ContextoAdmin)
   const [temas, setTemas] = useState<Tema[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);

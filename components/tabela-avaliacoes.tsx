@@ -17,7 +17,7 @@ import {
   PaginationLink,
   PaginationNext,
 } from '@/components/ui/pagination';
-import { Prisma, User } from '@/app/generated/prisma';
+import { Criterio, Prisma, User } from '@/app/generated/prisma';
 import { DeletarAvaliacao, ListarAvaliacoesAlunoId } from '@/actions/avaliacao';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
@@ -50,9 +50,10 @@ interface TabelaAvaliacoesProps {
       totalPages: number;
     };
   };
+  criterios: Criterio[]
 }
 
-export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, avaliacoes }: TabelaAvaliacoesProps) {
+export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, avaliacoes, criterios }: TabelaAvaliacoesProps) {
   const [listaAvaliacoes, setListaAvaliacoes] = useState<TabelaAvaliacoesProps['avaliacoes']>(avaliacoes || { data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
   const [carregandoBusca, setCarregandoBusca] = useState(false);
   const { download } = useDownloader();
@@ -226,7 +227,7 @@ export const TabelaAvaliacoes = memo(function TabelaAvaliacoes({ aluno, avaliaco
                         </TooltipContent>
                       </Tooltip>
 
-                      <FormularioCorrecao avaliacao={avaliacao} />
+                      <FormularioCorrecao avaliacao={avaliacao} criterios={criterios} />
 
                       <DeleteButton onClick={() => excluirAvaliacao(avaliacao.id, avaliacao.temaId, avaliacao.aluno.email)} />
                     </div>

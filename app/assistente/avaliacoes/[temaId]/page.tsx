@@ -1,7 +1,7 @@
 
 import Loading from '../loading';
 import { Suspense } from 'react';
-import { ListarAvaliacoesTemaId } from '@/actions/avaliacao';
+import { ListarAvaliacoesTemaId, ListarCriterios } from '@/actions/avaliacao';
 import { TabelaAvaliacoesTema } from '@/components/tabela-avaliacoes-tema';
 import { calcularMedia } from '@/lib/media-geral';
 import { HeaderTeacher } from '@/components/header-professor';
@@ -16,6 +16,7 @@ export default async function Page({
 }) {
   const tema = (await params).temaId
   const avaliacoesTema = await ListarAvaliacoesTemaId(Number(tema))
+  const criterios = await ListarCriterios()
 
   return (
     <Suspense fallback={<Loading />}>
@@ -28,7 +29,7 @@ export default async function Page({
         </HeaderTeacher>
 
         <main className="flex flex-col p-5 h-full">
-          <TabelaAvaliacoesTema avaliacoes={avaliacoesTema} />
+          <TabelaAvaliacoesTema avaliacoes={avaliacoesTema} criterios={criterios} />
         </main>
       </div>
     </Suspense>
