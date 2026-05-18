@@ -35,7 +35,7 @@ import { Switch } from './ui/switch';
 import { enviarNotificacaoParaUsuario } from '@/actions/notificacoes';
 import Image from 'next/image';
 import { Skeleton } from './ui/skeleton';
-import { ContextoAdmin } from '@/context/contexto-admin';
+import { ContextoAssistente } from '@/context/contexto-assistente';
 
 type Aluno = Prisma.UserGetPayload<{
   include: {
@@ -43,8 +43,8 @@ type Aluno = Prisma.UserGetPayload<{
   }
 }>
 
-export function TabelaAlunos() {
-  const { listaAlunos, totalPaginas, limite } = useContext(ContextoAdmin)
+export function TabelaAlunosAssistente() {
+  const { listaAlunos, totalPaginas, limite } = useContext(ContextoAssistente)
   const [isPending, startTransition] = useTransition()
   const [alunos, setAlunos] = useState<Aluno[]>(listaAlunos || [])
   const searchParams = useSearchParams()
@@ -191,7 +191,7 @@ export function TabelaAlunos() {
                     {calcularMedia(aluno.avaliacoesComoAluno).toFixed(2).replace('.', ',')}
                   </TableCell>
                   <TableCell className="text-center space-x-4">
-                    <Link href={`/admin/alunos/${aluno.id}`} passHref>
+                    <Link href={`/assistente/alunos/${aluno.id}`} passHref>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button size="icon">

@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { obterUrlImagem } from "@/lib/obter-imagem";
 import { prisma } from "@/lib/prisma"
 import { cacheTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { cacheLife, revalidatePath } from "next/cache"
 import { headers } from "next/headers";
 
@@ -320,6 +321,7 @@ export async function banirUsuario(userId: string) {
     });
 
     revalidatePath('/professor/alunos')
+    updateTag('listar-alunos')
 
     return {
       success: true,

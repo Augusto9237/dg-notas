@@ -1,10 +1,12 @@
+'use client'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Prisma, Avaliacao } from "@/app/generated/prisma";
+import { Prisma } from "@/app/generated/prisma";
 import { format } from "date-fns";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type TemasMes = Prisma.TemaGetPayload<{
     include: {
@@ -13,6 +15,7 @@ type TemasMes = Prisma.TemaGetPayload<{
 }>
 
 export function UltimasAvaliacoes({ temasMes }: { temasMes: TemasMes[] }) {
+    const router = useRouter()
     return (
         <Card className="gap-5 p-5 h-full w-full overflow-hidden">
             <CardHeader className="p-0 flex justify-between items-start">
@@ -41,7 +44,7 @@ export function UltimasAvaliacoes({ temasMes }: { temasMes: TemasMes[] }) {
                             </TableRow>
                         ) : (
                             temasMes.map((tema) => (
-                                <TableRow key={tema.id}>
+                                <TableRow key={tema.id} onClick={() => router.push(`/admin/avaliacoes/${tema.id}`)} className="cursor-pointer">
                                     <TableCell className="max-w-0 truncate">{tema.nome}</TableCell>
                                     <TableCell className="w-[120px]">{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
                                     <TableCell className="w-[100px] text-center">

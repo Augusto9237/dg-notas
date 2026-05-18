@@ -79,7 +79,7 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
             if (!notificacoes?.data?.url) return;
             const url = notificacoes.data.url;
 
-            if (url === '/professor/avaliacoes') {
+            if (url === '/admin/avaliacoes') {
                 const novasAvaliacoes = await ListarAvaliacoes(Number(mes), Number(ano))
                 const novosTemas = await listarTemasMes(Number(mes), Number(ano))
 
@@ -87,13 +87,13 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
                 setListaTemas(novosTemas)
             }
 
-            if (url === '/professor/alunos') {
+            if (url === '/admin/alunos') {
                 const novosAlunos = await listarAlunosGoogle()
 
                 setListaAlunos(novosAlunos.data)
             }
 
-            if (url === '/professor/mentorias') {
+            if (url === '/admin/mentorias') {
                 const novasMentorias = await listarMentoriasMes(Number(mes), Number(ano))
 
                 setListaMentorias(novasMentorias)
