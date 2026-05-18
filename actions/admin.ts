@@ -61,14 +61,11 @@ export async function obterProfessor() {
     return dadosProfessor()
 }
 
-export async function listarUsuarios(busca?: string, page: number = 1, limit: number = 12) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session || session.user.role !== 'admin') {
-        throw new Error("Usuário não autorizado")
-    }
-    
+async function obterUsuarios(busca?: string, page: number = 1, limit: number = 12) {
+    'use cache'
+    cacheLife('days')
+    cacheTag('listar-usuarios')
+
     try {
         const skip = (page - 1) * limit;
         const whereClause = {
@@ -110,6 +107,16 @@ export async function listarUsuarios(busca?: string, page: number = 1, limit: nu
     }
 }
 
+export async function listarUsuarios(busca?: string, page: number = 1, limit: number = 12) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session || session.user.role !== 'admin') {
+        throw new Error("Usuário não autorizado")
+    }
+    return obterUsuarios(busca, page, limit)
+}
+
 export async function removerUsuario(idUsuario: string) {
     const session = await auth.api.getSession({
         headers: await headers()
@@ -123,6 +130,7 @@ export async function removerUsuario(idUsuario: string) {
             where: { id: idUsuario }
         });
         revalidatePath('/admin/usuarios')
+        updateTag('listar-usuarios')
         return { success: true, message: 'Usuário removido com sucesso' }
     } catch (error) {
         console.error("Erro ao remover usuário", error)
@@ -130,14 +138,11 @@ export async function removerUsuario(idUsuario: string) {
     }
 }
 
-export async function listarProfessores(busca?: string, page: number = 1, limit: number = 12) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) {
-        throw new Error("Usuário não autorizado")
-    }
-    
+async function obterProfessores(busca?: string, page: number = 1, limit: number = 12) {
+    'use cache'
+    cacheLife('days')
+    cacheTag('listar-professores')
+
     try {
         const skip = (page - 1) * limit;
         const whereClause = {
@@ -193,6 +198,16 @@ export async function listarProfessores(busca?: string, page: number = 1, limit:
         console.error("Erro ao listar professores:", error);
         throw error;
     }
+}
+
+export async function listarProfessores(busca?: string, page: number = 1, limit: number = 12) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) {
+        throw new Error("Usuário não autorizado")
+    }
+    return obterProfessores(busca, page, limit)
 }
 
 export async function obterProfessorPorId(userId: string) {
@@ -256,7 +271,8 @@ export async function atualizarContaProfessor(userId: string, data: AtualizarCon
         })
 
         revalidatePath('/professor/conta')
-
+        updateTag('listar-professores')
+        updateTag('listar-usuarios')
         return {
           success: true,
           message: senhaAtual && novaSenha ? 'Usuário e senha atualizados com sucesso' : 'Usuário atualizado com sucesso',
@@ -285,7 +301,8 @@ export async function atualizarContaProfessor(userId: string, data: AtualizarCon
       })
 
       revalidatePath('/professor/conta')
-
+      updateTag('listar-professores')
+      updateTag('listar-usuarios')
       return {
         success: true,
         message: 'Usuário atualizado com sucesso',
@@ -319,8 +336,6 @@ export async function banirUsuario(userId: string) {
       // This endpoint requires session cookies.
       headers: await headers(),
     });
-
-    revalidatePath('/professor/alunos')
     updateTag('listar-alunos')
 
     return {
