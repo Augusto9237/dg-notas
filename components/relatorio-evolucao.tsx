@@ -56,6 +56,7 @@ type Aluno = {
 }
 
 interface RelatorioProps {
+  criterios: Criterio[]
   aluno: Aluno
   avaliacoes: Avaliacao[]
 }
@@ -67,8 +68,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function RelatorioEvolucao({ aluno, avaliacoes }: RelatorioProps) {
-  const { listaCriterios } = useContext(ContextoProfessor)
+export function RelatorioEvolucao({ criterios, aluno, avaliacoes }: RelatorioProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [listaAvaliacoes, setListaAvaliaçoes] = useState<Avaliacao[]>([])
   const [carregamento, setCarregamento] = useState(false)
@@ -110,7 +110,7 @@ export function RelatorioEvolucao({ aluno, avaliacoes }: RelatorioProps) {
     })
   }
 
-  const mediasPorCriterio = calcularMediasPorCriterio(listaAvaliacoes, listaCriterios)
+  const mediasPorCriterio = calcularMediasPorCriterio(listaAvaliacoes, criterios)
   const chartData = calcularMediaMensal(listaAvaliacoes)
 
   function formartarData(data: Date) {
@@ -371,7 +371,7 @@ export function RelatorioEvolucao({ aluno, avaliacoes }: RelatorioProps) {
               </Label>
               <div className='space-y-4 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-card scrollbar-track-background'>
                 {mediasPorCriterio.map((criterio, i) => (
-                  <CardCompetencia key={i} criterio={criterio} criterios={listaCriterios} />
+                  <CardCompetencia key={i} criterio={criterio} criterios={criterios} />
                 ))}
               </div>
             </div>

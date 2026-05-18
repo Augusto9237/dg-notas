@@ -32,14 +32,23 @@ export default async function Page({
 
   const avaliacoes = await ListarAvaliacoesAlunoId(alunoId)
 
+  const dadosAluno = {
+    id: alunoId,
+    nome: aluno.name,
+    email: aluno.email,
+    image: aluno.image || '',
+    telefone: aluno.telefone || '',
+    criado: aluno.createdAt
+  }
+
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full h-full min-h-screen relative pt-16 overflow-y-auto">
         <HeaderTeacher title={aluno.name} description={aluno.email}>
-          <RelatorioEvolucao aluno={{ id: alunoId, nome: aluno.name, email: aluno.email, image: aluno.image || '', telefone: aluno.telefone || '', criado: aluno.createdAt }} avaliacoes={avaliacoes.data} />
+          <RelatorioEvolucao criterios={criterios} aluno={dadosAluno} avaliacoes={avaliacoes.data} />
         </HeaderTeacher>
         <main className="flex flex-col p-5 h-full">
-          <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoes} criterios={criterios}/>
+          <TabelaAvaliacoes aluno={aluno} avaliacoes={avaliacoes} criterios={criterios} />
         </main>
       </div>
     </Suspense>
