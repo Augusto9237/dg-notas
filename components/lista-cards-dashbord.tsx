@@ -12,7 +12,7 @@ import { FileType, Users } from "lucide-react";
 import { RiUserStarLine } from "react-icons/ri";
 import { FaChartLine } from "react-icons/fa";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { CardDashboard, CardSkeleton } from "./card-dashboard";
+import { CardDashboard } from "./card-dashboard";
 import { ContextoAdmin } from "@/context/contexto-admin";
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
@@ -65,6 +65,8 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
     const mes = params.get('mes');
     const ano = params.get('ano')
 
+    // Sincroniza o estado local quando as props do servidor mudam
+    // (ex.: navegação com searchParams diferentes)
     useEffect(() => {
         setListaAvaliacoes(avaliacoes);
         setListaMentorias(mentorias);
@@ -101,47 +103,40 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
         handleNotification();
     }, [notificacoes])
 
+    // Determina o mês exibido no rodapé: usa searchParams se disponível,
+    // caso contrário mostra o mês atual (mesmo comportamento das actions no servidor)
+    const mesExibido = mes ?? String(new Date().getMonth() + 1);
     const mediaGeral = calcularMediaGeral(listaAvaliacoes.filter(av => av.status === "CORRIGIDA"));
 
-    if (mes === null || ano === null) {
-        return (
-            <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
-                <CardSkeleton />
-                <CardSkeleton />
-                <CardSkeleton />
-                <CardSkeleton />
-            </div>)
-    } else {
-        return (
-            <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
-                <CardDashboard
-                    description="Média Geral"
-                    value={mediaGeral.toFixed(2).replace('.', ',')}
-                    icon={<FaChartLine className="size-5" />}
-                    footerText={`Média geral de ${meses[Number(mes) - 1]}`}
-                />
+    return (
+        <div className="grid grid-cols-4 max-[1025px]:grid-cols-2 gap-5 w-full">
+            <CardDashboard
+                description="Média Geral"
+                value={mediaGeral.toFixed(2).replace('.', ',')}
+                icon={<FaChartLine className="size-5" />}
+                footerText={`Média geral de ${meses[Number(mesExibido) - 1]}`}
+            />
 
-                <CardDashboard
-                    description="Alunos"
-                    value={listaAlunos.length}
-                    icon={<Users className="size-5" />}
-                    footerText={`Matriculados`}
-                />
+            <CardDashboard
+                description="Alunos"
+                value={listaAlunos.length}
+                icon={<Users className="size-5" />}
+                footerText={`Matriculados`}
+            />
 
-                <CardDashboard
-                    description="Temas"
-                    value={listaTemas.length}
-                    icon={<FileType className="size-5" />}
-                    footerText={mes && ano ? `Temas de ${meses[Number(mes) - 1]}` : 'Temas do mês atual'}
-                />
+            <CardDashboard
+                description="Temas"
+                value={listaTemas.length}
+                icon={<FileType className="size-5" />}
+                footerText={mes && ano ? `Temas de ${meses[Number(mes) - 1]}` : 'Temas do mês atual'}
+            />
 
-                <CardDashboard
-                    description="Mentorias"
-                    value={listaMentorias.length}
-                    icon={<RiUserStarLine className="size-5" />}
-                    footerText={mes && ano ? `Mentorias de ${meses[Number(mes) - 1]}` : 'Mentorias do mês atual'}
-                />
-            </div>
-        )
-    }
+            <CardDashboard
+                description="Mentorias"
+                value={listaMentorias.length}
+                icon={<RiUserStarLine className="size-5" />}
+                footerText={mes && ano ? `Mentorias de ${meses[Number(mes) - 1]}` : 'Mentorias do mês atual'}
+            />
+        </div>
+    )
 }

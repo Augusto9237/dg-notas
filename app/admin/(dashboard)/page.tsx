@@ -33,11 +33,9 @@ export default async function Page({
 }: {
     searchParams: Promise<{ mes?: string, ano?: string }>
 }) {
-    // Executar autenticação e params em paralelo
-    const [session, params] = await Promise.all([
-        auth.api.getSession({ headers: await headers() }),
-        searchParams
-    ]);
+
+    const session = await auth.api.getSession({ headers: await headers() })
+    const params = await searchParams
 
     const { mes, ano } = normalizarParams(params.mes, params.ano);
 
