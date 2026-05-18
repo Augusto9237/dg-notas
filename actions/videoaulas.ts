@@ -83,12 +83,13 @@ export async function editarVideoaula(id: number, data: VideoaulaProps) {
     }
 }
 
+
 async function obterAulas(busca?: string, page: number = 1, limit: number = 12) {
     'use cache'
 
     cacheLife('hours')
 
-    cacheTag('listar-videoaulas')
+    cacheTag('listar-videoaulass')
 
     try {
         const whereClause = {

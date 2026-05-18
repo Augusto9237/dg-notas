@@ -1,6 +1,5 @@
 
-import { ListarAvaliacoesAlunoId, ListarCriterios, listarTemasDisponiveis } from "@/actions/avaliacao";
-import { listarMentoriasAluno } from "@/actions/mentoria";
+import { ListarCriterios } from "@/actions/avaliacao";
 import { enviarNotificacaoParaTodos } from "@/actions/notificacoes";
 import { AppSidebarAluno } from "@/components/app-sidebar-aluno";
 import { FormularioTelefone } from "@/components/formulario-telefone";
@@ -13,7 +12,7 @@ import { ProvedorTemas } from "@/context/provedor-temas";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { auth } from "@/lib/auth";
 import { Clock } from "lucide-react";
-import { cacheLife, cacheTag, updateTag } from "next/cache";
+import { cacheLife, updateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
@@ -51,6 +50,7 @@ export default async function AlunoWrapper({ children, configuracoes }: RootLayo
         async function avisoNovoAcesso() {
             'use cache'
             cacheLife({ revalidate: 300 })
+            updateTag('lista-alunos')
 
             const res = await enviarNotificacaoParaTodos(
                 'admin',

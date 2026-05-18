@@ -1,23 +1,15 @@
 'use server'
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { cacheLife, cacheTag, revalidatePath, updateTag } from "next/cache";
 import { headers } from "next/headers";
 
-// Função para listar alunos que fizeram login apenas com o Google
-export async function listarAlunosGoogle(busca?: string, page: number = 1, limit: number = 12) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
-    if (!session) {
-        throw new Error("Usuário não autenticado");
-    }
-   
-    if (session.user.role !== 'admin' && session.user.role !== 'assistente') {
-        throw new Error('Usuário não autorizado');
-    }
 
-    try {
+async function obterAlunos(busca?: string, page: number = 1, limit: number = 12){
+    'use cache'
+    cacheLife({stale: 1800})
+    cacheTag('lista-alunos')
+   try {
         const skip = (page - 1) * limit;
         // Construir o where clause dinamicamente
         const clasulaDeFiltro = {
@@ -65,6 +57,23 @@ export async function listarAlunosGoogle(busca?: string, page: number = 1, limit
         console.error("Erro ao listar alunos do Google:", error);
         throw error;
     }
+}
+
+// Função para listar alunos que fizeram login apenas com o Google
+export async function listarAlunosGoogle(busca?: string, page: number = 1, limit: number = 12) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+    if (!session) {
+        throw new Error("Usuário não autenticado");
+    }
+   
+    if (session.user.role !== 'admin' && session.user.role !== 'assistente') {
+        throw new Error('Usuário não autorizado');
+    }
+    
+    return obterAlunos(busca, page, limit);
+ 
 }
 
 export async function BuscarAlunoGooglePorId(id: string) {
@@ -150,7 +159,7 @@ export async function alterarStatusMatriculaAluno(idAluno: string, matriculado: 
                 matriculado: matriculado
             }
         })
-        revalidatePath('/professor/alunos')
+        updateTag('lista-alunos')
     } catch (error) {
         console.error("Erro ao atualizar o status da matricula do aluno:", error);
         throw error;
