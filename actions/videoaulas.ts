@@ -89,7 +89,7 @@ async function obterAulas(busca?: string, page: number = 1, limit: number = 12) 
 
     cacheLife('hours')
 
-    cacheTag('listar-videoaulass')
+    cacheTag('listar-videoaulas')
 
     try {
         const whereClause = {
