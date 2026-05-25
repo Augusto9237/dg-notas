@@ -95,7 +95,7 @@ export const ProvedorAdmin = ({ children, configuracoes, userId, avaliacoes, men
             setCarregamento(true);
 
             try {
-                if (url === '/professor/avaliacoes') {
+                if (url === '/admin/avaliacoes') {
                     const novasAvaliacoes = await ListarAvaliacoes(undefined, undefined, 1, 10);
                     const novosTemas = await listarTemas()
                     setListaAvaliacoes(novasAvaliacoes);
@@ -103,7 +103,7 @@ export const ProvedorAdmin = ({ children, configuracoes, userId, avaliacoes, men
 
                 }
 
-                if (url === '/professor/mentorias') {
+                if (url === '/admin/mentorias') {
                     const novasMentorias = await listarMentoriasMes()
                     setListaMentorias(novasMentorias);
                 }

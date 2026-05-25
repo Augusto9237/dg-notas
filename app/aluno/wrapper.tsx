@@ -54,14 +54,24 @@ export default async function AlunoWrapper({ children, configuracoes }: RootLayo
 
             atualizarCache('lista-alunos')
 
-            const res = await enviarNotificacaoParaTodos(
+            const resAdmin = await enviarNotificacaoParaTodos(
                 'admin',
                 'Novo login com acesso pendente',
                 `O aluno ${session?.user.name} realizou login no aplicativo e solicita liberação de acesso`,
-                '/professor/alunos'
+                '/admin/alunos'
+            );
+            const resAssistente = await enviarNotificacaoParaTodos(
+                'assistente',
+                'Novo login com acesso pendente',
+                `O aluno ${session?.user.name} realizou login no aplicativo e solicita liberação de acesso`,
+                '/assistente/alunos'
             );
 
-            return res
+
+            return {
+                resAdmin,
+                resAssistente
+            }
         }
 
         await avisoNovoAcesso();
