@@ -18,6 +18,7 @@ import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 import { Toaster } from "sonner";
 import { Prisma } from "../generated/prisma";
+import { atualizarCache } from "@/actions/cache";
 
 type ConfiguracaoComCores = Prisma.ConfiguracaoGetPayload<{
     include: { coresSistema: true };
@@ -52,6 +53,8 @@ export default async function AlunoWrapper({ children, configuracoes }: RootLayo
             cacheLife({ revalidate: 300 })
             updateTag('lista-alunos')
 
+            atualizarCache('lista-alunos')
+            
             const res = await enviarNotificacaoParaTodos(
                 'admin',
                 'Novo login com acesso pendente',
