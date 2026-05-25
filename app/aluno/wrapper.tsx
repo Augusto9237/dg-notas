@@ -51,10 +51,9 @@ export default async function AlunoWrapper({ children, configuracoes }: RootLayo
         async function avisoNovoAcesso() {
             'use cache'
             cacheLife({ revalidate: 300 })
-            updateTag('lista-alunos')
 
             atualizarCache('lista-alunos')
-            
+
             const res = await enviarNotificacaoParaTodos(
                 'admin',
                 'Novo login com acesso pendente',
