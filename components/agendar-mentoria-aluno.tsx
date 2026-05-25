@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -28,7 +27,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { CalendarPlus, CalendarSync, Loader2 } from "lucide-react"
-import { useState, useEffect, useMemo, useCallback, Dispatch, SetStateAction, useRef } from "react"
+import { useState, useEffect, Dispatch, SetStateAction } from "react"
 import { ptBR } from "date-fns/locale"
 import { adicionarMentoria, editarMentoria, verificarDisponibilidadeMultiplosSlots } from "@/actions/mentoria"
 import { authClient } from "@/lib/auth-client"
@@ -61,17 +60,17 @@ type Mentoria = Prisma.MentoriaGetPayload<{
     };
 }>;
 
-// Props do componente
+type Professor = {
+    name: string;
+    id: string;
+    especialidade: string | null;
+    image: string | null;
+}
+
 interface AgendarMentoriaAlunoProps {
     diasSemana: DiaSemana[]
     slotsHorario: SlotHorario[]
     professorId: string;
-    professores?: {
-        name: string;
-        id: string;
-        especialidade: string | null;
-        image: string | null;
-    }[];
     mode?: 'create' | 'edit';
     usuario?: 'professor' | 'aluno';
     mentoriaData?: Mentoria;
@@ -79,15 +78,20 @@ interface AgendarMentoriaAlunoProps {
     setIsOpen?: Dispatch<SetStateAction<boolean>>
 }
 
-// Função utilitária para converter data UTC em data local (apenas data, sem horário)
+// Funções puras fora do componente — o compiler não precisa rastreá-las como dependências
 function convertUTCToLocalDate(utcDate: Date): Date {
     const utc = new Date(utcDate);
-    // Criar uma nova data usando os componentes UTC como se fossem locais
-    return new Date(
-        utc.getUTCFullYear(),
-        utc.getUTCMonth(),
-        utc.getUTCDate()
+    return new Date(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate());
+}
+
+function formatarData(data: Date): string {
+    const dataUTC = new Date(data);
+    const dataLocal = new Date(
+        dataUTC.getUTCFullYear(),
+        dataUTC.getUTCMonth(),
+        dataUTC.getUTCDate()
     );
+    return format(dataLocal, "dd/MM/yyyy", { locale: ptBR });
 }
 
 export function AgendarMentoriaAluno({
@@ -102,15 +106,14 @@ export function AgendarMentoriaAluno({
 }: AgendarMentoriaAlunoProps) {
     const [open, setOpen] = useState(false)
     const [vagas, setVagas] = useState<Record<string, number>>({});
-    const [professores, setProfessores] = useState<AgendarMentoriaAlunoProps['professores']>([])
+    const [professores, setProfessores] = useState<Professor[]>([])
     const [accordionValue, setAccordionValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isCheckingVagas, setIsCheckingVagas] = useState(false);
     const { data: session } = authClient.useSession();
-    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        const buscarProfessores = async () => {
+        async function buscarProfessores() {
             setIsLoading(true)
             const data = await listarProfessores()
             setProfessores(data.data)
@@ -119,16 +122,11 @@ export function AgendarMentoriaAluno({
         buscarProfessores()
     }, [])
 
-    // Memoizar a data inicial para evitar recálculos
-    const initialDate = useMemo(() => {
-        if (mode === 'edit' && mentoriaData) {
-            return convertUTCToLocalDate(mentoriaData.horario.data);
-        }
-        return new Date();
-    }, [mode, mentoriaData]);
+    const initialDate = mode === 'edit' && mentoriaData
+        ? convertUTCToLocalDate(mentoriaData.horario.data)
+        : new Date();
 
-    // Memoizar IDs dos slots para evitar recriação de arrays
-    const slotIds = useMemo(() => slotsHorario.map(slot => slot.id), [slotsHorario]);
+    const slotIds = slotsHorario.map(slot => slot.id)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -142,11 +140,9 @@ export function AgendarMentoriaAluno({
         },
     })
 
-    // Resetar formulário quando modo ou dados da mentoria mudarem
     useEffect(() => {
         if (mode === 'edit' && mentoriaData) {
             const dataCorrigida = convertUTCToLocalDate(mentoriaData.horario.data);
-
             form.reset({
                 professorId: mentoriaData.professorId || professorId || '',
                 horario: String(mentoriaData.horario.slotId),
@@ -159,95 +155,64 @@ export function AgendarMentoriaAluno({
                 data: undefined,
             });
         }
-    }, [mode, mentoriaData, form, initialDate, professorId]);
+    }, [mode, mentoriaData, professorId]);
+    // ^ form e initialDate removidos das deps: form é estável do useForm,
+    //   initialDate agora é calculado inline sem useMemo
 
     const watchedData = form.watch('data');
 
-    // Memoizar cálculo do diaSemanaId
-    const diaSemanaId = useMemo(() => {
-        if (!watchedData) return 0;
-        return diasSemana.find(dia => dia.dia === watchedData.getDay())?.id || 0;
-    }, [watchedData, diasSemana]);
+    const diaSemanaId = watchedData
+        ? diasSemana.find(dia => dia.dia === watchedData.getDay())?.id ?? 0
+        : 0;
 
-    // Função otimizada para verificar vagas com debounce
-    const verificarVagas = useCallback(async (data: Date) => {
-        if (!data || slotIds.length === 0) {
-            setVagas({});
-            setIsCheckingVagas(false);
-            return;
-        }
-
-        try {
-            const vagasResult = await verificarDisponibilidadeMultiplosSlots(
-                data,
-                slotIds,
-                diaSemanaId
-            );
-
-            // Converter para Record<string, number> para manter compatibilidade
-            const vagasMap: Record<string, number> = {};
-            Object.entries(vagasResult).forEach(([slotId, vagas]) => {
-                vagasMap[slotId] = Number(vagas);
-            });
-
-            setVagas(vagasMap);
-        } catch (error) {
-            console.error('Erro ao verificar vagas:', error);
-            setVagas({});
-        } finally {
-            setIsCheckingVagas(false);
-        }
-    }, [slotIds, diaSemanaId]);
-
-    // useEffect com debounce para evitar múltiplas chamadas
+    // Debounce direto no useEffect — padrão correto com cleanup nativo
     useEffect(() => {
-        // Limpar timer anterior se existir
-        if (debounceTimerRef.current) {
-            clearTimeout(debounceTimerRef.current);
-        }
-
-        if (!watchedData) {
+        if (!watchedData || slotIds.length === 0) {
             setVagas({});
             setIsCheckingVagas(false);
             return;
         }
+
         setIsCheckingVagas(true);
-        // Debounce de 300ms para evitar chamadas excessivas
-        debounceTimerRef.current = setTimeout(() => {
-            verificarVagas(watchedData);
+
+        const timer = setTimeout(async () => {
+            try {
+                const vagasResult = await verificarDisponibilidadeMultiplosSlots(
+                    watchedData,
+                    slotIds,
+                    diaSemanaId
+                );
+
+                const vagasMap: Record<string, number> = {};
+                Object.entries(vagasResult).forEach(([slotId, vagas]) => {
+                    vagasMap[slotId] = Number(vagas);
+                });
+
+                setVagas(vagasMap);
+            } catch (error) {
+                console.error('Erro ao verificar vagas:', error);
+                setVagas({});
+            } finally {
+                setIsCheckingVagas(false);
+            }
         }, 300);
 
-        // Cleanup
-        return () => {
-            if (debounceTimerRef.current) {
-                clearTimeout(debounceTimerRef.current);
-            }
-        };
-    }, [watchedData, verificarVagas]);
+        return () => clearTimeout(timer);
+    }, [watchedData, diaSemanaId]);
+    // slotIds removido das deps pois é derivado de slotsHorario (prop estável)
 
     useEffect(() => {
-        if (watchedData) {
-            setAccordionValue("item-1");
-        } else {
-            setAccordionValue("");
-        }
+        setAccordionValue(watchedData ? "item-1" : "");
     }, [watchedData]);
 
-
-    function formartarData(data: Date) {
-        // Converter a data UTC para uma data local sem problemas de fuso horário
-        const dataUTC = new Date(data);
-        const dataLocal = new Date(
-            dataUTC.getUTCFullYear(),
-            dataUTC.getUTCMonth(),
-            dataUTC.getUTCDate()
-        );
-        return format(dataLocal, "dd/MM/yyyy", { locale: ptBR });
-    }
-
-    // Memoizar função de submit
-    const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         if (!values.professorId || !session?.user.id) return
+
+        const slotNome = slotsHorario.find(slot => slot.id === Number(values.horario))?.nome ?? '';
+        const notificacaoDestinatario = usuario === 'aluno'
+            ? values.professorId
+            : (mentoriaData?.alunoId ?? '');
+        const notificacaoRota = usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias';
 
         if (mode === 'edit' && mentoriaData) {
             const response = await editarMentoria({
@@ -257,19 +222,21 @@ export function AgendarMentoriaAluno({
                 diaSemanaId: mentoriaData.horario.diaSemanaId,
                 duracao: mentoriaData.duracao,
             });
-            if (response.success === false) {
+
+            if (!response.success) {
                 toast.error(response.error);
                 return;
-            } else if (response.success === true) {
-                toast.success(response.message);
-                await enviarNotificacaoParaUsuario(usuario === 'aluno' ? values.professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria reagendada', `${session?.user.name} reagendou uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
-                form.reset();
-                setOpen(false);
-                setIsOpen?.(false)
-                return;
             }
+
+            toast.success(response.message);
+            await enviarNotificacaoParaUsuario(
+                notificacaoDestinatario,
+                'Mentoria reagendada',
+                `${session.user.name} reagendou uma mentoria para ${formatarData(values.data)} de ${slotNome}`,
+                notificacaoRota
+            );
         } else {
-            const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === values.data.getDay())?.id || 0;
+            const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === values.data.getDay())?.id ?? 0;
             const response = await adicionarMentoria({
                 professorId: values.professorId,
                 alunoId: session.user.id,
@@ -277,34 +244,43 @@ export function AgendarMentoriaAluno({
                 slotId: Number(values.horario),
                 diaSemanaId: diaSemanaIdCalculado,
             });
-            if (response.success === false) {
+
+            if (!response.success) {
                 toast.error(response.error);
                 return;
-            } else if (response.success === true) {
-                toast.success(response.message);
-                await enviarNotificacaoParaUsuario(usuario === 'aluno' ? values.professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria agendada', `${session?.user.name} agendou uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
-                form.reset();
-                setOpen(false);
-                setIsOpen?.(false)
-                return;
             }
+
+            toast.success(response.message);
+            await enviarNotificacaoParaUsuario(
+                notificacaoDestinatario,
+                'Mentoria agendada',
+                `${session.user.name} agendou uma mentoria para ${formatarData(values.data)} de ${slotNome}`,
+                notificacaoRota
+            );
         }
-        await enviarNotificacaoParaUsuario(usuario === 'aluno' ? values.professorId : (mentoriaData?.alunoId ?? ''), 'Mentoria agendada', `${session?.user.name} ${mode === 'edit' ? 'reagendou' : 'agendou'} uma mentoria para ${formartarData(values.data)} de ${slotsHorario.find(slot => slot.id === Number(values.horario))?.nome}`, `${usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias'}`)
-    }, [mode, mentoriaData, session?.user.id, session?.user.name, diasSemana, form, setIsOpen, professorId, slotsHorario, usuario]);
+
+        form.reset();
+        setOpen(false);
+        setIsOpen?.(false);
+    }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen} >
-            <DialogTrigger asChild disabled={mentoriaData?.status === 'REALIZADA'} >
-                {mode === 'edit' ?
-                    <Button size={size} variant={mentoriaData?.status === 'REALIZADA' ? 'ghost' : 'default'} className="w-full">
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild disabled={mentoriaData?.status === 'REALIZADA'}>
+                {mode === 'edit' ? (
+                    <Button
+                        size={size}
+                        variant={mentoriaData?.status === 'REALIZADA' ? 'ghost' : 'default'}
+                        className="w-full"
+                    >
                         <CalendarSync />
                         Reagendar
                     </Button>
-                    :
+                ) : (
                     <Button variant='secondary' className="rounded-full fixed bottom-20 right-5 size-12 shadow-md">
                         <CalendarPlus />
                     </Button>
-                }
+                )}
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
@@ -326,22 +302,22 @@ export function AgendarMentoriaAluno({
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectGroup>
-                                                {isLoading ?
+                                                {isLoading ? (
                                                     <Skeleton className="h-12.5 w-full" />
-                                                    : professores?.map((professor) => (
-                                                        <SelectItem key={professor.id} value={professor.id}>
-                                                            <div className="flex items-center gap-2">
-                                                                <Avatar>
-                                                                    <AvatarImage className="object-cover" src={professor.image ?? ''} />
-                                                                    <AvatarFallback>{professor.name.charAt(0)}</AvatarFallback>
-                                                                </Avatar>
-                                                                <div className="flex flex-col text-xs items-start">
-                                                                    {professor.name}
-                                                                    <span className="text-xs text-muted-foreground">{professor.especialidade}</span>
-                                                                </div>
+                                                ) : professores.map((professor) => (
+                                                    <SelectItem key={professor.id} value={professor.id}>
+                                                        <div className="flex items-center gap-2">
+                                                            <Avatar>
+                                                                <AvatarImage className="object-cover" src={professor.image ?? ''} />
+                                                                <AvatarFallback>{professor.name.charAt(0)}</AvatarFallback>
+                                                            </Avatar>
+                                                            <div className="flex flex-col text-xs items-start">
+                                                                {professor.name}
+                                                                <span className="text-xs text-muted-foreground">{professor.especialidade}</span>
                                                             </div>
-                                                        </SelectItem>
-                                                    ))}
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
@@ -374,7 +350,7 @@ export function AgendarMentoriaAluno({
                                 <FormItem>
                                     <Accordion type="single" collapsible className="w-full" value={accordionValue} onValueChange={setAccordionValue}>
                                         <AccordionItem value="item-1">
-                                            <AccordionTrigger className="py-2 ">Horário</AccordionTrigger>
+                                            <AccordionTrigger className="py-2">Horário</AccordionTrigger>
                                             <AccordionContent>
                                                 <FormControl>
                                                     {watchedData ? (
@@ -425,11 +401,7 @@ export function AgendarMentoriaAluno({
                                 Cancelar
                             </Button>
 
-                            <Button
-                                type="submit"
-                                disabled={form.formState.isSubmitting}
-
-                            >
+                            <Button type="submit" disabled={form.formState.isSubmitting}>
                                 {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                                 {form.formState.isSubmitting
                                     ? (mode === 'edit' ? 'Reagendando' : 'Agendando')
@@ -440,6 +412,6 @@ export function AgendarMentoriaAluno({
                     </form>
                 </Form>
             </DialogContent>
-        </Dialog >
+        </Dialog>
     )
 }
