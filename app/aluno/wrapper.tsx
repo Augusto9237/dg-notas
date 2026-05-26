@@ -13,7 +13,7 @@ import { InstalarIos } from "@/hooks/instalar-ios";
 import { auth } from "@/lib/auth";
 import { Clock } from "lucide-react";
 import { cacheLife, updateTag } from "next/cache";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 import { Toaster } from "sonner";
@@ -48,33 +48,32 @@ export default async function AlunoWrapper({ children, configuracoes }: RootLayo
     }
 
     if (session.user.matriculado === false) {
-        async function avisoNovoAcesso() {
-            'use cache'
-            cacheLife({ revalidate: 300 })
+        const cookieStore = await cookies();
+        const cookieName = `aviso_acesso_${session.user.id}`;
+        const hasNotified = cookieStore.get(cookieName);
 
-            atualizarCache('lista-alunos')
+        if (!hasNotified) {
+            try {
+                await atualizarCache('lista-alunos');
 
-            const resAdmin = await enviarNotificacaoParaTodos(
-                'admin',
-                'Novo login com acesso pendente',
-                `O aluno ${session?.user.name} realizou login no aplicativo e solicita liberação de acesso`,
-                '/admin/alunos'
-            );
-            const resAssistente = await enviarNotificacaoParaTodos(
-                'assistente',
-                'Novo login com acesso pendente',
-                `O aluno ${session?.user.name} realizou login no aplicativo e solicita liberação de acesso`,
-                '/assistente/alunos'
-            );
+                await enviarNotificacaoParaTodos(
+                    'admin',
+                    'Novo login com acesso pendente',
+                    `O aluno ${session.user.name} realizou login no aplicativo e solicita liberação de acesso`,
+                    '/admin/alunos'
+                );
+                await enviarNotificacaoParaTodos(
+                    'assistente',
+                    'Novo login com acesso pendente',
+                    `O aluno ${session.user.name} realizou login no aplicativo e solicita liberação de acesso`,
+                    '/assistente/alunos'
+                );
 
-
-            return {
-                resAdmin,
-                resAssistente
+                cookieStore.set(cookieName, 'true', { maxAge: 300 });
+            } catch (error) {
+                console.error("Erro ao enviar notificações de acesso pendente:", error);
             }
         }
-
-        await avisoNovoAcesso();
 
 
         return (
