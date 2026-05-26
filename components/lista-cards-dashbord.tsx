@@ -59,7 +59,7 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, totalAlunos,
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
     const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
     const [listaTemas, setListaTemas] = useState<Tema[]>([]);
-    const [listaAlunos, setListaAlunos] = useState<Aluno[]>([]);
+    const [alunos, setAlunos] = useState(0);
 
     const params = useSearchParams();
     const mes = params.get('mes');
@@ -87,9 +87,8 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, totalAlunos,
             }
 
             if (url === '/admin/alunos') {
-                const novosAlunos = await listarAlunosGoogle()
-
-                setListaAlunos(novosAlunos.data)
+                const { total } = await listarAlunosGoogle()
+                setAlunos(total)
             }
 
             if (url === '/admin/mentorias') {
