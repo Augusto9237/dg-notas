@@ -20,8 +20,10 @@ export default async function Page() {
   }
   const userId = session.user.id;
 
-  const avaliacoes = await ListarAvaliacoesAlunoId(userId)
-  const mentorias = await listarMentoriasAluno(userId)
+  const [avaliacoes, mentorias] = await Promise.all([
+    ListarAvaliacoesAlunoId(userId),
+    listarMentoriasAluno(userId)
+  ]);
 
 
   return (
