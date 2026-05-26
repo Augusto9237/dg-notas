@@ -12,7 +12,6 @@ import { ProvedorTemas } from "@/context/provedor-temas";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { auth } from "@/lib/auth";
 import { Clock } from "lucide-react";
-import { cacheLife, updateTag } from "next/cache";
 import { headers, cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";

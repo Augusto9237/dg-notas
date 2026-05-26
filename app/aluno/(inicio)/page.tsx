@@ -18,24 +18,25 @@ export default async function Page() {
   if (!session?.user) {
     redirect('/');
   }
-  const userId = session.user.id;
+  
+  const user = session.user
 
   const [avaliacoes, mentorias] = await Promise.all([
-    ListarAvaliacoesAlunoId(userId),
-    listarMentoriasAluno(userId)
+    ListarAvaliacoesAlunoId(user.id),
+    listarMentoriasAluno(user.id)
   ]);
 
 
   return (
     <Suspense fallback={<Loading />}>
       <div className="w-full h-full max-h-screen overflow-hidden">
-        <Header avaliacoes={avaliacoes} mentorias={mentorias} />
+        <Header avaliacoes={avaliacoes} mentorias={mentorias} user={user} />
         <main className="sm:grid sm:grid-cols-2 flex flex-col  py-5 flex-1 overflow-hidden h-full max-h-[calc(100vh-156px)]">
           <div className="flex flex-col gap-4 sm:p-5">
             <h2 className="text-primary font-semibold max-sm:px-5">Suas Habilidades</h2>
             <ListaCompetenciasAluno avaliacoes={avaliacoes.data} />
           </div>
-          <DesempenhoAlunoGrafico avaliacoes={avaliacoes.data} userId={userId} />
+          <DesempenhoAlunoGrafico avaliacoes={avaliacoes.data} userId={user.id} />
         </main>
       </div>
     </ Suspense>

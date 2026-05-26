@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendWebPushNotifications } from "@/lib/webpush";
 import type { PushSubscriptionData, NotificationPayload } from "@/lib/webpush";
+import { cacheLife } from "next/cache";
 import { headers } from "next/headers";
 
 
@@ -273,4 +274,19 @@ export async function limparSubscriptionsAntigas(): Promise<number> {
     console.error('❌ Erro ao limpar subscriptions antigas:', error);
     return 0;
   }
+}
+
+export async function avisoNovoAcesso(name:string) {
+  'use cache'
+  cacheLife({ revalidate: 300 })
+  
+
+  const res = await enviarNotificacaoParaTodos(
+      'admin',
+      'Novo login com acesso pendente',
+      `O aluno ${name} realizou login no aplicativo e solicita liberação de acesso`,
+      '/admin/alunos'
+  );
+
+  return res
 }
