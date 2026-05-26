@@ -95,7 +95,7 @@ export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
       <Card className='p-5 gap-5'>
         <CardHeader className='flex w-full justify-between items-start p-0'>
           <CardTitle >Melhores Desempenhos</CardTitle>
-          <Link href="/professor/alunos" className='flex  items-center text-sm text-primary '>
+          <Link href="/admin/alunos" className='flex  items-center text-sm text-primary '>
             <p className='leading-relaxed max-sm:hidden'>Ver todos</p>
             <p className='sm:hidden'>Todos</p>
             <ChevronRight className="max-sm:size-[16px] size-[20px]" />
