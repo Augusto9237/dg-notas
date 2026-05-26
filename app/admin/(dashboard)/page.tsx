@@ -11,6 +11,7 @@ import { HeaderTeacher } from "@/components/header-professor";
 import { ListaCardsDashboard, } from "@/components/lista-cards-dashbord";
 import { Suspense } from "react";
 import { cacheLife, cacheTag, updateTag } from "next/cache";
+import Loading from "./loading";
 
 
 // Helper para normalizar os parâmetros
@@ -40,21 +41,10 @@ export default async function Page({
     const { mes, ano } = normalizarParams(params.mes, params.ano);
 
     // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
-    const [mentorias, temasMes, alunos] = await Promise.all([
+    const [mentorias, temasMes] = await Promise.all([
         listarMentoriasMes(mes, ano),
         listarTemasMes(mes, ano),
-        listarAlunosGoogle('', 1, 1000)
     ]);
-
-    async function listarAvaliacoesIniciais() {
-        'use cache: private'
-        cacheTag('listar-avaliacoes-home')
-        cacheLife({ revalidate: 900 })
-
-        const avaliacoes = await ListarAvaliacoes(mes, ano, 1, 1000)
-
-        return avaliacoes
-    }
 
     const meses = [
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -62,24 +52,27 @@ export default async function Page({
     ]
 
     const ultimosTemas = temasMes.slice(0, 10)
-    // Avaliações para não chamar múltiplas vezes
-    const avaliacoesIniciais = await listarAvaliacoesIniciais();
+    const { total } = await listarAlunosGoogle()
+    const avaliacoesIniciais = await ListarAvaliacoes(mes, ano, 1, 1000)
+
     return (
-        <div className="w-full h-full min-h-screen relative pt-16 overflow-y-auto">
-            <HeaderTeacher title={`Olá, ${session?.user.name}!`} description="Bem - vindo ao seu Painel">
-                <div className="w-full flex-1 flex justify-end">
-                    <SeletorData />
-                </div>
-            </HeaderTeacher>
+        <Suspense fallback={<Loading />}>
+            <div className="w-full h-full min-h-screen relative pt-16 overflow-y-auto">
+                <HeaderTeacher title={`Olá, ${session?.user.name}!`} description="Bem - vindo ao seu Painel">
+                    <div className="w-full flex-1 flex justify-end">
+                        <SeletorData />
+                    </div>
+                </HeaderTeacher>
 
-            <main className="flex flex-col gap-4 p-5 h-full">
-                <ListaCardsDashboard alunos={alunos.data} temas={temasMes} avaliacoes={avaliacoesIniciais.data} mentorias={mentorias} meses={meses} />
+                <main className="flex flex-col gap-4 p-5 h-full">
+                    <ListaCardsDashboard totalAlunos={total} temas={temasMes} avaliacoes={avaliacoesIniciais.data} mentorias={mentorias} meses={meses} />
 
-                <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
-                    <UltimasAvaliacoes temasMes={ultimosTemas} />
-                    <TabelaTopAlunos avaliacoes={avaliacoesIniciais.data} />
-                </div>
-            </main >
-        </div >
+                    <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
+                        <UltimasAvaliacoes temasMes={ultimosTemas} />
+                        <TabelaTopAlunos avaliacoes={avaliacoesIniciais.data} />
+                    </div>
+                </main >
+            </div >
+        </Suspense>
     )
 }

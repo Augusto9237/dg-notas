@@ -19,7 +19,7 @@ import {
   PaginationLink,
   PaginationNext,
 } from '@/components/ui/pagination';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar } from "@/components/ui/avatar"
 import { Ellipsis, FileCheck2 } from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { alterarStatusMatriculaAluno, listarAlunosGoogle } from '@/actions/alunos';
@@ -30,12 +30,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { banirUsuario } from '@/actions/admin';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
-import { ContextoProfessor } from '@/context/contexto-professor';
 import { Switch } from './ui/switch';
 import { enviarNotificacaoParaUsuario } from '@/actions/notificacoes';
 import Image from 'next/image';
 import { Skeleton } from './ui/skeleton';
-import { ContextoAdmin } from '@/context/contexto-admin';
 
 type Aluno = Prisma.UserGetPayload<{
   include: {
@@ -43,10 +41,15 @@ type Aluno = Prisma.UserGetPayload<{
   }
 }>
 
-export function TabelaAlunos() {
-  const { listaAlunos, totalPaginas, limite } = useContext(ContextoAdmin)
+type TabelaAlunosProps = {
+  alunosIniciais: Aluno[]
+  totalPaginas: number
+  limite: number
+}
+
+export function TabelaAlunos({ alunosIniciais, totalPaginas, limite }: TabelaAlunosProps) {
   const [isPending, startTransition] = useTransition()
-  const [alunos, setAlunos] = useState<Aluno[]>(listaAlunos || [])
+  const [alunos, setAlunos] = useState<Aluno[]>(alunosIniciais)
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
@@ -59,7 +62,7 @@ export function TabelaAlunos() {
 
   useEffect(() => {
     if (paginaAtual === 1 && !busca) {
-      setAlunos(listaAlunos)
+      setAlunos(alunosIniciais)
       setTotalPage(totalPaginas)
       return
     }
@@ -79,13 +82,15 @@ export function TabelaAlunos() {
     }
 
     buscarAlunos()
-  }, [busca, paginaAtual, listaAlunos, totalPaginas, limite])
+  }, [busca, paginaAtual, alunosIniciais, totalPaginas, limite])
 
   function atualizarMatriculaAluno(id: string, status: boolean) {
     startTransition(async () => {
       try {
         await alterarStatusMatriculaAluno(id, status)
+
         toast.success('Status da matricula do aluno atualizada com sucesso')
+
         if (status) {
           await enviarNotificacaoParaUsuario(id, 'Seu acesso ao app foi liberado', "Abra ou recarregue novamente", "/aluno")
         }

@@ -34,11 +34,6 @@ type Tema = Prisma.TemaGetPayload<{
     }
 }>
 
-type Aluno = Prisma.UserGetPayload<{
-    include: {
-        avaliacoesComoAluno: true,
-    }
-}>
 
 export type Notificacoes = {
     title: string;
@@ -69,10 +64,6 @@ interface ContextoAdminProps {
         };
     }
     listaCriterios: Criterio[];
-    listaAlunos: Aluno[]
-    totalPaginas: number
-    pagina: number
-    limite: number
     notificacoes: Notificacoes
 }
 

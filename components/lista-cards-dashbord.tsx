@@ -50,11 +50,11 @@ interface ListaCardsDashboardProps {
     avaliacoes: Avaliacao[];
     temas: Tema[];
     mentorias: Mentoria[];
-    alunos: Aluno[];
+    totalAlunos: number;
     meses: string[]
 }
 
-export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, meses }: ListaCardsDashboardProps) {
+export function ListaCardsDashboard({ avaliacoes, temas, mentorias, totalAlunos, meses }: ListaCardsDashboardProps) {
     const { notificacoes } = useContext(ContextoAdmin);
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
     const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([]);
@@ -71,8 +71,7 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
         setListaAvaliacoes(avaliacoes);
         setListaMentorias(mentorias);
         setListaTemas(temas);
-        setListaAlunos(alunos);
-    }, [avaliacoes, mentorias, temas, alunos]);
+    }, [avaliacoes, mentorias, temas]);
 
     useEffect(() => {
         const handleNotification = async () => {
@@ -119,7 +118,7 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, alunos, mese
 
             <CardDashboard
                 description="Alunos"
-                value={listaAlunos.length}
+                value={totalAlunos}
                 icon={<Users className="size-5" />}
                 footerText={`Matriculados`}
             />

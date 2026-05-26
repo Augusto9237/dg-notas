@@ -39,11 +39,6 @@ type Tema = Prisma.TemaGetPayload<{
     }
 }>
 
-export type Aluno = Prisma.UserGetPayload<{
-    include: {
-        avaliacoesComoAluno: true,
-    }
-}>
 
 interface AdminProviderProps {
     children: ReactNode
@@ -69,21 +64,14 @@ interface AdminProviderProps {
         };
     }
     criterios: Criterio[];
-    alunos: {
-        data: Aluno[]
-        total: number
-        pagina: number
-        limite: number
-        totalPaginas: number
-    }
 }
 
-export const ProvedorAdmin = ({ children, configuracoes, userId, avaliacoes, mentorias, temas, alunos, criterios }: AdminProviderProps) => {
+export const ProvedorAdmin = ({ children, configuracoes, userId, avaliacoes, mentorias, temas, criterios }: AdminProviderProps) => {
     const { notificacoes } = useWebPush({ userId })
     const [listaAvaliacoes, setListaAvaliacoes] = useState(avaliacoes);
     const [listaMentorias, setListaMentorias] = useState(mentorias);
     const [listaTemas, setListaTemas] = useState(temas);
-    const [listaAlunos, setListaAlunos] = useState(alunos.data);
+
 
     const [carregamento, setCarregamento] = useState(false);
 
@@ -124,10 +112,6 @@ export const ProvedorAdmin = ({ children, configuracoes, userId, avaliacoes, men
             listaAvaliacoes,
             listaMentorias,
             listaTemas,
-            listaAlunos,
-            totalPaginas: alunos.totalPaginas,
-            pagina: alunos.pagina,
-            limite: alunos.limite,
             notificacoes,
             listaCriterios: criterios
         }}>

@@ -9,6 +9,7 @@ async function obterAlunos(busca?: string, page: number = 1, limit: number = 12)
     'use cache'
     cacheLife({stale: 1800})
     cacheTag('lista-alunos')
+    
    try {
         const skip = (page - 1) * limit;
         // Construir o where clause dinamicamente
@@ -40,7 +41,7 @@ async function obterAlunos(busca?: string, page: number = 1, limit: number = 12)
                 }
             }),
             prisma.user.count({
-                where: clasulaDeFiltro,
+                where: { role: 'user', matriculado: true, banned: false }
             })
         ]);
 
@@ -59,7 +60,7 @@ async function obterAlunos(busca?: string, page: number = 1, limit: number = 12)
     }
 }
 
-// Função para listar alunos que fizeram login apenas com o Google
+
 export async function listarAlunosGoogle(busca?: string, page: number = 1, limit: number = 12) {
     const session = await auth.api.getSession({
         headers: await headers()
@@ -159,6 +160,9 @@ export async function alterarStatusMatriculaAluno(idAluno: string, matriculado: 
                 matriculado: matriculado
             }
         })
+        revalidatePath('/admin/alunos')
+        revalidatePath('/admin')
+        revalidatePath('/assistente/alunos')
         updateTag('lista-alunos')
     } catch (error) {
         console.error("Erro ao atualizar o status da matricula do aluno:", error);
