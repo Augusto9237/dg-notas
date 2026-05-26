@@ -20,6 +20,7 @@ import { InstalarIos } from "@/hooks/instalar-ios";
 import { ProvedorTemas } from "@/context/provedor-temas";
 import { Prisma } from "../generated/prisma";
 import { AppSidebarAssistant } from "@/components/app-sidebar-assistant";
+import { ProvedorAssistente } from "@/context/provider-assistente";
 
 type ConfiguracaoComCores = Prisma.ConfiguracaoGetPayload<{
   include: { coresSistema: true };
@@ -76,7 +77,7 @@ export default async function ProfessorWrapper({
         <InstalarIos />
         <PwaInstallPrompt />
         <InicializarNotificacoes userId={userId} />
-        <ProvedorAdmin configuracoes={configuracoes} userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas} alunos={alunos} criterios={criterios}>
+        <ProvedorAssistente userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas} criterios={criterios}>
           <SidebarProvider>
             <AppSidebarAssistant logo={configuracoes.logoSistema} />
             <SidebarInset className="relative">
@@ -84,7 +85,7 @@ export default async function ProfessorWrapper({
             </SidebarInset>
           </SidebarProvider>
           <Toaster richColors theme="light" />
-        </ProvedorAdmin>
+        </ProvedorAssistente>
       </ProvedorTemas>
     </>
   );

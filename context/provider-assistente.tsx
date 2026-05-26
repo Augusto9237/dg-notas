@@ -2,7 +2,6 @@
 
 import { Criterio, Prisma } from "@/app/generated/prisma"
 import { ReactNode, useEffect, useState } from "react"
-import { ContextoAdmin } from "./contexto-admin"
 import useWebPush from "@/hooks/useWebPush"
 import { listarMentoriasMes } from "@/actions/mentoria"
 import { ListarAvaliacoes, listarTemas } from "@/actions/avaliacao"
@@ -64,22 +63,13 @@ interface AssistenteProvedorProps {
         };
     }
     criterios: Criterio[];
-    alunos: {
-        data: Aluno[]
-        total: number
-        pagina: number
-        limite: number
-        totalPaginas: number
-    }
 }
 
-export const ProvedorAdmin = ({ children, userId, avaliacoes, mentorias, temas, alunos, criterios }: AssistenteProvedorProps) => {
+export const ProvedorAssistente = ({ children, userId, avaliacoes, mentorias, temas, criterios }: AssistenteProvedorProps) => {
     const { notificacoes } = useWebPush({ userId })
     const [listaAvaliacoes, setListaAvaliacoes] = useState(avaliacoes);
     const [listaMentorias, setListaMentorias] = useState(mentorias);
     const [listaTemas, setListaTemas] = useState(temas);
-    const [listaAlunos, setListaAlunos] = useState(alunos.data);
-
     const [carregamento, setCarregamento] = useState(false);
 
     useEffect(() => {
@@ -118,10 +108,6 @@ export const ProvedorAdmin = ({ children, userId, avaliacoes, mentorias, temas, 
             listaAvaliacoes,
             listaMentorias,
             listaTemas,
-            listaAlunos,
-            totalPaginas: alunos.totalPaginas,
-            pagina: alunos.pagina,
-            limite: alunos.limite,
             notificacoes,
             listaCriterios: criterios
         }}>
