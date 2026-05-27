@@ -1,5 +1,5 @@
 
-import { ListarAvaliacoesAlunoId, listarTemasDisponiveis } from '@/actions/avaliacao';
+import { ListarAvaliacoesAlunoId, ListarCriterios, listarTemasDisponiveis } from '@/actions/avaliacao';
 import { TabelaAvaliacoesAluno } from '@/components/tabela-avaliacoes-aluno';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
@@ -28,7 +28,7 @@ export default async function Page() {
 
   const avaliacoes = await ListarAvaliacoesAlunoId(userId);
   const temas = await listarTemasDisponiveis(userId);
-  const professor = await obterProfessor()
+  const criterios = await ListarCriterios()
 
   return (
     <Suspense fallback={<Loading />}>
@@ -38,7 +38,7 @@ export default async function Page() {
             <h2 className="text-primary font-semibold">Suas Avaliações</h2>
           </div>
 
-          <TabelaAvaliacoesAluno avaliacoesIniciais={avaliacoes} temasIniciais={temas} />
+          <TabelaAvaliacoesAluno avaliacoesIniciais={avaliacoes} temasIniciais={temas} criterios={criterios} />
         </main>
       </div>
     </Suspense>

@@ -70,10 +70,10 @@ interface Professor {
 interface TabelaAvaliacoesAlunoProps {
     avaliacoesIniciais: ListaAvaliacoesPaginada,
     temasIniciais: ListaTemas,
+    criterios: Criterio[]
 }
 
-export function TabelaAvaliacoesAluno({ avaliacoesIniciais, temasIniciais }: TabelaAvaliacoesAlunoProps) {
-    const { criterios } = useContext(ContextoAluno);
+export function TabelaAvaliacoesAluno({ avaliacoesIniciais, temasIniciais, criterios }: TabelaAvaliacoesAlunoProps) {
     const [temas, setTemas] = useState<ListaTemas>({ data: [], meta: { total: 0, pagina: 1, limite: 10, totalPaginas: 0 } });
     const [avaliacoes, setAvaliacoes] = useState<ListaAvaliacoesPaginada>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
     const [loading, setLoading] = useState(false);
