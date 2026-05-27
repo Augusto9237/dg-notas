@@ -8,6 +8,8 @@ import AlunoWrapper from './wrapper';
 import Loading from './loading';
 import { Analytics } from '@vercel/analytics/next';
 import { obterInformacoes } from '@/actions/configuracoes';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 
 const poppins = Poppins({
     weight: ['400', '500', '600', '700'],
@@ -51,6 +53,22 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         --secondary-foreground: ${configuracoes.coresSistema[3].valor};
       }
     `: null
+
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session?.user) {
+        redirect('/');
+    }
+
+    if (session.user.role !== 'user') {
+        await auth.api.signOut({
+            headers: await headers()
+        });
+        redirect('/');
+    }
+
 
     return (
         <html lang="pt-BR" suppressHydrationWarning>

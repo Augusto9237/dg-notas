@@ -30,7 +30,6 @@ interface RootLayoutProps {
 
 
 export default async function AlunoWrapper({ children, configuracoes }: RootLayoutProps) {
-
     const session = await auth.api.getSession({
         headers: await headers()
     });

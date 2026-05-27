@@ -14,6 +14,7 @@ import { useContext, useEffect, useState } from "react"
 import { ContextoAluno } from "@/context/contexto-aluno"
 import { calcularMediaMensal } from "@/lib/media-geral"
 import { ListarAvaliacoesAlunoId } from "@/actions/avaliacao"
+import { atualizarCache } from "@/actions/cache"
 
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
@@ -55,9 +56,7 @@ export function DesempenhoAlunoGrafico({ avaliacoes, userId }: DesempenhoAlunoGr
 
             try {
                 if (url === '/aluno/avaliacoes') {
-                    setCarregamento(true);
-                    const novasAvaliacoes = await ListarAvaliacoesAlunoId(userId, '', 10000, 1)
-                    setListaAvaliacoes(novasAvaliacoes.data);
+                   await atualizarCache(`listar-avaliacoes-aluno-${userId}`)
                 }
 
             } catch (error) {
