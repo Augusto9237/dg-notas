@@ -17,9 +17,9 @@ type Avaliacao = Prisma.AvaliacaoGetPayload<{
 
 interface Props {
     avaliacoes: Avaliacao[]
+    criterios: Criterio[]
 }
-export function ListaCompetenciasAluno({ avaliacoes }: Props) {
-    const { criterios } = useContext(ContextoAluno);
+export function ListaCompetenciasAluno({ avaliacoes, criterios }: Props) {
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
 
     useEffect(() => {

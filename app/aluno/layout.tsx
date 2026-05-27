@@ -6,10 +6,12 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import "../globals.css";
 import AlunoWrapper from './wrapper';
 import Loading from './loading';
+import { User } from '../generated/prisma';
 import { Analytics } from '@vercel/analytics/next';
 import { obterInformacoes } from '@/actions/configuracoes';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 const poppins = Poppins({
     weight: ['400', '500', '600', '700'],
@@ -40,20 +42,7 @@ interface RootLayoutProps {
     children: ReactNode
 }
 
-export default async function RootLayout({ children }: RootLayoutProps) {
-    const configuracoes = await obterInformacoes();
-
-    // Monta a string de variáveis apenas se houver cores salvas
-    const themeStyle = configuracoes?.coresSistema
-        ? `
-      :root {
-        --primary: ${configuracoes.coresSistema[0].valor};
-        --primary-foreground: ${configuracoes.coresSistema[1].valor};
-        --secondary: ${configuracoes.coresSistema[2].valor};
-        --secondary-foreground: ${configuracoes.coresSistema[3].valor};
-      }
-    `: null
-
+async function AlunoLayoutContent({ children, configuracoes }: { children: ReactNode; configuracoes: any }) {
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -69,6 +58,26 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         redirect('/');
     }
 
+    return (
+        <AlunoWrapper configuracoes={configuracoes} user={session.user as User}>
+            {children}
+        </AlunoWrapper>
+    );
+}
+
+export default async function RootLayout({ children }: RootLayoutProps) {
+    const configuracoes = await obterInformacoes();
+
+    // Monta a string de variáveis apenas se houver cores salvas
+    const themeStyle = configuracoes?.coresSistema
+        ? `
+      :root {
+        --primary: ${configuracoes.coresSistema[0].valor};
+        --primary-foreground: ${configuracoes.coresSistema[1].valor};
+        --secondary: ${configuracoes.coresSistema[2].valor};
+        --secondary-foreground: ${configuracoes.coresSistema[3].valor};
+      }
+    `: null
 
     return (
         <html lang="pt-BR" suppressHydrationWarning>
@@ -85,9 +94,9 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             </head>
             <body className={`${poppins.className} antialiased`}>
                 <Suspense fallback={<Loading />}>
-                    <AlunoWrapper configuracoes={configuracoes}>
+                    <AlunoLayoutContent configuracoes={configuracoes}>
                         {children}
-                    </AlunoWrapper>
+                    </AlunoLayoutContent>
                 </Suspense>
                 <SpeedInsights />
                 <Analytics />

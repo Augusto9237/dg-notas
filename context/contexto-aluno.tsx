@@ -39,7 +39,6 @@ export interface ContextoAlunoProps {
             totalPages: number,
         }
     }
-    criterios: Criterio[]
     notificacoes: {
         title: string;
         body: any;

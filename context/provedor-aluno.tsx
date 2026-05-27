@@ -13,11 +13,6 @@ type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
     }
 }>
 
-type Tema = Prisma.TemaGetPayload<{
-    include: {
-        professor: true
-    }
-}>
 
 export type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -43,10 +38,9 @@ type Avaliacoes = {
 interface AlunoProviderProps {
     children: ReactNode
     userId: string
-    criterios: Criterio[]
 }
 
-export const ProvedorAluno = ({ children, userId, criterios }: AlunoProviderProps) => {
+export const ProvedorAluno = ({ children, userId }: AlunoProviderProps) => {
     const { notificacoes } = useWebPush({ userId });
     const [isLoading, setIsLoading] = useState(false);
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacoes>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
@@ -56,7 +50,6 @@ export const ProvedorAluno = ({ children, userId, criterios }: AlunoProviderProp
         <ContextoAluno.Provider value={{
             isLoading,
             listaAvaliacoes,
-            criterios,
             notificacoes
         }}>
             {children}

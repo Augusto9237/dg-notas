@@ -12,11 +12,12 @@ import { ProvedorTemas } from "@/context/provedor-temas";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { auth } from "@/lib/auth";
 import { Clock } from "lucide-react";
+import { cacheLife, updateTag } from "next/cache";
 import { headers, cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 import { Toaster } from "sonner";
-import { Prisma } from "../generated/prisma";
+import { Prisma, User } from "../generated/prisma";
 import { atualizarCache } from "@/actions/cache";
 
 type ConfiguracaoComCores = Prisma.ConfiguracaoGetPayload<{
@@ -26,28 +27,15 @@ type ConfiguracaoComCores = Prisma.ConfiguracaoGetPayload<{
 interface RootLayoutProps {
     children: ReactNode
     configuracoes: ConfiguracaoComCores | null;
+    user: User
 }
 
 
-export default async function AlunoWrapper({ children, configuracoes }: RootLayoutProps) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+export default async function AlunoWrapper({ children, configuracoes, user }: RootLayoutProps) {
 
-    if (!session?.user) {
-        redirect('/');
-    }
-
-    if (session.user.role !== 'user') {
-        await auth.api.signOut({
-            headers: await headers()
-        });
-        redirect('/');
-    }
-
-    if (session.user.matriculado === false) {
+    if (user.matriculado === false) {
         const cookieStore = await cookies();
-        const cookieName = `aviso_acesso_${session.user.id}`;
+        const cookieName = `aviso_acesso_${user.id}`;
         const hasNotified = cookieStore.get(cookieName);
 
         if (!hasNotified) {
@@ -57,13 +45,13 @@ export default async function AlunoWrapper({ children, configuracoes }: RootLayo
                 await enviarNotificacaoParaTodos(
                     'admin',
                     'Novo login com acesso pendente',
-                    `O aluno ${session.user.name} realizou login no aplicativo e solicita liberação de acesso`,
+                    `O aluno ${user.name} realizou login no aplicativo e solicita liberação de acesso`,
                     '/admin/alunos'
                 );
                 await enviarNotificacaoParaTodos(
                     'assistente',
                     'Novo login com acesso pendente',
-                    `O aluno ${session.user.name} realizou login no aplicativo e solicita liberação de acesso`,
+                    `O aluno ${user.name} realizou login no aplicativo e solicita liberação de acesso`,
                     '/assistente/alunos'
                 );
 
@@ -78,8 +66,8 @@ export default async function AlunoWrapper({ children, configuracoes }: RootLayo
             <>
                 <InstalarIos />
                 <PwaInstallPrompt />
-                <InicializarNotificacoes userId={session.user.id} />
-                <FormularioTelefone user={session.user} />
+                <InicializarNotificacoes userId={user.id} />
+                <FormularioTelefone user={user} />
                 <main className='flex flex-col w-full h-screen justify-center items-center gap-2 p-5'>
                     <Clock className='stroke-primary' />
                     <h1 className="text-xl text-primary font-semibold">
@@ -91,10 +79,8 @@ export default async function AlunoWrapper({ children, configuracoes }: RootLayo
                 </main>
             </>
         )
-    } else if (session.user.matriculado === true) {
-
-        const userId = session.user.id;
-        const criterios = await ListarCriterios();
+    } else if (user.matriculado === true) {
+        const userId = user.id;
         return (
             <>
                 <ProvedorTemas
@@ -108,12 +94,11 @@ export default async function AlunoWrapper({ children, configuracoes }: RootLayo
                     <InicializarNotificacoes userId={userId} />
                     <ProvedorAluno
                         userId={userId}
-                        criterios={criterios}
                     >
                         <SidebarProvider>
                             <AppSidebarAluno logo={configuracoes?.logoSistema!} />
                             <SidebarInset className="relative">
-                                <FormularioTelefone user={session.user} />
+                                <FormularioTelefone user={user} />
                                 <main>
                                     {children}
                                 </main>
