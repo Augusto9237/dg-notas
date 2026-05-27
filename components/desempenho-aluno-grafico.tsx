@@ -13,8 +13,8 @@ import {
 import { useContext, useEffect, useState } from "react"
 import { ContextoAluno } from "@/context/contexto-aluno"
 import { calcularMediaMensal } from "@/lib/media-geral"
-import { ListarAvaliacoesAlunoId } from "@/actions/avaliacao"
 import { atualizarCache } from "@/actions/cache"
+import { Skeleton } from "./ui/skeleton"
 
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
@@ -37,6 +37,17 @@ const chartConfig = {
     },
 } satisfies ChartConfig
 
+export function DesempenhoAlunoGraficoSkeleton() {
+    return (
+        <div className='h-full flex flex-col overflow-hidden p-5 pb-6 max-sm:pb-14'>
+            <h2 className="mb-3 text-primary font-semibold">Seu Desempenho</h2>
+            <ChartContainer config={chartConfig} className="flex-1 mb-2 max-sm:mb-1">
+                <Skeleton className="w-full h-24 rounded-lg" />
+            </ChartContainer>
+        </div>
+    );
+}
+
 export function DesempenhoAlunoGrafico({ avaliacoes, userId }: DesempenhoAlunoGraficoProps) {
     const { notificacoes } = useContext(ContextoAluno);
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
@@ -56,7 +67,7 @@ export function DesempenhoAlunoGrafico({ avaliacoes, userId }: DesempenhoAlunoGr
 
             try {
                 if (url === '/aluno/avaliacoes') {
-                   await atualizarCache(`listar-avaliacoes-aluno-${userId}`)
+                    await atualizarCache(`listar-avaliacoes-aluno-${userId}`)
                 }
 
             } catch (error) {

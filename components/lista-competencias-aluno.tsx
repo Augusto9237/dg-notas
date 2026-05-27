@@ -6,6 +6,7 @@ import { ContextoAluno } from "@/context/contexto-aluno";
 import { useContext, useEffect, useState } from "react";
 import { CardCompetencia } from "./card-competencias";
 import { authClient } from "@/lib/auth-client";
+import { Skeleton } from "./ui/skeleton";
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
     include: {
@@ -19,6 +20,18 @@ interface Props {
     avaliacoes: Avaliacao[]
     criterios: Criterio[]
 }
+
+export function ListaCompetenciasAlunoSkeleton() {
+    return (
+        <div className='sm:space-y-4 max-sm:px-5 md:h-full max-sm:flex max-sm:gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden'>
+            {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="w-full rounded-lg max-sm:min-w-[90vw] min-h-[124px] h-full max-h-[124px]" />
+            ))}
+        </div>
+    );
+}
+
+
 export function ListaCompetenciasAluno({ avaliacoes, criterios }: Props) {
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
 

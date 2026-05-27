@@ -12,6 +12,7 @@ import { listarMentoriasAluno } from "@/actions/mentoria";
 import useWebPush from "@/hooks/useWebPush";
 import { toast } from "sonner";
 import { User } from "better-auth";
+import { Skeleton } from "./skeleton";
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -44,14 +45,28 @@ interface HeaderProps {
       mediaGeral: number
     }
   }
-  mentorias: {
-    data: Mentoria[],
-    meta: {
-      total: number,
-      totalPages: number,
-    }
-  }
+  mentorias: number
   user: User
+}
+
+export function HeaderSkeleton() {
+  return (
+    <div className="bg-primary min-[1025px]:bg-transparent  p-5 h-[159px] overflow-hidden rounded-b-2xl">
+      <div className="flex min-[1025px]:flex-row-reverse items-center gap-3 mb-4 min-[1025px]:justify-between">
+        <Skeleton className="w-10 h-10 rounded-full" />
+        <div>
+          <Skeleton className="w-20 h-5" />
+          <Skeleton className="w-32 h-6" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 min-[1025px]:gap-5">
+        <Skeleton className="w-full h-24 rounded-lg" />
+        <Skeleton className="w-full h-24 rounded-lg" />
+        <Skeleton className="w-full h-24 rounded-lg" />
+      </div>
+    </div>
+  )
 }
 
 export default function Header({ avaliacoes, mentorias, user }: HeaderProps) {
@@ -63,13 +78,7 @@ export default function Header({ avaliacoes, mentorias, user }: HeaderProps) {
       mediaGeral: 0
     }
   });
-  const [listaMentorias, setListaMentorias] = useState<HeaderProps['mentorias']>({
-    data: [],
-    meta: {
-      total: 0,
-      totalPages: 0,
-    }
-  });
+  const [listaMentorias, setListaMentorias] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const { subscribe, permission } = useWebPush({ userId: user.id })
 
@@ -79,7 +88,7 @@ export default function Header({ avaliacoes, mentorias, user }: HeaderProps) {
     setListaMentorias(mentorias);
     setIsLoading(false)
   }, [avaliacoes, mentorias]);
-  
+
   return (
     <div className="bg-primary min-[1025px]:bg-transparent  p-5 h-[159px] overflow-hidden rounded-b-2xl">
       <div className="flex min-[1025px]:flex-row-reverse items-center gap-3 mb-4 min-[1025px]:justify-between">
@@ -123,7 +132,7 @@ export default function Header({ avaliacoes, mentorias, user }: HeaderProps) {
 
         <Card className="text-center bg-card/10 min-[1025px]:bg-card/100 rounded-lg backdrop-blur-sm border-none min-[1025px]:border-border gap-0 p-2 min-[1025px]:p-4">
           <CardTitle className="text-lg font-bold text-secondary">
-            {listaMentorias.meta.total}
+            {listaMentorias}
           </CardTitle>
           <CardDescription className="text-xs opacity-90 text-card min-[1025px]:text-muted-foreground dark:text-muted-foreground">Mentorias</CardDescription>
         </Card>

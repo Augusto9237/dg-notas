@@ -81,6 +81,7 @@ export default async function AlunoWrapper({ children, configuracoes, user }: Ro
         )
     } else if (user.matriculado === true) {
         const userId = user.id;
+
         return (
             <>
                 <ProvedorTemas
