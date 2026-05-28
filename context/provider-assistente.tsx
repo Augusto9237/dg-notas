@@ -6,6 +6,7 @@ import useWebPush from "@/hooks/useWebPush"
 import { listarMentoriasMes } from "@/actions/mentoria"
 import { ListarAvaliacoes, listarTemas } from "@/actions/avaliacao"
 import { ContextoAssistente } from "./contexto-assistente"
+import { atualizarCache } from "@/actions/cache"
 
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
@@ -91,6 +92,10 @@ export const ProvedorAssistente = ({ children, userId, avaliacoes, mentorias, te
                 if (url === '/assistente/mentorias') {
                     const novasMentorias = await listarMentoriasMes()
                     setListaMentorias(novasMentorias);
+                }
+
+                if (url === '/assistente/alunos') {
+                    await atualizarCache('lista-alunos')
                 }
             } catch (error) {
                 console.error("Erro ao atualizar dados via notificação:", error);

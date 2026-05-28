@@ -288,5 +288,12 @@ export async function avisoNovoAcesso(name:string) {
       '/admin/alunos'
   );
 
-  return res
+  const res2 = await enviarNotificacaoParaTodos(
+    'assistente',
+    'Novo login com acesso pendente',
+    `O aluno ${name} realizou login no aplicativo e solicita liberação de acesso`,
+    '/assistente/alunos'
+  );
+
+  return {res, res2}
 }

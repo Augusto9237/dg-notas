@@ -6,6 +6,7 @@ import { ContextoAdmin } from "./contexto-admin"
 import useWebPush from "@/hooks/useWebPush"
 import { listarMentoriasMes } from "@/actions/mentoria"
 import { ListarAvaliacoes, listarTemas } from "@/actions/avaliacao"
+import { atualizarCache } from "@/actions/cache"
 
 type Configuracao = Prisma.ConfiguracaoGetPayload<{
     include: {
@@ -94,6 +95,10 @@ export const ProvedorAdmin = ({ children, configuracoes, userId, avaliacoes, men
                 if (url === '/admin/mentorias') {
                     const novasMentorias = await listarMentoriasMes()
                     setListaMentorias(novasMentorias);
+                }
+
+                if (url === '/admin/alunos') {
+                    await atualizarCache('lista-alunos')
                 }
             } catch (error) {
                 console.error("Erro ao atualizar dados via notificação:", error);

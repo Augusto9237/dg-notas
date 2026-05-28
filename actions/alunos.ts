@@ -4,62 +4,58 @@ import { prisma } from "@/lib/prisma";
 import { cacheLife, cacheTag, revalidatePath, updateTag } from "next/cache";
 import { headers } from "next/headers";
 
+async function obterAlunos(busca?: string, page: number = 1, limit: number = 12) {
+  'use cache'
+  cacheLife({
+    stale:      300,
+    revalidate: 3600,
+    expire:     86400,
+  })
+  cacheTag('lista-alunos')
 
-async function obterAlunos(busca?: string, page: number = 1, limit: number = 12){
-    'use cache'
-    cacheLife({stale: 1800})
-    cacheTag('lista-alunos')
-    
-   try {
-        const skip = (page - 1) * limit;
-        // Construir o where clause dinamicamente
-        const clasulaDeFiltro = {
-            accounts: {
-                every: {
-                    providerId: 'google'
-                }
-            },
-            banned: false, // Adicionado filtro para usuários não banidos
-            ...(busca && busca.trim() !== '' && {
-                email: {
-                    contains: busca.trim(),
-                    mode: 'insensitive' as const, // Case-insensitive
-                },
-            }),
-        };
+  const skip = (page - 1) * limit;
 
-        const [alunos, total] = await prisma.$transaction([
-            prisma.user.findMany({
-                where: clasulaDeFiltro,
-                take: limit,
-                skip: skip,
-                include: {
-                    avaliacoesComoAluno: true
-                },
-                orderBy: {
-                    name: 'asc'
-                }
-            }),
-            prisma.user.count({
-                where: { role: 'user', matriculado: true, banned: false }
-            })
-        ]);
+  const clausulaDeFiltro = {
+    accounts: {
+      every: {
+        providerId: 'google'
+      }
+    },
+    banned: false,
+    ...(busca && busca.trim() !== '' && {
+      email: {
+        contains: busca.trim(),
+        mode: 'insensitive' as const,
+      },
+    }),
+  };
 
-        const totalPaginas = Math.ceil(total / limit);
+  try {
+    const [alunos, total] = await Promise.all([
+      prisma.user.findMany({
+        where: clausulaDeFiltro,
+        take: limit,
+        skip: skip,
+        include: { avaliacoesComoAluno: true },
+        orderBy: { name: 'asc' }
+      }),
+      prisma.user.count({
+        where: {...clausulaDeFiltro, matriculado: true}
+      })
+    ]);
 
-        return {
-            data: alunos,
-            total,
-            pagina: page,
-            limite: limit,
-            totalPaginas
-        };
-    } catch (error) {
-        console.error("Erro ao listar alunos do Google:", error);
-        throw error;
-    }
+    return {
+      data: alunos,
+      total,
+      pagina: page,
+      limite: limit,
+      totalPaginas: Math.ceil(total / limit)
+    };
+  } catch (error) {
+    console.error('Erro ao listar alunos:', error);
+    throw error;
+  }
 }
-
 
 export async function listarAlunosGoogle(busca?: string, page: number = 1, limit: number = 12) {
     const session = await auth.api.getSession({

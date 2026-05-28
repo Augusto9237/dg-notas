@@ -1,6 +1,6 @@
 
 import { ListarCriterios } from "@/actions/avaliacao";
-import { enviarNotificacaoParaTodos } from "@/actions/notificacoes";
+import { avisoNovoAcesso, enviarNotificacaoParaTodos } from "@/actions/notificacoes";
 import { AppSidebarAluno } from "@/components/app-sidebar-aluno";
 import { FormularioTelefone } from "@/components/formulario-telefone";
 import { InicializarNotificacoes } from "@/components/inicializar-notificacoes";
@@ -34,32 +34,7 @@ interface RootLayoutProps {
 export default async function AlunoWrapper({ children, configuracoes, user }: RootLayoutProps) {
 
     if (user.matriculado === false) {
-        const cookieStore = await cookies();
-        const cookieName = `aviso_acesso_${user.id}`;
-        const hasNotified = cookieStore.get(cookieName);
-
-        if (!hasNotified) {
-            try {
-                await atualizarCache('lista-alunos');
-
-                await enviarNotificacaoParaTodos(
-                    'admin',
-                    'Novo login com acesso pendente',
-                    `O aluno ${user.name} realizou login no aplicativo e solicita liberação de acesso`,
-                    '/admin/alunos'
-                );
-                await enviarNotificacaoParaTodos(
-                    'assistente',
-                    'Novo login com acesso pendente',
-                    `O aluno ${user.name} realizou login no aplicativo e solicita liberação de acesso`,
-                    '/assistente/alunos'
-                );
-
-                cookieStore.set(cookieName, 'true', { maxAge: 300 });
-            } catch (error) {
-                console.error("Erro ao enviar notificações de acesso pendente:", error);
-            }
-        }
+        await avisoNovoAcesso(user.name)
 
 
         return (

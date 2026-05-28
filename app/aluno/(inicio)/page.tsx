@@ -6,9 +6,7 @@ import { redirect } from 'next/navigation';
 import { ListaCompetenciasAluno, ListaCompetenciasAlunoSkeleton } from '@/components/lista-competencias-aluno';
 import { DesempenhoAlunoGrafico, DesempenhoAlunoGraficoSkeleton } from '@/components/desempenho-aluno-grafico';
 import { listarMentoriasAluno } from '@/actions/mentoria';
-import { cacheTag } from 'next/cache';
 import { Suspense } from 'react';
-import Loading from '../loading';
 
 export default async function Page() {
   const session = await auth.api.getSession({
@@ -23,7 +21,7 @@ export default async function Page() {
 
   const criterios = await ListarCriterios();
   const avaliacoes = await ListarAvaliacoesAlunoId(user.id)
-  const mentorias = await (await listarMentoriasAluno(user.id)).meta.total
+  const mentorias = (await listarMentoriasAluno(user.id)).meta.total
 
 
   return (
