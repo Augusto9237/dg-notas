@@ -6,6 +6,7 @@ import { ContextoProfessor } from "./contexto-professor"
 import useWebPush from "@/hooks/useWebPush"
 import { listarMentoriasMes } from "@/actions/mentoria"
 import { ListarAvaliacoes, listarTemas } from "@/actions/avaliacao"
+import { atualizarRota } from "@/actions/cache"
 
 type Configuracao = Prisma.ConfiguracaoGetPayload<{
     include: {
@@ -13,13 +14,6 @@ type Configuracao = Prisma.ConfiguracaoGetPayload<{
     }
 }>
 
-type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
-    include: {
-        aluno: true,
-        criterios: true,
-        tema: true,
-    }
-}>
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -48,7 +42,6 @@ interface ProfessorProviderProps {
     children: ReactNode
     configuracoes: Configuracao
     userId: string
-    mentorias: Mentoria[]
     temas: {
         data: Tema[]
         meta: {
@@ -61,9 +54,8 @@ interface ProfessorProviderProps {
     criterios: Criterio[];
 }
 
-export const ProvedorProfessor = ({ children, configuracoes, userId, mentorias, temas, criterios }: ProfessorProviderProps) => {
+export const ProvedorProfessor = ({ children, configuracoes, userId, temas, criterios }: ProfessorProviderProps) => {
     const { notificacoes } = useWebPush({ userId })
-    const [listaMentorias, setListaMentorias] = useState(mentorias);
     const [listaTemas, setListaTemas] = useState(temas);
 
     const [carregamento, setCarregamento] = useState(false);
@@ -84,8 +76,7 @@ export const ProvedorProfessor = ({ children, configuracoes, userId, mentorias, 
                 }
 
                 if (url === '/professor/mentorias') {
-                    const novasMentorias = await listarMentoriasMes()
-                    setListaMentorias(novasMentorias);
+                    await atualizarRota('/professor/mentorias')
                 }
             } catch (error) {
                 console.error("Erro ao atualizar dados via notificação:", error);
@@ -101,7 +92,6 @@ export const ProvedorProfessor = ({ children, configuracoes, userId, mentorias, 
         <ContextoProfessor.Provider value={{
             configuracoes,
             userId,
-            listaMentorias,
             listaTemas,
             notificacoes,
             listaCriterios: criterios

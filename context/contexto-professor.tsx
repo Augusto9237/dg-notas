@@ -8,18 +8,6 @@ type Configuracao = Prisma.ConfiguracaoGetPayload<{
     }
 }>
 
-
-type Mentoria = Prisma.MentoriaGetPayload<{
-    include: {
-        aluno: true,
-        horario: {
-            include: {
-                slot: true
-            }
-        }
-    }
-}>
-
 type Tema = Prisma.TemaGetPayload<{
     include: {
         Avaliacao: true
@@ -35,7 +23,6 @@ export type Notificacoes = {
 interface ContextoProfessorProps {
     configuracoes: Configuracao
     userId: string
-    listaMentorias: Mentoria[]
     listaTemas: {
         data: Tema[]
         meta: {

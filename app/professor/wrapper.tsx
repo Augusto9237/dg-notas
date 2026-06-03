@@ -11,9 +11,8 @@ import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 import { InicializarNotificacoes } from "@/components/inicializar-notificacoes";
 import { ProvedorProfessor } from "@/context/provider-professor";
-import { ListarAvaliacoes, listarTemasMes, listarTemas, ListarCriterios, listarTemasProfessor } from "@/actions/avaliacao";
-import { listarMentoriasMes, listarMentoriasProfessor } from "@/actions/mentoria";
-import { listarAlunosGoogle } from "@/actions/alunos";
+import { ListarCriterios, listarTemasProfessor } from "@/actions/avaliacao";
+import { listarMentoriasProfessor } from "@/actions/mentoria";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { ProvedorTemas } from "@/context/provedor-temas";
@@ -50,8 +49,7 @@ export default async function ProfessorWrapper({
   const userId = session.user.id;
 
   // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
-  const [mentorias, temas, criterios] = await Promise.all([
-    listarMentoriasProfessor(userId),
+  const [temas, criterios] = await Promise.all([
     listarTemasProfessor(userId),
     ListarCriterios()
   ]);
@@ -67,7 +65,7 @@ export default async function ProfessorWrapper({
         <InstalarIos />
         <PwaInstallPrompt />
         <InicializarNotificacoes userId={userId} />
-        <ProvedorProfessor configuracoes={configuracoes} userId={userId} mentorias={mentorias} temas={temas} criterios={criterios}>
+        <ProvedorProfessor configuracoes={configuracoes} userId={userId} temas={temas} criterios={criterios}>
           <SidebarProvider>
             <AppSidebarProfessor logo={configuracoes.logoSistema} />
             <SidebarInset className="relative">
