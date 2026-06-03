@@ -110,7 +110,6 @@ const CelulaHorario = React.memo(
     eSegunda,
     mentorias,
     carregando,
-    setListaMentorias,
     diasSemana,
     slotsHorario,
   }: CelulaHorarioProps) => {
@@ -167,11 +166,6 @@ export function CalendarioGrande({
   useEffect(() => {
     setListaMentorias(mentorias)
   }, [mentorias])
-
-  const diasSemanaAtivos = useMemo(() =>
-    diasSemana.filter(dia => dia.status),
-    [diasSemana]
-  )
 
   const slotsHorarioAtivos = useMemo(() =>
     slotsHorario.filter(slot => slot.status),
@@ -243,8 +237,8 @@ export function CalendarioGrande({
       6: 'grid-cols-[80px_1fr_1fr_1fr_1fr_1fr_1fr]',
       7: 'grid-cols-[80px_1fr_1fr_1fr_1fr_1fr_1fr_1fr]',
     };
-    return classMap[diasSemanaAtivos.length] || '';
-  }, [diasSemanaAtivos.length]);
+    return classMap[diasSemana.length] || '';
+  }, [diasSemana.length]);
 
   useEffect(() => {
     router.replace(`?mes=${Object.values(diasDaSemana)[0].getMonth() + 1 || semanaAtual.getMonth() + 1}&ano=${Object.values(diasDaSemana)[0].getFullYear() || semanaAtual.getFullYear()}`)
@@ -307,10 +301,10 @@ export function CalendarioGrande({
           <div className="border-r border-border p-2 text-center text-sm max-md:text-xs font-medium text-muted-foreground">
             Horário
           </div>
-          {diasSemanaAtivos.map((dia, index) => (
+          {diasSemana.map((dia, index) => (
             <div
               key={dia.id}
-              className={`p-2 text-center ${index < diasSemanaAtivos.length - 1 ? 'border-r border-border' : ''}`}
+              className={`p-2 text-center ${index < diasSemana.length - 1 ? 'border-r border-border' : ''}`}
             >
               <div className="text-sm max-md:text-xs font-medium text-muted-foreground">
                 {dia.nome}
@@ -335,7 +329,7 @@ export function CalendarioGrande({
                 >
                   <p className="font-medium">{slot.nome.split(" ")[0]}</p>
                 </div>
-                {diasSemanaAtivos.map((dia, diaIndex) => (
+                {diasSemana.map((dia, diaIndex) => (
                   <CelulaHorario
                     key={`${slot.id}-${dia.id}`}
                     data={diasDaSemana[dia.nome.toLowerCase()]}

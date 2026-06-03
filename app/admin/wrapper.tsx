@@ -54,9 +54,7 @@ export default async function ProfessorWrapper({
   const userId = session.user.id;
 
   // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
-  const [avaliacoes, mentorias, temas, criterios] = await Promise.all([
-    ListarAvaliacoes(undefined, undefined, 1, 12),
-    listarMentoriasMes(),
+  const [temas, criterios] = await Promise.all([
     listarTemas(),
     ListarCriterios()
   ]);
@@ -72,7 +70,7 @@ export default async function ProfessorWrapper({
         <InstalarIos />
         <PwaInstallPrompt />
         <InicializarNotificacoes userId={userId} />
-        <ProvedorAdmin configuracoes={configuracoes} userId={userId} avaliacoes={avaliacoes} mentorias={mentorias} temas={temas} criterios={criterios}>
+        <ProvedorAdmin configuracoes={configuracoes} userId={userId} temas={temas} criterios={criterios}>
           <SidebarProvider>
             <AppSidebar logo={configuracoes.logoSistema} />
             <SidebarInset className="relative">

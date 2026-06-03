@@ -4,8 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileX } from 'lucide-react';
 import { ListaAvaliacoes } from '@/components/lista-avaliacoes';
 import { CardNovoTema } from '@/components/card-novotema';
-import { ContextoAluno } from '@/context/contexto-aluno';
-import { useContext, useEffect, useState } from 'react';
+
+import { useEffect, useState } from 'react';
 import { Criterio, Prisma } from '@/app/generated/prisma';
 import InfiniteScroll from './ui/infinite-scroll';
 import { Spinner } from './ui/spinner';
@@ -56,15 +56,6 @@ interface ListaAvaliacoesPaginada {
     }
 }
 
-interface Professor {
-    id: string;
-    nome: string;
-    email: string;
-    telefone: string | null;
-    especialidade: string | null;
-    bio: string | null;
-    image: string | null;
-}
 
 
 interface TabelaAvaliacoesAlunoProps {

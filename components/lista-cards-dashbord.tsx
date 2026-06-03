@@ -65,8 +65,6 @@ export function ListaCardsDashboard({ avaliacoes, temas, mentorias, totalAlunos,
     const mes = params.get('mes');
     const ano = params.get('ano')
 
-    // Sincroniza o estado local quando as props do servidor mudam
-    // (ex.: navegação com searchParams diferentes)
     useEffect(() => {
         setListaAvaliacoes(avaliacoes);
         setListaMentorias(mentorias);
