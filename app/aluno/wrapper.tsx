@@ -34,6 +34,7 @@ interface RootLayoutProps {
 export default async function AlunoWrapper({ children, configuracoes, user }: RootLayoutProps) {
 
     if (user.matriculado === false) {
+
         await avisoNovoAcesso(user.name)
 
 

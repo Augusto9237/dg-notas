@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendWebPushNotifications } from "@/lib/webpush";
 import type { PushSubscriptionData, NotificationPayload } from "@/lib/webpush";
-import { cacheLife } from "next/cache";
+import { cacheLife, updateTag } from "next/cache";
 import { headers } from "next/headers";
 
 
@@ -153,7 +153,8 @@ export async function enviarNotificacaoParaTodos(
   role: string,
   title: string,
   message: string,
-  link?: string
+  link?: string,
+  cache?: string
 ) {
   try {
     const subscriptions = await buscarSubscriptionsPorRole(role);
@@ -182,6 +183,10 @@ export async function enviarNotificacaoParaTodos(
     console.log('📋 Payload:', { title, body: message, requireInteraction: true });
 
     const result = await sendWebPushNotifications(subscriptions, payload);
+
+    if (cache) {
+      updateTag(cache);
+    }
 
     console.log('✅ Resultado do envio:', result);
 
@@ -285,7 +290,7 @@ export async function avisoNovoAcesso(name:string) {
       'admin',
       'Novo login com acesso pendente',
       `O aluno ${name} realizou login no aplicativo e solicita liberação de acesso`,
-      '/admin/alunos'
+      '/admin/alunos',
   );
 
   const res2 = await enviarNotificacaoParaTodos(

@@ -29,9 +29,7 @@ import React from "react"
 import { ModalMentoriaProfessor } from "./modal-mentoria-professor"
 import { TbClockCheck } from "react-icons/tb"
 import { RiUserStarLine } from "react-icons/ri"
-import { ContextoProfessor } from "@/context/contexto-professor"
-import { ContextoAdmin } from "@/context/contexto-admin"
-import { ContextoAssistente } from "@/context/contexto-assistente"
+import { useRouter } from "next/navigation"
 
 // Types
 type Mentoria = Prisma.MentoriaGetPayload<{
@@ -48,8 +46,8 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 interface CalendarioGrandeProps {
   diasSemana: DiaSemana[]
   slotsHorario: SlotHorario[]
+  mentorias: Mentoria[]
 }
-
 
 // Constantes
 const STATUS_OPCOES = [
@@ -156,18 +154,19 @@ CelulaHorario.displayName = "CelulaHorario"
 
 // Componente Principal
 export function CalendarioGrande({
-  // mentorias,
+  mentorias,
   diasSemana,
   slotsHorario
 }: CalendarioGrandeProps) {
-  const contextoProfessor = useContext(ContextoProfessor)
-  const contextoAdmin = useContext(ContextoAdmin)
-  const contextoAssistente = useContext(ContextoAssistente)
-  const mentorias = contextoProfessor?.listaMentorias || contextoAdmin?.listaMentorias || contextoAssistente?.listaMentorias || []
   const [statusSelecionado, setStatusSelecionado] = useState<string>("TODAS")
   const [semanaAtual, setSemanaAtual] = useState(obterInicioSemanaAtual)
   const [listaMentorias, setListaMentorias] = useState<Mentoria[]>([])
   const [carregando, setCarregando] = useState(false)
+
+  const router = useRouter()
+  useEffect(() => {
+    setListaMentorias(mentorias)
+  }, [mentorias])
 
   const diasSemanaAtivos = useMemo(() =>
     diasSemana.filter(dia => dia.status),
@@ -179,9 +178,6 @@ export function CalendarioGrande({
     [slotsHorario]
   )
 
-  useEffect(() => {
-    setListaMentorias(mentorias)
-  }, [mentorias])
 
   useEffect(() => {
     setCarregando(true)
@@ -199,14 +195,14 @@ export function CalendarioGrande({
     const inicioSemana = new Date(semanaAtual)
     const dias: { [key: string]: Date } = {}
 
-    diasSemanaAtivos.forEach(dia => {
+    diasSemana.forEach(dia => {
       const dataDia = new Date(inicioSemana)
       dataDia.setDate(inicioSemana.getDate() + (dia.dia - 1))
       dias[dia.nome.toLowerCase()] = dataDia
     })
 
     return dias
-  }, [semanaAtual, diasSemanaAtivos])
+  }, [semanaAtual])
 
   const navegarSemana = useCallback((direcao: "prev" | "next") => {
     setSemanaAtual((semanaAnterior) => {
@@ -249,6 +245,10 @@ export function CalendarioGrande({
     };
     return classMap[diasSemanaAtivos.length] || '';
   }, [diasSemanaAtivos.length]);
+
+  useEffect(() => {
+    router.replace(`?mes=${Object.values(diasDaSemana)[0].getMonth() + 1 || semanaAtual.getMonth() + 1}&ano=${Object.values(diasDaSemana)[0].getFullYear() || semanaAtual.getFullYear()}`)
+  }, [Object.values(diasDaSemana)[0].getMonth(), semanaAtual.getMonth()])
 
   return (
     <Card className="flex flex-col p-5 gap-4 h-full flex-1">

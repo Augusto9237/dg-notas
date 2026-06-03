@@ -34,7 +34,7 @@ import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma"
 import clsx from "clsx"
-import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes"
+import { enviarNotificacaoParaTodos, enviarNotificacaoParaUsuario } from "@/actions/notificacoes"
 import { format } from "date-fns"
 import { CalendarioAgendarMentoria } from "./calendario-agendar-mentoria"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion"
@@ -78,7 +78,6 @@ interface AgendarMentoriaAlunoProps {
     setIsOpen?: Dispatch<SetStateAction<boolean>>
 }
 
-// Funções puras fora do componente — o compiler não precisa rastreá-las como dependências
 function convertUTCToLocalDate(utcDate: Date): Date {
     const utc = new Date(utcDate);
     return new Date(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate());
@@ -156,8 +155,6 @@ export function AgendarMentoriaAluno({
             });
         }
     }, [mode, mentoriaData, professorId]);
-    // ^ form e initialDate removidos das deps: form é estável do useForm,
-    //   initialDate agora é calculado inline sem useMemo
 
     const watchedData = form.watch('data');
 
@@ -165,7 +162,6 @@ export function AgendarMentoriaAluno({
         ? diasSemana.find(dia => dia.dia === watchedData.getDay())?.id ?? 0
         : 0;
 
-    // Debounce direto no useEffect — padrão correto com cleanup nativo
     useEffect(() => {
         if (!watchedData || slotIds.length === 0) {
             setVagas({});
@@ -199,7 +195,6 @@ export function AgendarMentoriaAluno({
 
         return () => clearTimeout(timer);
     }, [watchedData, diaSemanaId]);
-    // slotIds removido das deps pois é derivado de slotsHorario (prop estável)
 
     useEffect(() => {
         setAccordionValue(watchedData ? "item-1" : "");
@@ -212,7 +207,6 @@ export function AgendarMentoriaAluno({
         const notificacaoDestinatario = usuario === 'aluno'
             ? values.professorId
             : (mentoriaData?.alunoId ?? '');
-        const notificacaoRota = usuario === 'aluno' ? '/professor/mentorias' : '/aluno/mentorias';
 
         if (mode === 'edit' && mentoriaData) {
             const response = await editarMentoria({
@@ -229,12 +223,33 @@ export function AgendarMentoriaAluno({
             }
 
             toast.success(response.message);
-            await enviarNotificacaoParaUsuario(
-                notificacaoDestinatario,
-                'Mentoria reagendada',
-                `${session.user.name} reagendou uma mentoria para ${formatarData(values.data)} de ${slotNome}`,
-                notificacaoRota
-            );
+            if (usuario === 'aluno') {
+                await enviarNotificacaoParaUsuario(
+                    notificacaoDestinatario,
+                    'Mentoria reagendada',
+                    `${session.user.name} reagendou uma mentoria para ${formatarData(values.data)} de ${slotNome}`,
+                    '/aluno/mentorias'
+                );
+            } else {
+                await enviarNotificacaoParaUsuario(
+                    notificacaoDestinatario,
+                    'Mentoria reagendada',
+                    `${session.user.name} reagendou uma mentoria para ${formatarData(values.data)} de ${slotNome}`,
+                    '/professor/mentorias'
+                );
+                await enviarNotificacaoParaTodos(
+                    'assistente',
+                    'Mentoria reagendada',
+                    `${session.user.name} reagendou uma mentoria para ${formatarData(values.data)} de ${slotNome}`,
+                    '/assistente/mentorias'
+                );
+                await enviarNotificacaoParaTodos(
+                    'admin',
+                    'Mentoria reagendada',
+                    `${session.user.name} reagendou uma mentoria para ${formatarData(values.data)} de ${slotNome}`,
+                    '/admin/mentorias'
+                );
+            }
         } else {
             const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === values.data.getDay())?.id ?? 0;
             const response = await adicionarMentoria({
@@ -251,12 +266,33 @@ export function AgendarMentoriaAluno({
             }
 
             toast.success(response.message);
-            await enviarNotificacaoParaUsuario(
-                notificacaoDestinatario,
-                'Mentoria agendada',
-                `${session.user.name} agendou uma mentoria para ${formatarData(values.data)} de ${slotNome}`,
-                notificacaoRota
-            );
+            if (usuario === 'aluno') {
+                await enviarNotificacaoParaUsuario(
+                    notificacaoDestinatario,
+                    'Mentoria agendada',
+                    `${session.user.name} agendou uma mentoria para ${formatarData(values.data)} de ${slotNome}`,
+                    '/professor/mentorias'
+                );
+            } else {
+                await enviarNotificacaoParaTodos(
+                    'aluno',
+                    'Mentoria agendada',
+                    `${session.user.name} agendou uma mentoria para ${formatarData(values.data)} de ${slotNome}`,
+                    '/aluno/mentorias'
+                );
+                await enviarNotificacaoParaTodos(
+                    'assistente',
+                    'Mentoria agendada',
+                    `${session.user.name} agendou uma mentoria para ${formatarData(values.data)} de ${slotNome}`,
+                    '/assistente/mentorias'
+                );
+                await enviarNotificacaoParaTodos(
+                    'admin',
+                    'Mentoria agendada',
+                    `${session.user.name} agendou uma mentoria para ${formatarData(values.data)} de ${slotNome}`,
+                    '/admin/mentorias'
+                );
+            }
         }
 
         form.reset();

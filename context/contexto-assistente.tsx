@@ -12,16 +12,6 @@ type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
     }
 }>
 
-type Mentoria = Prisma.MentoriaGetPayload<{
-    include: {
-        aluno: true,
-        horario: {
-            include: {
-                slot: true
-            }
-        }
-    }
-}>
 
 type Tema = Prisma.TemaGetPayload<{
     include: {
@@ -47,7 +37,6 @@ interface ContextoAdminProps {
             totalPages: number;
         }
     }
-    listaMentorias: Mentoria[]
     listaTemas: {
         data: Tema[]
         meta: {

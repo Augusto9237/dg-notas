@@ -3,11 +3,9 @@
 import { Criterio, Prisma } from "@/app/generated/prisma"
 import { ReactNode, useEffect, useState } from "react"
 import useWebPush from "@/hooks/useWebPush"
-import { listarMentoriasMes } from "@/actions/mentoria"
 import { ListarAvaliacoes, listarTemas } from "@/actions/avaliacao"
 import { ContextoAssistente } from "./contexto-assistente"
-import { atualizarCache } from "@/actions/cache"
-
+import { atualizarCache, atualizarRota } from "@/actions/cache"
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
     include: {
@@ -53,7 +51,6 @@ interface AssistenteProvedorProps {
             totalPages: number;
         }
     }
-    mentorias: Mentoria[]
     temas: {
         data: Tema[]
         meta: {
@@ -66,10 +63,9 @@ interface AssistenteProvedorProps {
     criterios: Criterio[];
 }
 
-export const ProvedorAssistente = ({ children, userId, avaliacoes, mentorias, temas, criterios }: AssistenteProvedorProps) => {
+export const ProvedorAssistente = ({ children, userId, avaliacoes, temas, criterios }: AssistenteProvedorProps) => {
     const { notificacoes } = useWebPush({ userId })
     const [listaAvaliacoes, setListaAvaliacoes] = useState(avaliacoes);
-    const [listaMentorias, setListaMentorias] = useState(mentorias);
     const [listaTemas, setListaTemas] = useState(temas);
     const [carregamento, setCarregamento] = useState(false);
 
@@ -90,8 +86,7 @@ export const ProvedorAssistente = ({ children, userId, avaliacoes, mentorias, te
                 }
 
                 if (url === '/assistente/mentorias') {
-                    const novasMentorias = await listarMentoriasMes()
-                    setListaMentorias(novasMentorias);
+                    await atualizarRota('/assistente/mentorias')
                 }
 
                 if (url === '/assistente/alunos') {
@@ -111,7 +106,6 @@ export const ProvedorAssistente = ({ children, userId, avaliacoes, mentorias, te
         <ContextoAssistente.Provider value={{
             userId,
             listaAvaliacoes,
-            listaMentorias,
             listaTemas,
             notificacoes,
             listaCriterios: criterios

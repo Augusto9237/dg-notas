@@ -4,9 +4,8 @@ import { Criterio, Prisma } from "@/app/generated/prisma"
 import { ReactNode, useEffect, useState } from "react"
 import { ContextoAdmin } from "./contexto-admin"
 import useWebPush from "@/hooks/useWebPush"
-import { listarMentoriasMes } from "@/actions/mentoria"
 import { ListarAvaliacoes, listarTemas } from "@/actions/avaliacao"
-import { atualizarCache } from "@/actions/cache"
+import { atualizarCache, atualizarRota } from "@/actions/cache"
 
 type Configuracao = Prisma.ConfiguracaoGetPayload<{
     include: {
@@ -93,8 +92,7 @@ export const ProvedorAdmin = ({ children, configuracoes, userId, avaliacoes, men
                 }
 
                 if (url === '/admin/mentorias') {
-                    const novasMentorias = await listarMentoriasMes()
-                    setListaMentorias(novasMentorias);
+                    await atualizarRota('/admin/mentorias')
                 }
 
                 if (url === '/admin/alunos') {
