@@ -19,15 +19,17 @@ export default async function Page() {
 
   const user = session.user
 
-  const criterios = await ListarCriterios();
-  const avaliacoes = await ListarAvaliacoesAlunoId(user.id)
-  const mentorias = (await listarMentoriasAluno(user.id)).meta.total
+  const [criterios, avaliacoes, mentorias] = await Promise.all([
+    ListarCriterios(),
+    ListarAvaliacoesAlunoId(user.id),
+    listarMentoriasAluno(user.id)
+  ]);
 
 
   return (
     <div className="w-full h-full max-h-screen overflow-hidden">
       <Suspense fallback={<HeaderSkeleton />}>
-        <Header avaliacoes={avaliacoes} mentorias={mentorias} user={user} />
+        <Header avaliacoes={avaliacoes} mentorias={mentorias.meta.total} user={user} />
       </Suspense>
       <main className="sm:grid sm:grid-cols-2 flex flex-col  py-5 flex-1 overflow-hidden h-full max-h-[calc(100vh-156px)]">
         <div className="flex flex-col gap-4 sm:p-5">

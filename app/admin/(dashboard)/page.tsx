@@ -10,24 +10,8 @@ import { UltimasAvaliacoes } from "@/components/ultimas-avaliacoes";
 import { HeaderTeacher } from "@/components/header-professor";
 import { ListaCardsDashboard, } from "@/components/lista-cards-dashbord";
 import { Suspense } from "react";
-import { cacheLife, cacheTag, updateTag } from "next/cache";
 import Loading from "./loading";
-
-
-// Helper para normalizar os parâmetros
-function normalizarParams(mes?: string, ano?: string) {
-    if (!mes || !ano) return { mes: undefined, ano: undefined };
-
-    const mesNum = Number(mes);
-    const anoNum = Number(ano);
-
-    // Validação básica
-    if (isNaN(mesNum) || isNaN(anoNum) || mesNum < 1 || mesNum > 12) {
-        return { mes: undefined, ano: undefined };
-    }
-
-    return { mes: mesNum, ano: anoNum };
-}
+import { normalizarParams } from "@/helpers/normalizar-params";
 
 export default async function Page({
     searchParams
@@ -42,8 +26,8 @@ export default async function Page({
 
     // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
     const [mentorias, temasMes] = await Promise.all([
-        listarMentoriasMes(mes, ano),
-        listarTemasMes(mes, ano),
+        listarMentoriasMes(Number(mes), Number(ano)),
+        listarTemasMes(Number(mes), Number(ano)),
     ]);
 
     const meses = [
@@ -53,7 +37,7 @@ export default async function Page({
 
     const ultimosTemas = temasMes.slice(0, 10)
     const { total } = await listarAlunosGoogle()
-    const avaliacoesIniciais = await ListarAvaliacoes(mes, ano, 1, 1000)
+    const avaliacoesIniciais = await ListarAvaliacoes(Number(mes), Number(ano), 1, 1000)
 
     return (
         <Suspense fallback={<Loading />}>

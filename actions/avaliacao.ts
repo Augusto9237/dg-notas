@@ -774,8 +774,6 @@ export async function ListarAvaliacoes(month?: number, year?: number, page: numb
         throw new Error('Ano inválido');
     }
 
-    // Cria as datas de início e fim do mês
-    // month - 1 porque o construtor Date usa índice 0-11 para meses
     const startDate = new Date(targetYear, targetMonth - 1, 1);
     const endDate = new Date(targetYear, targetMonth, 1);
 
