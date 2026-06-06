@@ -103,7 +103,7 @@ export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
         </CardHeader>
         <CardContent className='p-0 flex flex-col gap-4'>
           {alunos.map((aluno) => (
-            <Link key={aluno.alunoId} href={`/professor/alunos/${aluno.alunoId}`}>
+            <Link key={aluno.alunoId} href={`/admin/alunos/${aluno.alunoId}`}>
               <Card className='flex flex-row items-center p-4 gap-4'>
                 <span className='text-lg font-bold'>{aluno.posicao}º</span>
                 <Avatar className='size-10'>
