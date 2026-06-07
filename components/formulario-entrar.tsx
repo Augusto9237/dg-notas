@@ -71,9 +71,15 @@ export function FormularioEntrar() {
             toast.error('E-mail ou senha incorretos, tente novamente!')
             console.error("Erro ao entrar:", ctx.error.message)
           },
-          onSuccess: async () => {
+          onSuccess: async (data) => {
             toast.success("Autenticação efetuada com sucesso!")
-            router.push("/admin")
+            if (data.data?.user.role === 'admin') {
+              router.push("/admin")
+            } else if (data.data?.user.role === 'professor') {
+              router.push("/professor")
+            } else {
+              router.push("/assistente")
+            }
           }
         },
       })

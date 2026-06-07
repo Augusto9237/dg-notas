@@ -1,5 +1,3 @@
-import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
 import "../globals.css";
 import {
   SidebarInset,
@@ -12,13 +10,11 @@ import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 import { InicializarNotificacoes } from "@/components/inicializar-notificacoes";
 import { ProvedorAdmin } from "@/context/provider-admin";
-import { ListarAvaliacoes, listarTemasMes, listarTemas, ListarCriterios } from "@/actions/avaliacao";
-import { listarMentoriasMes } from "@/actions/mentoria";
-import { listarAlunosGoogle } from "@/actions/alunos";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { ProvedorTemas } from "@/context/provedor-temas";
 import { Prisma } from "../generated/prisma";
+import { getSessionCached } from "@/lib/session";
 
 type ConfiguracaoComCores = Prisma.ConfiguracaoGetPayload<{
   include: { coresSistema: true };
@@ -32,32 +28,13 @@ export default async function ProfessorWrapper({
   configuracoes: ConfiguracaoComCores;
 }>) {
 
-  const session = await auth.api.getSession({
-    headers: await headers() // you need to pass the headers object.
-  })
+  const session = await getSessionCached();
 
   if (!session?.user) {
     redirect('/')
   }
 
-  if (session.user.role === 'professor') {
-    redirect('/professor')
-  } else if (session.user.role === 'assistente') {
-    redirect('/assistente')
-  } else if (session.user.role !== 'admin') {
-    await auth.api.signOut({
-      headers: await headers()
-    })
-    redirect('/')
-  }
-
   const userId = session.user.id;
-
-  // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
-  const [temas, criterios] = await Promise.all([
-    listarTemas(),
-    ListarCriterios()
-  ]);
 
   return (
     <>
@@ -70,7 +47,7 @@ export default async function ProfessorWrapper({
         <InstalarIos />
         <PwaInstallPrompt />
         <InicializarNotificacoes userId={userId} />
-        <ProvedorAdmin configuracoes={configuracoes} userId={userId} temas={temas} criterios={criterios}>
+        <ProvedorAdmin configuracoes={configuracoes} userId={userId}>
           <SidebarProvider>
             <AppSidebar logo={configuracoes.logoSistema} />
             <SidebarInset className="relative">

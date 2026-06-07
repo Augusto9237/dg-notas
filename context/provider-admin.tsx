@@ -25,21 +25,10 @@ interface AdminProviderProps {
     children: ReactNode
     configuracoes: Configuracao
     userId: string
-    temas: {
-        data: Tema[]
-        meta: {
-            total: number;
-            page: number;
-            limit: number;
-            totalPages: number;
-        };
-    }
-    criterios: Criterio[];
 }
 
-export const ProvedorAdmin = ({ children, configuracoes, userId, temas, criterios }: AdminProviderProps) => {
+export const ProvedorAdmin = ({ children, configuracoes, userId }: AdminProviderProps) => {
     const { notificacoes } = useWebPush({ userId })
-    const [listaTemas, setListaTemas] = useState(temas);
 
     useEffect(() => {
         const handleNotification = async () => {
@@ -71,9 +60,7 @@ export const ProvedorAdmin = ({ children, configuracoes, userId, temas, criterio
         <ContextoAdmin.Provider value={{
             configuracoes,
             userId,
-            listaTemas,
             notificacoes,
-            listaCriterios: criterios
         }}>
             {children}
         </ContextoAdmin.Provider>

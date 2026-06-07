@@ -37,11 +37,17 @@ type Tema = Prisma.TemaGetPayload<{
   }
 }>
 
-export function TabelaTemas() {
-  const { listaTemas, listaCriterios } = useContext(ContextoAdmin)
-  const [temas, setTemas] = useState<Tema[]>([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+interface Props {
+  temasIniciais: Tema[];
+  totalPaginas: number;
+  limite: number;
+  totalTemas: number;
+}
+
+export function TabelaTemas({ temasIniciais, totalPaginas, limite, totalTemas }: Props) {
+  const [temas, setTemas] = useState<Tema[]>(temasIniciais);
+  const [totalItems, setTotalItems] = useState(totalTemas);
+  const [totalPages, setTotalPages] = useState(totalPaginas);
   const [isPending, startTransition] = useTransition()
   const [isLoading, setIsLoading] = useState(false)
   const searchParams = useSearchParams();
@@ -53,9 +59,9 @@ export function TabelaTemas() {
 
   useEffect(() => {
     if (currentPage === 1 && !busca) {
-      setTemas(listaTemas?.data)
-      setTotalItems(listaTemas?.meta.total)
-      setTotalPages(listaTemas.meta.totalPages)
+      setTemas(temasIniciais)
+      setTotalItems(totalTemas)
+      setTotalPages(totalPaginas)
       return
     }
 
@@ -73,7 +79,7 @@ export function TabelaTemas() {
     };
 
     buscarDados();
-  }, [busca, currentPage, listaTemas]);
+  }, [busca, currentPage, temasIniciais]);
 
   function atualizarDisponibilidadeTema(temaId: number, status: boolean) {
     startTransition(async () => {
@@ -210,8 +216,8 @@ export function TabelaTemas() {
       </div>
       <div className="flex justify-between items-center">
         <div className="text-xs text-muted-foreground md:text-nowrap max-md:hidden">
-          {totalItems > 0 ? currentPage * 1 : 0} -{' '}
-          {Math.min(currentPage * listaTemas.meta.limit, totalItems)} de {totalItems} resultados
+          {totalTemas > 0 ? currentPage * 1 : 0} -{' '}
+          {Math.min(currentPage * limite, totalTemas)} de {totalTemas} resultados
         </div>
         <Pagination>
           <PaginationContent>

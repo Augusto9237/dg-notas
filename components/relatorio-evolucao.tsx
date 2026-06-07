@@ -24,10 +24,9 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart'
 import { Label } from './ui/label'
-import { useContext, useEffect, useRef, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 
 import { Criterio, Prisma } from '@/app/generated/prisma'
-import { ListarAvaliacoesAlunoId } from '@/actions/avaliacao'
 import { CardCompetencia } from './card-competencias'
 import { Spinner } from './ui/spinner'
 import { calcularMediaMensal } from '@/lib/media-geral'
@@ -36,7 +35,6 @@ import { ptBR } from 'date-fns/locale'
 import { calcularMedia } from '@/lib/media-geral';
 import { Separator } from './ui/separator'
 import { toast } from 'sonner'
-import { ContextoProfessor } from '@/context/contexto-professor'
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
   include: {

@@ -1,4 +1,4 @@
-import { listarAlunosGoogle } from "@/actions/alunos";
+
 import { ListarAvaliacoes, listarTemasMes, listarTemasProfessor } from "@/actions/avaliacao";
 import { listarDiasSemana, listarMentoriasMes, listarSlotsHorario } from "@/actions/mentoria";
 
@@ -16,22 +16,9 @@ import { format } from "date-fns";
 import { Button } from "@react-email/components";
 import { CardMentoriaProfessor } from "@/components/card-mentoria-professor";
 import { ModalMentoriaProfessor } from "@/components/modal-mentoria-professor";
+import { normalizarParams } from "@/helpers/normalizar-params";
 
 
-// Helper para normalizar os parâmetros
-function normalizarParams(mes?: string, ano?: string) {
-    if (!mes || !ano) return { mes: undefined, ano: undefined };
-
-    const mesNum = Number(mes);
-    const anoNum = Number(ano);
-
-    // Validação básica
-    if (isNaN(mesNum) || isNaN(anoNum) || mesNum < 1 || mesNum > 12) {
-        return { mes: undefined, ano: undefined };
-    }
-
-    return { mes: mesNum, ano: anoNum };
-}
 
 export default async function Page({
     searchParams
@@ -48,8 +35,8 @@ export default async function Page({
 
     // OTIMIZAÇÃO CRÍTICA: Executar todas as queries em paralelo
     const [mentorias, temasProfessor] = await Promise.all([
-        listarMentoriasMes(mes, ano),
-        listarTemasMes(mes, ano, session?.user.id!),
+        listarMentoriasMes(Number(mes), Number(ano)),
+        listarTemasMes(Number(mes), Number(ano), session?.user.id!),
     ]);
 
     const meses = [

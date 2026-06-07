@@ -43,11 +43,12 @@ type Aluno = Prisma.UserGetPayload<{
 
 type TabelaAlunosProps = {
   alunosIniciais: Aluno[]
+  totalAlunos: number
   totalPaginas: number
   limite: number
 }
 
-export function TabelaAlunos({ alunosIniciais, totalPaginas, limite }: TabelaAlunosProps) {
+export function TabelaAlunos({ alunosIniciais, totalAlunos, totalPaginas, limite }: TabelaAlunosProps) {
   const [isPending, startTransition] = useTransition()
   const [alunos, setAlunos] = useState<Aluno[]>(alunosIniciais)
   const searchParams = useSearchParams()
@@ -58,6 +59,7 @@ export function TabelaAlunos({ alunosIniciais, totalPaginas, limite }: TabelaAlu
   const paginaAtual = Number(searchParams.get('page')) || 1
 
   const [totalPage, setTotalPage] = useState(totalPaginas || 1)
+  const [totalStudents, setTotalStudents] = useState(totalAlunos)
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
@@ -218,7 +220,7 @@ export function TabelaAlunos({ alunosIniciais, totalPaginas, limite }: TabelaAlu
       </div>
       <div className="flex justify-between items-center">
         <div className="text-xs text-gray-600 md:text-nowrap max-md:hidden">
-          {paginaAtual} - {totalPage} de {alunos.length} resultados
+          {paginaAtual} - {totalPage} de {totalStudents} resultados
         </div>
         <Pagination>
           <PaginationContent>

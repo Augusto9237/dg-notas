@@ -33,16 +33,6 @@ export type Notificacoes = {
 interface ContextoAdminProps {
     configuracoes: Configuracao
     userId: string
-    listaTemas: {
-        data: Tema[]
-        meta: {
-            total: number;
-            page: number;
-            limit: number;
-            totalPages: number;
-        };
-    }
-    listaCriterios: Criterio[];
     notificacoes: Notificacoes
 }
 

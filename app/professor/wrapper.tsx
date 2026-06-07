@@ -1,23 +1,19 @@
-import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
 import "../globals.css";
 import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 import { InicializarNotificacoes } from "@/components/inicializar-notificacoes";
 import { ProvedorProfessor } from "@/context/provider-professor";
 import { ListarCriterios, listarTemasProfessor } from "@/actions/avaliacao";
-import { listarMentoriasProfessor } from "@/actions/mentoria";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { InstalarIos } from "@/hooks/instalar-ios";
 import { ProvedorTemas } from "@/context/provedor-temas";
 import { Prisma } from "../generated/prisma";
 import { AppSidebarProfessor } from "@/components/app-sidebar-professor";
+import { getSessionCached } from "@/lib/session";
 
 type ConfiguracaoComCores = Prisma.ConfiguracaoGetPayload<{
   include: { coresSistema: true };
@@ -31,20 +27,12 @@ export default async function ProfessorWrapper({
   configuracoes: ConfiguracaoComCores;
 }>) {
 
-  const session = await auth.api.getSession({
-    headers: await headers() // you need to pass the headers object.
-  })
+  const session = await getSessionCached();
 
   if (!session?.user) {
     redirect('/')
   }
 
-  if (session.user.role !== 'professor') {
-    await auth.api.signOut({
-      headers: await headers()
-    })
-    redirect('/')
-  }
 
   const userId = session.user.id;
 

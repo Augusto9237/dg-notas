@@ -1,6 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 
+// Mapeamento de role → rota principal do usuário
+const roleHomeMap: Record<string, string> = {
+    user: '/aluno',
+    professor: '/professor',
+    assistente: '/assistente',
+    admin: '/admin',
+};
+
+// Mapeamento de prefixo de rota → role necessária
+const routeRoleMap: Record<string, string> = {
+    '/aluno': 'user',
+    '/professor': 'professor',
+    '/assistente': 'assistente',
+    '/admin': 'admin',
+};
+
 export async function proxy(request: NextRequest) {
     // 1. Obtemos a sessão usando os headers do próprio request (padrão de segurança em proxies/redes)
     const session = await auth.api.getSession({
@@ -14,29 +30,29 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL("/", request.url));
     }
 
-    // 3. Mapeamento de rotas e suas respectivas roles necessárias
-    const roleMapping = {
-        '/aluno': 'user',
-        '/professor': 'professor',
-        '/assistente': 'assistente',
-        '/admin': 'admin'
-    } as const;
+    const userRole = session.user.role as string;
+    const userHome = roleHomeMap[userRole];
 
-    // 4. Verificação de permissão por rota
-    for (const [pathPrefix, requiredRole] of Object.entries(roleMapping)) {
-        if (pathname.startsWith(pathPrefix)) {
-            if (session.user.role !== requiredRole) {
-                await auth.api.signOut({
-                    headers: request.headers
-                });
+    // 3. Se a role não for reconhecida, faz signOut e redireciona para login
+    if (!userHome) {
+        await auth.api.signOut({ headers: request.headers });
+        const response = NextResponse.redirect(new URL("/", request.url));
+        response.cookies.delete("better-auth.session-token");
+        return response;
+    }
 
-                const response = NextResponse.redirect(new URL("/", request.url));
-                
-                // Limpa o cookie de sessão do navegador para garantir a desconexão completa
-                response.cookies.delete("better-auth.session-token");
-                return response;
-            }
-            break;
+    // 4. Verifica se a rota acessada pertence a outra área
+    // Usa comparação por segmento (prefix + '/') para evitar falsos positivos
+    // e.g. '/aluno-admin' não deve disparar a regra de '/aluno'
+    const matchedPrefix = Object.keys(routeRoleMap).find(
+        prefix => pathname === prefix || pathname.startsWith(prefix + '/')
+    );
+
+    if (matchedPrefix) {
+        const requiredRole = routeRoleMap[matchedPrefix];
+        if (userRole !== requiredRole) {
+            // Redireciona para a área correta do usuário (sem deslogar)
+            return NextResponse.redirect(new URL(userHome, request.url));
         }
     }
 

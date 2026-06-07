@@ -2,8 +2,6 @@ import { listarAlunosGoogle } from "@/actions/alunos";
 import { ListarAvaliacoes, listarTemasMes } from "@/actions/avaliacao";
 import { listarMentoriasMes } from "@/actions/mentoria";
 
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { TabelaTopAlunos } from "@/components/tabela-top-alunos";
 import { SeletorData } from "@/components/seletor-data";
 import { UltimasAvaliacoes } from "@/components/ultimas-avaliacoes";
@@ -12,6 +10,7 @@ import { ListaCardsDashboard, } from "@/components/lista-cards-dashbord";
 import { Suspense } from "react";
 import Loading from "./loading";
 import { normalizarParams } from "@/helpers/normalizar-params";
+import { getSessionCached } from "@/lib/session";
 
 export default async function Page({
     searchParams
@@ -19,7 +18,7 @@ export default async function Page({
     searchParams: Promise<{ mes?: string, ano?: string }>
 }) {
 
-    const session = await auth.api.getSession({ headers: await headers() })
+    const session = await getSessionCached()
     const params = await searchParams
 
     const { mes, ano } = normalizarParams(params.mes, params.ano);
