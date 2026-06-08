@@ -6,7 +6,6 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import Loading from './loading';
-import { obterProfessor } from '@/actions/admin';
 
 export default async function Page() {
   const session = await auth.api.getSession({

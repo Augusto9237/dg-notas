@@ -1,17 +1,14 @@
 import { ListarAvaliacoesAlunoId, ListarCriterios } from '@/actions/avaliacao';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 import Header, { HeaderSkeleton } from '@/components/ui/header';
 import { redirect } from 'next/navigation';
 import { ListaCompetenciasAluno, ListaCompetenciasAlunoSkeleton } from '@/components/lista-competencias-aluno';
 import { DesempenhoAlunoGrafico, DesempenhoAlunoGraficoSkeleton } from '@/components/desempenho-aluno-grafico';
 import { listarMentoriasAluno } from '@/actions/mentoria';
 import { Suspense } from 'react';
+import { getSessionCached } from '@/lib/session';
 
 export default async function Page() {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+  const session = await getSessionCached()
 
   if (!session?.user) {
     redirect('/');

@@ -1,6 +1,6 @@
 'use client'
 
-import { Avaliacao, Criterio, CriterioAvaliacao, Tema } from "@/app/generated/prisma";
+import { Criterio, } from "@/app/generated/prisma";
 import { useEffect, useState } from "react";
 import { CardAvaliacao, AvaliacaoCardProp } from "./card-avaliacao";
 import { Spinner } from "./ui/spinner";

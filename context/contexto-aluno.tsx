@@ -1,14 +1,7 @@
 'use client';
-import { Criterio, Prisma } from "@/app/generated/prisma";
-import { Dispatch, SetStateAction, createContext } from "react";
+import {Prisma } from "@/app/generated/prisma";
+import { createContext } from "react";
 
-type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
-    include: {
-        aluno: true,
-        criterios: true,
-        tema: true,
-    }
-}>
 
 export type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -22,23 +15,7 @@ export type Mentoria = Prisma.MentoriaGetPayload<{
     }
 }>
 
-type Tema = Prisma.TemaGetPayload<{
-    include: {
-        professor: true
-    }
-}>
-
 export interface ContextoAlunoProps {
-    isLoading: boolean;
-    listaAvaliacoes: {
-        data: AvaliacaoTema[]
-        meta: {
-            total: number,
-            page: number,
-            limit: number,
-            totalPages: number,
-        }
-    }
     notificacoes: {
         title: string;
         body: any;
