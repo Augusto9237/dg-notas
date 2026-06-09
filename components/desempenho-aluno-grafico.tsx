@@ -2,34 +2,32 @@
 
 import { Prisma } from "@/app/generated/prisma"
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
-
 import {
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
     type ChartConfig,
 } from '@/components/ui/chart'
-
 import { useContext, useEffect, useState } from "react"
 import { ContextoAluno } from "@/context/contexto-aluno"
 import { calcularMediaMensal } from "@/lib/media-geral"
 import { atualizarCache } from "@/actions/cache"
 import { Skeleton } from "./ui/skeleton"
-import dynamic from 'next/dynamic'
 
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
     include: {
-        aluno: true,
-        criterios: true,
-        tema: true,
+        aluno: true
+        criterios: true
+        tema: true
     }
 }>
 
 interface DesempenhoAlunoGraficoProps {
-    avaliacoes: Avaliacao[];
+    avaliacoes: Avaliacao[]
     userId: string
 }
+
 
 const chartConfig = {
     media: {
@@ -40,52 +38,43 @@ const chartConfig = {
 
 export function DesempenhoAlunoGraficoSkeleton() {
     return (
-        <div className='h-full flex flex-col overflow-hidden p-5 pb-6 max-sm:pb-14'>
-            <h2 className="mb-3 text-primary font-semibold">Seu Desempenho</h2>
+        <GraficoWrapper>
             <ChartContainer config={chartConfig} className="flex-1 mb-2 max-sm:mb-1">
                 <Skeleton className="w-full h-24 rounded-lg" />
             </ChartContainer>
-        </div>
-    );
+        </GraficoWrapper>
+    )
 }
 
+
 export default function DesempenhoAlunoGrafico({ avaliacoes, userId }: DesempenhoAlunoGraficoProps) {
-    const { notificacoes } = useContext(ContextoAluno);
-    const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
-    const [carregamento, setCarregamento] = useState(false);
+    const { notificacoes } = useContext(ContextoAluno)
+    const [carregando, setCarregando] = useState(false)
 
     useEffect(() => {
-        setCarregamento(true)
-        setListaAvaliacoes(avaliacoes)
-        setCarregamento(false)
-    }, [avaliacoes])
+        const urlNotificacao = notificacoes?.data?.url
+        if (urlNotificacao !== '/aluno/avaliacoes') return
 
-    useEffect(() => {
-        const handleNotification = async () => {
-            if (!notificacoes?.data?.url) return;
-
-            const url = notificacoes.data.url;
-
+        const revalidar = async () => {
+            setCarregando(true)
             try {
-                if (url === '/aluno/avaliacoes') {
-                    await atualizarCache(`listar-avaliacoes-aluno-${userId}`)
-                }
-
+                await atualizarCache(`listar-avaliacoes-aluno-${userId}`)
             } catch (error) {
-                console.error("Erro ao atualizar dados via notificação:", error);
+                console.error("Erro ao revalidar dados via notificação:", error)
             } finally {
-                setCarregamento(false);
+                setCarregando(false)
             }
-        };
-        handleNotification();
-    }, [notificacoes]);
+        }
 
-    const chartData = carregamento === true ? [] : calcularMediaMensal(listaAvaliacoes)
+        revalidar()
+    }, [notificacoes, userId])
+
+    const dadosGrafico = carregando ? [] : calcularMediaMensal(avaliacoes)
+
     return (
-        <div className='h-full flex flex-col overflow-hidden p-5 pb-6 max-sm:pb-14'>
-            <h2 className="mb-3 text-primary font-semibold">Seu Desempenho</h2>
+        <GraficoWrapper>
             <ChartContainer config={chartConfig} className="flex-1 mb-2 max-sm:mb-1">
-                <BarChart accessibilityLayer data={chartData}>
+                <BarChart accessibilityLayer data={dadosGrafico}>
                     <CartesianGrid vertical={false} />
                     <XAxis
                         dataKey="month"
@@ -104,6 +93,15 @@ export default function DesempenhoAlunoGrafico({ avaliacoes, userId }: Desempenh
             <p className="leading-none text-muted-foreground text-xs">
                 Médias de desempenho mensais
             </p>
+        </GraficoWrapper>
+    )
+}
+
+function GraficoWrapper({ children }: { children: React.ReactNode }) {
+    return (
+        <div className='h-full flex flex-col overflow-hidden p-5 pb-6 max-sm:pb-14'>
+            <h2 className="mb-3 text-primary font-semibold">Seu Desempenho</h2>
+            {children}
         </div>
     )
 }
