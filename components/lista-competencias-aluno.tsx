@@ -1,8 +1,6 @@
 'use client'
 
-import { ListarAvaliacoesAlunoId } from "@/actions/avaliacao";
 import { Criterio, Prisma } from "@/app/generated/prisma";
-import { ContextoAluno } from "@/context/contexto-aluno";
 import { useContext, useEffect, useState } from "react";
 import { CardCompetencia } from "./card-competencias";
 import { authClient } from "@/lib/auth-client";
@@ -32,7 +30,7 @@ export function ListaCompetenciasAlunoSkeleton() {
 }
 
 
-export function ListaCompetenciasAluno({ avaliacoes, criterios }: Props) {
+export default function ListaCompetenciasAluno({ avaliacoes, criterios }: Props) {
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
 
     useEffect(() => {

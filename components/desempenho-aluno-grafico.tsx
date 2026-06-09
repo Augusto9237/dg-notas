@@ -1,7 +1,6 @@
 'use client'
 
 import { Prisma } from "@/app/generated/prisma"
-import { Label } from "./ui/label"
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
 
 import {
@@ -10,11 +9,13 @@ import {
     ChartTooltipContent,
     type ChartConfig,
 } from '@/components/ui/chart'
+
 import { useContext, useEffect, useState } from "react"
 import { ContextoAluno } from "@/context/contexto-aluno"
 import { calcularMediaMensal } from "@/lib/media-geral"
 import { atualizarCache } from "@/actions/cache"
 import { Skeleton } from "./ui/skeleton"
+import dynamic from 'next/dynamic'
 
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
@@ -48,7 +49,7 @@ export function DesempenhoAlunoGraficoSkeleton() {
     );
 }
 
-export function DesempenhoAlunoGrafico({ avaliacoes, userId }: DesempenhoAlunoGraficoProps) {
+export default function DesempenhoAlunoGrafico({ avaliacoes, userId }: DesempenhoAlunoGraficoProps) {
     const { notificacoes } = useContext(ContextoAluno);
     const [listaAvaliacoes, setListaAvaliacoes] = useState<Avaliacao[]>([]);
     const [carregamento, setCarregamento] = useState(false);
