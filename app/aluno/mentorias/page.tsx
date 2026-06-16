@@ -7,6 +7,7 @@ import { listarProfessores, obterProfessor } from "@/actions/admin";
 import { TabelaMentoriasAluno } from "@/components/tabela-mentorias-aluno";
 import { Suspense } from "react";
 import Loading from "./loading";
+import { NovoAgendarMentoriaAluno } from "@/components/agendar-mentoria-aluno copy";
 
 
 export default async function Page() {
@@ -48,7 +49,7 @@ export default async function Page() {
                     <div className="flex items-center justify-between">
                         <h2 className="text-primary font-semibold">Suas Mentorias</h2>
                     </div>
-                    <AgendarMentoriaAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professorId={professor.id} />
+                    <NovoAgendarMentoriaAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professorId={professor.id} />
                     <TabelaMentoriasAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} professor={professor} mentoriasIniciais={mentorias} />
                 </main>
             </div>
