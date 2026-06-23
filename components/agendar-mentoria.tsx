@@ -83,18 +83,11 @@ interface AgendarMentoriaAlunoProps {
 }
 
 function convertUTCToLocalDate(utcDate: Date | string): Date {
-    // Next.js serializa Date para string ISO ao passar props de Server → Client Component
     const utc = new Date(utcDate);
     if (isNaN(utc.getTime())) return new Date(); // fallback seguro
     return new Date(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate());
 }
 
-/**
- * Garante que o valor seja um Date válido em runtime.
- * Necessário pois o Next.js RSC serializa Date → string ao passar props
- * Server → Client, e o react-hook-form pode ter o valor ainda como string
- * antes do useEffect de reset rodar.
- */
 function toSafeDate(value: unknown): Date | null {
     if (value instanceof Date && !isNaN(value.getTime())) return value;
     if (typeof value === 'string' || typeof value === 'number') {
@@ -448,7 +441,7 @@ export function AgendarMentoria({
                                         );
                                     })}
                                 </Stepper.List>
-                                <div className="flex-1 min-h-[470px] max-h-[520px] max-sm:max-h-[400px] max-sm:min-h-[400px] flex flex-col">
+                                <div className="flex-1 min-h-[470px] max-h-[520px] max-sm:max-h-[416px] max-sm:min-h-[384px] flex flex-col">
                                     {stepper.flow.switch({
                                         'step-1': () =>
                                             < FormField
