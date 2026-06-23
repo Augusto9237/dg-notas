@@ -89,6 +89,21 @@ function convertUTCToLocalDate(utcDate: Date | string): Date {
     return new Date(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate());
 }
 
+/**
+ * Garante que o valor seja um Date válido em runtime.
+ * Necessário pois o Next.js RSC serializa Date → string ao passar props
+ * Server → Client, e o react-hook-form pode ter o valor ainda como string
+ * antes do useEffect de reset rodar.
+ */
+function toSafeDate(value: unknown): Date | null {
+    if (value instanceof Date && !isNaN(value.getTime())) return value;
+    if (typeof value === 'string' || typeof value === 'number') {
+        const d = new Date(value);
+        return isNaN(d.getTime()) ? null : d;
+    }
+    return null;
+}
+
 function formatarData(data: Date): string {
     const dataUTC = new Date(data);
     const dataLocal = new Date(
@@ -231,13 +246,14 @@ export function AgendarMentoria({
     }, [mode, mentoriaData]);
 
     const watchedData = form.watch('data');
+    const watchedDate = toSafeDate(watchedData);
 
-    const diaSemanaId = watchedData
-        ? diasSemana.find(dia => dia.dia === watchedData.getDay())?.id ?? 0
+    const diaSemanaId = watchedDate
+        ? diasSemana.find(dia => dia.dia === watchedDate.getDay())?.id ?? 0
         : 0;
 
     useEffect(() => {
-        if (!watchedData || slotIds.length === 0) {
+        if (!watchedDate || slotIds.length === 0) {
             setVagas({});
             setIsCheckingVagas(false);
             return;
@@ -248,7 +264,7 @@ export function AgendarMentoria({
         const timer = setTimeout(async () => {
             try {
                 const vagasResult = await verificarDisponibilidadeMultiplosSlots(
-                    watchedData,
+                    watchedDate!,
                     slotIds,
                     diaSemanaId
                 );
@@ -279,7 +295,8 @@ export function AgendarMentoria({
             : (mentoriaData?.alunoId ?? '');
 
         if (mode === 'edit' && mentoriaData) {
-            const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === values.data.getDay())?.id ?? mentoriaData.horario.diaSemanaId;
+            const safeData = toSafeDate(values.data) ?? new Date();
+            const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === safeData.getDay())?.id ?? mentoriaData.horario.diaSemanaId;
             const response = await editarMentoria({
                 mentoriaId: mentoriaData.id,
                 professorId: values.professorId,
@@ -323,7 +340,8 @@ export function AgendarMentoria({
                 );
             }
         } else {
-            const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === values.data.getDay())?.id ?? 0;
+            const safeData = toSafeDate(values.data) ?? new Date();
+            const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === safeData.getDay())?.id ?? 0;
             const response = await adicionarMentoria({
                 professorId: values.professorId,
                 alunoId: session.user.id,
