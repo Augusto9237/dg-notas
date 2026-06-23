@@ -2,11 +2,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Avatar, } from "./ui/avatar";
 import { CalendarX } from "lucide-react";
-import { DiaSemana, Prisma, SlotHorario, User } from "@/app/generated/prisma";
-import { AgendarMentoriaAluno } from "./agendar-mentoria-aluno";
-import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/mentoria";
+import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma";
+import { excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";

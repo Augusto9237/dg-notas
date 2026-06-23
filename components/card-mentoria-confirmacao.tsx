@@ -2,14 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { CalendarCheck, CalendarX, ChevronDown, Loader2 } from "lucide-react";
-import { DiaSemana, Prisma, SlotHorario, User } from "@/app/generated/prisma";
-import { AgendarMentoriaAluno } from "./agendar-mentoria-aluno";
+import { Avatar, AvatarImage } from "./ui/avatar";
+import { CalendarCheck, Loader2 } from "lucide-react";
+import { Prisma } from "@/app/generated/prisma";
 import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { ptBR, se } from "date-fns/locale";
+import { ptBR } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useState } from "react";
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
