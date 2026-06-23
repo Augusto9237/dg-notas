@@ -17,6 +17,7 @@ import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
 import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 import { Skeleton } from "./ui/skeleton";
+import { AgendarMentoria } from "./agendar-mentoria";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -122,7 +123,7 @@ export function CardMentoria({ diasSemana, slotsHorario, mentoria }: CardMentori
                     <ModalFeedback feedback={mentoria.feedback ?? ''} professor={mentoria.professor!} />
                 ) : (
                     <div className="gap-5 overflow-hidden grid grid-cols-2 w-full">
-                        <AgendarMentoriaAluno professorId={mentoria.professorId || ''} mentoriaData={mentoria} mode="edit" diasSemana={diasSemana} slotsHorario={slotsHorario} />
+                        <AgendarMentoria mentoriaData={mentoria} mode="edit" diasSemana={diasSemana} slotsHorario={slotsHorario} />
                         <Button
                             size="sm"
                             variant='destructive'

@@ -3,19 +3,17 @@
 import { DiaSemana, Prisma, SlotHorario } from "@/app/generated/prisma";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { CalendarX, CheckCircle, ChevronRight, Clock2, Loader2 } from "lucide-react";
+import { CalendarX, CheckCircle, Clock2, Loader2 } from "lucide-react";
 import { TbClockCheck } from "react-icons/tb";
 import { atualizarStatusMentoria, excluirMentoriaECascata } from "@/actions/mentoria";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { AgendarMentoriaAluno } from "./agendar-mentoria-aluno";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { format } from "date-fns";
-import { el, ptBR } from "date-fns/locale";
+import { ptBR } from "date-fns/locale";
 
 import { cn } from "@/lib/utils";
-import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { CardMentoriaProfessor } from "./card-mentoria-professor";
@@ -23,6 +21,7 @@ import { Label } from "./ui/label";
 import { enviarNotificacaoParaUsuario } from "@/actions/notificacoes";
 import { useSession } from "@/lib/auth-client";
 import clsx from "clsx";
+import { AgendarMentoria } from "./agendar-mentoria";
 
 type Mentoria = Prisma.MentoriaGetPayload<{
     include: {
@@ -277,14 +276,13 @@ export function ModalMentoriaProfessor({ mentoria, diasSemana, slotsHorario }: M
                                                 </div>
                                             ) : (
                                                 <div className="grid grid-cols-2 gap-4 w-full">
-                                                    <AgendarMentoriaAluno
+                                                    <AgendarMentoria
                                                         mentoriaData={mentoria}
                                                         mode="edit"
                                                         usuario="professor"
                                                         size='default'
                                                         diasSemana={diasSemana}
                                                         slotsHorario={slotsHorario}
-                                                        professorId={mentoria.professorId!}
                                                     />
                                                     <Button
                                                         variant='ghost'

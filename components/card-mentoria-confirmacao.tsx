@@ -32,17 +32,9 @@ type Mentoria = Prisma.MentoriaGetPayload<{
 
 interface CardMentoriaProps {
     mentoria: Mentoria;
-    professor: {
-        nome: string;
-        email: string;
-        telefone: string | null;
-        especialidade: string | null;
-        bio: string | null;
-        image: string | null;
-    } | null
 }
 
-export function CardMentoriaConfirmacao({ mentoria, professor }: CardMentoriaProps) {
+export function CardMentoriaConfirmacao({ mentoria }: CardMentoriaProps) {
     const { data: session } = authClient.useSession();
     const [open, setOpen] = useState(false);
     const [carregando, setCarregando] = useState(false);
@@ -97,15 +89,15 @@ export function CardMentoriaConfirmacao({ mentoria, professor }: CardMentoriaPro
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <Avatar className="border-2 border-primary size-10">
-                                {professor?.image ? (
-                                    <Image alt={professor?.nome || ''} src={professor.image} height={40} width={40} className="object-cover" />
+                                {mentoria.professor?.image ? (
+                                    <Image alt={mentoria.professor.name || ''} src={mentoria.professor.image} height={40} width={40} className="object-cover" />
                                 ) : (
                                     <Skeleton className="size-full" />
                                 )}
                             </Avatar>
                             <div className="space-y-1">
                                 <h3 className="font-medium text-sm">
-                                    {professor?.nome}
+                                    {mentoria.professor?.name}
                                 </h3>
                                 <p className="text-xs text-muted-foreground">
                                     {formartarData(mentoria.horario.data)} - {mentoria.horario.slot.nome}

@@ -75,7 +75,6 @@ type Professor = {
 interface AgendarMentoriaAlunoProps {
     diasSemana: DiaSemana[]
     slotsHorario: SlotHorario[]
-    professorId: string;
     mode?: 'create' | 'edit';
     usuario?: 'professor' | 'aluno';
     mentoriaData?: Mentoria;
@@ -83,8 +82,10 @@ interface AgendarMentoriaAlunoProps {
     setIsOpen?: Dispatch<SetStateAction<boolean>>
 }
 
-function convertUTCToLocalDate(utcDate: Date): Date {
+function convertUTCToLocalDate(utcDate: Date | string): Date {
+    // Next.js serializa Date para string ISO ao passar props de Server → Client Component
     const utc = new Date(utcDate);
+    if (isNaN(utc.getTime())) return new Date(); // fallback seguro
     return new Date(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate());
 }
 
@@ -168,10 +169,9 @@ const StepperSeparatorWithLabelOrientation = ({
 };
 
 
-export function NovoAgendarMentoriaAluno({
+export function AgendarMentoria({
     diasSemana,
     slotsHorario,
-    professorId,
     mode = 'create',
     usuario = 'aluno',
     mentoriaData,
@@ -180,8 +180,7 @@ export function NovoAgendarMentoriaAluno({
 }: AgendarMentoriaAlunoProps) {
     const [open, setOpen] = useState(false)
     const [vagas, setVagas] = useState<Record<string, number>>({});
-    const [professores, setProfessores] = useState<Professor[]>([])
-    const [accordionValue, setAccordionValue] = useState("");
+    const [professores, setProfessores] = useState<Professor[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isCheckingVagas, setIsCheckingVagas] = useState(false);
     const { data: session } = authClient.useSession();
@@ -205,7 +204,7 @@ export function NovoAgendarMentoriaAluno({
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            professorId: professorId || '',
+            professorId: mentoriaData?.professorId || '',
             horario: mode === 'edit' && mentoriaData
                 ? String(mentoriaData.horario.slotId)
                 : '',
@@ -218,18 +217,18 @@ export function NovoAgendarMentoriaAluno({
         if (mode === 'edit' && mentoriaData) {
             const dataCorrigida = convertUTCToLocalDate(mentoriaData.horario.data);
             form.reset({
-                professorId: mentoriaData.professorId || professorId || '',
+                professorId: mentoriaData.professorId || '',
                 horario: String(mentoriaData.horario.slotId),
                 data: dataCorrigida
             });
         } else if (mode === 'create') {
             form.reset({
-                professorId: professorId || '',
+                professorId: mentoriaData?.professorId || '',
                 horario: '',
                 data: undefined,
             });
         }
-    }, [mode, mentoriaData, professorId]);
+    }, [mode, mentoriaData]);
 
     const watchedData = form.watch('data');
 
@@ -271,10 +270,6 @@ export function NovoAgendarMentoriaAluno({
         return () => clearTimeout(timer);
     }, [watchedData, diaSemanaId]);
 
-    useEffect(() => {
-        setAccordionValue(watchedData ? "item-1" : "");
-    }, [watchedData]);
-
     async function onSubmit(values: z.infer<typeof formSchema>) {
         if (!values.professorId || !session?.user.id) return
 
@@ -284,11 +279,13 @@ export function NovoAgendarMentoriaAluno({
             : (mentoriaData?.alunoId ?? '');
 
         if (mode === 'edit' && mentoriaData) {
+            const diaSemanaIdCalculado = diasSemana.find(dia => dia.dia === values.data.getDay())?.id ?? mentoriaData.horario.diaSemanaId;
             const response = await editarMentoria({
                 mentoriaId: mentoriaData.id,
+                professorId: values.professorId,
                 data: values.data,
                 slotId: Number(values.horario),
-                diaSemanaId: mentoriaData.horario.diaSemanaId,
+                diaSemanaId: diaSemanaIdCalculado,
                 duracao: mentoriaData.duracao,
             });
 
@@ -375,6 +372,12 @@ export function NovoAgendarMentoriaAluno({
         setIsOpen?.(false);
     }
 
+    function cancelar() {
+        form.reset();
+        setOpen(false);
+        setIsOpen?.(false);
+    }
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild disabled={mentoriaData?.status === 'REALIZADA'}>
@@ -427,17 +430,23 @@ export function NovoAgendarMentoriaAluno({
                                         );
                                     })}
                                 </Stepper.List>
-                                <div className="flex-1 min-h-[466px] max-sm:min-h-[396px] flex flex-col">
+                                <div className="flex-1 min-h-[470px] max-h-[520px] max-sm:max-h-[400px] max-sm:min-h-[400px] flex flex-col">
                                     {stepper.flow.switch({
                                         'step-1': () =>
                                             < FormField
                                                 control={form.control}
                                                 name="professorId"
                                                 render={({ field }) => (
-                                                    <FormItem className="flex flex-col">
+                                                    <FormItem className="flex flex-col gap-3 h-full overflow-hidden">
                                                         <FormLabel>Professor(a)</FormLabel>
-                                                        <RadioGroup defaultValue="plus" className="">
-                                                            {professores.map((professor) => (
+                                                        <RadioGroup
+                                                            value={field.value}
+                                                            onValueChange={field.onChange}
+                                                            className="overflow-y-auto h-full"
+                                                        >
+                                                            {isLoading ? Array.from({ length: 6 }).map((_, index) => (
+                                                                <Skeleton key={index} className="w-full h-12" />
+                                                            )) : professores.map((professor) => (
                                                                 <FieldLabel htmlFor={professor.id} key={professor.id}>
                                                                     <Field orientation="horizontal">
                                                                         <FieldContent className="flex flex-row items-center gap-3">
@@ -466,16 +475,23 @@ export function NovoAgendarMentoriaAluno({
                                                 control={form.control}
                                                 name="data"
                                                 render={({ field }) => (
-                                                    <FormItem className="flex flex-col">
+                                                    <FormItem className="flex flex-col gap-3">
                                                         <FormLabel>Data</FormLabel>
                                                         <Calendar
                                                             mode="single"
-                                                            selected={field.value}
+                                                            selected={
+                                                                field.value instanceof Date && !isNaN(field.value.getTime())
+                                                                    ? field.value
+                                                                    : (mode === 'edit' && mentoriaData
+                                                                        ? convertUTCToLocalDate(mentoriaData.horario.data)
+                                                                        : undefined)
+                                                            }
                                                             onSelect={field.onChange}
                                                             disabled={(date) => {
                                                                 const hoje = new Date();
                                                                 hoje.setHours(0, 0, 0, 0);
                                                                 const diasPermitidos = diasSemana.map(d => d.dia);
+
                                                                 return date < hoje || !diasPermitidos.includes(date.getDay());
                                                             }}
                                                             locale={ptBR}
@@ -490,69 +506,80 @@ export function NovoAgendarMentoriaAluno({
                                                 control={form.control}
                                                 name="horario"
                                                 render={({ field }) => (
-                                                    <FormItem>
-                                                        <Accordion type="single" collapsible className="w-full" value={accordionValue} onValueChange={setAccordionValue}>
-                                                            <AccordionItem value="item-1">
-                                                                <AccordionTrigger className="py-2">Horário</AccordionTrigger>
-                                                                <AccordionContent>
-                                                                    <FormControl>
-                                                                        {watchedData ? (
-                                                                            <div className="grid grid-cols-3 gap-4 max-h-40 overflow-y-auto">
-                                                                                {isCheckingVagas ? (
-                                                                                    Array.from({ length: 6 }).map((_, index) => (
-                                                                                        <Skeleton key={index} className="h-10 w-full rounded-lg" />
-                                                                                    ))
-                                                                                ) : (
-                                                                                    slotsHorario.map((slot) => (
-                                                                                        <Button
-                                                                                            key={slot.id}
-                                                                                            size="sm"
-                                                                                            variant={field.value === String(slot.id) ? "outline" : "ghost"}
-                                                                                            className={clsx('text-xs flex flex-col h-10', field.value === String(slot.id) && "bg-primary/5")}
-                                                                                            onClick={() => field.onChange(String(slot.id))}
-                                                                                            disabled={vagas[slot.id] === 0}
-                                                                                            type="button"
-                                                                                        >
-                                                                                            <span>{slot.nome}</span>
-                                                                                        </Button>
-                                                                                    ))
-                                                                                )}
-                                                                            </div>
-                                                                        ) : (
-                                                                            <div className="flex items-center justify-center h-12 text-muted-foreground text-xs">
-                                                                                Selecione uma data primeiro
-                                                                            </div>
-                                                                        )}
-                                                                    </FormControl>
-                                                                </AccordionContent>
-                                                            </AccordionItem>
-                                                            <FormMessage />
-                                                        </Accordion>
+                                                    <FormItem className="flex flex-col gap-3">
+                                                        <FormLabel>Horário</FormLabel>
+                                                        {watchedData ? (
+                                                            <div className="grid grid-cols-3 gap-4 max-h-40 overflow-y-auto">
+                                                                {isCheckingVagas ? (
+                                                                    Array.from({ length: 6 }).map((_, index) => (
+                                                                        <Skeleton key={index} className="h-10 w-full rounded-lg" />
+                                                                    ))
+                                                                ) : (
+                                                                    slotsHorario.map((slot) => (
+                                                                        <Button
+                                                                            key={slot.id}
+                                                                            size="sm"
+                                                                            variant={field.value === String(slot.id) || (mode === 'edit' && mentoriaData && slot.id === mentoriaData.horario.slotId) ? "outline" : "ghost"}
+                                                                            className={clsx('text-xs flex flex-col h-10', (field.value === String(slot.id) || (mode === 'edit' && mentoriaData && slot.id === mentoriaData.horario.slotId)) && "bg-primary")}
+                                                                            onClick={() => field.onChange(String(slot.id))}
+                                                                            disabled={vagas[slot.id] === 0}
+                                                                            type="button"
+                                                                        >
+                                                                            <span>{slot.nome}</span>
+                                                                        </Button>
+                                                                    ))
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex items-center justify-center h-12 text-muted-foreground text-xs">
+                                                                Selecione uma data primeiro
+                                                            </div>
+                                                        )}
                                                     </FormItem>
                                                 )}
                                             />
                                     })}
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <Button
-                                        type="button"
-                                        variant='ghost'
-                                        onClick={() => {
-                                            form.reset()
-                                            setOpen(false)
-                                        }}
-                                    >
-                                        Cancelar
-                                    </Button>
-
-                                    <Button type="submit" disabled={form.formState.isSubmitting}>
-                                        {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                                        {form.formState.isSubmitting
-                                            ? (mode === 'edit' ? 'Reagendando' : 'Agendando')
-                                            : (mode === 'edit' ? 'Reagendar' : 'Agendar')
-                                        }
-                                    </Button>
-                                </div>
+                                <Stepper.Actions className="grid grid-cols-2 gap-4 pt-4">
+                                    {!stepper.state.isLast ? (
+                                        <Stepper.Prev
+                                            render={(domProps) => (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    {...domProps}
+                                                >
+                                                    Anterior
+                                                </Button>
+                                            )}
+                                        />
+                                    ) : (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            onClick={() => { stepper.navigation.reset(); cancelar(); }}
+                                        >
+                                            Cancelar
+                                        </Button>
+                                    )}
+                                    {stepper.state.isLast ? (
+                                        <Button
+                                            type="button"
+                                            onClick={form.handleSubmit(onSubmit)}
+                                            disabled={form.formState.isSubmitting}
+                                        >
+                                            Salvar
+                                        </Button>
+                                    ) : (
+                                        <Stepper.Next
+                                            render={(domProps) => (
+                                                <Button type="button" {...domProps}>
+                                                    Proximo
+                                                </Button>
+                                            )}
+                                        />
+                                    )}
+                                </Stepper.Actions>
                             </form>
                         )}
                     </Stepper.Root>

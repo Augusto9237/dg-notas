@@ -599,6 +599,7 @@ export async function listarMentoriasAluno(
 // Interface para editar mentoria
 interface EditarMentoriaParams {
   mentoriaId: number;
+  professorId: string; // ID do professor selecionado
   data: Date;
   slotId: number; // ID do SlotHorario
   diaSemanaId: number; // ID do DiaSemana
@@ -621,7 +622,7 @@ interface EditarMentoriaResult {
 export async function editarMentoria(
   params: EditarMentoriaParams
 ): Promise<EditarMentoriaResult> {
-  const { mentoriaId, data, slotId, diaSemanaId, duracao = 20 } = params;
+  const { mentoriaId, professorId, data, slotId, diaSemanaId, duracao = 20 } = params;
 
   try {
     // Normalizar a data para evitar problemas com fuso horário
@@ -689,6 +690,7 @@ export async function editarMentoria(
           where: { id: mentoriaId },
           data: {
             horarioId: novoHorario.id,
+            professorId: professorId,
             duracao: duracao,
           },
           include: {

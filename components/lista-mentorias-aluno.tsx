@@ -24,14 +24,6 @@ interface ListMentoriasAlunosProps {
     mentoriasIniciais: Mentoria[];
     diasSemana: DiaSemana[]
     slotsHorario: SlotHorario[]
-    professor: {
-        nome: string;
-        email: string;
-        telefone: string | null;
-        especialidade: string | null;
-        bio: string | null;
-        image: string | null;
-    } | null
     hasMore?: boolean;
     loading?: boolean;
     nextMentorias?: () => void;

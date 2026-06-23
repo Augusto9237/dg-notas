@@ -41,13 +41,12 @@ interface ListaMentorias {
 }
 
 interface TabelaMentoriasAlunoProps {
-    professor: Professor;
     diasSemana: DiaSemana[];
     slotsHorario: SlotHorario[];
     mentoriasIniciais: ListaMentorias;
 }
 
-export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario, mentoriasIniciais }: TabelaMentoriasAlunoProps) {
+export function TabelaMentoriasAluno({ diasSemana, slotsHorario, mentoriasIniciais }: TabelaMentoriasAlunoProps) {
     const [mentorias, setMentorias] = useState<ListaMentorias>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
@@ -60,11 +59,14 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario, ment
         setHasMore(mentoriasIniciais.meta.total > mentoriasIniciais.data.length);
     }, [mentoriasIniciais]);
 
+    // Calcular a data atual no fuso horário de Brasília (UTC-3) de forma segura
+    // Usar toLocaleString com timeZone pode falhar em ambientes SSR/Node.js
     const hoje = new Date()
-    const brasilTime = new Date(hoje.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
-    const hojeAno = brasilTime.getFullYear()
-    const hojeMes = brasilTime.getMonth()
-    const hojeDia = brasilTime.getDate()
+    const brasilOffset = -3 * 60 // UTC-3 em minutos
+    const brasilTime = new Date(hoje.getTime() + (brasilOffset - (-hoje.getTimezoneOffset())) * 60 * 1000)
+    const hojeAno = brasilTime.getUTCFullYear()
+    const hojeMes = brasilTime.getUTCMonth()
+    const hojeDia = brasilTime.getUTCDate()
 
     const mentoriasDoDia = mentorias.data.filter((mentoria) => {
         if (mentoria.status !== "AGENDADA" && mentoria.status !== 'CONFIRMADA') return false
@@ -137,7 +139,7 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario, ment
                 {mentoriasDoDia.length > 0 && (
                     <div className="grid grid-cols-4 max-md:grid-cols-1 gap-4">
                         {mentoriasDoDia.map((mentoria) => (
-                            <CardMentoriaConfirmacao key={mentoria.id} mentoria={mentoria} professor={professor} />
+                            <CardMentoriaConfirmacao key={mentoria.id} mentoria={mentoria} />
                         ))}
                     </div>
                 )}
@@ -146,7 +148,6 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario, ment
                     mentoriasIniciais={mentoriasAgendadasParaLista}
                     diasSemana={diasSemana}
                     slotsHorario={slotsHorario}
-                    professor={professor}
                     hasMore={hasMore}
                     loading={loading}
                     nextMentorias={nextMentorias}
@@ -157,7 +158,6 @@ export function TabelaMentoriasAluno({ professor, diasSemana, slotsHorario, ment
                     mentoriasIniciais={mentoriasRealizadas}
                     diasSemana={diasSemana}
                     slotsHorario={slotsHorario}
-                    professor={professor}
                     hasMore={hasMore}
                     loading={loading}
                     nextMentorias={nextMentorias}
