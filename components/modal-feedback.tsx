@@ -44,7 +44,7 @@ export function ModalFeedback({ feedback, professor }: ModalFeedbackProps) {
     return (
         <Dialog >
             <DialogTrigger asChild disabled={feedback.length === 0}>
-                <Button className="w-full relative bg-primary/10" size="sm" variant='outline'>
+                <Button className="w-full relative bg-primary/10 text-primary" size="sm" variant='outline'>
                     <IoChatbubbleEllipsesOutline />
                     Feedback
                 </Button>
