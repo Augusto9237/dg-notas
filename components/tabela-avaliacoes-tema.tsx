@@ -30,8 +30,9 @@ import useDownloader from "react-use-downloader";
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { toast } from 'sonner';
 import { DeleteButton } from './ui/delete-button';
-import { DeletarAvaliacao } from '@/actions/avaliacao';
+import { DeletarAvaliacao, ListarAvaliacoesTemaId } from '@/actions/avaliacao';
 import Image from 'next/image';
+import { useParams } from 'next/navigation'
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
   include: {
@@ -50,6 +51,8 @@ export function TabelaAvaliacoesTema({ avaliacoes, criterios }: TabelaAvaliacoes
   const [carregando, setCarregando] = useState(false)
   const [listaAvaliacoes, setListaAvaliacoes] = useState<TabelaAvaliacoesTemaProps['avaliacoes']>([])
   const searchParams = useSearchParams()
+  const params = useParams<{ temaId: string }>()
+  
   const busca = searchParams.get('busca')
   const { download } = useDownloader();
 
@@ -70,7 +73,7 @@ export function TabelaAvaliacoesTema({ avaliacoes, criterios }: TabelaAvaliacoes
     const buscarAvaliacoes = async () => {
       if (busca) {
         setCarregando(true);
-        const resultadoBusca = avaliacoes.filter((avaliacao) => avaliacao.aluno.email.toLowerCase().includes(busca.toLowerCase()));
+        const resultadoBusca = await ListarAvaliacoesTemaId(Number(params.temaId), busca)
 
         if (isMounted) {
           setListaAvaliacoes(resultadoBusca);
@@ -165,7 +168,7 @@ export function TabelaAvaliacoesTema({ avaliacoes, criterios }: TabelaAvaliacoes
           <TableBody>
             {paginacaoAvaliacoes.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={10} className="text-center py-8">
                   Nenhum aluno encontrado
                 </TableCell>
               </TableRow>

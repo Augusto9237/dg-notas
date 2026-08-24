@@ -1,27 +1,32 @@
-
-import Loading from '../loading';
-import { Suspense } from 'react';
 import { ListarAvaliacoesTemaId, ListarCriterios } from '@/actions/avaliacao';
 import { TabelaAvaliacoesTema } from '@/components/tabela-avaliacoes-tema';
 import { calcularMedia } from '@/lib/media-geral';
 import { HeaderTeacher } from '@/components/header-professor';
 import { CardDescription, CardTitle } from '@/components/ui/card';
-
-
+import { notFound } from 'next/navigation';
 
 export default async function Page({
   params,
+  searchParams,
 }: {
-  params: Promise<{ temaId: string }>
+  params: Promise<{ temaId: string }>;
+  searchParams: Promise<{ busca?: string }>;
 }) {
-  const tema = (await params).temaId
-  const avaliacoesTema = await ListarAvaliacoesTemaId(Number(tema))
-  const criterios = await ListarCriterios()
+
+  const temaIdParam = (await params).temaId;
+  const temaId = Number(temaIdParam);
+
+  if (!Number.isInteger(temaId)) {
+    notFound(); // next/navigation
+  }
+  const [avaliacoesTema, criterios] = await Promise.all([
+    ListarAvaliacoesTemaId(Number(temaId)),
+    ListarCriterios(),
+  ]);
 
   return (
-    <Suspense fallback={<Loading />}>
       <div className="w-full h-full min-h-screen relative pt-16 overflow-y-auto">
-        <HeaderTeacher title={`Tema - ${tema}`} description={avaliacoesTema.length > 0 ? avaliacoesTema[0].tema.nome : ""}>
+        <HeaderTeacher title={`Tema - ${temaId}`} description={avaliacoesTema.length > 0 ? avaliacoesTema[0].tema.nome : ""}>
           <div className='flex flex-col justify-center w-full flex-1 items-end'>
             <CardTitle className="md:text-lg leading-none">{calcularMedia(avaliacoesTema).toFixed(2).replace('.', ',')}</CardTitle>
             <CardDescription className="max-md:text-xs truncate">Média Geral</CardDescription>
@@ -29,10 +34,9 @@ export default async function Page({
         </HeaderTeacher>
 
         <main className="flex flex-col p-5 h-full">
-          <TabelaAvaliacoesTema avaliacoes={avaliacoesTema} criterios={criterios}/>
+          <TabelaAvaliacoesTema avaliacoes={avaliacoesTema} criterios={criterios} />
         </main>
       </div>
-    </Suspense>
   );
 }
 

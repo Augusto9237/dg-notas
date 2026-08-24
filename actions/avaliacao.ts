@@ -80,7 +80,7 @@ export async function listarTemas(busca?: string, page: number = 1, limit: numbe
     }
 
     const role = session.user.role as string;
-    if (role !== 'admin' && role !== 'assistente') {
+    if (role !== 'admin' && role !== 'assistente' && role !== 'professor') {
         throw new Error('Usuário não autorizado');
     }
 
@@ -91,7 +91,7 @@ export async function listarTemas(busca?: string, page: number = 1, limit: numbe
                 nome: {
                     contains: busca.trim(),
                     mode: 'insensitive' as const, // Case-insensitive
-                },
+                }
             }),
         };
 
@@ -140,9 +140,9 @@ export async function listarTemas(busca?: string, page: number = 1, limit: numbe
 }
 
 export async function listarTemasProfessor(professorId: string, busca?: string, page: number = 1, limit: number = 12) {
-    if(!(await verificarSessaoProfessor(professorId))){
-         throw new Error('Usuário não autorizado');
-    }
+    // if(!(await verificarSessaoProfessor(professorId))){
+    //      throw new Error('Usuário não autorizado');
+    // }
 
     try {
         const whereClause = {
@@ -164,6 +164,7 @@ export async function listarTemasProfessor(professorId: string, busca?: string, 
                 },
                 include: {
                     Avaliacao: true,
+                    professor: true,
                     _count: {
                         select: {
                             Avaliacao: {
@@ -522,7 +523,7 @@ export async function EditarAvaliacao(
     }
 }
 
-export async function ListarAvaliacoesTemaId(temaId: number) {
+export async function ListarAvaliacoesTemaId(temaId: number, busca?:string) {
     const session = await auth.api.getSession({
         headers: await headers()
     })
@@ -530,10 +531,24 @@ export async function ListarAvaliacoesTemaId(temaId: number) {
     if (!session?.user) {
         throw new Error('Usuário não autorizado');
     }
+
+    const whereClause = {
+        temaId: temaId,
+        // Só aplica o filtro de nome se busca for fornecida e não vazia
+        ...(busca && busca.trim() !== '' && {
+            aluno: {
+                email: {
+                    contains: busca.trim(),
+                    mode: 'insensitive' as const,
+                }
+            }
+        }),
+    };
     
     const avaliacoes = await prisma.avaliacao.findMany({
-        where: {
-            temaId: temaId
+        where: whereClause,
+        orderBy: {
+            createdAt: 'desc',
         },
         include: {
             tema: true,
@@ -761,8 +776,8 @@ export async function ListarAvaliacoes(month?: number, year?: number, page: numb
         month = now.getMonth() + 1; // getMonth() retorna 0-11
         year = now.getFullYear();
     }
-    const targetMonth = month!;
-    const targetYear = year!;
+    const targetMonth = month!
+    const targetYear = year!
 
     // Validação do mês
     if (targetMonth < 1 || targetMonth > 12) {
