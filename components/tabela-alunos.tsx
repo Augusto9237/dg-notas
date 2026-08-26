@@ -51,6 +51,7 @@ type TabelaAlunosProps = {
 export function TabelaAlunos({ alunosIniciais, totalAlunos, totalPaginas, limite }: TabelaAlunosProps) {
   const [isPending, startTransition] = useTransition()
   const [alunos, setAlunos] = useState<Aluno[]>(alunosIniciais)
+  const [updatingStudentId, setUpdatingStudentId] = useState<string | null>(null);
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
@@ -66,6 +67,7 @@ export function TabelaAlunos({ alunosIniciais, totalAlunos, totalPaginas, limite
     if (paginaAtual === 1 && !busca) {
       setAlunos(alunosIniciais)
       setTotalPage(totalPaginas)
+      setTotalStudents(totalAlunos)
       return
     }
 
@@ -75,6 +77,7 @@ export function TabelaAlunos({ alunosIniciais, totalAlunos, totalPaginas, limite
         const resultado = await listarAlunosGoogle(busca, paginaAtual, limite)
         setAlunos(resultado.data)
         setTotalPage(resultado.totalPaginas)
+        setTotalStudents(resultado.total)
       } catch (error) {
         console.error("Erro ao buscar alunos:", error)
         toast.error("Erro ao carregar alunos")
@@ -87,10 +90,11 @@ export function TabelaAlunos({ alunosIniciais, totalAlunos, totalPaginas, limite
   }, [busca, paginaAtual, alunosIniciais, totalPaginas, limite])
 
   function atualizarMatriculaAluno(id: string, status: boolean) {
+    setUpdatingStudentId(id);
     startTransition(async () => {
       try {
-        await alterarStatusMatriculaAluno(id, status)
-
+       const { user } = await alterarStatusMatriculaAluno(id, status)
+       setAlunos(alunos => alunos.map(aluno => aluno.id === id ? { ...aluno, matriculado: user.matriculado } : aluno))
         toast.success('Status da matricula do aluno atualizada com sucesso')
 
         if (status) {
@@ -98,6 +102,8 @@ export function TabelaAlunos({ alunosIniciais, totalAlunos, totalPaginas, limite
         }
       } catch (error) {
         toast.error('Algo deu errado! Tente novamente')
+      } finally {
+        setUpdatingStudentId(null);
       }
     })
   }
@@ -187,7 +193,7 @@ export function TabelaAlunos({ alunosIniciais, totalAlunos, totalPaginas, limite
                   <TableCell className="text-center">
                     <Switch
                       checked={aluno.matriculado ? aluno.matriculado : false}
-                      disabled={isPending}
+                      disabled={isPending && updatingStudentId === aluno.id}
                       onCheckedChange={(checked) => atualizarMatriculaAluno(aluno.id, checked)}
                     />
                   </TableCell>

@@ -31,26 +31,26 @@ async function obterAlunos(busca?: string, page: number = 1, limit: number = 12)
   };
 
   try {
-    const [alunos, total] = await Promise.all([
-      prisma.user.findMany({
-        where: clausulaDeFiltro,
-        take: limit,
-        skip: skip,
-        include: { avaliacoesComoAluno: true },
-        orderBy: { name: 'asc' }
-      }),
-      prisma.user.count({
-        where: {...clausulaDeFiltro, matriculado: true}
-      })
-    ]);
-
-    return {
-      data: alunos,
-      total,
-      pagina: page,
-      limite: limit,
-      totalPaginas: Math.ceil(total / limit)
-    };
+    const [alunos, totalGeral, totalPendentes] = await Promise.all([
+        prisma.user.findMany({
+          where: clausulaDeFiltro,
+          take: limit,
+          skip,
+          include: { avaliacoesComoAluno: true },
+          orderBy: { name: 'asc' },
+        }),
+        prisma.user.count({ where: clausulaDeFiltro }), // mesmo filtro do findMany — usado pra paginação
+        prisma.user.count({ where: { ...clausulaDeFiltro, matriculado: { not: true } } }), // métrica separada
+      ]);
+      
+      return {
+        data: alunos,
+        total: totalGeral,
+        totalPendentes:totalPendentes,
+        pagina: page,
+        limite: limit,
+        totalPaginas: Math.ceil(totalGeral / limit),
+      };
   } catch (error) {
     console.error('Erro ao listar alunos:', error);
     throw error;
@@ -149,7 +149,7 @@ export async function alterarStatusMatriculaAluno(idAluno: string, matriculado: 
         throw new Error("Usuário não autorizado")
     }
     try {
-        await prisma.user.update({
+       const user = await prisma.user.update({
             where: {
                 id: idAluno
             }, data: {
@@ -160,6 +160,9 @@ export async function alterarStatusMatriculaAluno(idAluno: string, matriculado: 
         revalidatePath('/admin')
         revalidatePath('/assistente/alunos')
         updateTag('lista-alunos')
+        return {
+            user: user
+        }
     } catch (error) {
         console.error("Erro ao atualizar o status da matricula do aluno:", error);
         throw error;

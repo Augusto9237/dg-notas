@@ -35,7 +35,7 @@ export default async function Page({
     ]
 
     const ultimosTemas = temasMes.slice(0, 10)
-    const { total } = await listarAlunosGoogle()
+    const { total, totalPendentes } = await listarAlunosGoogle()
     const avaliacoesIniciais = await ListarAvaliacoes(Number(mes), Number(ano), 1, 1000)
 
     return (
@@ -48,7 +48,7 @@ export default async function Page({
                 </HeaderTeacher>
 
                 <main className="flex flex-col gap-4 p-5 h-full">
-                    <ListaCardsDashboard totalAlunos={total} temas={temasMes} avaliacoes={avaliacoesIniciais.data} mentorias={mentorias} meses={meses} />
+                    <ListaCardsDashboard totalAlunos={(total - totalPendentes)} temas={temasMes} avaliacoes={avaliacoesIniciais.data} mentorias={mentorias} meses={meses} />
 
                     <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
                         <UltimasAvaliacoes temasMes={ultimosTemas} />
