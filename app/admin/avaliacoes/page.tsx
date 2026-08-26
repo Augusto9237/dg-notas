@@ -1,15 +1,21 @@
 import { ListarCriterios, listarTemas } from '@/actions/avaliacao';
 import { FormularioTema } from '@/components/formulario-tema';
 import { TabelaTemas } from '@/components/tabela-temas';
-import { Suspense } from 'react';
-import Loading from './loading';
 import { ModalCompetencias } from '@/components/modal-competencias';
 import { HeaderTeacher } from '@/components/header-professor';
 
-export default async function Page() {
-  const criterios = await ListarCriterios()
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ busca?: string; page?: string }>;
+}) {
+  const { busca, page } = await searchParams;
+  const currentPage = Number(page) || 1;
 
-  const temas = await listarTemas()
+  const [criterios, temas] = await Promise.all([
+    ListarCriterios(),
+    listarTemas(),
+  ]);
 
   return (
       <div className="w-full h-full min-h-screen relative pt-16 overflow-y-auto">

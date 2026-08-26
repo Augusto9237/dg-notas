@@ -59,27 +59,30 @@ export function TabelaTemas({ temasIniciais, totalPaginas, limite, totalTemas }:
 
   useEffect(() => {
     if (currentPage === 1 && !busca) {
-      setTemas(temasIniciais)
-      setTotalItems(totalTemas)
-      setTotalPages(totalPaginas)
-      return
+      setTemas(temasIniciais);
+      setTotalItems(totalTemas);
+      setTotalPages(totalPaginas);
+      return;
     }
 
     const buscarDados = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        const temas = await listarTemas(busca || undefined, currentPage, 12)
-        setTemas(temas.data);
+        const resultado = await listarTemas(busca || undefined, currentPage, 12);
+        setTemas(resultado.data);
+        setTotalItems(resultado.meta.total);      // ← faltava
+        setTotalPages(resultado.meta.totalPages);  // ← faltava
       } catch (error) {
-        console.error("Erro ao buscar temas:", error)
-        toast.error("Erro ao carregar temas")
+        console.error("Erro ao buscar temas:", error);
+        toast.error("Erro ao carregar temas");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     };
 
     buscarDados();
-  }, [busca, currentPage, temasIniciais]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [busca, currentPage])
 
   function atualizarDisponibilidadeTema(temaId: number, status: boolean) {
     startTransition(async () => {
@@ -153,15 +156,18 @@ export function TabelaTemas({ temasIniciais, totalPaginas, limite, totalTemas }:
               <>
                 {Array.from({ length: 12 }).map((_, index) => (
                   <TableRow key={index}>
-                    <TableCell colSpan={7}>
-                      <Skeleton className='h-9 rounded-sm' />
-                    </TableCell>
+                    <TableCell><Skeleton className='h-9 rounded-sm' /></TableCell>
+                    <TableCell><Skeleton className='h-9 rounded-sm' /></TableCell>
+                    <TableCell><Skeleton className='h-9 rounded-sm' /></TableCell>
+                    <TableCell><Skeleton className='h-9 rounded-sm' /></TableCell>
+                    <TableCell><Skeleton className='h-9 rounded-sm' /></TableCell>
+                    <TableCell><Skeleton className='h-9 rounded-sm' /></TableCell>
                   </TableRow>
                 ))}
               </>
             ) : temas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   Nenhum tema encontrado
                 </TableCell>
               </TableRow>
@@ -181,29 +187,28 @@ export function TabelaTemas({ temasIniciais, totalPaginas, limite, totalTemas }:
                   </TableCell>
                   <TableCell className="w-[54px]">
                     <div className="flex items-center justify-center gap-4">
-                      <Link href={tema.Avaliacao.length > 0 ? `/admin/avaliacoes/${tema.id}` : '/admin/avaliacoes'} passHref>
+                      {tema.Avaliacao.length > 0 ? (
+                        <Link href={`/admin/avaliacoes/${tema.id}`} passHref>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button size="icon" className="relative">
+                                {/* badge */}
+                                <FileCheck2 />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Redações</TooltipContent>
+                          </Tooltip>
+                        </Link>
+                      ) : (
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button
-                              size="icon"
-                              className="hover:cursor-pointer relative"
-                              variant={tema.Avaliacao.length > 0 ? 'default' : 'ghost'}
-                              disabled={tema.Avaliacao.length === 0}
-                            >
-                              {tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length > 0 ? (
-                                <span className="absolute -right-1 -top-1 flex size-4">
-                                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary opacity-75"></span>
-                                  <span className="relative flex justify-center items-center size-4 rounded-full bg-secondary text-[0.60rem] text-center text-card border border-secondary">{tema.Avaliacao.filter((avaliacao) => avaliacao.status === 'ENVIADA').length}</span>
-                                </span>
-                              ) : null}
+                            <Button size="icon" variant="ghost" disabled className="relative">
                               <FileCheck2 />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent className="text-background">
-                            <p>Redações</p>
-                          </TooltipContent>
+                          <TooltipContent>Sem redações</TooltipContent>
                         </Tooltip>
-                      </Link>
+                      )}
                       <FormularioTema tema={tema} />
                       <DeleteButton onClick={() => excluirTema(tema.id)} />
                     </div>
