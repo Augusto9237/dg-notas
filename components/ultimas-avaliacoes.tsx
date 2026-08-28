@@ -43,19 +43,17 @@ export function UltimasAvaliacoes({ temasMes }: { temasMes: TemasMes[] }) {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            temasMes.map((tema) => (
+                            temasMes.map((tema) => {
+                                const totalRespostas = tema.Avaliacao.filter(a => a.resposta.length > 0).length;
+                                return(
                                 <TableRow key={tema.id} onClick={() => router.push(`/admin/avaliacoes/${tema.id}`)} className="cursor-pointer">
                                     <TableCell className="max-w-0 truncate">{tema.nome}</TableCell>
                                     <TableCell className="w-[120px]">{format(new Date(tema.createdAt), "dd/MM/yyyy")}</TableCell>
                                     <TableCell className="w-[100px] text-center">
-                                        <Badge
-                                            variant={tema.Avaliacao.filter(avaliacao => avaliacao.resposta.length > 0).length > 0 ? 'default' : 'outline'}
-                                        >
-                                            {tema.Avaliacao.filter(avaliacao => avaliacao.resposta.length > 0).length}
-                                        </Badge>
+                                            <Badge variant={totalRespostas > 0 ? 'default' : 'outline'}>{totalRespostas}</Badge>
                                     </TableCell>
                                 </TableRow>
-                            ))
+                            )})
                         )}
                     </TableBody>
                 </Table>

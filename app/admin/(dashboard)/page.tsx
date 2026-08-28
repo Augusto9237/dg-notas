@@ -1,5 +1,5 @@
 import { listarAlunosGoogle } from "@/actions/alunos";
-import { ListarAvaliacoes, listarTemasMes } from "@/actions/avaliacao";
+import { ListarAvaliacoes, listarTemasMes, listarTopAlunosUltimoTema } from "@/actions/avaliacao";
 import { listarMentoriasMes } from "@/actions/mentoria";
 
 import { TabelaTopAlunos } from "@/components/tabela-top-alunos";
@@ -37,6 +37,7 @@ export default async function Page({
     const ultimosTemas = temasMes.slice(0, 10)
     const { total, totalPendentes } = await listarAlunosGoogle()
     const avaliacoesIniciais = await ListarAvaliacoes(Number(mes), Number(ano), 1, 1000)
+    const topAlunos = await listarTopAlunosUltimoTema(Number(mes), Number(ano));
 
     return (
         <Suspense fallback={<Loading />}>
@@ -52,7 +53,7 @@ export default async function Page({
 
                     <div className="grid grid-cols-2 max-[1025px]:grid-cols-1 gap-5 flex-1 h-full">
                         <UltimasAvaliacoes temasMes={ultimosTemas} />
-                        <TabelaTopAlunos avaliacoes={avaliacoesIniciais.data} />
+                        <TabelaTopAlunos topAlunos={topAlunos} />
                     </div>
                 </main >
             </div >

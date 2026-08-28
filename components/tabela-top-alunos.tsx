@@ -41,22 +41,21 @@ const TabelaTopAlunosSkeleton = () => {
   )
 }
 
-type Avaliacao = Prisma.AvaliacaoGetPayload<{
-  include: {
-    aluno: true,
-    criterios: true,
-    tema: true,
-  }
-}>
 
 
 interface TabelaAlunosProps {
-  avaliacoes: Avaliacao[]
+  topAlunos: {
+    posicao: number;
+    alunoId: string;
+    nome: string;
+    email: string;
+    image: string | null;
+    mediaFinal: number;
+  }[]
 }
 
-export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
+export function TabelaTopAlunos({ topAlunos }: TabelaAlunosProps) {
   const { notificacoes } = useContext(ContextoAdmin)
-  const [alunos, setAlunos] = useState<AlunoRanking[]>([])
   const [isLoading, setIsLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -65,10 +64,6 @@ export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
   const ano = params.get('ano')
 
 
-  useEffect(() => {
-    const top10 = rankearMelhoresAlunos(avaliacoes);
-    setAlunos(top10)
-  }, [avaliacoes])
 
   useEffect(() => {
     const handleNotification = async () => {
@@ -78,7 +73,6 @@ export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
       if (url === '/professor/avaliacoes') {
         const novasAvaliacoes = await ListarAvaliacoes(Number(mes), Number(ano), 1, 1000)
         const top10 = rankearMelhoresAlunos(novasAvaliacoes.data);
-        setAlunos(top10)
       }
     }
 
@@ -102,7 +96,7 @@ export function TabelaTopAlunos({ avaliacoes }: TabelaAlunosProps) {
           </Link>
         </CardHeader>
         <CardContent className='p-0 flex flex-col gap-4'>
-          {alunos.map((aluno) => (
+          {topAlunos.map((aluno) => (
             <Link key={aluno.alunoId} href={`/admin/alunos/${aluno.alunoId}`}>
               <Card className='flex flex-row items-center p-4 gap-4'>
                 <span className='text-lg font-bold'>{aluno.posicao}º</span>

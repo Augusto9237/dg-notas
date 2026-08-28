@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { atualizarCache } from "./cache";
+import { resolverIntervaloMes } from "@/helpers/resolver-intervalo-mes";
 
 export async function verificarSessaoAdmin(): Promise<boolean> {
     const session = await auth.api.getSession({
@@ -756,7 +757,9 @@ export async function DeletarAvaliacao(id: number) {
     }
 }
 
-export async function ListarAvaliacoes(month?: number, year?: number, page: number = 1, limit: number = 10) {
+
+
+  export async function ListarAvaliacoes(month?: number, year?: number, page: number = 1, limit: number = 10) {
     const session = await auth.api.getSession({
         headers: await headers()
     })
@@ -769,33 +772,7 @@ export async function ListarAvaliacoes(month?: number, year?: number, page: numb
         throw new Error('Usuário não autorizado');
     }
 
-    const now = new Date();
-
-    // Se month e year forem undefined, retorna mês e ano atual
-    if (typeof month === 'undefined' && typeof year === 'undefined') {
-        month = now.getMonth() + 1; // getMonth() retorna 0-11
-        year = now.getFullYear();
-    }
-    const targetMonth = month!
-    const targetYear = year!
-
-    // Validação do mês
-    if (targetMonth < 1 || targetMonth > 12) {
-        throw new Error('O mês deve estar entre 1 e 12');
-    }
-
-    // Validação do ano
-    if (targetYear < 1900 || targetYear > 2100) {
-        throw new Error('Ano inválido');
-    }
-
-    const startDate = new Date(targetYear, targetMonth - 1, 1);
-    const endDate = new Date(targetYear, targetMonth, 1);
-
-    // Validação adicional para garantir que as datas são válidas
-    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        throw new Error('Erro ao criar datas de filtro');
-    }
+    const { startDate, endDate } = resolverIntervaloMes(month, year);
 
     try {
         const whereClause = {
@@ -841,5 +818,76 @@ export async function ListarAvaliacoes(month?: number, year?: number, page: numb
         }
 
         throw new Error('Erro desconhecido ao buscar avaliações');
+    }
+}
+
+export async function listarTopAlunosUltimoTema(month?: number, year?: number, limiteTop: number = 10) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) {
+        throw new Error("Usuário não autenticado")
+    }
+
+    const role = session.user.role as string;
+    if (role !== 'admin' && role !== 'assistente') {
+        throw new Error('Usuário não autorizado');
+    }
+
+    const { startDate, endDate } = resolverIntervaloMes(month, year);
+
+    try {
+        // 1. Acha o maior temaId dentro do período — uma consulta que só
+        //    traz um inteiro, em vez de trazer o mês inteiro pra achar o
+        //    máximo em memória.
+        const temaMaisRecente = await prisma.avaliacao.findFirst({
+            where: { createdAt: { gte: startDate, lt: endDate } },
+            orderBy: { temaId: 'desc' },
+            select: { temaId: true },
+        });
+
+        if (!temaMaisRecente) return [];
+
+        // 2. Só as avaliações CORRIGIDAS desse tema específico, dentro do
+        //    mesmo período — replica exatamente o filtro original
+        //    (temaId + status), que também ficava implicitamente restrito
+        //    ao período porque o array de entrada já vinha filtrado assim.
+        //    Universo bem menor que o mês inteiro: no máximo uma entrega
+        //    por aluno, só pra esse tema — e só os campos do aluno que a
+        //    UI usa, sem incluir criterios/tema.
+        const avaliacoesDoTema = await prisma.avaliacao.findMany({
+            where: {
+                temaId: temaMaisRecente.temaId,
+                status: 'CORRIGIDA',
+                createdAt: { gte: startDate, lt: endDate },
+            },
+            include: {
+                aluno: { select: { id: true, name: true, email: true, image: true } },
+            },
+            orderBy: { createdAt: 'asc' },
+        });
+
+        // 3. Mantém só a avaliação mais recente por aluno — mesma lógica do
+        //    original: ordenado da mais antiga pra mais recente, a última
+        //    ocorrência no Map sobrescreve as anteriores.
+        const maisRecentePorAluno = new Map(
+            avaliacoesDoTema.map((av) => [av.alunoId, av])
+        );
+
+        // 4. Ordena pela nota e corta no top N
+        return Array.from(maisRecentePorAluno.values())
+            .sort((a, b) => b.notaFinal - a.notaFinal)
+            .slice(0, limiteTop)
+            .map((av, index) => ({
+                posicao: index + 1,
+                alunoId: av.alunoId,
+                nome: av.aluno.name,
+                email: av.aluno.email || "",
+                image: av.aluno.image || null,
+                mediaFinal: Number.isFinite(av.notaFinal) ? av.notaFinal : 0,
+            }));
+    } catch (error) {
+        console.error('Erro ao listar top alunos do tema mais recente:', error);
+        throw error;
     }
 }
