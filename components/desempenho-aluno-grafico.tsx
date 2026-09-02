@@ -8,11 +8,12 @@ import {
     ChartTooltipContent,
     type ChartConfig,
 } from '@/components/ui/chart'
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useMemo, useState } from "react"
 import { ContextoAluno } from "@/context/contexto-aluno"
 import { calcularMediaMensal } from "@/lib/media-geral"
 import { atualizarCache } from "@/actions/cache"
 import { Skeleton } from "./ui/skeleton"
+import { useRouter } from "next/navigation"
 
 
 type Avaliacao = Prisma.AvaliacaoGetPayload<{
@@ -50,26 +51,18 @@ export function DesempenhoAlunoGraficoSkeleton() {
 export default function DesempenhoAlunoGrafico({ avaliacoes, userId }: DesempenhoAlunoGraficoProps) {
     const { notificacoes } = useContext(ContextoAluno)
     const [carregando, setCarregando] = useState(false)
+    const router = useRouter()
 
     useEffect(() => {
-        const urlNotificacao = notificacoes?.data?.url
-        if (urlNotificacao !== '/aluno/avaliacoes') return
-
-        const revalidar = async () => {
-            setCarregando(true)
-            try {
-                await atualizarCache(`listar-avaliacoes-aluno-${userId}`)
-            } catch (error) {
-                console.error("Erro ao revalidar dados via notificação:", error)
-            } finally {
-                setCarregando(false)
-            }
-        }
-
-        revalidar()
-    }, [notificacoes, userId])
-
-    const dadosGrafico = carregando ? [] : calcularMediaMensal(avaliacoes)
+        if (notificacoes?.data?.url !== '/aluno/avaliacoes') return;
+        
+        // Revalida o cache E atualiza a UI
+        atualizarCache(`listar-avaliacoes-aluno-${userId}`)
+          .then(() => router.refresh())
+          .catch(console.error);
+      }, [notificacoes?.data?.url, userId, router]); // dependência estável
+      
+      const dadosGrafico = useMemo(() => calcularMediaMensal(avaliacoes), [avaliacoes]);
 
     return (
         <GraficoWrapper>

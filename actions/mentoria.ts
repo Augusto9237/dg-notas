@@ -524,8 +524,8 @@ export async function listarMentoriasProfessor(professorId: string, mes?: number
 async function obterMentoriasAluno(alunoId: string, page: number = 1, limit: number = 10) {
   'use cache'
   cacheTag(`listar-mentorias-aluno-${alunoId}`)
-
-  cacheLife({ revalidate: 1800 })
+  cacheLife({ stale: 1800 })
+  
   try {
     const skip = (page - 1) * limit;
 
@@ -578,21 +578,15 @@ async function obterMentoriasAluno(alunoId: string, page: number = 1, limit: num
     }
   }
 }
-export async function listarMentoriasAluno(
-  alunoId: string,
-  page: number = 1,
-  limit: number = 10
-) {
-
-    const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+export async function listarMentoriasAluno(alunoId: string, page = 1, limit = 10) {
+  const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) {
     throw new Error('Usuário não autorizado');
   }
-
-  return obterMentoriasAluno(alunoId, page, limit)
+  if (session.user.id !== alunoId && session.user.role !== 'admin' && session.user.role !== 'professor' && session.user.role !== 'assistente') {
+    throw new Error('Acesso negado.');
+  }
+  return obterMentoriasAluno(alunoId, page, limit);
 }
 
 

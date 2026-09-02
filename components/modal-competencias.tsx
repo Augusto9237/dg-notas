@@ -22,11 +22,6 @@ interface ModalCompetenciasProps {
 
 export function ModalCompetencias({ criterios }: ModalCompetenciasProps) {
   const [open, setOpen] = useState(false)
-  const [listaCriterios, setListCriterios] = useState<Criterio[]>([]);
-
-  useEffect(() => {
-    setListCriterios(criterios)
-  }, [criterios, open])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -45,7 +40,7 @@ export function ModalCompetencias({ criterios }: ModalCompetenciasProps) {
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          {listaCriterios.map((criterio, i) => (
+        {criterios.map((criterio, i) => (
             <Card className="gap-2 p-4" key={criterio.id}>
               <div className="flex justify-between gap-1 items-center">
                 <div className="h-full  w-full space-y-1">
