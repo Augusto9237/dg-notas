@@ -710,16 +710,14 @@ async function obterTemasDisponiveis(alunoId: string, pagina: number = 1, limite
 }
 
 
-export async function listarTemasDisponiveis(alunoId: string, pagina: number = 1, limite: number = 10) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) {
-        throw new Error("Usuário não autenticado")
+export async function listarTemasDisponiveis(alunoId: string, pagina = 1, limite = 10) {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) throw new Error('Não autenticado');
+    if (session.user.id !== alunoId && session.user.role !== 'admin') {
+      throw new Error('Acesso negado.');
     }
-
     return obterTemasDisponiveis(alunoId, pagina, limite);
-}
+  }
 
 export async function DeletarAvaliacao(id: number) {
     if (!(await verificarSessaoAdmin())) {

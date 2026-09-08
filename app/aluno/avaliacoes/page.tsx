@@ -25,21 +25,22 @@ export default async function Page() {
 
   const userId = session.user.id;
 
-  const avaliacoes = await ListarAvaliacoesAlunoId(userId);
-  const temas = await listarTemasDisponiveis(userId);
-  const criterios = await ListarCriterios()
+  const [avaliacoes, temas, criterios] = await Promise.all([
+    ListarAvaliacoesAlunoId(userId),
+    listarTemasDisponiveis(userId),
+    ListarCriterios(),
+  ]);
+
 
   return (
-    <Suspense fallback={<Loading />}>
       <div className="w-full h-full max-h-screen min-h-screen overflow-hidden">
         <main className="flex flex-col gap-4 p-5 h-full">
           <div className="flex items-center justify-between">
             <h2 className="text-primary font-semibold">Suas Avaliações</h2>
           </div>
 
-          <TabelaAvaliacoesAluno avaliacoesIniciais={avaliacoes} temasIniciais={temas} criterios={criterios} />
+          <TabelaAvaliacoesAluno avaliacoesIniciais={avaliacoes} temasIniciais={temas} criterios={criterios} userId={userId} />
         </main>
       </div>
-    </Suspense>
   );
 }

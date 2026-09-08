@@ -4,213 +4,212 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileX } from 'lucide-react';
 import { ListaAvaliacoes } from '@/components/lista-avaliacoes';
 import { CardNovoTema } from '@/components/card-novotema';
-
-import { useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Criterio, Prisma } from '@/app/generated/prisma';
 import InfiniteScroll from './ui/infinite-scroll';
 import { Spinner } from './ui/spinner';
 import { ListarAvaliacoesAlunoId, listarTemasDisponiveis } from '@/actions/avaliacao';
-import { authClient } from '@/lib/auth-client';
-import { Badge } from './ui/badge';
 
 type Tema = Prisma.TemaGetPayload<{
-    include: {
-        professor: true
-    }
+  include: { professor: true }
 }>
 
 type AvaliacaoTema = Prisma.AvaliacaoGetPayload<{
-    include: {
-        aluno: true,
-        criterios: true,
-        tema: true,
-        professor: {
-            select: {
-                name: true;
-                email: true;
-                image: true;
-                id: true;
-                especialidade: true;
-            }
-        }
+  include: {
+    aluno: true;
+    criterios: true;
+    tema: true;
+    professor: {
+      select: {
+        name: true;
+        email: true;
+        image: true;
+        id: true;
+        especialidade: true;
+      }
     }
+  }
 }>
 
 interface ListaTemas {
-    data: Tema[]
-    meta: {
-        total: number;
-        pagina: number;
-        limite: number;
-        totalPaginas: number;
-    };
+  data: Tema[];
+  meta: {
+    total: number;
+    pagina: number;
+    limite: number;
+    totalPaginas: number;
+  };
 }
 
 interface ListaAvaliacoesPaginada {
-    data: AvaliacaoTema[]
-    meta: {
-        total: number,
-        page: number,
-        limit: number,
-        totalPages: number,
-    }
+  data: AvaliacaoTema[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }
 }
-
-
 
 interface TabelaAvaliacoesAlunoProps {
-    avaliacoesIniciais: ListaAvaliacoesPaginada,
-    temasIniciais: ListaTemas,
-    criterios: Criterio[]
+  avaliacoesIniciais: ListaAvaliacoesPaginada;
+  temasIniciais: ListaTemas;
+  criterios: Criterio[];
+  userId: string; // ← NOVO: recebe da page (Server Component)
 }
 
-export function TabelaAvaliacoesAluno({ avaliacoesIniciais, temasIniciais, criterios }: TabelaAvaliacoesAlunoProps) {
-    const [temas, setTemas] = useState<ListaTemas>({ data: [], meta: { total: 0, pagina: 1, limite: 10, totalPaginas: 0 } });
-    const [avaliacoes, setAvaliacoes] = useState<ListaAvaliacoesPaginada>({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
-    const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const [hasMoreAvaliacoes, setHasMoreAvaliacoes] = useState(true);
+export function TabelaAvaliacoesAluno({
+  avaliacoesIniciais,
+  temasIniciais,
+  criterios,
+  userId,
+}: TabelaAvaliacoesAlunoProps) {
+  // Estado apenas para dados que crescem via infinite scroll
+  const [temas, setTemas] = useState(temasIniciais);
+  const [avaliacoes, setAvaliacoes] = useState(avaliacoesIniciais);
 
-    const { data: session } = authClient.useSession();
-    const userId = session?.user.id;
+  // Loading SEPARADO: um não interfere no outro
+  const [loadingTemas, setLoadingTemas] = useState(false);
+  const [loadingAvaliacoes, setLoadingAvaliacoes] = useState(false);
 
-    useEffect(() => {
-        setTemas(temasIniciais);
-        setAvaliacoes(avaliacoesIniciais);
-        setHasMore(temasIniciais.meta.total > temasIniciais.data.length);
-        setHasMoreAvaliacoes(avaliacoesIniciais.meta.total > avaliacoesIniciais.data.length);
-    }, [avaliacoesIniciais, temasIniciais]);
+  // hasMore derivado diretamente do estado (sem useState separado)
+  const hasMoreTemas = temas.data.length < temas.meta.total;
+  const hasMoreAvaliacoes = avaliacoes.data.length < avaliacoes.meta.total;
 
-    const pendingAvaliacoes = avaliacoes.data.filter((avaliacao) => avaliacao.status === "ENVIADA");
+  // Filtros memoizados para evitar recriação a cada render
+  const enviadas = useMemo(
+    () => avaliacoes.data.filter((a) => a.status === 'ENVIADA'),
+    [avaliacoes.data]
+  );
 
-    const novosTemas = async () => {
-        if (loading || !hasMore) return;
+  const corrigidas = useMemo(
+    () => avaliacoes.data.filter((a) => a.status === 'CORRIGIDA'),
+    [avaliacoes.data]
+  );
 
-        if (temas.data.length >= temas.meta.total) {
-            setHasMore(false);
-            return;
-        }
+  const carregarMaisTemas = useCallback(async () => {
+    if (loadingTemas || !hasMoreTemas) return;
 
-        setLoading(true);
+    setLoadingTemas(true);
+    try {
+      const proximaPagina = temas.meta.pagina + 1;
+      const response = await listarTemasDisponiveis(userId, proximaPagina, temas.meta.limite);
 
-        try {
-            const temasCarregados = temas.data.length;
-            const proximaPagina = Math.floor(temasCarregados / temas.meta.limite) + 1;
+      setTemas((prev) => ({
+        ...response,
+        data: [...prev.data, ...response.data],
+      }));
+    } catch (error) {
+      console.error('Erro ao carregar mais temas:', error);
+    } finally {
+      setLoadingTemas(false);
+    }
+  }, [loadingTemas, hasMoreTemas, temas.meta.pagina, temas.meta.limite, userId]);
 
-            const temasNovos = await listarTemasDisponiveis(userId!, proximaPagina, temas.meta.limite);
+  const carregarMaisAvaliacoes = useCallback(async () => {
+    if (loadingAvaliacoes || !hasMoreAvaliacoes) return;
 
-            setTemas(prev => {
-                const novosData = [...prev.data, ...temasNovos.data];
-                const totalCarregado = novosData.length;
-                if (totalCarregado >= prev.meta.total || temasNovos.data.length < prev.meta.limite) {
-                    setHasMore(false);
-                }
+    setLoadingAvaliacoes(true);
+    try {
+      const proximaPagina = avaliacoes.meta.page + 1;
+      const response = await ListarAvaliacoesAlunoId(userId, '', avaliacoes.meta.limit, proximaPagina);
 
-                return {
-                    ...temasNovos,
-                    data: novosData,
-                    meta: {
-                        ...temasNovos.meta,
-                        // Manter o total original do primeiro carregamento
-                        total: prev.meta.total
-                    }
-                };
-            });
-        } catch (error) {
-            console.error('Erro ao carregar mais temas:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+      setAvaliacoes((prev) => ({
+        ...response,
+        data: [...prev.data, ...response.data],
+      }));
+    } catch (error) {
+      console.error('Erro ao carregar mais avaliações:', error);
+    } finally {
+      setLoadingAvaliacoes(false);
+    }
+  }, [loadingAvaliacoes, hasMoreAvaliacoes, avaliacoes.meta.page, avaliacoes.meta.limit, userId]);
 
-    const nextAvaliacoes = async () => {
-        if (loading || !hasMoreAvaliacoes) return;
+  return (
+    <Tabs defaultValue="pendentes" className="h-full">
+      <TabsList>
+        <TabsTrigger value="pendentes" className="text-foreground max-sm:text-xs">
+          Pendentes
+        </TabsTrigger>
+        <TabsTrigger value="enviadas" className="text-foreground max-sm:text-xs">
+          Enviadas
+        </TabsTrigger>
+        <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">
+          Corrigidas
+        </TabsTrigger>
+      </TabsList>
 
-        // Verificar se ainda há mais avaliações para carregar
-        if (avaliacoes.data.length >= avaliacoes.meta.total) {
-            setHasMoreAvaliacoes(false);
-            return;
-        }
+      {/* ABA PENDENTES */}
+      <TabsContent
+        value="pendentes"
+        className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-20"
+      >
+        {temas.data.length > 0 ? (
+          <div className="gap-4 max-[1025px]:flex flex-col min-[1025px]:grid min-[1025px]:grid-cols-3">
+            {temas.data.map((tema) => (
+              <CardNovoTema key={tema.id} tema={tema} />
+            ))}
 
-        setLoading(true);
+            <div className="flex items-center justify-center col-span-full">
+              <InfiniteScroll
+                hasMore={hasMoreTemas}
+                isLoading={loadingTemas}
+                next={carregarMaisTemas}
+                threshold={0.5}
+              >
+                {hasMoreTemas && <Spinner />}
+              </InfiniteScroll>
+            </div>
+          </div>
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-muted-foreground">
+            <FileX className="size-10" />
+            <span className="text-foreground font-semibold">Nenhum tema pendente</span>
+          </div>
+        )}
+      </TabsContent>
 
-        try {
-            // Calcular a próxima página baseada no número atual de avaliações
-            const avaliacoesCarregadas = avaliacoes.data.length;
-            const proximaPagina = Math.floor(avaliacoesCarregadas / avaliacoes.meta.limit) + 1;
+      {/* ABA ENVIADAS */}
+      <TabsContent
+        value="enviadas"
+        className="flex flex-col gap-4 flex-1 h-full overflow-y-auto max-sm:pb-20"
+      >
+        {enviadas.length > 0 ? (
+          <ListaAvaliacoes
+            avaliacoesIniciais={enviadas}
+            criteriosIniciais={criterios}
+            hasMore={hasMoreAvaliacoes}
+            loading={loadingAvaliacoes}
+            nextAvaliacoes={carregarMaisAvaliacoes}
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col flex-1 items-center justify-center gap-2 text-muted-foreground pt-5">
+            <FileX className="size-10" />
+            <span className="text-foreground font-semibold">Nenhuma avaliação enviada</span>
+          </div>
+        )}
+      </TabsContent>
 
-            const avaliacoesNovas = await ListarAvaliacoesAlunoId(userId!, '', avaliacoes.meta.limit, proximaPagina);
-
-            // Adicionar novas avaliações às existentes
-            setAvaliacoes(prev => {
-                const novosData = [...prev.data, ...avaliacoesNovas.data];
-                const totalCarregado = novosData.length;
-
-                // Verificar se ainda há mais avaliações para carregar
-                if (totalCarregado >= prev.meta.total || avaliacoesNovas.data.length < prev.meta.limit) {
-                    setHasMoreAvaliacoes(false);
-                }
-
-                return {
-                    ...avaliacoesNovas,
-                    data: novosData,
-                    meta: {
-                        ...avaliacoesNovas.meta,
-                        // Manter o total original do primeiro carregamento
-                        total: prev.meta.total
-                    }
-                };
-            });
-        } catch (error) {
-            console.error('Erro ao carregar mais avaliações:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <Tabs defaultValue="pendentes" className='h-full'>
-            <TabsList>
-                <TabsTrigger value="pendentes" className="text-foreground max-sm:text-xs">
-                    Pendentes
-                </TabsTrigger>
-                <TabsTrigger value="enviadas" className="text-foreground max-sm:text-xs">
-                    Enviadas</TabsTrigger>
-                <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">
-                    Corrigidas</TabsTrigger>
-            </TabsList>
-            <TabsContent value='pendentes' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-20">
-                {temas.meta.total > 0 && (
-                    <div className="gap-4 max-[1025px]:flex flex-col min-[1025px]:grid min-[1025px]:grid-cols-3">
-                        {temas.data.map((tema) => (
-                            <CardNovoTema key={tema.id} tema={tema} />
-                        ))}
-                        <div className="flex items-center justify-center col-span-full max-md:hidden">
-                            <InfiniteScroll hasMore={hasMore} isLoading={loading} next={novosTemas} threshold={1} >
-                                {hasMore && <Spinner />}
-                            </InfiniteScroll>
-                        </div>
-                        <div className="flex items-center justify-center col-span-full min-md:hidden">
-                            <InfiniteScroll hasMore={hasMore} isLoading={loading} next={novosTemas} threshold={0.1} rootMargin="100px">
-                                {hasMore && <Spinner />}
-                            </InfiniteScroll>
-                        </div>
-                    </div>
-                )}
-            </TabsContent>
-            <TabsContent value='enviadas' className="flex flex-col gap-4 flex-1 h-full overflow-y-auto max-sm:pb-20">
-                {pendingAvaliacoes.length > 0 || temas.meta.total > 0 ? (
-                    <ListaAvaliacoes avaliacoesIniciais={pendingAvaliacoes} criteriosIniciais={criterios} hasMore={hasMoreAvaliacoes} loading={loading} nextAvaliacoes={nextAvaliacoes} />
-                ) : (
-                    <div className="w-full h-full flex flex-col flex-1 items-center justify-center gap-2 text-muted-foreground pt-5">
-                        <FileX className="size-10" />
-                        <span className="text-foreground font-semibold">Nenhuma avaliação pendente</span>
-                    </div>
-                )}
-            </TabsContent>
-            <TabsContent value='corrigidas' className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-20">
-                <ListaAvaliacoes avaliacoesIniciais={avaliacoes.data.filter((avaliacao) => avaliacao.status === "CORRIGIDA")} criteriosIniciais={criterios} hasMore={hasMoreAvaliacoes} loading={loading} nextAvaliacoes={nextAvaliacoes} />
-            </TabsContent>
-        </Tabs>
-    )
+      {/* ABA CORRIGIDAS */}
+      <TabsContent
+        value="corrigidas"
+        className="flex flex-col flex-1 h-full overflow-y-auto max-sm:pb-20"
+      >
+        {corrigidas.length > 0 ? (
+          <ListaAvaliacoes
+            avaliacoesIniciais={corrigidas}
+            criteriosIniciais={criterios}
+            hasMore={hasMoreAvaliacoes}
+            loading={loadingAvaliacoes}
+            nextAvaliacoes={carregarMaisAvaliacoes}
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-muted-foreground">
+            <FileX className="size-10" />
+            <span className="text-foreground font-semibold">Nenhuma avaliação corrigida</span>
+          </div>
+        )}
+      </TabsContent>
+    </Tabs>
+  );
 }
