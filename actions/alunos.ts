@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { cacheLife, cacheTag, revalidatePath, updateTag } from "next/cache";
 import { headers } from "next/headers";
+import { api } from '../lib/eden'
 
 async function obterAlunos(busca?: string, page: number = 1, limit: number = 12) {
   'use cache'
@@ -39,8 +40,8 @@ async function obterAlunos(busca?: string, page: number = 1, limit: number = 12)
           include: { avaliacoesComoAluno: true },
           orderBy: { name: 'asc' },
         }),
-        prisma.user.count({ where: clausulaDeFiltro }), // mesmo filtro do findMany — usado pra paginação
-        prisma.user.count({ where: { ...clausulaDeFiltro, matriculado: { not: true } } }), // métrica separada
+        prisma.user.count({ where: clausulaDeFiltro }),
+        prisma.user.count({ where: { ...clausulaDeFiltro, matriculado: { not: true } } }),
       ]);
       
       return {
