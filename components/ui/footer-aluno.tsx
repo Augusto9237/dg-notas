@@ -49,7 +49,7 @@ export function FooterAluno({ className, logo }: FooterAlunoProps) {
     ];
 
     return (
-        <footer className={cn("fixed inset-x-0 bottom-0 min-[1025px]:hidden p-5", className)}>
+        <footer className={cn("fixed inset-x-0 bottom-0 min-[1025px]:hidden px-5 pb-2", className)}>
             <Card className="p-0 bg-card rounded-xl border-none">
                 <nav className="flex justify-between gap-1 w-full px-5 items-center">
                     {routes.map((route) => (
