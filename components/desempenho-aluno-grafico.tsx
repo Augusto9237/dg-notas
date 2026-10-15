@@ -92,7 +92,7 @@ export default function DesempenhoAlunoGrafico({ avaliacoes, userId }: Desempenh
 
 function GraficoWrapper({ children }: { children: React.ReactNode }) {
     return (
-        <div className='h-full flex flex-col overflow-hidden p-5 pb-6 max-sm:pb-14'>
+        <div className='h-full flex flex-col overflow-hidden p-5 pb-6 max-sm:pb-20'>
             <h2 className="mb-3 text-primary font-semibold">Seu Desempenho</h2>
             {children}
         </div>

@@ -84,7 +84,7 @@ export default function ListaCompetenciasAluno({ avaliacoes, criterios }: ListaC
 
 function ListaWrapper({ children }: { children: React.ReactNode }) {
     return (
-        <div className="sm:space-y-4 max-sm:px-5 md:h-full max-sm:flex max-sm:gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden">
+        <div className="sm:space-y-4 max-sm:px-5 md:h-full pb-2 max-sm:flex max-sm:gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden">
             {children}
         </div>
     )

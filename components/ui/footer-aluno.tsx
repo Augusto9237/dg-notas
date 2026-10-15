@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname, } from "next/navigation";
-import { FileCheck2, LayoutGrid, MonitorPlay } from "lucide-react";
+import { FileCheck2, LayoutGrid, MonitorPlay, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import { Card } from "./card";
 import { RiUserStarLine } from "react-icons/ri";
@@ -23,7 +23,7 @@ export function FooterAluno({ className, logo }: FooterAlunoProps) {
             active: pathname === "/aluno",
         },
         {
-            icon: <FileCheck2 className="h-5 w-5" />,
+            icon: <TrendingUp className="h-5 w-5" />,
             href: "/aluno/avaliacoes",
             label: "Avaliações",
             active: pathname === "/aluno/avaliacoes",
@@ -49,8 +49,8 @@ export function FooterAluno({ className, logo }: FooterAlunoProps) {
     ];
 
     return (
-        <footer className={cn("fixed inset-x-0 bottom-0 min-[1025px]:hidden", className)}>
-            <Card className="p-0 bg-card rounded-t-xl rounded-b-none border-b-0">
+        <footer className={cn("fixed inset-x-0 bottom-0 min-[1025px]:hidden p-5", className)}>
+            <Card className="p-0 bg-card rounded-xl border-none">
                 <nav className="flex justify-between gap-1 w-full px-5 items-center">
                     {routes.map((route) => (
                         <Link
