@@ -46,6 +46,7 @@ import { defineStepper } from "@stepperize/react"
 import { StepStatus, useStepItemContext } from "@stepperize/react/primitives"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
 import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "./ui/field"
+import { api } from "@/lib/eden"
 
 const formSchema = z.object({
     professorId: z.string(),
@@ -196,8 +197,8 @@ export function AgendarMentoria({
     useEffect(() => {
         async function buscarProfessores() {
             setIsLoading(true)
-            const data = await listarProfessores()
-            setProfessores(data.data)
+            const { data } = await api.professores.get()
+            setProfessores(data?.data || [])
             setIsLoading(false)
         }
         buscarProfessores()

@@ -7,6 +7,7 @@ import { listarMentoriasAluno } from '@/actions/mentoria';
 import { Suspense } from 'react';
 import { getSessionCached } from '@/lib/session';
 import dynamic from 'next/dynamic';
+import { api } from '@/lib/eden';
 
 const ListaCompetenciasAluno = dynamic(() => import('@/components/lista-competencias-aluno'))
 const DesempenhoAlunoGrafico = dynamic(() => import('@/components/desempenho-aluno-grafico'))
@@ -20,22 +21,23 @@ export default async function Page() {
 
   const user = session.user
 
-  const [criterios, avaliacoes, mentorias] = await Promise.all([
-    ListarCriterios(),
+  const [avaliacoes, mentorias] = await Promise.all([
     ListarAvaliacoesAlunoId(user.id),
     listarMentoriasAluno(user.id)
   ]);
 
+  const { data: criterios } = await api.criterios.get()
+
 
   return (
     <div className="w-full h-full max-h-screen overflow-hidden">
-        <Header avaliacoes={avaliacoes} mentorias={mentorias.meta.total} user={user} />
+      <Header avaliacoes={avaliacoes} mentorias={mentorias.meta.total} user={user} />
       <main className="sm:grid sm:grid-cols-2 flex flex-col  py-5 max-sm:pb-10 flex-1 overflow-hidden h-full max-h-[calc(100dvh-156px)]">
         <div className="flex flex-col gap-4 sm:p-5">
           <h2 className="text-primary font-semibold max-sm:px-5">Suas Habilidades</h2>
-            <ListaCompetenciasAluno avaliacoes={avaliacoes.data} criterios={criterios} />
+          <ListaCompetenciasAluno avaliacoes={avaliacoes.data} criterios={criterios!} />
         </div>
-          <DesempenhoAlunoGrafico avaliacoes={avaliacoes.data} userId={user.id} />
+        <DesempenhoAlunoGrafico avaliacoes={avaliacoes.data} userId={user.id} />
       </main>
     </div>
   );
