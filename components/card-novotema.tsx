@@ -3,7 +3,8 @@ import { Card, CardContent, CardFooter } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { ModalEnviarRedacao } from "./modal-enviar-redacao";
 import { Prisma } from "@/app/generated/prisma";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+import Image from "next/image";
 
 type Tema = Prisma.TemaGetPayload<{
     include: {
@@ -40,11 +41,12 @@ export function CardNovoTema({ tema }: CardNovoTemaProps) {
                 <div className="flex justify-between items-center w-full pb-10">
                     <div className="flex items-center gap-2 mb-2">
                         <Avatar className="size-10">
-                            <AvatarImage src={tema.professor.image!} />
+                            <Image alt={tema.professor.name} src={tema.professor.image || '/avatar-placeholder'} height={40} width={40} className="object-cover" />
+
                             <AvatarFallback>{tema.professor.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                            <p className="text-xs text-foreground font-semibold">
+                            <p className="text-sm font-semibold">
                                 {tema.professor.name}
                             </p>
                             <p className="text-xs text-muted-foreground">
