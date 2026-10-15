@@ -95,7 +95,7 @@ export default function Header({ avaliacoes, mentorias, user }: HeaderProps) {
       )}
 
       <div className="grid grid-cols-3 gap-4 min-[1025px]:gap-5">
-        <Card className="text-left bg-card/60 min-[1025px]:bg-card/100 rounded-lg backdrop-blur-sm border-none min-[1025px]:border-border gap-0 p-4 min-[1025px]:p-4">
+        <Card className="text-left bg-card/75 min-[1025px]:bg-card/100 rounded-lg backdrop-blur-sm border-none min-[1025px]:border-border gap-0 p-4 min-[1025px]:p-4">
           <span className="size-5 rounded-sm bg-primary/20 dark:bg-foreground/50 absolute right-4 text-primary flex justify-center items-center p-[1px]">
             <TrendingUp className="size-3.5" />
           </span>
@@ -106,7 +106,7 @@ export default function Header({ avaliacoes, mentorias, user }: HeaderProps) {
           <CardDescription className="text-xs opacity-90 text-primary min-[1025px]:text-muted-foreground dark:text-muted-foreground">Média Geral</CardDescription>
         </Card>
 
-        <Card className="text-left bg-card/60 min-[1025px]:bg-card/100 rounded-lg backdrop-blur-sm border-none min-[1025px]:border-border gap-0 p-4 min-[1025px]:p-4">
+        <Card className="text-left bg-card/75 min-[1025px]:bg-card/100 rounded-lg backdrop-blur-sm border-none min-[1025px]:border-border gap-0 p-4 min-[1025px]:p-4">
           <span className="size-5 rounded-sm bg-primary/20 dark:bg-foreground/50 absolute right-4 text-primary items-center flex justify-center p-[1px]">
             <FileText className="size-3.5" />
           </span>
@@ -117,9 +117,9 @@ export default function Header({ avaliacoes, mentorias, user }: HeaderProps) {
           <CardDescription className="text-xs opacity-90 text-primary min-[1025px]:text-muted-foreground dark:text-muted-foreground">Redações</CardDescription>
         </Card>
 
-        <Card className="text-left bg-card/60 min-[1025px]:bg-card/100 rounded-lg backdrop-blur-sm border-none min-[1025px]:border-border gap-0 p-4 min-[1025px]:p-4">
+        <Card className="text-left bg-card/75 min-[1025px]:bg-card/100 rounded-lg backdrop-blur-sm border-none min-[1025px]:border-border gap-0 p-4 min-[1025px]:p-4">
           <span className="size-5 rounded-md bg-primary/20 dark:bg-foreground/50 absolute right-4 text-primary items-center flex justify-center p-[1px]">
-          <UsersRound className="size-3.5" />
+            <UsersRound className="size-3.5" />
           </span>
           <CardTitle className="text-lg font-bold text-primary dark:text-foreground">
             {mentorias}

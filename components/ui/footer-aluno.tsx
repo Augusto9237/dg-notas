@@ -29,7 +29,7 @@ export function FooterAluno({ className, logo }: FooterAlunoProps) {
             active: pathname === "/aluno/avaliacoes",
         },
         {
-            icon: <Image src={logo} alt="logo" width={50} height={50} className="min-size-14.5 size-14.5 bg-primary -mt-10  rounded-full p-2 border-4 shadow-lg shadow-primary/45 border-card" />,
+            icon: <Image src={logo} alt="logo" width={50} height={50} className="min-size-14.5 size-14.5 bg-primary -mt-10  rounded-full p-2 border-4 shadow-lg border-card" />,
             href: "/aluno/#",
             label: "",
             active: pathname === "/aluno/#",

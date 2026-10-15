@@ -128,13 +128,13 @@ export function TabelaAvaliacoesAluno({
   return (
     <Tabs defaultValue="pendentes" className="h-full">
       <TabsList>
-        <TabsTrigger value="pendentes" className="text-foreground max-sm:text-xs">
+        <TabsTrigger value="pendentes" className="max-sm:text-xs">
           Pendentes
         </TabsTrigger>
-        <TabsTrigger value="enviadas" className="text-foreground max-sm:text-xs">
+        <TabsTrigger value="enviadas" className="max-sm:text-xs">
           Enviadas
         </TabsTrigger>
-        <TabsTrigger value="corrigidas" className="text-foreground max-sm:text-xs">
+        <TabsTrigger value="corrigidas" className="max-sm:text-xs">
           Corrigidas
         </TabsTrigger>
       </TabsList>
