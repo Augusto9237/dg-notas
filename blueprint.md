@@ -168,3 +168,33 @@ Isso ocorreu por dois motivos fundamentais da arquitetura do Elysia:
 2. **Correção do Acesso à Propriedade `aluno.image`:** Corrigir a expressão no avatar de `aluno.` para `aluno.image`.
 3. **Tratamento Seguro em `app/admin/alunos/page.tsx`:** Garantir que o valor passado para `alunosIniciais` utilize fallback defensivo (`alunos.data?.data ?? []`).
 4. **Validação de Tipos:** Executar `npx tsc --noEmit` para garantir zero erros no TypeScript.
+
+## Plano de Desenvolvimento Atual: Correção de Responsividade e Overflow Horizontal na Rota de Aulas do Aluno (V13)
+
+### Diagnóstico do Erro
+Na rota `app/aluno/aulas/[aula]/page.tsx`, o layout apresentava estouro de largura e barra de rolagem horizontal devido a três fatores combinados:
+1. **Altura Fixa Conflitante com Aspect Ratio:** O elemento `<main>` continha `sm:h-[600px]`. Como o componente `VideoPlayer` possui proporção intrínseca `aspect-video` (16:9), uma altura forçada de 600px obrigava o vídeo a ter pelo menos 1066.67px de largura.
+2. **Largura Invertida/Desproporcional da Seção de Conteúdos:** A `<section>` lateral de conteúdos foi declarada com `w-3/4` (75% da largura da tela). A soma de 1066.67px do vídeo com 75% da tela gerava uma largura superior a 2000px, extrapolando totalmente a largura disponível no componente pai (`SidebarInset`).
+3. **Ausência de `min-w-0` e Truncate nos Itens da Lista:** Em `ListaVideoaulas`, strings longas contínuas nos títulos de aulas não truncavam porque os elementos flex não possuíam `min-w-0`, empurrando a coluna de conteúdos para além da viewport.
+4. **Falta de Quebra de Linha nos Textos Abaixo do Player:** Títulos e descrições sem espaços não quebravam em telas menores.
+
+### Passos de Resolução:
+1. **Refatorar o Container do Player e Conteúdos em `app/aluno/aulas/[aula]/page.tsx`:**
+   - Remover a restrição fixa `sm:h-[600px]` e a classe desproporcional `w-3/4`.
+   - Adicionar container card responsivo com `flex flex-col sm:flex-row w-full max-w-full rounded-xl border bg-card shadow-xs overflow-hidden`.
+   - Envolver o `VideoPlayer` em `flex-1 min-w-0`, permitindo que o vídeo se adapte fluidamente à largura disponível mantendo o `aspect-video` 16:9 sem estourar.
+   - Definir a coluna lateral de conteúdos como `max-sm:hidden w-72 lg:w-80 xl:w-96 shrink-0 flex flex-col p-4 sm:p-5 border-t sm:border-t-0 sm:border-l min-w-0`.
+   - Colocar `ListaVideoaulas` dentro de um container flexível `flex-1 min-h-0 min-w-0 overflow-hidden` para que acompanhe a altura do vídeo e permita scroll vertical interno via Radix `ScrollArea`.
+   - Adicionar `break-words break-all` no título e descrição da aula para evitar overflow por textos longos.
+2. **Ajustar `components/lista-videoaulas.tsx`:**
+   - Corrigir o erro de digitação `oveflow-hidden` para `overflow-hidden`.
+   - Aplicar `min-w-0` e `shrink-0` nos ícones e textos para que o `truncate` funcione perfeitamente com reticências.
+3. **Ajustar `components/menu-videoaulas.tsx`:**
+   - Garantir wrapper `flex-1 min-h-0 min-w-0 overflow-hidden` no menu gaveta (Sheet) mobile.
+4. **Harmonizar `app/aluno/aulas/[aula]/loading.tsx`:**
+   - Atualizar a estrutura do esqueleto para espelhar as mesmas proporções fluidas do layout real.
+5. **Ajustar `app/aluno/wrapper.tsx`:**
+   - Garantir `className="w-full flex-1 min-w-0 overflow-x-hidden"` no `<main>` que encapsula as rotas do aluno.
+6. **Validação:**
+   - Executar `tsc --noEmit` e `npm run lint` para garantir zero regressões ou erros de compilação.
+

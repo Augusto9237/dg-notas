@@ -130,7 +130,7 @@ export function CardCompetencia({ criterio, criterios }: CardCompetenciaProps) {
 
                 <div className="space-y-1 w-full h-full -ml-4">
                     <CardTitle className="text-sm gap-2 flex items-center">
-                       <span className="bg-primary/10 dark:bg-foreground/50 rounded-sm py-[1px] px-1 text-primary">{`C${criterio.criterioId}`}</span> {criterioInfo?.nome}
+                        <span className="bg-primary/10 dark:bg-foreground/50 rounded-sm py-[1px] px-1 text-primary">{`C${criterio.criterioId}`}</span>Competência
                     </CardTitle>
                     <CardDescription className="text-xs">
                         {criterioInfo?.descricao}

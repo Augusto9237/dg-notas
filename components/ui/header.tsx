@@ -47,7 +47,7 @@ interface HeaderProps {
 
 export function HeaderSkeleton() {
   return (
-    <div className="bg-primary min-[1025px]:bg-transparent  p-5 h-[159px] overflow-hidden rounded-b-2xl">
+    <div className="max-[1024px]:bg-linear-to-b from-primary via-primary/75 to-primary/0 min-[1025px]:bg-transparent p-5 h-[159px] overflow-hidden rounded-b-2xl">
       <div className="flex min-[1025px]:flex-row-reverse items-center gap-3 mb-4 min-[1025px]:justify-between">
         <Skeleton className="w-10 h-10 rounded-full" />
         <div>
@@ -69,7 +69,7 @@ export default function Header({ avaliacoes, mentorias, user }: HeaderProps) {
   const { subscribe, permission } = useWebPush({ userId: user.id })
 
   return (
-    <div className="bg-linear-to-b from-primary via-primary/75 to-primary/0 min-[1025px]:bg-transparent  p-5  overflow-hidden">
+    <div className="max-[1024px]:bg-linear-to-b from-primary via-primary/75 to-primary/0 min-[1025px]:bg-transparent  p-5  overflow-hidden">
       <div className="flex min-[1025px]:flex-row-reverse items-center gap-3 mb-4 min-[1025px]:justify-between">
         <PerfilAluno />
         <div>
@@ -88,7 +88,7 @@ export default function Header({ avaliacoes, mentorias, user }: HeaderProps) {
         </div>
       ) : (
         <div className="absolute top-5 right-5 min-[1025px]:hidden">
-          <Button size='icon' variant="ghost" onClick={() => toast.success("Notificações já ativadas!")}>
+          <Button size='icon' variant="ghost" className="bg-transparent text-muted" onClick={() => toast.success("Notificações já ativadas!")}>
             <Bell />
           </Button>
         </div>
