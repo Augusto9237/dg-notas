@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { ModalEnviarRedacao } from "@/components/modal-enviar-redacao";
 import { listarTemas, listarTemasDisponiveis } from "@/actions/avaliacao";
 import { getSessionCached } from "@/lib/session";
+import { ModalEnviarExercicio } from "@/components/modal-enviar-exercicio";
 
 export default async function Page({
     params,
@@ -24,7 +25,6 @@ export default async function Page({
     const aulaId = (await params).aula
     const videoaula = await listarVideoaulaPorId(Number(aulaId))
     const professor = await obterProfessor();
-    const temas = await listarTemasDisponiveis(session!.user.id)
 
     if (!videoaula || !professor) {
         return (
@@ -48,8 +48,8 @@ export default async function Page({
             <div className="w-full max-w-full flex-1 p-4 sm:p-5 bg-linear-to-b from-primary/15 via-primary/5 to-transparent">
                 <div className="flex items-center justify-between mb-4 sm:mb-5">
                     <div className="flex flex-col">
-                        <h2 className="text-primary font-semibold text-lg sm:text-xl">Aulas</h2>
-                        <p className='text-primary text-xs'>Acompanhe as suas aulas</p>
+                        <h2 className="text-primary dark:text-primary-foreground font-semibold text-lg sm:text-xl">Aulas</h2>
+                        <p className='text-primary dark:text-primary-foreground text-xs'>Acompanhe as suas aulas</p>
                     </div>
                     <div className="sm:hidden">
                         <MenuVideoaulas aulaId={Number(aulaId)} />
@@ -97,7 +97,7 @@ export default async function Page({
                             </Button>
                         </div>
                         <div className="w-full ">
-                            <ModalEnviarRedacao tema={temas.data[0]} />
+                            <ModalEnviarExercicio videoaulaId={videoaula.id} videoaulaTitulo={videoaula.titulo} professorId={videoaula.professorId} />
                         </div>
                     </div>
                 </section>
