@@ -13,7 +13,7 @@ export function MenuVideoaulas({ aulaId }: { aulaId: number }) {
                     <ListVideo />
                 </Button>
             </SheetTrigger>
-            <SheetContent className="p-5 h-full flex flex-col">
+            <SheetContent className="p-5 h-full flex flex-col bg-card">
                 <SheetHeader className="p-0 shrink-0">
                     <SheetTitle>Conteúdos</SheetTitle>
                 </SheetHeader>

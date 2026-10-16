@@ -56,7 +56,7 @@ export default async function Page({
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row lg:gap-5 bg-card rounded-xl border shadow-xs w-full max-w-full overflow-hidden">
+                <div className="flex flex-col sm:flex-row lg:gap-5 bg-card rounded-xl border shadow-xs w-full max-w-full overflow-hidden max-sm:hidden">
                     <div className="flex-1 min-w-0 flex items-center justify-center bg-black/5 dark:bg-black/20">
                         <VideoPlayer videoUrl={videoaula.urlVideo} />
                     </div>
@@ -68,7 +68,10 @@ export default async function Page({
                     </section>
                 </div>
 
-                <section className="flex flex-col md:flex-row p-4 sm:p-5 max-sm:px-0 gap-5 w-full max-w-full bg-card rounded-xl mt-5">
+                <section className="flex flex-col md:flex-row p-4 max-sm:pt-0 sm:p-5 max-sm:px-0 gap-5 w-full max-w-full bg-card rounded-xl mt-5">
+                    <div className="flex-1 min-w-0 flex sm:hidden items-center justify-center bg-black/5 dark:bg-black/20">
+                        <VideoPlayer videoUrl={videoaula.urlVideo} />
+                    </div>
                     <div className="flex flex-col gap-4 max-sm:px-4 w-full">
                         <div className="min-w-0">
                             <h4 className="font-semibold text-base sm:text-lg break-words break-all">{videoaula?.titulo}</h4>

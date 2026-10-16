@@ -28,10 +28,11 @@ export default async function Page() {
 
     return (
         <Suspense fallback={<Loading />}>
-            <div className="w-full h-full max-h-screen min-h-screen overflow-hidden">
+            <div className="w-full h-full max-h-screen min-h-screen overflow-hidden bg-linear-to-b from-primary/15 via-primary/5 to-transparent">
                 <main className="flex flex-col gap-4 p-5 pb-20 h-full">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-primary font-semibold">Suas Mentorias</h2>
+                        <h2 className="text-primary dark:text-primary-foreground font-semibold text-lg sm:text-xl">Suas Mentorias</h2>
+                        <p className='text-primary dark:text-primary-foreground text-xs'>Acompanhe as suas mentorias</p>
                     </div>
                     <AgendarMentoria diasSemana={diasAtivos} slotsHorario={horariosAtivos} />
                     <TabelaMentoriasAluno diasSemana={diasAtivos} slotsHorario={horariosAtivos} mentoriasIniciais={mentorias} />

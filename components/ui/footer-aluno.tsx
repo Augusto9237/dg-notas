@@ -29,7 +29,7 @@ export function FooterAluno({ className, logo }: FooterAlunoProps) {
             active: pathname === "/aluno/avaliacoes",
         },
         {
-            icon: <Image src={logo} alt="logo" width={50} height={50} className="min-size-14.5 size-14.5 bg-primary -mt-10  rounded-full p-2 border-4 shadow-xl border-card" />,
+            icon: <Image src={logo} alt="logo" width={50} height={50} className="min-size-14.5 size-14.5 bg-primary  rounded-full -mt-[9px] -mb-1.5 p-2 border-4 shadow-md dark:shadow-background border-card" />,
             href: "/aluno/#",
             label: "",
             active: pathname === "/aluno/#",
@@ -50,15 +50,15 @@ export function FooterAluno({ className, logo }: FooterAlunoProps) {
 
     return (
         <footer className={cn("fixed inset-x-0 bottom-0 min-[1025px]:hidden px-5 pb-2", className)}>
-            <Card className="p-0 bg-card rounded-xl border-none">
-                <nav className="flex justify-between gap-1 w-full px-5 items-center">
+            <Card className="p-0 bg-card rounded-xl border-none relative">
+                <nav className="flex justify-between gap-2 w-full px-5 items-center ">
                     {routes.map((route) => (
                         <Link
                             key={route.href}
                             href={route.href}
                             className={cn(
-                                "flex flex-col py-2 items-center text-xs text-muted-foreground font-medium transition-colors border-b-3",
-                                route.active ? "border-primary text-primary " : "border-card/0"
+                                "flex flex-col pt-2 pb-1 items-center text-xs text-muted-foreground font-medium transition-colors border-b-3",
+                                route.active ? "border-primary text-primary" : "border-card/0"
                             )}
                         >
                             <div className="mt-[1px]">{route.icon}</div>
