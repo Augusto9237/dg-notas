@@ -72,7 +72,7 @@ export default async function AlunoWrapper({ children, configuracoes, user }: Ro
                             <AppSidebarAluno logo={configuracoes?.logoSistema!} />
                             <SidebarInset className="relative">
                                 <FormularioTelefone user={user} />
-                                <main>
+                                <main className="w-full flex-1 min-w-0">
                                     {children}
                                 </main>
                                 <FooterAluno logo={configuracoes?.logoAplicativo!} />

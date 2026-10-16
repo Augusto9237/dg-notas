@@ -48,10 +48,10 @@ export function ListaVideoaulas({ aulaId }: ListaVideoaulasProps) {
                 ) : (
                     <>
                         {videoaulas.map((videoaula) => (
-                            <Link href={`/aluno/aulas/${videoaula.id}`} key={videoaula.id} className="w-full oveflow-hidden">
-                                <div className={clsx("text-sm flex gap-2 items-center text-muted-foreground p-2 rounded-sm text-nowrap truncate", aulaId === videoaula.id && 'text-primary font-semibold bg-primary/5')}>
-                                    {aulaId === videoaula.id ? <CirclePlay className="size-4" /> : <Video className="size-4"/>}
-                                    {videoaula.titulo}
+                            <Link href={`/aluno/aulas/${videoaula.id}`} key={videoaula.id} className="w-full overflow-hidden flex flex-col">
+                                <div className={clsx("text-sm flex gap-2 items-center text-muted-foreground p-2 rounded-sm min-w-0 w-full hover:bg-muted/50 transition-colors", aulaId === videoaula.id && 'text-primary font-semibold bg-primary/5')}>
+                                    {aulaId === videoaula.id ? <CirclePlay className="size-4 shrink-0 text-primary" /> : <Video className="size-4 shrink-0" />}
+                                    <p className="truncate text-nowrap min-w-0 flex-1">{videoaula.titulo}</p>
                                 </div>
                                 <Separator className="my-2" />
                             </Link>

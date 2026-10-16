@@ -3,6 +3,8 @@ import { Card, CardContent, CardFooter } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { ModalEnviarRedacao } from "./modal-enviar-redacao";
 import { Prisma } from "@/app/generated/prisma";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+import Image from "next/image";
 
 type Tema = Prisma.TemaGetPayload<{
     include: {
@@ -19,10 +21,10 @@ export function CardNovoTema({ tema }: CardNovoTemaProps) {
 
     return (
         <Card
-            className="cursor-pointer bg-linear-to-r from-secondary/5 to-secondary/10 border-secondary hover:shadow-md transition-shadow p-0 min-h-[160px] h-full max-h-[160px] max-sm:max-h-fit gap-0 relative"
+            className="cursor-pointer bg-linear-to-r from-secondary/5 to-secondary/10 hover:shadow-md transition-shadow p-0 min-h-[160px] h-full max-h-[160px] max-sm:max-h-fit gap-0 relative"
         >
-            <CardContent className="p-4 relative h-full flex-1 flex flex-col justify-between">
-                <div className="flex items-start justify-between">
+            <CardContent className="p-4 relative h-full flex-1 flex flex-col gap-2 justify-between">
+                <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
                         <h3 className="font-medium mb-1 text-sm leading-tight">
                             {tema.nome}
@@ -36,10 +38,23 @@ export function CardNovoTema({ tema }: CardNovoTemaProps) {
                         </Badge>
                     </div>
                 </div>
-                <div className="flex justify-between w-full pb-10">
-                    <p className="text-xs text-muted-foreground mb-1">
-                        {tema.professor.name}
-                    </p>
+                <div className="flex justify-between items-center w-full pb-10">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Avatar className="size-10">
+                            <Image alt={tema.professor.name} src={tema.professor.image || '/avatar-placeholder'} height={40} width={40} className="object-cover" />
+
+                            <AvatarFallback>{tema.professor.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                            <p className="text-sm font-semibold">
+                                {tema.professor.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                {tema.professor.especialidade}
+                            </p>
+                        </div>
+                    </div>
+
                     <p className="text-xs text-muted-foreground">
                         Entrega até: {tema.entrega ? new Date(tema.entrega).toLocaleDateString("pt-BR") : "Sem data"}
                     </p>
