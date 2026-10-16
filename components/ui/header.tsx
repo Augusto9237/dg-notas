@@ -73,10 +73,10 @@ export default function Header({ avaliacoes, mentorias, user }: HeaderProps) {
       <div className="flex min-[1025px]:flex-row-reverse items-center gap-3 mb-4 min-[1025px]:justify-between">
         <PerfilAluno />
         <div>
-          <p className="text-xs text-muted dark:text-foreground min-[1025px]:text-muted-foreground">
+          <p className="text-xs text-muted min-[1025px]:text-primary min-[1025px]:dark:text-primary-foreground dark:text-foreground">
             Olá! Bem-vindo(a)👋
           </p>
-          <h1 className="text-lg text-card dark:text-card-foreground max-sm:text-base min-[1025px]:text-foreground min-[1025px]:font-bold">{user.name}</h1>
+          <h1 className="text-lg text-card dark:text-card-foreground max-sm:text-base min-[1025px]:text-primary min-[1025px]:dark:text-primary-foreground min-[1025px]:font-bold">{user.name}</h1>
         </div>
       </div>
 
