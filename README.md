@@ -1,6 +1,6 @@
 <h1 align="center">
   <br/>
-  🎓 DG — Plataforma de Mentoria e Redação
+  🎓 DG Redação — Plataforma de Mentoria e Redação
   <br/>
 </h1>
 
