@@ -79,11 +79,11 @@ export default async function Page({
                         </div>
                         <div className="flex gap-3 items-center">
                             <Avatar className="border border-primary size-10 shrink-0">
-                                <Image alt={professor?.nome || ''} src={'/avatar-placeholder'} height={40} width={40} className="object-cover" />
+                                <Image alt={videoaula.professor?.name || ''} src={videoaula.professor?.image || "/avatar-placeholder.png"} height={40} width={40} className="object-cover" />
                             </Avatar>
                             <div className="min-w-0">
-                                <p className="font-semibold text-sm truncate">{professor?.nome}</p>
-                                <p className="text-xs text-muted-foreground truncate">{professor?.especialidade}</p>
+                                <p className="font-semibold text-sm truncate">{videoaula.professor?.name}</p>
+                                <p className="text-xs text-muted-foreground truncate">{videoaula.professor?.especialidade}</p>
                             </div>
                         </div>
                     </div>
@@ -100,7 +100,7 @@ export default async function Page({
                             </Button>
                         </div>
                         <div className="w-full ">
-                            <ModalEnviarExercicio videoaulaId={videoaula.id} videoaulaTitulo={videoaula.titulo} professorId={videoaula.professorId} />
+                            <ModalEnviarExercicio videoaulaId={videoaula.id} videoaulaTitulo={videoaula.titulo} professorId={videoaula.professor?.id ?? null} />
                         </div>
                     </div>
                 </section>

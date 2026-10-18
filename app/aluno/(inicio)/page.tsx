@@ -21,13 +21,12 @@ export default async function Page() {
 
   const user = session.user
 
-  const [criterios, avaliacoes, mentorias] = await Promise.all([
-    ListarCriterios(),
+  const [avaliacoes, mentorias] = await Promise.all([
     ListarAvaliacoesAlunoId(user.id),
     listarMentoriasAluno(user.id)
   ]);
 
-  // const { data: criterios } = await api.criterios.get()
+  const { data: criterios } = await api.criterios.get()
 
   return (
     <div className="w-full h-full max-h-screen overflow-hidden min-[1025px]:bg-linear-to-b from-primary/15 via-primary/5 to-transparent">

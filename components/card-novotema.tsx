@@ -41,7 +41,7 @@ export function CardNovoTema({ tema }: CardNovoTemaProps) {
                 <div className="flex justify-between items-center w-full pb-10">
                     <div className="flex items-center gap-2 mb-2">
                         <Avatar className="size-10">
-                            <Image alt={tema.professor.name} src={tema.professor.image || '/avatar-placeholder'} height={40} width={40} className="object-cover" />
+                            <Image alt={tema.professor.name} src={tema.professor.image || '/avatar-placeholder.png'} height={40} width={40} className="object-cover" />
 
                             <AvatarFallback>{tema.professor.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                         </Avatar>
