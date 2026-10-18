@@ -156,6 +156,20 @@ export async function listarVideoaulaPorId(videoaulaId: number) {
         const videoaula = await prisma.videoaula.findUnique({
             where: {
                 id: videoaulaId
+            },
+            select: {
+                id: true,
+                titulo: true,
+                descricao: true,
+                urlVideo: true,
+                professor: {
+                    select: {
+                        id: true,
+                        name: true,
+                        especialidade: true,
+                        image: true
+                    }
+                }
             }
         });
         return videoaula;
