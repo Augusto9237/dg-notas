@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { cacheLife, cacheTag, updateTag } from "next/cache";
 import { headers } from "next/headers";
+import type { Prisma } from "@/app/generated/prisma";
+import { TERMOS_CATEGORIAS_VIDEOAULA } from "@/lib/videoaula-categorias";
+import type { CategoriaVideoaula } from "@/lib/videoaula-categorias";
 
 const R2_ENDPOINT = process.env.R2_ENDPOINT!
 const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID!
@@ -84,7 +87,12 @@ export async function editarVideoaula(id: number, data: VideoaulaProps) {
 }
 
 
-async function obterAulas(busca?: string, page: number = 1, limit: number = 12) {
+async function obterAulas(
+    busca?: string,
+    page: number = 1,
+    limit: number = 12,
+    categoria?: CategoriaVideoaula
+) {
     'use cache'
 
     cacheLife('hours')
@@ -92,15 +100,31 @@ async function obterAulas(busca?: string, page: number = 1, limit: number = 12) 
     cacheTag('listar-videoaulas')
 
     try {
-        const whereClause = {
-            // Só aplica o filtro se busca for fornecida e não vazia
-            ...(busca && busca.trim() !== '' && {
-                titulo: {
-                    contains: busca.trim(),
-                    mode: 'insensitive' as const, // Case-insensitive
-                },
-            }),
-        };
+        const conditions: Prisma.VideoaulaWhereInput[] = [];
+
+        if (busca?.trim()) {
+            conditions.push({
+                OR: [
+                    { titulo: { contains: busca.trim(), mode: 'insensitive' } },
+                    { descricao: { contains: busca.trim(), mode: 'insensitive' } },
+                ],
+            });
+        }
+
+        if (categoria) {
+            const termos = TERMOS_CATEGORIAS_VIDEOAULA[categoria];
+            conditions.push({
+                OR: termos.flatMap((termo) => [
+                    { titulo: { contains: termo, mode: 'insensitive' } },
+                    { descricao: { contains: termo, mode: 'insensitive' } },
+                ]),
+            });
+        }
+
+        const whereClause: Prisma.VideoaulaWhereInput =
+            conditions.length > 1
+                ? { AND: conditions }
+                : conditions[0] ?? {};
 
         const skip = (page - 1) * limit;
 
@@ -109,6 +133,15 @@ async function obterAulas(busca?: string, page: number = 1, limit: number = 12) 
                 where: whereClause,
                 skip,
                 take: limit,
+                include: {
+                    professor: {
+                        select: {
+                            name: true,
+                            image: true,
+                            especialidade: true,
+                        },
+                    },
+                },
             }),
             prisma.videoaula.count({
                 where: whereClause,
@@ -131,7 +164,12 @@ async function obterAulas(busca?: string, page: number = 1, limit: number = 12) 
     }
 }
 
-export async function listarVideoaulas(busca?: string, page: number = 1, limit: number = 12) {
+export async function listarVideoaulas(
+    busca?: string,
+    page: number = 1,
+    limit: number = 12,
+    categoria?: CategoriaVideoaula
+) {
     const session = await auth.api.getSession({
         headers: await headers()
     })
@@ -140,7 +178,7 @@ export async function listarVideoaulas(busca?: string, page: number = 1, limit: 
         throw new Error('Usuário não autorizado');
     }
 
-    return await obterAulas(busca, page, limit);
+    return await obterAulas(busca, page, limit, categoria);
 }
 
 export async function listarVideoaulaPorId(videoaulaId: number) {

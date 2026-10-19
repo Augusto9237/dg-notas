@@ -9,7 +9,6 @@ import {
   CirclePlay,
   FileText,
   Headphones,
-  Layers3,
   Search,
   Sparkles,
   UsersRound,
@@ -25,6 +24,7 @@ import { Input } from "@/components/ui/input"
 import { Logo } from "@/components/ui/logo"
 import { Progress } from "@/components/ui/progress"
 import { CardVideoaula } from "@/components/card-videoaula"
+import { NavegacaoMembro } from "@/components/navegacao-membro"
 
 const modules = [
   {
@@ -66,14 +66,6 @@ const benefits = [
   { icon: Headphones, title: "Suporte da prof. Dani", description: "Tire suas dúvidas" },
   { icon: Check, title: "Certificado", description: "Acompanhe seu progresso" },
   { icon: UsersRound, title: "Comunidade DG", description: "Aprenda com outros alunos" },
-]
-
-const navigation = [
-  { label: "Início", href: "/membro", icon: Layers3, active: true },
-  { label: "Meu curso", href: "/aluno/aulas/1", icon: BookOpen },
-  { label: "Aulas", href: "/aluno/aulas/1", icon: Video },
-  { label: "Materiais", href: "#materiais", icon: FileText },
-  { label: "Suporte", href: "/aluno/mentorias", icon: Headphones },
 ]
 
 export default function MemberHomePage() {
@@ -133,7 +125,7 @@ export default function MemberHomePage() {
                 id="welcome-title"
                 className="max-w-2xl max-sm:text-xl text-3xl font-bold tracking-tight text-primary sm:text-4xl"
               >
-                DG — Dani Guedes Redação
+                Dani Guedes Redação
               </h1>
               <p className="mt-2 text-lg max-sm:text-sm font-medium text-foreground/80">
                 Preparatório para o ENEM
@@ -239,13 +231,10 @@ export default function MemberHomePage() {
         </section>
 
         <section aria-labelledby="plan-title">
-          <div className="mb-4 flex items-end justify-between gap-4">
+          <div className="mb-4 flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary/70">
-                Um passo de cada vez
-              </p>
-              <h2 id="plan-title" className="mt-1 text-xl font-bold sm:text-2xl">
-                Seu plano de estudos
+              <h2 id="plan-title" className="text-xl font-bold sm:text-2xl">
+                Ultimas aulas
               </h2>
             </div>
             <Button asChild variant="link" className="shrink-0 px-0 text-primary">
@@ -418,32 +407,7 @@ export default function MemberHomePage() {
         </section>
       </main>
 
-      <nav
-        aria-label="Navegação principal"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/95 px-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_24px_-18px_var(--primary)] backdrop-blur-xl sm:hidden"
-      >
-        <ul className="mx-auto flex max-w-lg items-center justify-around">
-          {navigation.map((item) => {
-            const Icon = item.icon
-
-            return (
-              <li key={item.label}>
-                <Link
-                  href={item.href}
-                  aria-current={item.active ? "page" : undefined}
-                  className={`flex min-w-14 flex-col items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium transition-colors ${item.active
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-primary"
-                    }`}
-                >
-                  <Icon className="size-5" />
-                  {item.label}
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
-      </nav>
+      <NavegacaoMembro paginaAtiva="inicio" />
     </div>
   )
 }

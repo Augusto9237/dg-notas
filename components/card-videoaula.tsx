@@ -1,11 +1,8 @@
 "use client"
 
-import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import {
-  Bookmark,
-  BookmarkCheck,
   ChartNoAxesColumnIncreasing,
   CirclePlay,
   Play,
@@ -19,11 +16,13 @@ interface CardVideoaulaProps {
   lessonLabel: string
   title: string
   description: string
-  duration: string
+  duration?: string
   instructorName: string
   instructorRole: string
-  level: string
-  progress: number
+  instructorImage?: string | null
+  level?: string
+  progress?: number
+  status?: string | null
 }
 
 export function CardVideoaula({
@@ -34,11 +33,13 @@ export function CardVideoaula({
   duration,
   instructorName,
   instructorRole,
+  instructorImage,
   level,
   progress,
+  status = "Em andamento",
 }: CardVideoaulaProps) {
-  const [bookmarked, setBookmarked] = useState(false)
-  const progressValue = Math.min(100, Math.max(0, progress))
+  const progressValue =
+    progress === undefined ? undefined : Math.min(100, Math.max(0, progress))
 
   return (
     <Card className="max-w-md gap-0 overflow-hidden p-0 shadow-sm">
@@ -70,9 +71,11 @@ export function CardVideoaula({
         <span className="absolute z-10 grid size-16 place-items-center rounded-full border-2 border-white/80 bg-primary/90 shadow-lg transition-transform group-hover:scale-105">
           <Play aria-hidden="true" className="ml-1 size-7 fill-current" />
         </span>
-        <span className="absolute bottom-4 right-4 rounded-lg bg-black/55 px-2.5 py-1 text-xs font-semibold text-white">
-          {duration}
-        </span>
+        {duration ? (
+          <span className="absolute bottom-4 right-4 rounded-lg bg-black/55 px-2.5 py-1 text-xs font-semibold text-white">
+            {duration}
+          </span>
+        ) : null}
       </Link>
 
       <div className="flex flex-col gap-5 p-5">
@@ -85,7 +88,7 @@ export function CardVideoaula({
 
         <div className="flex items-center gap-3">
           <Image
-            src="/foto-1.jpeg"
+            src={instructorImage || "/foto-1.jpeg"}
             alt=""
             width={52}
             height={52}
@@ -97,44 +100,44 @@ export function CardVideoaula({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-          <span className="flex items-center gap-2 max-sm:text-sm">
-            <CirclePlay aria-hidden="true" className="size-4 text-primary/70" />
-            Em andamento
-          </span>
-          <span aria-hidden="true" className="h-5 w-px bg-border" />
-          <span className="flex items-center gap-2 rounded-full bg-primary/8 px-3 py-1.5 font-medium text-primary max-sm:text-xs">
-            <ChartNoAxesColumnIncreasing aria-hidden="true" className="size-4" />
-            Nível {level}
-          </span>
-        </div>
-
-        <div className="flex items-end gap-3">
-          <div className="min-w-0 flex-1">
-            <Progress
-              value={progressValue}
-              aria-label={`Progresso do curso: ${progressValue}% concluído`}
-              className="h-2.5 bg-primary/10"
-            />
-            <p className="mt-2 text-sm text-muted-foreground">
-              <span className="font-semibold text-primary">{progressValue}%</span>{" "}
-              concluído
-            </p>
+        {status || level || duration ? (
+          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+            {status ? (
+              <span className="flex items-center gap-2 max-sm:text-sm">
+                <CirclePlay aria-hidden="true" className="size-4 text-primary/70" />
+                {status}
+              </span>
+            ) : null}
+            {status && (level || duration) ? (
+              <span aria-hidden="true" className="h-5 w-px bg-border" />
+            ) : null}
+            {level ? (
+              <span className="flex items-center gap-2 rounded-full bg-primary/8 px-3 py-1.5 font-medium text-primary max-sm:text-xs">
+                <ChartNoAxesColumnIncreasing aria-hidden="true" className="size-4" />
+                Nível {level}
+              </span>
+            ) : null}
+            {duration && !level ? (
+              <span className="text-sm text-muted-foreground">{duration}</span>
+            ) : null}
           </div>
-          {/* <button
-            type="button"
-            aria-label={bookmarked ? "Remover aula dos salvos" : "Salvar aula"}
-            aria-pressed={bookmarked}
-            onClick={() => setBookmarked((current) => !current)}
-            className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/5 text-primary transition-colors hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            {bookmarked ? (
-              <BookmarkCheck aria-hidden="true" className="size-6" />
-            ) : (
-              <Bookmark aria-hidden="true" className="size-6" />
-            )}
-          </button> */}
-        </div>
+        ) : null}
+
+        {progressValue !== undefined ? (
+          <div className="flex items-end gap-3">
+            <div className="min-w-0 flex-1">
+              <Progress
+                value={progressValue}
+                aria-label={`Progresso do curso: ${progressValue}% concluído`}
+                className="h-2.5 bg-primary/10"
+              />
+              <p className="mt-2 text-sm text-muted-foreground">
+                <span className="font-semibold text-primary">{progressValue}%</span>{" "}
+                concluído
+              </p>
+            </div>
+          </div>
+        ) : null}
       </div>
     </Card>
   )
