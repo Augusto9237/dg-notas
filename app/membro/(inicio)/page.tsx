@@ -7,7 +7,6 @@ import {
   Check,
   ChevronRight,
   CirclePlay,
-  Clock3,
   FileText,
   Headphones,
   Layers3,
@@ -21,10 +20,11 @@ import Image from "next/image"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Logo } from "@/components/ui/logo"
 import { Progress } from "@/components/ui/progress"
+import { CardVideoaula } from "@/components/card-videoaula"
 
 const modules = [
   {
@@ -122,104 +122,89 @@ export default function MemberHomePage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-6 sm:gap-10 sm:px-6 sm:py-8">
-        <Card className="p-0">
-          <div className="grid items-center gap-6 p-5 sm:p-8 lg:grid-cols-[1.2fr_0.8fr] lg:p-10">
-            <div className="flex flex-col items-start">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-6 sm:gap-10 sm:px-6 sm:py-8">
+        <Card className="p-0 gap-0 overflow-hidden max-h-[460px] bg-linear-to-bl from-primary/25 via-primary/5 to-primary/0">
+          <div className="grid grid-cols-2">
+            <div className="flex flex-col p-4 md:p-5">
               <Badge className="mb-4 rounded-full border-0 bg-primary/10 px-3 py-1 text-primary hover:bg-primary/10">
                 Seu curso
               </Badge>
-              <p className="mb-1 text-sm font-medium text-muted-foreground">
-                Olá, que bom ter você por aqui!
-              </p>
               <h1
                 id="welcome-title"
-                className="max-w-2xl text-3xl font-bold tracking-tight text-primary sm:text-4xl"
+                className="max-w-2xl max-sm:text-xl text-3xl font-bold tracking-tight text-primary sm:text-4xl"
               >
                 DG — Dani Guedes Redação
               </h1>
-              <p className="mt-2 text-lg font-medium text-foreground/80">
+              <p className="mt-2 text-lg max-sm:text-sm font-medium text-foreground/80">
                 Preparatório para o ENEM
               </p>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
+              <p className="mt-3 max-w-xl text-xs leading-6 text-muted-foreground sm:text-base">
                 Aulas, materiais e suporte para você evoluir na redação e
                 conquistar a sua melhor versão no ENEM.
               </p>
 
-              <div className="mt-6 w-full max-w-xl">
-                <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-                  <span className="font-semibold text-primary">Seu progresso no curso</span>
-                  <span className="shrink-0 text-muted-foreground">32% concluído</span>
+              <div className='max-md:hidden'>
+                <div className="mt-6 w-full max-w-xl">
+                  <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+                    <span className="font-semibold text-primary">Seu progresso no curso</span>
+                    <span className="shrink-0 text-muted-foreground">32% concluído</span>
+                  </div>
+                  <Progress
+                    value={32}
+                    aria-label="Progresso do curso: 32 por cento"
+                    className="h-3 bg-primary/10"
+                  />
                 </div>
-                <Progress
-                  value={32}
-                  aria-label="Progresso do curso: 32 por cento"
-                  className="h-3 bg-primary/10"
-                />
-              </div>
-
-              <Button
-                asChild
-                size="lg"
-                variant="secondary"
-                className="w-full mt-5"
-             >
-                <Link href="/aluno/aulas/1">
-                  <span className="flex items-center gap-2">
-                    <CirclePlay className="size-5" />
-                    Continuar meu curso
-                  </span>
-                  <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-
-              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted-foreground">
-                <span className="inline-flex items-center gap-2">
-                  <BookOpen className="size-4 text-primary" />
-                  Aulas objetivas
-                </span>
-                <span className="inline-flex items-center gap-2">
-                  <Headphones className="size-4 text-primary" />
-                  Suporte próximo
-                </span>
-                <span className="inline-flex items-center gap-2">
-                  <Clock3 className="size-4 text-primary" />
-                  Acesso imediato
-                </span>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="secondary"
+                  className="w-full mt-5"
+                >
+                  <Link href="/aluno/aulas/1">
+                    <span className="flex items-center gap-2">
+                      <CirclePlay className="size-5" />
+                      Continuar meu curso
+                    </span>
+                    <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
               </div>
             </div>
 
             <div
-              aria-hidden="true"
-              className="relative hidden min-h-64 items-center justify-center overflow-hidden rounded-2xl border border-primary/10 bg-primary p-8 lg:flex"
+              className="h-full overflow-hidden flex"
             >
-              <div className="absolute -right-8 -top-10 size-56 rounded-full bg-secondary/90 blur-[1px]" />
-              <div className="absolute -bottom-24 -left-10 size-64 rounded-full bg-background/10" />
-              <div className="relative flex aspect-square w-full max-w-72 flex-col justify-between rounded-2xl border border-white/20 bg-white/10 p-6 text-white shadow-xl backdrop-blur-sm">
-                <div className="flex items-start justify-between">
-                  <Sparkles className="size-7 text-secondary" />
-                  <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium">
-                    Redação ENEM
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm text-white/75">Escreva com confiança</p>
-                  <p className="mt-1 text-3xl font-bold leading-tight">
-                    Sua próxima
-                    <br />
-                    grande ideia.
-                  </p>
-                  <div className="mt-5 flex items-center gap-2 text-sm text-white/80">
-                    <BookOpen className="size-4 text-secondary" />
-                    Aprenda passo a passo
-                  </div>
-                </div>
-                <div className="absolute -bottom-4 -right-4 grid size-16 place-items-center rounded-2xl bg-secondary text-primary shadow-lg">
-                  <FileText className="size-8" />
-                </div>
-              </div>
+              <Image src="/hero-card-img(2).png" alt="Hero" height={0} width={0} sizes="100vw" className="w-full h-auto object-cover md:object-center" />
             </div>
           </div>
+          <CardFooter className="flex-col pb-4 max-sm:px-4 md:hidden">
+            <div className="mt-6 w-full max-w-xl">
+              <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+                <span className="font-semibold text-primary">Seu progresso no curso</span>
+                <span className="shrink-0 text-muted-foreground">32% concluído</span>
+              </div>
+              <Progress
+                value={32}
+                aria-label="Progresso do curso: 32 por cento"
+                className="h-3 bg-primary/10"
+              />
+            </div>
+            <Button
+              asChild
+              size="lg"
+              variant="secondary"
+              className="w-full mt-5"
+            >
+              <Link href="/aluno/aulas/1">
+                <span className="flex items-center gap-2">
+                  <CirclePlay className="size-5" />
+                  Continuar meu curso
+                </span>
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </CardFooter>
         </Card>
 
         <section aria-labelledby="continue-title">
@@ -240,58 +225,17 @@ export default function MemberHomePage() {
           </div>
 
 
-          <Card className="overflow-hidden p-0">
-            <div className="grid md:grid-cols-[0.9fr_1.1fr]">
-              <div className="relative flex min-h-52 items-center justify-center overflow-hidden bg-primary p-6 text-white">
-                <div aria-hidden="true" className="absolute inset-0 bg-linear-to-br from-primary via-primary to-primary/75" />
-                <div aria-hidden="true" className="absolute -right-8 -top-10 size-48 rounded-full border border-white/20" />
-                <div aria-hidden="true" className="absolute -bottom-20 -left-8 size-52 rounded-full border border-white/15" />
-                <div className="relative z-10 max-w-sm">
-                  <Badge className="mb-4 border-white/20 bg-white/10 text-white hover:bg-white/10">
-                    Módulo 1 · Aula 1
-                  </Badge>
-                  <p className="text-2xl font-bold leading-tight">
-                    Estrutura da redação
-                  </p>
-                  <p className="mt-2 text-sm text-white/75">
-                    Introdução, desenvolvimento e conclusão
-                  </p>
-                  <div className="mt-5 grid size-14 place-items-center rounded-full border border-white/30 bg-white/15 backdrop-blur">
-                    <CirclePlay className="size-8" />
-                  </div>
-                </div>
-                <span className="absolute bottom-4 right-4 rounded-lg bg-black/25 px-2.5 py-1 text-xs font-medium">
-                  24 min
-                </span>
-              </div>
-
-              <CardContent className="flex flex-col justify-center gap-4 p-5">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <span className="text-sm font-medium text-muted-foreground">
-                    Sua última aula
-                  </span>
-                  <Badge className="gap-1 rounded-full border-0 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-300">
-                    <Check className="size-3.5" /> Em andamento
-                  </Badge>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-primary">
-                    Estrutura da redação: introdução, desenvolvimento e conclusão
-                  </h3>
-                  <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-                    Aprenda a organizar suas ideias e construir um texto coeso,
-                    claro e com proposta de intervenção.
-                  </p>
-                </div>
-                <Button asChild className="w-full">
-                  <Link href="/aluno/aulas/1">
-                    <CirclePlay className="size-4" />
-                    Assistir aula
-                  </Link>
-                </Button>
-              </CardContent>
-            </div>
-          </Card>
+          <CardVideoaula
+            href="/aluno/aulas/1"
+            lessonLabel="Módulo 1 · Aula 1"
+            title="Estrutura da redação"
+            description="Introdução, desenvolvimento e conclusão"
+            duration="24 min"
+            instructorName="Profª Dani Guedes"
+            instructorRole="Redação - Linguagens"
+            level="Intermediário"
+            progress={32}
+          />
         </section>
 
         <section aria-labelledby="plan-title">
@@ -404,7 +348,7 @@ export default function MemberHomePage() {
                     Hoje, 19h
                   </p>
                 </div>
-                <Button asChild variant="secondary" className="rounded-xl font-semibold text-primary">
+                <Button asChild variant="secondary" className="w-full">
                   <Link href="/aluno/mentorias">
                     <CirclePlay className="size-4" />
                     Acessar aula
@@ -487,11 +431,10 @@ export default function MemberHomePage() {
                 <Link
                   href={item.href}
                   aria-current={item.active ? "page" : undefined}
-                  className={`flex min-w-14 flex-col items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium transition-colors ${
-                    item.active
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-primary"
-                  }`}
+                  className={`flex min-w-14 flex-col items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium transition-colors ${item.active
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-primary"
+                    }`}
                 >
                   <Icon className="size-5" />
                   {item.label}
