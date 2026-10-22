@@ -6,13 +6,13 @@ import {
   Layers3,
   Video,
 } from "lucide-react"
+import { Card } from "./ui/card"
 
 const itens = [
   { label: "Início", href: "/membro", icon: Layers3, page: "inicio" },
   { label: "Meu curso", href: "/aluno/aulas/1", icon: BookOpen },
   { label: "Aulas", href: "/membro/aulas", icon: Video, page: "aulas" },
   { label: "Materiais", href: "/membro#materiais", icon: FileText },
-  { label: "Suporte", href: "/aluno/mentorias", icon: Headphones },
 ] as const
 
 interface NavegacaoMembroProps {
@@ -23,9 +23,10 @@ export function NavegacaoMembro({ paginaAtiva }: NavegacaoMembroProps) {
   return (
     <nav
       aria-label="Navegação principal"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/95 px-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_24px_-18px_var(--primary)] backdrop-blur-xl sm:hidden"
+      className="fixed inset-x-0 bottom-0 min-[1025px]:hidden px-5 pb-2"
     >
-      <ul className="mx-auto flex max-w-lg items-center justify-around">
+      <Card className="p-0 bg-card rounded-xl border-none relative">
+      <ul className="mx-auto flex max-w-lg items-center justify-between">
         {itens.map((item) => {
           const Icon = item.icon
           const ativo = "page" in item && item.page === paginaAtiva
@@ -48,6 +49,7 @@ export function NavegacaoMembro({ paginaAtiva }: NavegacaoMembroProps) {
           )
         })}
       </ul>
+      </Card>
     </nav>
   )
 }

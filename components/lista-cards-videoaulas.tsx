@@ -106,7 +106,7 @@ export function ListaCardsVideoaulas({
 
   return (
     <>
-      <header className="bg-linear-to-b from-primary/20 via-primary/10 to-transparent  px-5 pb-12 pt-8 text-primary sm:px-8 sm:pt-10">
+      <header className="bg-linear-to-b from-primary/20 via-primary/10 to-transparent px-5 pb-12 pt-5 text-primary sm:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -117,17 +117,7 @@ export function ListaCardsVideoaulas({
                 Aprenda com conteúdos exclusivos da DG
               </p>
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label={filtrosVisiveis ? "Ocultar filtros" : "Mostrar filtros"}
-              aria-expanded={filtrosVisiveis}
-              onClick={() => setFiltrosVisiveis((visiveis) => !visiveis)}
-              className="size-10 rounded-xl text-white hover:bg-white/15 hover:text-white"
-            >
-              <Filter aria-hidden="true" className="size-5" />
-            </Button>
+          
           </div>
 
           <label className="relative mt-5 flex items-center">
@@ -141,7 +131,7 @@ export function ListaCardsVideoaulas({
               value={busca}
               onChange={(event) => setBusca(event.target.value)}
               placeholder="Buscar aulas..."
-              className="h-11 rounded-xl border-0 bg-white pl-10 text-foreground shadow-sm placeholder:text-muted-foreground/80 focus-visible:ring-white/70"
+              className="relative bg-card"
             />
           </label>
         </div>
@@ -157,19 +147,21 @@ export function ListaCardsVideoaulas({
               const selecionada = categoria === item.value
 
               return (
-                <button
+                <Button
                   key={item.value}
                   type="button"
+                  variant="ghost"
+                  size="sm"
                   aria-pressed={selecionada}
                   onClick={() => setCategoria(item.value)}
-                  className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                  className={`${
                     selecionada
-                      ? "border-primary bg-primary text-primary-foreground"
+                      ? "border-primary bg-primary text-card hover:border-primary/40 hover:text-primary"
                       : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-primary"
                   }`}
                 >
                   {item.label}
-                </button>
+                </Button>
               )
             })}
           </div>
@@ -187,7 +179,7 @@ export function ListaCardsVideoaulas({
         {erro ? (
           <div
             role="alert"
-            className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive"
+            className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive"
           >
             <p>{erro}</p>
             <Button

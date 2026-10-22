@@ -7,10 +7,13 @@ import {
   Check,
   ChevronRight,
   CirclePlay,
+  FilePenLine,
   FileText,
   Headphones,
+  Play,
   Search,
   Sparkles,
+  SquareUserRound,
   UsersRound,
   Video,
 } from "lucide-react"
@@ -25,6 +28,8 @@ import { Logo } from "@/components/ui/logo"
 import { Progress } from "@/components/ui/progress"
 import { CardVideoaula } from "@/components/card-videoaula"
 import { NavegacaoMembro } from "@/components/navegacao-membro"
+import { getSessionCached } from "@/lib/session"
+import { redirect } from "next/navigation"
 
 const modules = [
   {
@@ -62,16 +67,24 @@ const modules = [
 ]
 
 const benefits = [
-  { icon: CirclePlay, title: "Acesso imediato", description: "Estude no seu ritmo" },
+  { icon: CirclePlay, title: "Aulas gravadas", description: "Estude no seu ritmo" },
+  { icon: SquareUserRound, title: "Aulas ao vivo", description: "Aulas ao vivo" },
+  { icon: FilePenLine, title: "Avaliações", description: "Correção de redações" },
   { icon: Headphones, title: "Suporte da prof. Dani", description: "Tire suas dúvidas" },
-  { icon: Check, title: "Certificado", description: "Acompanhe seu progresso" },
-  { icon: UsersRound, title: "Comunidade DG", description: "Aprenda com outros alunos" },
 ]
 
-export default function MemberHomePage() {
+export default async function MemberHomePage() {
+    const session = await getSessionCached()
+  
+    if (!session?.user) {
+      redirect('/');
+    }
+  
+    const user = session.user
+    
   return (
-    <div className="min-h-dvh bg-linear-to-t from-background  to-primary/5 to-15% pb-24 text-foreground bg">
-      <header className="sticky top-0 z-30  backdrop-blur-xl">
+    <div className="min-h-dvh bg-linear-to-t from-background  to-primary/5 to-15% pb-16 text-foreground">
+      <header className="sticky top-0 z-30  backdrop-blur-2xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-6 lg:flex-nowrap lg:py-4">
           <Link href="/membro" aria-label="DG Redação - início" className="flex h-10 w-26 shrink-0 items-center justify-center overflow-hidden">
             <Image
@@ -106,6 +119,13 @@ export default function MemberHomePage() {
               <span className="absolute right-2 top-2 size-2 rounded-full bg-secondary ring-2 ring-background" />
             </div>
             <Avatar className="size-10 border-2 border-primary/15 bg-primary/10">
+              <Image
+                                    alt={session?.user.name || "Usuário"}
+                                    priority={true}
+                                    width={40}
+                                    height={40}
+                                    src={session?.user.image || "/avatar-placeholder.png"}
+                                />
               <AvatarFallback className="bg-primary/10 text-sm font-semibold text-primary">
                 DG
               </AvatarFallback>
@@ -202,21 +222,14 @@ export default function MemberHomePage() {
         <section aria-labelledby="continue-title">
           <div className="mb-4 flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary/70">
+              <p className="text-xs font-semibold tracking-[0.16em] text-primary/70">
                 Continue aprendendo
               </p>
               <h2 id="continue-title" className="mt-1 text-xl font-bold sm:text-2xl">
                 De onde você parou
               </h2>
             </div>
-            <Button asChild variant="link" className="shrink-0 px-0 text-primary">
-              <Link href="/aluno/aulas/1">
-                Ver todas <ArrowRight className="size-4" />
-              </Link>
-            </Button>
           </div>
-
-
           <CardVideoaula
             href="/aluno/aulas/1"
             lessonLabel="Módulo 1 · Aula 1"
@@ -239,12 +252,12 @@ export default function MemberHomePage() {
             </div>
             <Button asChild variant="link" className="shrink-0 px-0 text-primary">
               <Link href="/aluno/aulas/1">
-                Ver curso completo <ArrowRight className="size-4" />
+                Todas as aulas <ChevronRight className="size-4" />
               </Link>
             </Button>
           </div>
 
-          <Card className="gap-0 overflow-hidden rounded-2xl border-primary/10 py-0 shadow-sm">
+          <Card className="gap-0 overflow-hidden p-0">
             {modules.map((module) => {
               const Icon = module.icon
 
@@ -254,14 +267,18 @@ export default function MemberHomePage() {
                   href="/aluno/aulas/1"
                   className="group grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-border/70 p-4 transition-colors last:border-b-0 hover:bg-primary/[0.03] sm:grid-cols-[auto_1.2fr_1fr_auto] sm:gap-5 sm:px-5"
                 >
-                  <span className="grid size-11 place-items-center rounded-xl bg-primary/8 text-primary transition-colors group-hover:bg-primary/12 sm:size-12">
-                    <Icon className="size-5" />
+                  <span className="relative flex h-16 w-20 justify-center items-center rounded-md bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
+                    <Play className="size-6 absolute fill-primary" />
+                    <Image
+                      src="/Sublogo1.svg"
+                      alt="Thumbnail"
+                      className="w-full h-auto object-cover rounded-md"
+                      width={100}
+                      height={50}
+                    />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Módulo {module.number}
-                    </span>
-                    <span className="mt-0.5 block font-semibold leading-snug text-foreground">
+                    <span className="mt-0.5 block font-semibold leading-snug text-foreground max-sm:text-sm">
                       {module.title}
                     </span>
                     <span className="mt-1 block text-xs text-muted-foreground sm:hidden">
@@ -269,7 +286,7 @@ export default function MemberHomePage() {
                     </span>
                   </span>
                   <span className="hidden min-w-0 sm:block">
-                    <span className="mb-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                    <span className="mb-2 max-sm:hidden flex items-center justify-between gap-3 text-xs text-muted-foreground">
                       <span>{module.completed}</span>
                       <span>{module.progress}%</span>
                     </span>
@@ -280,7 +297,7 @@ export default function MemberHomePage() {
                     />
                   </span>
                   <ChevronRight className="size-5 text-primary/70 transition-transform group-hover:translate-x-0.5" />
-                  <span className="col-span-2 -mt-1 pl-14 text-xs text-muted-foreground sm:hidden">
+                  <span className="col-span-2 -mt-1 pl-14 text-xs text-muted-foreground hidden">
                     {module.completed}
                   </span>
                 </Link>
@@ -330,43 +347,47 @@ export default function MemberHomePage() {
                 </div>
               </div>
               <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-muted/60 p-4">
-                <div>
-                  <p className="font-semibold">Correção de redações</p>
-                  <p className="text-sm text-muted-foreground">com a professora Dani</p>
-                  <p className="mt-2 text-sm font-medium text-primary">
-                    Hoje, 19h
-                  </p>
+                <div className="flex gap-4">
+                  <div className="bg-primary/5 rounded-md w-20 flex justify-center items-center">
+                    <Play />
+                  </div>
+                  <div>
+                    <p className="font-semibold max-sm:text-sm">Correção de redações</p>
+                    <p className="text-sm max-sm:text-xs text-muted-foreground">Professora Dani</p>
+                    <p className="mt-2 text-sm max-sm:text-xs font-medium text-primary">
+                      Hoje, 19h
+                    </p>
+                  </div>
                 </div>
                 <Button asChild variant="secondary" className="w-full">
                   <Link href="/aluno/mentorias">
                     <CirclePlay className="size-4" />
                     Acessar aula
-                    <ArrowRight className="size-4" />
+                    <ChevronRight className="size-4" />
                   </Link>
                 </Button>
               </div>
-              <Button asChild variant="link" className="mt-3 h-auto px-0 text-primary">
-                <Link href="/aluno/mentorias">
-                  Ver agenda de mentorias <ArrowRight className="size-4" />
-                </Link>
-              </Button>
             </CardContent>
           </Card>
 
           <Card id="materiais" className="scroll-mt-28 overflow-hidden rounded-2xl border-primary/10 py-0 shadow-sm">
             <CardContent className="flex h-full items-center justify-between gap-4 p-5 sm:p-6">
               <div className="max-w-md">
-                <span className="grid size-11 place-items-center rounded-xl bg-secondary/20 text-primary">
-                  <FileText className="size-5" />
-                </span>
-                <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-primary/70">
-                  Para ir além
-                </p>
-                <h2 className="mt-1 text-lg font-bold">Materiais extras</h2>
-                <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                <div className="flex items-center gap-4">
+                  <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                    <FileText className="size-5" />
+                  </span>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-primary/70">
+                      Para ir além
+                    </p>
+                    <h2 className="text-lg font-bold">Materiais extras</h2>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm max-sm:text-xs leading-tight text-muted-foreground">
                   Acesse apostilas, mapas mentais e modelos para acompanhar as aulas.
                 </p>
-                <Button asChild variant="outline" className="mt-4 rounded-xl">
+                <Button asChild variant="outline" className="mt-4 w-full">
                   <Link href="/aluno/aulas/1">
                     Explorar materiais <ArrowRight className="size-4" />
                   </Link>
@@ -383,31 +404,9 @@ export default function MemberHomePage() {
             </CardContent>
           </Card>
         </section>
-
-        <section
-          id="suporte"
-          className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-primary/10 bg-primary/[0.04] p-5 sm:flex-row sm:items-center sm:p-6"
-        >
-          <div className="flex items-center gap-3">
-            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-card text-primary shadow-sm">
-              <Headphones className="size-5" />
-            </span>
-            <div>
-              <h2 className="font-semibold">Precisa de uma mão?</h2>
-              <p className="text-sm text-muted-foreground">
-                Encontre orientação e acompanhe suas mentorias.
-              </p>
-            </div>
-          </div>
-          <Button asChild variant="outline" className="rounded-xl">
-            <Link href="/aluno/mentorias">
-              Acessar suporte <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </section>
       </main>
 
-      <NavegacaoMembro paginaAtiva="inicio" />
+      {/* <NavegacaoMembro paginaAtiva="inicio" /> */}
     </div>
   )
 }

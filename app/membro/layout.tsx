@@ -5,6 +5,7 @@ import type { ReactNode } from "react"
 import { obterInformacoes } from "@/actions/configuracoes"
 // @ts-expect-error Next.js handles global CSS imports at build time.
 import "../globals.css"
+import { FooterMembro } from "@/components/ui/footer-membro"
 
 const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
@@ -45,7 +46,10 @@ export default async function MemberLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>{themeStyle ? <style>{themeStyle}</style> : null}</head>
-      <body className={`${poppins.className} antialiased`}>{children}</body>
+      <body className={`${poppins.className} antialiased`}>
+        {children}
+        <FooterMembro/>
+      </body>
     </html>
   )
 }
