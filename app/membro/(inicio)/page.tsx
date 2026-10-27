@@ -89,7 +89,7 @@ export default async function MemberHomePage() {
   const user = session.user
 
   return (
-    <div className="min-h-dvh bg-linear-to-t from-background  to-primary/5 to-15% pb-16 text-foreground">
+    <div className="min-h-dvh bg-linear-to-t from-background  to-primary/5 to-15% max-sm:pb-16 text-foreground">
       <header className="sticky top-0 z-30  backdrop-blur-2xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-6 lg:flex-nowrap lg:py-4">
           <Link href="/membro" aria-label="DG Redação - início" className="flex h-10 w-26 shrink-0 items-center justify-center overflow-hidden">
@@ -317,7 +317,7 @@ export default async function MemberHomePage() {
 
         <section
           aria-label="Benefícios da sua área de membros"
-          className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+          className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4"
         >
           {benefits.map((benefit) => {
             const Icon = benefit.icon
@@ -341,7 +341,7 @@ export default async function MemberHomePage() {
           })}
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-2">
+        <section className="grid gap-5 lg:grid-cols-2">
           <Card className="rounded-2xl border-primary/10 py-0 shadow-sm">
             <CardContent className="p-5 sm:p-6">
               <div className="flex items-center gap-3">
