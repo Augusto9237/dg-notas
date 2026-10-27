@@ -32,7 +32,6 @@ export function FooterMembro({ className, logo }: FooterAlunoProps) {
             icon: <Image src={logo} alt="logo" width={50} height={50} className="min-size-14.5 size-14.5 bg-primary  rounded-full -mt-[9px] -mb-1.5 p-2 border-4 shadow-md dark:shadow-background border-card" />,
             href: "/membro",
             label: "",
-            active: pathname === "/membro",
         },
         {
             icon: <MonitorPlay className="h-5 w-5" />,

@@ -3,13 +3,16 @@
 import Image from "next/image"
 import Link from "next/link"
 import {
-  ChartNoAxesColumnIncreasing,
+  Bookmark,
+  Check,
   CirclePlay,
+  Clock3,
   Play,
 } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
+import { Button } from "./ui/button"
+import { Badge } from "./ui/badge"
 
 interface CardVideoaulaProps {
   href: string
@@ -40,104 +43,99 @@ export function CardVideoaula({
 }: CardVideoaulaProps) {
   const progressValue =
     progress === undefined ? undefined : Math.min(100, Math.max(0, progress))
+  const isComplete = ["concluída", "concluida", "concluído", "concluido"].includes(
+    status?.toLowerCase() ?? "",
+  )
 
   return (
-    <Card className="max-w-md gap-0 overflow-hidden p-0 shadow-sm">
+    <Card className="flex flex-col sm:flex-row sm:items-start sm:gap-5 p-0 sm:p-5 overflow-hidden">
       <Link
         href={href}
         aria-label={`Assistir ${title}`}
-        className="group relative flex aspect-video items-center justify-center overflow-hidden bg-primary text-white"
+        className="group relative aspect-video w-full overflow-hidden rounded-lg max-sm:rounded-none bg-primary text-card sm:w-[min(22vw,15.75rem)]"
       >
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-linear-to-br from-primary/75 via-primary to-primary/25"
+        <Image
+          src={instructorImage || "/foto-1.jpeg"}
+          alt={instructorName}
+          fill
+          sizes="(max-width: 640px) 100vw, 252px"
+          className="w-[48%] object-cover object-[center_30%]"
         />
         <div
           aria-hidden="true"
-          className="absolute -right-10 -top-16 size-64 rounded-full border border-white/10"
+          className="absolute inset-0 bg-linear-to-r from-transparent via-primary/45 to-primary"
         />
-        <div
-          aria-hidden="true"
-          className="absolute -bottom-36 -left-8 size-80 rounded-full border border-white/10"
-        />
-        <div className="relative z-10 flex flex-col items-center gap-1 text-center">
-          <span className="text-2xl font-semibold tracking-wide text-white/90 sm:text-3xl">
-            DG Dani Guedes
-          </span>
-          <span className="text-[10px] font-medium tracking-[0.4em] text-white/65">
-            REDAÇÃO
-          </span>
-        </div>
-        <span className="absolute z-10 grid size-16 place-items-center rounded-full border-2 border-white/80 bg-primary/90 shadow-lg transition-transform group-hover:scale-105">
-          <Play aria-hidden="true" className="ml-1 size-7 fill-current" />
+        <span className="absolute right-3 top-3 max-w-[48%] text-right text-xs font-semibold leading-tight text-white sm:text-sm">
+          {title}
+        </span>
+        <span className="absolute left-1/2 top-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-white/80 bg-primary/80 shadow-lg transition-transform group-hover:scale-105">
+          <Play aria-hidden="true" className="ml-0.5 size-5 fill-current" />
         </span>
         {duration ? (
-          <span className="absolute bottom-4 right-4 rounded-lg bg-black/55 px-2.5 py-1 text-xs font-semibold text-white">
+          <span className="absolute bottom-2 right-2 rounded-md bg-black/65 px-2 py-1 text-[10px] font-semibold text-white">
             {duration}
           </span>
         ) : null}
       </Link>
 
-      <div className="flex flex-col gap-5 p-5">
-        <Link href={href} className="group space-y-1">
-          <p className="text-lg max-sm:text-base font-bold leading-snug text-primary group-hover:underline">
-            {lessonLabel} — {title}
+      <div className="min-w-0 flex-1 max-sm:px-5">
+        <p className="text-xs font-medium text-primary/75">{lessonLabel}</p>
+        <Link href={href} className="group block">
+          <h3 className="mt-1 text-base font-bold leading-snug text-primary sm:text-lg truncate">
+            {title}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">
+            {description}
           </p>
-          <p className="text-sm leading-6 text-muted-foreground">{description}</p>
         </Link>
 
-        <div className="flex items-center gap-3">
-          <Image
-            src={instructorImage || "/foto-1.jpeg"}
-            alt=""
-            width={52}
-            height={52}
-            className="size-10 shrink-0 rounded-full object-cover object-[center_35%]"
-          />
-          <div className="min-w-0">
-            <p className="truncate font-semibold text-foreground max-sm:text-sm">{instructorName}</p>
-            <p className="truncate text-sm max-sm:text-xs text-muted-foreground">{instructorRole}</p>
-          </div>
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-primary sm:text-sm">
+          {duration ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Clock3 aria-hidden="true" className="size-4" />
+              {duration}
+            </span>
+          ) : null}
+          <span className="inline-flex items-center gap-1.5">
+            <Bookmark aria-hidden="true" className="size-4" />
+            {instructorRole}
+          </span>
+          {level ? (
+            <span className="text-muted-foreground">Nível {level}</span>
+          ) : null}
+          {progressValue !== undefined ? (
+            <span className="text-muted-foreground">
+              {progressValue}% concluído
+            </span>
+          ) : null}
         </div>
+      </div>
 
-        {status || level || duration ? (
-          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            {status ? (
-              <span className="flex items-center gap-2 max-sm:text-sm">
-                <CirclePlay aria-hidden="true" className="size-4 text-primary/70" />
-                {status}
-              </span>
-            ) : null}
-            {status && (level || duration) ? (
-              <span aria-hidden="true" className="h-5 w-px bg-border" />
-            ) : null}
-            {level ? (
-              <span className="flex items-center gap-2 rounded-full bg-primary/8 px-3 py-1.5 font-medium text-primary max-sm:text-xs">
-                <ChartNoAxesColumnIncreasing aria-hidden="true" className="size-4" />
-                Nível {level}
-              </span>
-            ) : null}
-            {duration && !level ? (
-              <span className="text-sm text-muted-foreground">{duration}</span>
-            ) : null}
-          </div>
-        ) : null}
-
-        {progressValue !== undefined ? (
-          <div className="flex items-end gap-3">
-            <div className="min-w-0 flex-1">
-              <Progress
-                value={progressValue}
-                aria-label={`Progresso do curso: ${progressValue}% concluído`}
-                className="h-2.5 bg-primary/10"
-              />
-              <p className="mt-2 text-sm text-muted-foreground">
-                <span className="font-semibold text-primary">{progressValue}%</span>{" "}
-                concluído
-              </p>
-            </div>
-          </div>
-        ) : null}
+      <div className="flex shrink-0 items-center max-sm:px-5 max-sm:pb-5 justify-between gap-3 sm:flex-col sm:items-end sm:justify-between sm:gap-8 sm:h-full">
+        {status ? (
+          <Badge
+            className={`${
+              isComplete
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-primary/8 text-primary"
+            }`}
+          >
+            {isComplete ? (
+              <Check aria-hidden="true" className="size-3.5" />
+            ) : (
+              <CirclePlay aria-hidden="true" className="size-3.5" />
+            )}
+            {status}
+          </Badge>
+        ) : <span />}
+        <Link
+          href={href}
+        >
+          <Button>
+          <Play aria-hidden="true" className="fill-current" />
+          {isComplete ? "Assistir novamente" : "Assistir agora"}
+          </Button>
+        </Link>
       </div>
     </Card>
   )

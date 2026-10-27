@@ -201,7 +201,7 @@ export function ListaCardsVideoaulas({
           </div>
         ) : videoaulas.length > 0 ? (
           <div
-            className={`grid gap-5 sm:grid-cols-2 xl:grid-cols-3 ${
+            className={`flex flex-col gap-5${
               carregando ? "opacity-60" : ""
             }`}
           >

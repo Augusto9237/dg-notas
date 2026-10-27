@@ -264,12 +264,12 @@ export default async function MemberHomePage() {
           </div>
 
           <Card className="py-0">
-            <Accordion defaultValue={["item-1"]} className="px-5">
+            <Accordion type="multiple" defaultValue={["item-1"]} className="px-5">
               {modules.map((module) => (
                 <AccordionItem key={module.number} value={`item-${module.number}`}>
                   <AccordionTrigger>
                     <div className="flex items-center gap-4 w-full">
-                      <span className="flex size-11 justify-center items-center rounded-md bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
+                      <span className="flex size-12 justify-center items-center rounded-md bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
                         {module.icon && <module.icon className="size-5" />}
                       </span>
 

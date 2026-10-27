@@ -48,7 +48,7 @@ export default async function MemberLayout({
       <head>{themeStyle ? <style>{themeStyle}</style> : null}</head>
       <body className={`${poppins.className} antialiased`}>
         {children}
-        <FooterMembro/>
+        <FooterMembro logo={configuracoes?.logoAplicativo!} />
       </body>
     </html>
   )
