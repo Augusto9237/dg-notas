@@ -1,5 +1,11 @@
 import Link from "next/link"
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import {
   ArrowRight,
   Bell,
   BookOpen,
@@ -74,14 +80,14 @@ const benefits = [
 ]
 
 export default async function MemberHomePage() {
-    const session = await getSessionCached()
-  
-    if (!session?.user) {
-      redirect('/');
-    }
-  
-    const user = session.user
-    
+  const session = await getSessionCached()
+
+  if (!session?.user) {
+    redirect('/');
+  }
+
+  const user = session.user
+
   return (
     <div className="min-h-dvh bg-linear-to-t from-background  to-primary/5 to-15% pb-16 text-foreground">
       <header className="sticky top-0 z-30  backdrop-blur-2xl">
@@ -120,12 +126,12 @@ export default async function MemberHomePage() {
             </div>
             <Avatar className="size-10 border-2 border-primary/15 bg-primary/10">
               <Image
-                                    alt={session?.user.name || "Usuário"}
-                                    priority={true}
-                                    width={40}
-                                    height={40}
-                                    src={session?.user.image || "/avatar-placeholder.png"}
-                                />
+                alt={session?.user.name || "Usuário"}
+                priority={true}
+                width={40}
+                height={40}
+                src={session?.user.image || "/avatar-placeholder.png"}
+              />
               <AvatarFallback className="bg-primary/10 text-sm font-semibold text-primary">
                 DG
               </AvatarFallback>
@@ -257,52 +263,55 @@ export default async function MemberHomePage() {
             </Button>
           </div>
 
-          <Card className="gap-0 overflow-hidden p-0">
-            {modules.map((module) => {
-              const Icon = module.icon
+          <Card className="py-0">
+            <Accordion defaultValue={["item-1"]} className="px-5">
+              {modules.map((module) => (
+                <AccordionItem key={module.number} value={`item-${module.number}`}>
+                  <AccordionTrigger>
+                    <div className="flex items-center gap-4 w-full">
+                      <span className="flex size-11 justify-center items-center rounded-md bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
+                        {module.icon && <module.icon className="size-5" />}
+                      </span>
 
-              return (
-                <Link
-                  key={module.number}
-                  href="/aluno/aulas/1"
-                  className="group grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-border/70 p-4 transition-colors last:border-b-0 hover:bg-primary/[0.03] sm:grid-cols-[auto_1.2fr_1fr_auto] sm:gap-5 sm:px-5"
-                >
-                  <span className="relative flex h-16 w-20 justify-center items-center rounded-md bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
-                    <Play className="size-6 absolute fill-primary" />
-                    <Image
-                      src="/Sublogo1.svg"
-                      alt="Thumbnail"
-                      className="w-full h-auto object-cover rounded-md"
-                      width={100}
-                      height={50}
-                    />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="mt-0.5 block font-semibold leading-snug text-foreground max-sm:text-sm">
-                      {module.title}
-                    </span>
-                    <span className="mt-1 block text-xs text-muted-foreground sm:hidden">
-                      {module.detail}
-                    </span>
-                  </span>
-                  <span className="hidden min-w-0 sm:block">
-                    <span className="mb-2 max-sm:hidden flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                      <span>{module.completed}</span>
-                      <span>{module.progress}%</span>
-                    </span>
-                    <Progress
-                      value={module.progress}
-                      aria-label={`Progresso do módulo ${module.number}: ${module.progress} por cento`}
-                      className="h-2 bg-primary/10"
-                    />
-                  </span>
-                  <ChevronRight className="size-5 text-primary/70 transition-transform group-hover:translate-x-0.5" />
-                  <span className="col-span-2 -mt-1 pl-14 text-xs text-muted-foreground hidden">
-                    {module.completed}
-                  </span>
-                </Link>
-              )
-            })}
+                      <span className="min-w-0 flex max-md:flex-col md:items-center w-full md:justify-between">
+                        <span className="block font-semibold leading-snug text-foreground max-sm:text-sm">
+                          Módulo {module.number} - {module.title}
+                        </span>
+                        <span className="min-w-0 w-full max-w-sm">
+                          <span className="mb-1 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                            <span>{module.completed}</span>
+                            <span>{module.progress}%</span>
+                          </span>
+                          <Progress
+                            value={module.progress}
+                            aria-label={`Progresso do módulo ${module.number}: ${module.progress} por cento`}
+                            className="h-2 bg-primary/10"
+                          />
+                        </span>
+                      </span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="flex gap-4">
+                      <span className="relative flex h-16 w-20 justify-center items-center rounded-md bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
+                        <Play className="size-6 absolute fill-primary" />
+                        <Image
+                          src="/Sublogo1.svg"
+                          alt="Thumbnail"
+                          className="w-full h-auto object-cover rounded-md"
+                          width={100}
+                          height={50}
+                        />
+                      </span>
+                      <span className="flex flex-col ">
+                        <span className="text-sm font-semibold">{module.title}</span>
+                        <span className="text-xs text-muted-foreground">{module.detail}</span>
+                      </span>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </Card>
         </section>
 
@@ -407,6 +416,6 @@ export default async function MemberHomePage() {
       </main>
 
       {/* <NavegacaoMembro paginaAtiva="inicio" /> */}
-    </div>
+    </div >
   )
 }
