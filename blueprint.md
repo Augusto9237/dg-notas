@@ -198,3 +198,52 @@ Na rota `app/aluno/aulas/[aula]/page.tsx`, o layout apresentava estouro de largu
 6. **Validação:**
    - Executar `tsc --noEmit` e `npm run lint` para garantir zero regressões ou erros de compilação.
 
+## Plano de Desenvolvimento Atual: Página Inicial da Área de Membros
+
+### Objetivo
+Criar a experiência inicial responsiva da área de membros em `/membro`, seguindo a referência visual enviada e reaproveitando os componentes shadcn/ui, a tipografia Poppins e as cores configuráveis da aplicação.
+
+### Passos
+1. Implementar o dashboard com apresentação do curso, progresso, retomada de aula, plano de estudos, agenda, materiais e suporte.
+2. Adicionar o layout raiz necessário para esta árvore de rotas, carregando os estilos globais e as cores do sistema.
+3. Direcionar as ações para rotas de aulas e mentorias já existentes e validar a compilação.
+
+## Plano de Desenvolvimento Atual: Componente Card de Videoaula
+
+### Objetivo
+Extrair o card de retomada de aula da página inicial da área de membros para um componente reutilizável, reorganizando o conteúdo no layout vertical da referência visual enviada.
+
+### Passos
+1. Criar o componente `CardVideoaula` com miniatura e ação de reprodução, informações da aula e professora, duração, nível, progresso e controle de aula salva.
+2. Substituir o markup atual da aula em `app/membro/(inicio)/page.tsx` pela nova instância do componente, preservando os dados e o destino da navegação.
+3. Validar TypeScript e lint nos arquivos alterados.
+
+## Plano de Desenvolvimento Atual: Catálogo de Aulas da Área de Membros
+
+### Objetivo
+Implementar `/membro/aulas` com listagem paginada, busca e filtros visuais inspirados na referência enviada, reutilizando o card de videoaula e a navegação mobile da área de membros.
+
+### Passos
+1. Carregar videoaulas e dados da professora com a ação já existente, adicionando suporte a pesquisa por título/descrição e filtros de categoria baseados nos termos disponíveis no conteúdo.
+2. Criar a interface responsiva com busca, filtros, cards, estado vazio, erro, paginação progressiva e navegação mobile compartilhada com a página inicial.
+3. Atualizar o link “Aulas” da navegação para a nova rota e validar TypeScript, lint e preview.
+
+## Plano de Desenvolvimento Atual: Card Horizontal de Videoaula
+
+### Objetivo
+Atualizar o componente reutilizável de videoaula para o layout horizontal da referência: miniatura à esquerda, informações e metadados no centro e status e ação de reprodução à direita, com adaptação para telas pequenas.
+
+### Passos
+1. Reorganizar o `CardVideoaula` preservando os dados atuais, destinos de navegação, duração, status e progresso.
+2. Adicionar uma miniatura com imagem da professora, título e controle visual de reprodução, além de uma ação destacada para assistir.
+3. Validar o type-check e o lint do componente.
+
+## Atualização da Documentação: Área de Membros
+
+### Objetivo
+Manter o README alinhado à área de membros disponível em `/membro`, descrevendo a página inicial do curso, o catálogo de aulas e a experiência mobile com base nas funcionalidades existentes.
+
+### Passos Concluídos
+- [x] Documentada a página inicial com progresso, módulos, aula em destaque e materiais extras.
+- [x] Documentado o catálogo de aulas com busca, filtros por categoria, carregamento progressivo e tratamento de erro.
+- [x] Atualizados a arquitetura do projeto, os recursos para alunos e os detalhes de autenticação no README.

@@ -5,7 +5,7 @@
 </h1>
 
 <p align="center">
-  <strong>SaaS educacional de ponta para mentoria, correção de redações e videoaulas exclusivas.</strong>
+  <strong>Plataforma educacional para mentoria, correção de redações e uma experiência completa de aprendizado.</strong>
   <br/>
   Construída com o que há de mais moderno no ecossistema JavaScript.
 </p>
@@ -23,7 +23,7 @@
 
 ## 📌 Visão Geral
 
-**DG** é uma plataforma SaaS educacional full-stack projetada para conectar professores e alunos em um ecossistema completo de **mentoria personalizada**, **correção inteligente de redações** (ENEM/Vestibulares) e uma **área de membros** com videoaulas protegidas.
+**DG** é uma plataforma SaaS educacional full-stack projetada para conectar professores e alunos em um ecossistema completo de **mentoria personalizada**, **correção inteligente de redações** (ENEM/Vestibulares) e uma **área de membros** para acompanhar o curso, encontrar aulas e acessar conteúdos de apoio.
 
 A plataforma foi construída com um stack de alta performance voltado para escalabilidade, type-safety de ponta a ponta e uma experiência de usuário nativa — com suporte a PWA e notificações push em tempo real.
 
@@ -67,7 +67,7 @@ const { data } = await api.alunos.get({ query: { page: 1, limit: 12 } });
 
 ### 🎬 CDN de Vídeos com Cloudflare R2
 
-Todos os vídeos da área de membros são armazenados e entregues via **Cloudflare R2** — com **zero taxas de egresso** e baixa latência global.
+As videoaulas são armazenadas e entregues via **Cloudflare R2** — com **zero taxas de egresso** e baixa latência global.
 
 - **API S3-Compatible:** integração via `@aws-sdk/client-s3` e `@aws-sdk/s3-request-presigner`, sem vendor lock-in.
 - **URLs Pré-Assinadas:** o cliente obtém uma URL temporária via `r2/upload-url` e faz upload direto ao bucket sem passar pelo servidor — evitando limites de payload.
@@ -76,12 +76,24 @@ Todos os vídeos da área de membros são armazenados e entregues via **Cloudfla
 
 ---
 
+### 🎓 Área de Membros
+
+A área de membros reúne em uma experiência responsiva os principais caminhos de aprendizado do aluno:
+
+- **Página inicial do curso** (`/membro`), com apresentação do curso, progresso, atalho para continuar assistindo, módulos, aula em destaque e seção de materiais extras.
+- **Catálogo de aulas** (`/membro/aulas`), com busca por aulas, filtros por categoria, contagem de resultados, carregamento progressivo, estados de carregamento e opção para tentar novamente em caso de erro.
+- **Cards de videoaula** com informações do conteúdo e da professora, duração, nível, progresso e acesso ao player.
+- **Navegação otimizada para dispositivos móveis**, com atalhos para início, avaliações, aulas e suporte.
+- **Conteúdo renderizado no servidor** e verificação de sessão nas páginas da área de membros.
+
+---
+
 ### 🔐 Autenticação Moderna com Better Auth
 
 - Sistema completo com **Better Auth**, suportando **OAuth (Google)** e **Email/Senha**.
 - Controle de acesso por **roles**: `admin`, `professor`, `assistente` e `user` (aluno).
 - Proteção de rotas no servidor via `auth.api.getSession({ headers })` — sem middleware client-side vulnerável.
-- Campo `matriculado` bloqueia acesso à área de membros até liberação manual pelo admin.
+- Matrículas são controladas pelo campo `matriculado` e podem ser liberadas manualmente pela administração.
 - Suporte a **impersonation** de usuário para suporte e administração.
 
 ---
@@ -163,6 +175,9 @@ dg-notas/
 │   │   ├── (inicio)/page.tsx    # Home com métricas (queries paralelas)
 │   │   ├── avaliacoes/          # Envio e histórico de redações
 │   │   └── aulas/[aula]/        # Player da videoaula (streaming protegido)
+│   ├── membro/                  # Área de membros do aluno
+│   │   ├── (inicio)/page.tsx    # Início do curso, progresso e conteúdos
+│   │   └── aulas/page.tsx       # Catálogo com busca e filtros por categoria
 │   ├── professor/               # Dashboard do professor
 │   │   ├── correcoes/           # Fila de correção + IA Gemini
 │   │   └── aulas/               # Gestão e upload de videoaulas
@@ -178,6 +193,9 @@ dg-notas/
 ├── components/                  # Componentes React reutilizáveis
 │   ├── ui/                      # Design System (shadcn/ui)
 │   ├── video-player.tsx         # Player com proteção e lazy loading
+│   ├── card-videoaula.tsx       # Card responsivo com dados e progresso da aula
+│   ├── lista-cards-videoaulas.tsx # Catálogo com busca, filtros e paginação
+│   ├── navegacao-membro.tsx     # Navegação da área de membros
 │   ├── formulario-videoaula.tsx # Upload integrado ao R2
 │   ├── lista-videoaulas.tsx     # Catálogo com busca e paginação
 │   └── card-competencias.tsx    # Notas por competência (C1-C5)
@@ -216,7 +234,10 @@ dg-notas/
 - Histórico de redações com status (`ENVIADA` / `CORRIGIDA`)
 - Gráficos interativos de evolução de desempenho
 - Agendamento de mentorias em calendário interativo com controle de vagas
-- Acesso à área de membros com videoaulas exclusivas e player protegido
+- Área de membros com página inicial do curso, progresso e módulos
+- Catálogo de videoaulas com busca, filtros por categoria e carregamento progressivo
+- Acesso às videoaulas exclusivas pelo player e links para conteúdos de apoio
+- Navegação adaptada para dispositivos móveis, com atalhos para as principais áreas do aluno
 - Instalação como PWA + notificações push de novas correções e mentorias
 
 ### 👨‍🏫 Professor / Admin
@@ -347,7 +368,7 @@ Configuracao ──── CorSistema[] (CSS Variables dinâmicas do tema)
 - Todas as rotas e Server Actions validam sessão server-side via `auth.api.getSession`.
 - Upload de vídeos via URLs pré-assinadas — o arquivo nunca passa pelo servidor Next.js.
 - Correção por IA restrita ao role `admin` no servidor.
-- Acesso à área de membros condicionado a `matriculado: true`, verificado server-side.
+- As páginas da área de membros exigem sessão autenticada no servidor; a matrícula também é gerenciada pelo campo `matriculado`.
 - Senhas gerenciadas pelo Better Auth com hashing seguro.
 
 ---
