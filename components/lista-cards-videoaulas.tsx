@@ -107,7 +107,7 @@ export function ListaCardsVideoaulas({
   return (
     <>
       <header className="bg-linear-to-b from-primary/20 via-primary/10 to-transparent px-5 pb-12 pt-5 text-primary sm:px-8">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-screen-xl">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="max-sm:text-xl text-3xl font-bold tracking-tight sm:text-3xl">
@@ -150,15 +150,10 @@ export function ListaCardsVideoaulas({
                 <Button
                   key={item.value}
                   type="button"
-                  variant="ghost"
+                  variant={selecionada ? "outline" : "ghost"}
                   size="sm"
                   aria-pressed={selecionada}
                   onClick={() => setCategoria(item.value)}
-                  className={`${
-                    selecionada
-                      ? "border-primary bg-primary text-card hover:border-primary/40 hover:text-primary"
-                      : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-primary"
-                  }`}
                 >
                   {item.label}
                 </Button>
@@ -208,7 +203,7 @@ export function ListaCardsVideoaulas({
             {videoaulas.map((videoaula) => (
               <CardVideoaula
                 key={videoaula.id}
-                href={`/aluno/aulas/${videoaula.id}`}
+                href={`/membro/aulas/${videoaula.id}`}
                 lessonLabel={`Aula ${videoaula.id}`}
                 title={videoaula.titulo}
                 description={videoaula.descricao}

@@ -112,7 +112,7 @@ export default async function MemberHomePage() {
             <Input
               type="search"
               placeholder="Buscar aulas, materiais ou dúvidas..."
-              className="h-11 rounded-xl border-primary/10 bg-card pl-10 shadow-none placeholder:text-muted-foreground/80"
+              className="border-primary/10 bg-card pl-10 shadow-none placeholder:text-muted-foreground/80"
             />
           </label>
 
@@ -269,7 +269,7 @@ export default async function MemberHomePage() {
                 <AccordionItem key={module.number} value={`item-${module.number}`}>
                   <AccordionTrigger>
                     <div className="flex items-center gap-4 w-full">
-                      <span className="flex size-12 justify-center items-center rounded-md bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
+                      <span className="grid h-11 w-12 place-items-center rounded-lg bg-primary/10 text-primary px-2">
                         {module.icon && <module.icon className="size-5" />}
                       </span>
 

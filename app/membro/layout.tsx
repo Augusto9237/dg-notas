@@ -3,7 +3,6 @@ import { Poppins } from "next/font/google"
 import type { ReactNode } from "react"
 
 import { obterInformacoes } from "@/actions/configuracoes"
-// @ts-expect-error Next.js handles global CSS imports at build time.
 import "../globals.css"
 import { FooterMembro } from "@/components/ui/footer-membro"
 
