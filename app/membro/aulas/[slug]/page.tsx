@@ -7,7 +7,7 @@ import { obterUrlImagem } from "@/lib/obter-imagem";
 import { listarVideoaulaPorId } from "@/actions/videoaulas";
 import { MenuVideoaulas } from "@/components/menu-videoaulas";
 import { notFound } from "next/navigation";
-import { Check, Download, MonitorX } from "lucide-react";
+import { Check, ChevronLeft, Download, MonitorX } from "lucide-react";
 import { Suspense } from "react";
 import Loading from "./loading";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { ModalEnviarRedacao } from "@/components/modal-enviar-redacao";
 import { listarTemas, listarTemasDisponiveis } from "@/actions/avaliacao";
 import { getSessionCached } from "@/lib/session";
 import { ModalEnviarExercicio } from "@/components/modal-enviar-exercicio";
+import { ButtonBack } from "@/components/ui/button-back";
 
 export default async function Page({
     params,
@@ -24,19 +25,20 @@ export default async function Page({
     const session = await getSessionCached()
     const aulaId = (await params).slug
     const videoaula = await listarVideoaulaPorId(Number(aulaId))
-    const professor = await obterProfessor();
 
-    if (!videoaula || !professor) {
+    if (!videoaula) {
         return (
-            <div className="w-full max-w-full flex-1 p-5">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-primary font-semibold">Aulas</h2>
-                </div>
 
-                <main className="flex justify-center flex-1 items-center overflow-hidden h-full min-h-[300px]">
-                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                        <MonitorX className="h-10 w-10" />
-                        <h1>Nenhuma aula encontrada</h1>
+            <div className="w-full h-full min-h-screen max-h-screen flex-1 p-4 sm:p-5 bg-linear-to-bl from-primary/25 via-primary/5 to-primary/0">
+                <main className="w-full max-w-screen-xl mx-auto min-h-0 h-full flex flex-col flex-1">
+                    <h2 className="text-primary font-semibold">Aulas</h2>
+
+
+                    <div className="flex justify-center flex-1 items-center overflow-hidden h-full min-h-[300px]">
+                        <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                            <MonitorX className="h-10 w-10" />
+                            <h1>Nenhuma aula encontrada</h1>
+                        </div>
                     </div>
                 </main>
             </div>
@@ -46,11 +48,14 @@ export default async function Page({
     return (
         <Suspense fallback={<Loading />}>
             <div className="w-full h-full min-h-screen max-h-screen flex-1 p-4 sm:p-5 bg-linear-to-bl from-primary/25 via-primary/5 to-primary/0">
-                <main className="w-full max-w-7xl mx-auto min-h-0 h-full flex flex-col flex-1">
+                <main className="w-full max-w-screen-xl mx-auto min-h-0 h-full flex flex-col flex-1">
                     <div className="flex items-center justify-between mb-4 sm:mb-5">
-                        <div className="flex flex-col">
-                            <h2 className="text-primary dark:text-primary-foreground font-semibold text-lg sm:text-xl">{`Módulo - ${videoaula.id}`}</h2>
-                            <p className='text-primary dark:text-primary-foreground text-xs'>Acompanhe as suas aulas</p>
+                        <div className="flex gap-4 items-center">
+                            <ButtonBack/>
+                            <div className="flex flex-col">
+                                <h2 className="text-primary dark:text-primary-foreground font-semibold text-lg sm:text-xl">{`Módulo - ${videoaula.id}`}</h2>
+                                <p className='text-primary dark:text-primary-foreground text-xs'>Acompanhe as suas aulas</p>
+                            </div>
                         </div>
                         <div className="sm:hidden">
                             <MenuVideoaulas aulaId={Number(aulaId)} />

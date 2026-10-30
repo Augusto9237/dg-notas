@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DB_DG_REDACAO_DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 model CorSistema {
@@ -14,7 +14,6 @@ model CorSistema {
   valor          String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
   configuracaos Configuracao[] @relation("ConfiguracoesCoresSistema")
 }
 
@@ -173,17 +172,48 @@ model Mentoria {
   @@index([horarioId, status])
 }
 
+model Modulo {
+  id          Int      @id @default(autoincrement())
+  nome        String
+  descricao   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  videoaulas Videoaula[]
+}
+
 model Videoaula {
   id          Int     @id @default(autoincrement())
   titulo      String
   descricao   String
   urlVideo    String
+  urlThumbnail String
+  duracao     Int
+  progresso   Progresso[]
+  moduloId    Int
+  modulo      Modulo  @relation(fields: [moduloId], references: [id])
   professorId String?
   professor   User?   @relation("VideoaulasProfessor", fields: [professorId], references: [id])
+  tags        String[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Progresso {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  videoaulaId Int
+  videoaula   Videoaula @relation(fields: [videoaulaId], references: [id])
+  progresso   Float    @default(0.0) // Progresso em porcentagem (0.0 a 100.0)
+  assistido   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, videoaulaId])
+}
+
 
 model User {
   id                      String             @id
@@ -211,6 +241,7 @@ model User {
   temas                   Tema[]             @relation("AvaliacoesProfessor")
   pushSubscriptions       PushSubscription[]
   videoaulas              Videoaula[]        @relation("VideoaulasProfessor")
+  progressoVideoaulas     Progresso[]
 
   @@unique([email])
   @@index([email, role])

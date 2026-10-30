@@ -4,6 +4,7 @@ import { FormularioVideoaula } from "@/components/formulario-videoaula";
 import { listarVideoaulas } from "@/actions/videoaulas";
 import { TabelaVideoaulas } from "@/components/tabela-videoaulas";
 import { HeaderTeacher } from "@/components/header-professor";
+import { FormularioModuloVideoaula } from "@/components/formulario-modulo-videoaula";
 
 export default async function Page() {
   const videoaulas = await listarVideoaulas()
@@ -12,7 +13,10 @@ export default async function Page() {
     <Suspense fallback={<Loading />}>
       <div className="w-full h-full min-h-screen relative pt-16 overflow-y-auto">
         <HeaderTeacher title="Aulas" description="Lista de aulas">
-          <FormularioVideoaula />
+          <div className="flex gap-4 items-center">
+            <FormularioModuloVideoaula />
+            <FormularioVideoaula />
+          </div>
         </HeaderTeacher>
 
         <main className="flex flex-col p-5 h-full">

@@ -109,15 +109,11 @@ export function ListaCardsVideoaulas({
       <header className="bg-linear-to-b from-primary/20 via-primary/10 to-transparent px-5 pb-12 pt-5 text-primary sm:px-8">
         <div className="mx-auto max-w-screen-xl">
           <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="max-sm:text-xl text-3xl font-bold tracking-tight sm:text-3xl">
-                Aulas
-              </h1>
-              <p className="mt-1 max-w-xs text-sm max-sm:text-xs text-primary sm:max-w-none">
-                Aprenda com conteúdos exclusivos da DG
-              </p>
+            <div className="flex flex-col">
+              <h2 className="text-primary dark:text-primary-foreground font-semibold text-lg sm:text-xl">Aulas</h2>
+              <p className='text-primary dark:text-primary-foreground text-xs'>Aprenda com conteúdos exclusivos da DG</p>
             </div>
-          
+
           </div>
 
           <label className="relative mt-5 flex items-center">
@@ -196,9 +192,8 @@ export function ListaCardsVideoaulas({
           </div>
         ) : videoaulas.length > 0 ? (
           <div
-            className={`flex flex-col gap-5${
-              carregando ? "opacity-60" : ""
-            }`}
+            className={`flex flex-col gap-5${carregando ? "opacity-60" : ""
+              }`}
           >
             {videoaulas.map((videoaula) => (
               <CardVideoaula

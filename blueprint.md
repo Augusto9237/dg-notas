@@ -69,6 +69,16 @@ Resolver o erro de compilação do TypeScript no arquivo `layout.tsx` do aluno, 
 2. Realizar uma asserção de tipo em `session.user` utilizando `as unknown as User` ao passá-lo para `<AlunoWrapper>`.
 3. Executar lint e builds locais para validar a correção de compilação sem introduzir erros adicionais.
 
+## Plano de Desenvolvimento Atual: Botão de Retorno Dinâmico
+
+### Objetivo
+Adicionar um botão reutilizável que retorna à rota anterior usando o App Router do Next.js e o componente Button do shadcn/ui.
+
+### Passos Concluídos
+* [x] Criar `components/ui/button-back.tsx` como componente client-side usando `useRouter().back()`.
+* [x] Preservar as propriedades do Button e permitir conteúdo e `onClick` personalizados.
+* [x] Validar a tipagem do projeto.
+
 ## Plano de Desenvolvimento Atual: Correção do Erro de Blocking Route (Dynamic API outside of Suspense)
 
 ### Objetivo
@@ -247,3 +257,23 @@ Manter o README alinhado à área de membros disponível em `/membro`, descreven
 - [x] Documentada a página inicial com progresso, módulos, aula em destaque e materiais extras.
 - [x] Documentado o catálogo de aulas com busca, filtros por categoria, carregamento progressivo e tratamento de erro.
 - [x] Atualizados a arquitetura do projeto, os recursos para alunos e os detalhes de autenticação no README.
+
+## Plano de Desenvolvimento Atual: Formulário de Módulo
+
+### Objetivo
+Permitir criar um módulo ou editar um existente pelo componente `FormularioModuloVideoaula`, sem exigir um módulo como propriedade.
+
+### Passos
+1. Usar a presença opcional do módulo para definir o modo de criação ou edição e preencher os dados iniciais.
+2. Adicionar ações de servidor com autorização administrativa para criar e atualizar módulos.
+3. Atualizar a página após salvar e validar tipagem e lint dos arquivos alterados.
+
+## Plano de Desenvolvimento Atual: Configuração de Funções do Better Auth
+
+### Objetivo
+Corrigir a inicialização do plugin admin do Better Auth, definindo as funções de professor e assistente com permissões básicas e mantendo privilégios administrativos apenas para administradores.
+
+### Passos
+1. Registrar `professor` e `assistente` em `roles` com permissões básicas do usuário.
+2. Restringir `adminRoles` à função `admin`.
+3. Validar a configuração com o type-check do projeto.

@@ -65,9 +65,6 @@ export function CardVideoaula({
           aria-hidden="true"
           className="absolute inset-0 bg-linear-to-r from-transparent via-primary/45 to-primary"
         />
-        <span className="absolute right-3 top-3 max-w-[48%] text-right text-xs font-semibold leading-tight text-white sm:text-sm">
-          {title}
-        </span>
         <span className="absolute left-1/2 top-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-white/80 bg-primary/80 shadow-lg transition-transform group-hover:scale-105">
           <Play aria-hidden="true" className="ml-0.5 size-5 fill-current" />
         </span>

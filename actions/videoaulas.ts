@@ -29,6 +29,60 @@ interface VideoaulaProps {
     descricao: string;
     urlVideo: string;
 }
+
+interface VideoaulaModuloProps extends VideoaulaProps {
+    moduloId: number;
+    urlThumbnail: string;
+    duracao: number;
+}
+
+export async function adicionarVideoaulaAoModulo(data: VideoaulaModuloProps) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
+
+    if (
+        !Number.isInteger(data.moduloId) ||
+        data.moduloId <= 0 ||
+        !data.titulo.trim() ||
+        !data.descricao.trim() ||
+        !data.urlVideo.trim() ||
+        !data.urlThumbnail.trim() ||
+        !Number.isInteger(data.duracao) ||
+        data.duracao <= 0
+    ) {
+        throw new Error('Dados inválidos para adicionar videoaula ao módulo.');
+    }
+
+    try {
+        await prisma.videoaula.create({
+            data: {
+                titulo: data.titulo,
+                descricao: data.descricao,
+                urlVideo: data.urlVideo,
+                urlThumbnail: data.urlThumbnail,
+                duracao: data.duracao,
+                tags: [],
+                modulo: {
+                    connect: {
+                        id: data.moduloId
+                    }
+                }
+            }
+        })
+
+        updateTag('listar-videoaulas')
+        return true
+    } catch (error) {
+        console.error("Erro ao adicionar videoaula ao módulo:", error)
+        return false
+    }
+}
+
 export async function adicionarVideoaula(data: VideoaulaProps) {
     const session = await auth.api.getSession({
         headers: await headers()
