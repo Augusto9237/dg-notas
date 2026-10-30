@@ -1,6 +1,21 @@
 import { obterUrlImagem } from '@/lib/obter-imagem';
 import { prisma } from '@/lib/prisma';
 import { Elysia, t } from 'elysia'
+import * as z from "zod"
+
+const schemaVideoaula = z.object({
+  id: z.number().int(),
+  titulo: z.string(),
+  descricao: z.string(),
+  urlVideo: z.string(),
+  urlThumbnail: z.string(),
+  duracao: z.number().int(),
+  moduloId: z.number().int(),
+  professorId: z.string().nullable(),
+  tags: z.array(z.string()),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+})
 
 export const app = new Elysia({ prefix: '/api' })
     .get('/professores', async ({ query }) => {
@@ -127,7 +142,31 @@ export const app = new Elysia({ prefix: '/api' })
           throw error;
         }
     })
-
+    .get('/modulos', async () => {
+      try {
+          const modulos = await prisma.modulo.findMany({
+            orderBy: {
+              id: 'asc',
+            },
+            include: {
+              videoaulas: true,
+            },
+          })
+          return modulos;
+        } catch (error) {
+          console.error("Erro ao listar modulos:", error);
+          throw error;
+        }
+    }, {
+        response: z.array(
+          z.object({
+            id: z.number(),
+            nome: z.string().max(255),
+            descricao: z.string(),
+            videoaulas: z.array(schemaVideoaula),
+          })
+        )
+      })
 
 export const GET = app.fetch;
 export const POST = app.fetch;

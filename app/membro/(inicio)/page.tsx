@@ -37,6 +37,7 @@ import { NavegacaoMembro } from "@/components/navegacao-membro"
 import { getSessionCached } from "@/lib/session"
 import { redirect } from "next/navigation"
 import { obterModulos } from "@/actions/modulos"
+import { api } from "@/lib/eden"
 
 const modules = [
   {
@@ -88,7 +89,7 @@ export default async function MemberHomePage() {
   }
 
   const user = session.user
-  const modulos = await obterModulos()
+  const { data: modulos } = await api.modulos.get()
 
   return (
     <div className="min-h-dvh bg-linear-to-t from-background  to-primary/5 to-15% max-sm:pb-16 text-foreground">
@@ -266,56 +267,58 @@ export default async function MemberHomePage() {
           </div>
 
           <Card className="py-0">
-            <Accordion type="multiple" defaultValue={["item-1"]} className="px-5">
-              {modulos.map((modulo) => (
-                <AccordionItem key={modulo.id} value={`item-${modulo.id}`}>
-                  <AccordionTrigger>
-                    <div className="flex items-center gap-4 w-full">
-                      {/* <span className="grid h-11 w-12 place-items-center rounded-lg bg-primary/10 text-primary px-2">
+            {modulos && modulos.length > 0 ? (
+              <Accordion type="multiple" defaultValue={["item-1"]} className="px-5">
+                {modulos.map((modulo) => (
+                  <AccordionItem key={modulo.id} value={`item-${modulo.id}`}>
+                    <AccordionTrigger>
+                      <div className="flex items-center gap-4 w-full">
+                        {/* <span className="grid h-11 w-12 place-items-center rounded-lg bg-primary/10 text-primary px-2">
                         {module.icon && <module.icon className="size-5" />}
                       </span> */}
 
-                      <span className="min-w-0 flex max-md:flex-col md:items-center w-full md:justify-between">
-                        <span className="block font-semibold leading-snug text-foreground max-sm:text-sm text-base">
-                          Módulo {modulo.id} - {modulo.nome}
-                        </span>
-                        <span className="min-w-0 w-full max-w-sm">
-                          <span className="mb-1 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                            <span>teste</span>
-                            <span>%</span>
+                        <span className="min-w-0 flex max-md:flex-col md:items-center w-full md:justify-between">
+                          <span className="block font-semibold leading-snug text-foreground max-sm:text-sm text-base">
+                            Módulo {modulo.id} - {modulo.nome}
                           </span>
-                          <Progress
-                            value={300}
-                            aria-label={`Progresso do módulo ${modulo.id}: ${30} por cento`}
-                            className="h-2 bg-primary/10"
-                          />
-                        </span>
-                      </span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    {modulo.videoaulas.map((videoaula) => (
-                      <div className="flex gap-4" key={videoaula.id}>
-                        <span className="relative flex h-16 w-20 justify-center items-center rounded-md bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
-                          <Play className="size-6 absolute fill-primary" />
-                          <Image
-                            src="/Sublogo1.svg"
-                            alt="Thumbnail"
-                            className="w-full h-auto object-cover rounded-md"
-                            width={100}
-                            height={50}
-                          />
-                        </span>
-                        <span className="flex flex-col ">
-                          <span className="text-sm font-semibold">{videoaula.titulo}</span>
-                          <span className="text-xs text-muted-foreground">{videoaula.descricao}</span>
+                          <span className="min-w-0 w-full max-w-sm">
+                            <span className="mb-1 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                              <span>teste</span>
+                              <span>%</span>
+                            </span>
+                            <Progress
+                              value={300}
+                              aria-label={`Progresso do módulo ${modulo.id}: ${30} por cento`}
+                              className="h-2 bg-primary/10"
+                            />
+                          </span>
                         </span>
                       </div>
-                    ))}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      {modulo.videoaulas.map((videoaula) => (
+                        <div className="flex gap-4" key={videoaula.id}>
+                          <span className="relative flex h-16 w-20 justify-center items-center rounded-md bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
+                            <Play className="size-6 absolute fill-primary" />
+                            <Image
+                              src="/Sublogo1.svg"
+                              alt="Thumbnail"
+                              className="w-full h-auto object-cover rounded-md"
+                              width={100}
+                              height={50}
+                            />
+                          </span>
+                          <span className="flex flex-col ">
+                            <span className="text-sm font-semibold">{videoaula.titulo}</span>
+                            <span className="text-xs text-muted-foreground">{videoaula.descricao}</span>
+                          </span>
+                        </div>
+                      ))}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            ) : null}
           </Card>
         </section>
 
