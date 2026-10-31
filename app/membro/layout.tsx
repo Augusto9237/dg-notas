@@ -42,8 +42,6 @@ export default async function MemberLayout({
           --primary-foreground: ${cores[1].valor};
           --secondary: ${cores[2].valor};
           --secondary-foreground: ${cores[3].valor};
-          --sidebar: transparent;
-          --sidebar-foreground: oklch(0.145 0 0);
         }`
       : undefined
 
@@ -51,7 +49,15 @@ export default async function MemberLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <head>{themeStyle ? <style>{themeStyle}</style> : null}</head>
       <body className={`${poppins.className} antialiased`}>
-        <SidebarProvider className="flex flex-col">
+        <SidebarProvider className="flex flex-col"
+          style={
+            {
+              "--sidebar": "transparent",
+              "--sidebar-foreground": "oklch(0.145 0 0)"
+
+            } as React.CSSProperties
+          }
+        >
           <HeaderMembro />
           <AppSidebarMembro />
           {children}

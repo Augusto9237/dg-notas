@@ -13,9 +13,9 @@ export function HeaderMembro() {
   return (
     <header className="fixed left-0 right-0 top-0 z-30 h-[70px]  backdrop-blur-2xl">
       <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between gap-3 py-3  lg:flex-nowrap lg:py-4">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center">
           <Button
-            className="h-8 w-8 text-primary"
+            className="h-8 w-8 text-primary bg-transparent max-md:hidden"
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}

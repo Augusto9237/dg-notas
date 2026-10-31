@@ -5,9 +5,11 @@ import {
   Bot,
   Command,
   Frame,
+  House,
   LifeBuoy,
   Map,
   PieChart,
+  Play,
   Send,
   Settings2,
   SquareTerminal,
@@ -25,6 +27,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 const data = {
   user: {
     name: "shadcn",
@@ -149,19 +153,35 @@ const data = {
   ],
 }
 export function AppSidebarMembro({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const path = usePathname()
+
   return (
     <Sidebar
-      className="top-[70px] h-[calc(100svh-70px)]! bg-sidebar"
+      className="top-[70px] h-[calc(100svh-70px)]! bg-sidebar border-none shadow-none"
       {...props}
     >
-      <SidebarContent className="bg-transparent">
-        {/* <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
+      <SidebarContent className="bg-transparent p-5">
+        <SidebarMenuButton
+          asChild
+          className="text-base text-foreground dark:text-foreground hover:text-foreground hover:bg-background/5 active:bg-primary/5 data-[active=true]:bg-background/5 data-[active=true]:text-primary"
+          isActive={path === '/membro' ? true : false}
+        >
+          <Link href="/membro" className="flex gap-2 items-center">
+            <House />
+            Início
+          </Link>
+        </SidebarMenuButton>
+        <SidebarMenuButton
+          asChild
+          className="text-base text-foreground dark:text-foreground hover:text-foreground hover:bg-background/5 active:bg-primary/5 data-[active=true]:bg-background/5 data-[active=true]:text-primary"
+          isActive={path === '/membro/aulas' ? true : false}
+        >
+          <Link href="/membro/aulas" className="flex gap-2 items-center">
+            <Play />
+            Aulas
+          </Link>
+        </SidebarMenuButton>
       </SidebarContent>
-      <SidebarFooter>
-        {/* <NavUser user={data.user} /> */}
-      </SidebarFooter>
     </Sidebar>
   )
 }

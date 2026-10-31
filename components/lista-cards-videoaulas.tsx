@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { Filter, Search, VideoOff } from "lucide-react"
 
 import { listarVideoaulas } from "@/actions/videoaulas"
-import { CardVideoaula } from "@/components/card-videoaula"
+import { CardVideoaula, CardVideoaulaSkeleton } from "@/components/card-videoaula"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -106,8 +106,8 @@ export function ListaCardsVideoaulas({
 
   return (
     <>
-      <header className="bg-linear-to-b from-primary/20 via-primary/10 to-transparent px-5 pb-12 pt-5 text-primary sm:px-8">
-        <div className="mx-auto max-w-screen-xl">
+      <header className="bg-linear-to-b from-primary/20 via-primary/10 to-transparent px-5 pb-12 pt-[70px] text-primary sm:px-8">
+        <div className="mx-auto max-w-screen-xl pt-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col">
               <h2 className="text-primary dark:text-primary-foreground font-semibold text-lg sm:text-xl">Aulas</h2>
@@ -115,21 +115,6 @@ export function ListaCardsVideoaulas({
             </div>
 
           </div>
-
-          <label className="relative mt-5 flex items-center">
-            <span className="sr-only">Buscar aulas</span>
-            <Search
-              aria-hidden="true"
-              className="absolute left-3.5 size-4 text-primary/70"
-            />
-            <Input
-              type="search"
-              value={busca}
-              onChange={(event) => setBusca(event.target.value)}
-              placeholder="Buscar aulas..."
-              className="relative bg-card"
-            />
-          </label>
         </div>
       </header>
 
@@ -185,9 +170,9 @@ export function ListaCardsVideoaulas({
         ) : null}
 
         {carregando && videoaulas.length === 0 ? (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="flex flex-col gap-5">
             {Array.from({ length: 3 }, (_, index) => (
-              <Skeleton key={index} className="aspect-[0.78] rounded-3xl" />
+              <CardVideoaulaSkeleton key={index} />
             ))}
           </div>
         ) : videoaulas.length > 0 ? (

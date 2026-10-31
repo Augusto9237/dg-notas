@@ -13,6 +13,7 @@ import {
 import { Card } from "@/components/ui/card"
 import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
+import { Skeleton } from "./ui/skeleton"
 
 interface CardVideoaulaProps {
   href: string
@@ -137,3 +138,34 @@ export function CardVideoaula({
     </Card>
   )
 }
+
+export function CardVideoaulaSkeleton() {
+  return (
+    <Card className="flex flex-col sm:flex-row sm:items-start sm:gap-5 p-0 sm:p-5 overflow-hidden">
+      <div className="relative aspect-video w-full overflow-hidden rounded-none sm:rounded-lg sm:w-[min(22vw,15.75rem)] shrink-0 bg-muted">
+        <Skeleton className="size-full rounded-none sm:rounded-lg" />
+        <span className="absolute left-1/2 top-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-background/30 backdrop-blur-xs">
+          <Play aria-hidden="true" className="ml-0.5 size-5 text-muted-foreground/50 fill-current" />
+        </span>
+      </div>
+
+      <div className="min-w-0 flex-1 max-sm:px-5 max-sm:pt-4">
+        <Skeleton className="h-3.5 w-16" />
+        <Skeleton className="mt-2 h-5 w-3/4 sm:w-2/3" />
+        <Skeleton className="mt-2.5 h-4 w-full" />
+        <Skeleton className="mt-1.5 h-4 w-4/5" />
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 w-28" />
+        </div>
+      </div>
+
+      <div className="flex shrink-0 items-center justify-between gap-3 max-sm:px-5 max-sm:pb-5 max-sm:pt-2 sm:h-full sm:flex-col sm:items-end sm:justify-between sm:gap-8">
+        <Skeleton className="h-6 w-24 rounded-full" />
+        <Skeleton className="h-9 w-32 rounded-lg" />
+      </div>
+    </Card>
+  )
+}
+

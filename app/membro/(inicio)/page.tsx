@@ -29,50 +29,50 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Logo } from "@/components/ui/logo"
+
 import { Progress } from "@/components/ui/progress"
 import { CardVideoaula } from "@/components/card-videoaula"
 import { NavegacaoMembro } from "@/components/navegacao-membro"
 import { getSessionCached } from "@/lib/session"
 import { redirect } from "next/navigation"
 import { obterModulos } from "@/actions/modulos"
+import { PerfilAluno } from "@/components/perfil-aluno"
 import { api } from "@/lib/eden"
 
-const modules = [
-  {
-    number: "01",
-    title: "Estrutura da redação",
-    detail: "5 aulas",
-    progress: 40,
-    completed: "2/5 aulas concluídas",
-    icon: FileText,
-  },
-  {
-    number: "02",
-    title: "Tipos de erros e como evitá-los",
-    detail: "4 aulas",
-    progress: 0,
-    completed: "0/4 aulas concluídas",
-    icon: CirclePlay,
-  },
-  {
-    number: "03",
-    title: "Argumentação e repertório",
-    detail: "6 aulas",
-    progress: 0,
-    completed: "0/6 aulas concluídas",
-    icon: BookOpen,
-  },
-  {
-    number: "04",
-    title: "Simulados e correções",
-    detail: "3 simulados",
-    progress: 0,
-    completed: "0/3 simulados",
-    icon: CalendarDays,
-  },
-]
+// const modules = [
+//   {
+//     number: "01",
+//     title: "Estrutura da redação",
+//     detail: "5 aulas",
+//     progress: 40,
+//     completed: "2/5 aulas concluídas",
+//     icon: FileText,
+//   },
+//   {
+//     number: "02",
+//     title: "Tipos de erros e como evitá-los",
+//     detail: "4 aulas",
+//     progress: 0,
+//     completed: "0/4 aulas concluídas",
+//     icon: CirclePlay,
+//   },
+//   {
+//     number: "03",
+//     title: "Argumentação e repertório",
+//     detail: "6 aulas",
+//     progress: 0,
+//     completed: "0/6 aulas concluídas",
+//     icon: BookOpen,
+//   },
+//   {
+//     number: "04",
+//     title: "Simulados e correções",
+//     detail: "3 simulados",
+//     progress: 0,
+//     completed: "0/3 simulados",
+//     icon: CalendarDays,
+//   },
+// ]
 
 const benefits = [
   { icon: CirclePlay, title: "Aulas gravadas", description: "Estude no seu ritmo" },
@@ -88,62 +88,12 @@ export default async function MemberHomePage() {
     redirect('/');
   }
 
-  const user = session.user
-  const { data: modulos } = await api.modulos.get()
+  const { data: modules } = await api.modulos.get()
 
   return (
-    <div className="min-h-dvh bg-linear-to-t from-background  to-primary/5 to-15% max-sm:pb-16 text-foreground">
-      <header className="sticky top-0 z-30  backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-6 lg:flex-nowrap lg:py-4">
-          <Link href="/membro" aria-label="DG Redação - início" className="flex h-10 w-26 shrink-0 items-center justify-center overflow-hidden">
-            <Image
-              src="/Logo1.svg"
-              alt="DG Redação"
-              width={0}
-              height={0}
-              sizes="100vw"
-              className="h-26 w-auto object-center"
-            />
-          </Link>
+    <div className="min-h-dvh bg-linear-to-t from-background  to-primary/5 to-15% max-sm:pb-16 pt-[70px] text-foreground">
 
-          <label className="relative order-3 w-full lg:order-none lg:mx-8 lg:max-w-xl">
-            <span className="sr-only">Buscar aulas, materiais ou dúvidas</span>
-            <Search
-              aria-hidden="true"
-              className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-primary"
-            />
-            <Input
-              type="search"
-              placeholder="Buscar aulas, materiais ou dúvidas..."
-              className="border-primary/10 bg-card pl-10 shadow-none placeholder:text-muted-foreground/80"
-            />
-          </label>
-
-          <div className="flex items-center gap-3">
-            <div
-              aria-hidden="true"
-              className="relative grid size-10 place-items-center rounded-full text-primary"
-            >
-              <Bell className="size-5" />
-              <span className="absolute right-2 top-2 size-2 rounded-full bg-secondary ring-2 ring-background" />
-            </div>
-            <Avatar className="size-10 border-2 border-primary/15 bg-primary/10">
-              <Image
-                alt={session?.user.name || "Usuário"}
-                priority={true}
-                width={40}
-                height={40}
-                src={session?.user.image || "/avatar-placeholder.png"}
-              />
-              <AvatarFallback className="bg-primary/10 text-sm font-semibold text-primary">
-                DG
-              </AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-6 sm:gap-10 sm:px-6 sm:py-8">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 max-w-screen-xl:px-5 py-5">
         <Card className="p-0 gap-0 overflow-hidden max-h-[460px] bg-linear-to-bl from-primary/25 via-primary/5 to-primary/0">
           <div className="grid grid-cols-2">
             <div className="flex flex-col p-4 md:p-5">
@@ -260,17 +210,17 @@ export default async function MemberHomePage() {
               </h2>
             </div>
             <Button asChild variant="link" className="shrink-0 px-0 text-primary">
-              <Link href="/aluno/aulas/1">
+              <Link href="/membro/aulas">
                 Todas as aulas <ChevronRight className="size-4" />
               </Link>
             </Button>
           </div>
 
           <Card className="py-0">
-            {modulos && modulos.length > 0 ? (
+            {modules ? (
               <Accordion type="multiple" defaultValue={["item-1"]} className="px-5">
-                {modulos.map((modulo) => (
-                  <AccordionItem key={modulo.id} value={`item-${modulo.id}`}>
+                {modules.map((module) => (
+                  <AccordionItem key={module.id} value={`item-${module.id}`}>
                     <AccordionTrigger>
                       <div className="flex items-center gap-4 w-full">
                         {/* <span className="grid h-11 w-12 place-items-center rounded-lg bg-primary/10 text-primary px-2">
@@ -279,7 +229,7 @@ export default async function MemberHomePage() {
 
                         <span className="min-w-0 flex max-md:flex-col md:items-center w-full md:justify-between">
                           <span className="block font-semibold leading-snug text-foreground max-sm:text-sm text-base">
-                            Módulo {modulo.id} - {modulo.nome}
+                            Módulo {module.id} - {module.nome}
                           </span>
                           <span className="min-w-0 w-full max-w-sm">
                             <span className="mb-1 flex items-center justify-between gap-3 text-xs text-muted-foreground">
@@ -287,16 +237,16 @@ export default async function MemberHomePage() {
                               <span>%</span>
                             </span>
                             <Progress
-                              value={300}
-                              aria-label={`Progresso do módulo ${modulo.id}: ${30} por cento`}
-                              className="h-2 bg-primary/10"
+                              value={30}
+                              aria-label={`Progresso do módulo ${module.id}: ${30} por cento`}
+                              className="h-2 bg-primary/10 w-full"
                             />
                           </span>
                         </span>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
-                      {modulo.videoaulas.map((videoaula) => (
+                      {module.videoaulas.map((videoaula) => (
                         <div className="flex gap-4" key={videoaula.id}>
                           <span className="relative flex h-16 w-20 justify-center items-center rounded-md bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
                             <Play className="size-6 absolute fill-primary" />
@@ -338,7 +288,7 @@ export default async function MemberHomePage() {
                   <Icon className="size-5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">{benefit.title}</p>
+                  <p className="truncate text-sm font-semibold text-foreground">{benefit.title}</p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {benefit.description}
                   </p>
