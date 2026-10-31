@@ -33,14 +33,15 @@ export default async function Page() {
 
 
   return (
-      <div className="w-full h-full max-h-screen min-h-screen overflow-hidden">
-        <main className="flex flex-col gap-4 p-5 h-full">
-          <div className="flex items-center justify-between">
-            <h2 className="text-primary font-semibold">Suas Avaliações</h2>
-          </div>
+    <div className="w-full h-full max-h-screen min-h-screen overflow-hidden bg-linear-to-b from-primary/15 via-primary/5 to-transparent">
+      <main className="flex flex-col gap-4 p-5 h-full">
+        <div className="flex flex-col">
+          <h2 className="text-primary dark:text-primary-foreground font-semibold">Suas Avaliações</h2>
+          <p className='text-primary dark:text-primary-foreground text-xs'>Acompanhe as suas avaliações</p>
+        </div>
 
-          <TabelaAvaliacoesAluno avaliacoesIniciais={avaliacoes} temasIniciais={temas} criterios={criterios} userId={userId} />
-        </main>
-      </div>
+        <TabelaAvaliacoesAluno avaliacoesIniciais={avaliacoes} temasIniciais={temas} criterios={criterios} userId={userId} />
+      </main>
+    </div>
   );
 }

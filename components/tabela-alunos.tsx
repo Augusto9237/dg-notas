@@ -24,7 +24,7 @@ import { Ellipsis, FileCheck2 } from 'lucide-react';
 import { InputBusca } from './input-busca';
 import { alterarStatusMatriculaAluno, listarAlunosGoogle } from '@/actions/alunos';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Prisma } from '@/app/generated/prisma';
+import { $Enums, Prisma } from '@/app/generated/prisma';
 import { calcularMedia } from '@/lib/media-geral';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { banirUsuario } from '@/actions/admin';
@@ -34,12 +34,29 @@ import { Switch } from './ui/switch';
 import { enviarNotificacaoParaUsuario } from '@/actions/notificacoes';
 import Image from 'next/image';
 import { Skeleton } from './ui/skeleton';
+import { api } from '@/lib/eden';
 
-type Aluno = Prisma.UserGetPayload<{
-  include: {
-    avaliacoesComoAluno: true;
-  }
-}>
+type Aluno = {
+  name: string;
+  id: string;
+  image?: string | null;
+  telefone: string | null;
+  email: string;
+  matriculado: boolean | null;
+  avaliacoesComoAluno: {
+    status: $Enums.StatusAvaliacao;
+    id: number;
+    createdAt: Date;
+    updatedAt: Date;
+    alunoId: string;
+    professorId: string | null;
+    temaId: number;
+    resposta: string;
+    correcao: string | null;
+    notaFinal: number;
+    feedback: string | null;
+  }[];
+}
 
 type TabelaAlunosProps = {
   alunosIniciais: Aluno[]
@@ -74,10 +91,15 @@ export function TabelaAlunos({ alunosIniciais, totalAlunos, totalPaginas, limite
     const buscarAlunos = async () => {
       setIsLoading(true)
       try {
-        const resultado = await listarAlunosGoogle(busca, paginaAtual, limite)
-        setAlunos(resultado.data)
-        setTotalPage(resultado.totalPaginas)
-        setTotalStudents(resultado.total)
+        const resultado = await api.alunos.get({
+          query: {
+            busca,
+            page: paginaAtual,
+          },
+        })
+        setAlunos(resultado.data?.data ?? [])
+        setTotalPage(resultado.data?.totalPaginas ?? 1)
+        setTotalStudents(resultado.data?.total ?? 0)
       } catch (error) {
         console.error("Erro ao buscar alunos:", error)
         toast.error("Erro ao carregar alunos")
@@ -93,8 +115,8 @@ export function TabelaAlunos({ alunosIniciais, totalAlunos, totalPaginas, limite
     setUpdatingStudentId(id);
     startTransition(async () => {
       try {
-       const { user } = await alterarStatusMatriculaAluno(id, status)
-       setAlunos(alunos => alunos.map(aluno => aluno.id === id ? { ...aluno, matriculado: user.matriculado } : aluno))
+        const { user } = await alterarStatusMatriculaAluno(id, status)
+        setAlunos(alunos => alunos.map(aluno => aluno.id === id ? { ...aluno, matriculado: user.matriculado } : aluno))
         toast.success('Status da matricula do aluno atualizada com sucesso')
 
         if (status) {

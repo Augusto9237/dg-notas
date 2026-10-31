@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { cacheLife, cacheTag, updateTag } from "next/cache";
 import { headers } from "next/headers";
+import type { Prisma } from "@/app/generated/prisma";
+import { TERMOS_CATEGORIAS_VIDEOAULA } from "@/lib/videoaula-categorias";
+import type { CategoriaVideoaula } from "@/lib/videoaula-categorias";
 
 const R2_ENDPOINT = process.env.R2_ENDPOINT!
 const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID!
@@ -26,6 +29,60 @@ interface VideoaulaProps {
     descricao: string;
     urlVideo: string;
 }
+
+interface VideoaulaModuloProps extends VideoaulaProps {
+    moduloId: number;
+    urlThumbnail: string;
+    duracao: number;
+}
+
+export async function adicionarVideoaulaAoModulo(data: VideoaulaModuloProps) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session?.user || session.user.role !== 'admin') {
+        throw new Error('Usuário não autorizado');
+    }
+
+    if (
+        !Number.isInteger(data.moduloId) ||
+        data.moduloId <= 0 ||
+        !data.titulo.trim() ||
+        !data.descricao.trim() ||
+        !data.urlVideo.trim() ||
+        !data.urlThumbnail.trim() ||
+        !Number.isInteger(data.duracao) ||
+        data.duracao <= 0
+    ) {
+        throw new Error('Dados inválidos para adicionar videoaula ao módulo.');
+    }
+
+    try {
+        await prisma.videoaula.create({
+            data: {
+                titulo: data.titulo,
+                descricao: data.descricao,
+                urlVideo: data.urlVideo,
+                urlThumbnail: data.urlThumbnail,
+                duracao: data.duracao,
+                tags: [],
+                modulo: {
+                    connect: {
+                        id: data.moduloId
+                    }
+                }
+            }
+        })
+
+        updateTag('listar-videoaulas')
+        return true
+    } catch (error) {
+        console.error("Erro ao adicionar videoaula ao módulo:", error)
+        return false
+    }
+}
+
 export async function adicionarVideoaula(data: VideoaulaProps) {
     const session = await auth.api.getSession({
         headers: await headers()
@@ -84,7 +141,12 @@ export async function editarVideoaula(id: number, data: VideoaulaProps) {
 }
 
 
-async function obterAulas(busca?: string, page: number = 1, limit: number = 12) {
+async function obterAulas(
+    busca?: string,
+    page: number = 1,
+    limit: number = 12,
+    categoria?: CategoriaVideoaula
+) {
     'use cache'
 
     cacheLife('hours')
@@ -92,15 +154,31 @@ async function obterAulas(busca?: string, page: number = 1, limit: number = 12) 
     cacheTag('listar-videoaulas')
 
     try {
-        const whereClause = {
-            // Só aplica o filtro se busca for fornecida e não vazia
-            ...(busca && busca.trim() !== '' && {
-                titulo: {
-                    contains: busca.trim(),
-                    mode: 'insensitive' as const, // Case-insensitive
-                },
-            }),
-        };
+        const conditions: Prisma.VideoaulaWhereInput[] = [];
+
+        if (busca?.trim()) {
+            conditions.push({
+                OR: [
+                    { titulo: { contains: busca.trim(), mode: 'insensitive' } },
+                    { descricao: { contains: busca.trim(), mode: 'insensitive' } },
+                ],
+            });
+        }
+
+        if (categoria) {
+            const termos = TERMOS_CATEGORIAS_VIDEOAULA[categoria];
+            conditions.push({
+                OR: termos.flatMap((termo) => [
+                    { titulo: { contains: termo, mode: 'insensitive' } },
+                    { descricao: { contains: termo, mode: 'insensitive' } },
+                ]),
+            });
+        }
+
+        const whereClause: Prisma.VideoaulaWhereInput =
+            conditions.length > 1
+                ? { AND: conditions }
+                : conditions[0] ?? {};
 
         const skip = (page - 1) * limit;
 
@@ -109,6 +187,15 @@ async function obterAulas(busca?: string, page: number = 1, limit: number = 12) 
                 where: whereClause,
                 skip,
                 take: limit,
+                include: {
+                    professor: {
+                        select: {
+                            name: true,
+                            image: true,
+                            especialidade: true,
+                        },
+                    },
+                },
             }),
             prisma.videoaula.count({
                 where: whereClause,
@@ -131,7 +218,12 @@ async function obterAulas(busca?: string, page: number = 1, limit: number = 12) 
     }
 }
 
-export async function listarVideoaulas(busca?: string, page: number = 1, limit: number = 12) {
+export async function listarVideoaulas(
+    busca?: string,
+    page: number = 1,
+    limit: number = 12,
+    categoria?: CategoriaVideoaula
+) {
     const session = await auth.api.getSession({
         headers: await headers()
     })
@@ -140,7 +232,7 @@ export async function listarVideoaulas(busca?: string, page: number = 1, limit: 
         throw new Error('Usuário não autorizado');
     }
 
-    return await obterAulas(busca, page, limit);
+    return await obterAulas(busca, page, limit, categoria);
 }
 
 export async function listarVideoaulaPorId(videoaulaId: number) {
@@ -156,6 +248,20 @@ export async function listarVideoaulaPorId(videoaulaId: number) {
         const videoaula = await prisma.videoaula.findUnique({
             where: {
                 id: videoaulaId
+            },
+            select: {
+                id: true,
+                titulo: true,
+                descricao: true,
+                urlVideo: true,
+                professor: {
+                    select: {
+                        id: true,
+                        name: true,
+                        especialidade: true,
+                        image: true
+                    }
+                }
             }
         });
         return videoaula;

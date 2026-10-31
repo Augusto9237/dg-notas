@@ -63,7 +63,7 @@ export function CardCompetencia({ criterio, criterios }: CardCompetenciaProps) {
 
     return (
         <Card
-            className="hover:shadow-md transition-shadow p-0 min-h-[124px] h-full max-h-[124px] w-full gap-0 relative"
+            className="hover:shadow-md border-none transition-shadow p-0 min-h-[124px] h-full max-h-[124px] w-full gap-0 relative"
         >
             <CardContent className="p-4 relative h-full flex w-full overflow-hidden">
                 <div className="w-[154px] h-[122px] -ml-8 -mt-4">
@@ -129,8 +129,8 @@ export function CardCompetencia({ criterio, criterios }: CardCompetenciaProps) {
                 </div>
 
                 <div className="space-y-1 w-full h-full -ml-4">
-                    <CardTitle className="text-sm">
-                        {criterioInfo?.nome}
+                    <CardTitle className="text-sm gap-2 flex items-center">
+                        <span className="bg-primary/10 dark:bg-foreground/50 rounded-sm py-[1px] px-1 text-primary">{`C${criterio.criterioId}`}</span>Competência
                     </CardTitle>
                     <CardDescription className="text-xs">
                         {criterioInfo?.descricao}

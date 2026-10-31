@@ -23,8 +23,11 @@ import { useRouter } from "next/navigation";
 import { ThemeSwitcher } from "./kibo-ui/theme-switcher";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+interface Props {
+    orientacao?: "left" | "right"
+}
 
-export function PerfilAluno() {
+export function PerfilAluno({orientacao}: Props) {
     const mobile = useIsMobile()
     const { data: session } = authClient.useSession();
     const [aluno, setAluno] = useState<User | null>(null)
@@ -63,7 +66,7 @@ export function PerfilAluno() {
                     </AvatarFallback>
                 </Avatar>
             </SheetTrigger>
-            <SheetContent className="gap-2 bg-card" side={mobile === true ? 'left' : 'right'}>
+            <SheetContent className="gap-2 bg-card" side={ orientacao? orientacao : mobile === true ? 'left' : 'right'}>
                 <SheetHeader>
                     <SheetTitle>
                         Sua Conta

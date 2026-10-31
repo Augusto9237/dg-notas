@@ -3,11 +3,19 @@ import { useEffect, useState } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
-import { CirclePlay, Video } from "lucide-react"
+import { CirclePlay, Play, Video } from "lucide-react"
 import clsx from "clsx"
 import { listarVideoaulas } from "@/actions/videoaulas"
 import { Videoaula } from "@/app/generated/prisma"
 import { Skeleton } from "./ui/skeleton"
+import Image from "next/image"
+
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
 
 const tags = Array.from({ length: 50 }).map(
     (_, i, a) => `Aula${a.length - i}`
@@ -34,7 +42,7 @@ export function ListaVideoaulas({ aulaId }: ListaVideoaulasProps) {
 
 
     return (
-        <ScrollArea className="w-full h-full">
+        <ScrollArea className="flex flex-col flex-1 w-full overflow-x-hidden">
             <div className="h-full pb-12 flex-1">
                 {loading === true ? (
                     <>
@@ -46,17 +54,50 @@ export function ListaVideoaulas({ aulaId }: ListaVideoaulasProps) {
                         ))}
                     </>
                 ) : (
-                    <>
+                    <Accordion type="multiple" defaultValue={["item-1"]}>
                         {videoaulas.map((videoaula) => (
-                            <Link href={`/aluno/aulas/${videoaula.id}`} key={videoaula.id} className="w-full oveflow-hidden">
-                                <div className={clsx("text-sm flex gap-2 items-center text-muted-foreground p-2 rounded-sm text-nowrap truncate", aulaId === videoaula.id && 'text-primary font-semibold bg-primary/5')}>
-                                    {aulaId === videoaula.id ? <CirclePlay className="size-4" /> : <Video className="size-4"/>}
-                                    {videoaula.titulo}
-                                </div>
-                                <Separator className="my-2" />
-                            </Link>
+                            <AccordionItem key={videoaula.id} value={`item-${videoaula.id}`}>
+                                <AccordionTrigger>
+                                    <div className="flex items-center gap-4 w-full">
+                                        <span className="min-w-0 flex max-md:flex-col md:items-center w-full md:justify-between">
+                                            <span className="block font-semibold leading-snug text-foreground max-sm:text-sm truncate">
+                                                Módulo {videoaula.id} - {videoaula.titulo}
+                                            </span>
+                                            {/* <span className="min-w-0 w-full max-w-sm">
+                                                <span className="mb-1 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                                                    <span className="truncate">{videoaula.titulo}</span>
+                                                    <span>%</span>
+                                                </span>
+                                                <Progress
+                                                        value={module.progress}
+                                                        aria-label={`Progresso do módulo ${module.number}: ${module.progress} por cento`}
+                                                        className="h-2 bg-primary/10"
+                                                      /> 
+                                            </span> */}
+                                        </span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="flex items-start gap-4">
+                                        <span className="relative flex h-14 w-20 flex-shrink-0 justify-center items-center rounded-md bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
+                                            <Play className="size-6 absolute fill-primary" />
+                                            <Image
+                                                src="/Sublogo1.svg"
+                                                alt="Thumbnail"
+                                                className="w-full h-auto object-cover rounded-md"
+                                                width={100}
+                                                height={50}
+                                            />
+                                        </span>
+                                        <span className="flex flex-col min-w-0">
+                                            <span className="text-sm font-semibold truncate">{videoaula.titulo}</span>
+                                            <span className="text-xs text-muted-foreground break-words">{videoaula.descricao}</span>
+                                        </span>
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
                         ))}
-                    </>
+                    </Accordion>
                 )}
             </div>
         </ScrollArea >
