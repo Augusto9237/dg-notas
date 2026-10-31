@@ -5,6 +5,9 @@ import type { ReactNode } from "react"
 import { obterInformacoes } from "@/actions/configuracoes"
 import "../globals.css"
 import { FooterMembro } from "@/components/ui/footer-membro"
+import { SidebarProvider } from "@/components/ui/sidebar"
+import { HeaderMembro } from "@/components/ui/header-membro"
+import { AppSidebarMembro } from "@/components/appsidebar-membro"
 
 const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
@@ -39,6 +42,8 @@ export default async function MemberLayout({
           --primary-foreground: ${cores[1].valor};
           --secondary: ${cores[2].valor};
           --secondary-foreground: ${cores[3].valor};
+          --sidebar: transparent;
+          --sidebar-foreground: oklch(0.145 0 0);
         }`
       : undefined
 
@@ -46,8 +51,12 @@ export default async function MemberLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <head>{themeStyle ? <style>{themeStyle}</style> : null}</head>
       <body className={`${poppins.className} antialiased`}>
-        {children}
-        <FooterMembro logo={configuracoes?.logoAplicativo!} />
+        <SidebarProvider className="flex flex-col">
+          <HeaderMembro />
+          <AppSidebarMembro />
+          {children}
+          <FooterMembro logo={configuracoes?.logoAplicativo!} />
+        </SidebarProvider>
       </body>
     </html>
   )
