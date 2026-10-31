@@ -277,3 +277,13 @@ Corrigir a inicialização do plugin admin do Better Auth, definindo as funçõe
 1. Registrar `professor` e `assistente` em `roles` com permissões básicas do usuário.
 2. Restringir `adminRoles` à função `admin`.
 3. Validar a configuração com o type-check do projeto.
+
+## Plano de Desenvolvimento Atual: Tipagem da API de Módulos e Videoaulas
+
+### Objetivo
+Declarar na rota `/api/modulos` a tipagem Zod das videoaulas retornadas pelo Prisma, conforme os campos do modelo `Videoaula`.
+
+### Passos
+1. Definir o schema de resposta da videoaula com os campos escalares e tipos correspondentes ao Prisma.
+2. Aplicar esse schema à lista de videoaulas incluída na resposta dos módulos.
+3. Validar o type-check e a formatação do diff.
