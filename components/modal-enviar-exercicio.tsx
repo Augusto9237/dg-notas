@@ -26,12 +26,19 @@ interface ModalEnviarExercicioProps {
     videoaulaId: number;
     videoaulaTitulo: string;
     professorId: string | null;
+    exercicio?: {
+        titulo: string;
+        enunciado: string;
+        notaMaxima: number;
+        disponivel: boolean;
+    } | null;
 }
 
 export function ModalEnviarExercicio({
     videoaulaId,
     videoaulaTitulo,
     professorId,
+    exercicio,
 }: ModalEnviarExercicioProps) {
     const { data: session } = authClient.useSession();
     const [arquivo, setArquivo] = useState<File[] | undefined>();
@@ -112,12 +119,30 @@ export function ModalEnviarExercicio({
                     </div>
                 </div>
 
+                {exercicio && (
+                    <div className="space-y-2 rounded-lg border p-4">
+                        <div className="flex items-center justify-between gap-2">
+                            <Label>{exercicio.titulo}</Label>
+                            <span className="text-xs text-muted-foreground">
+                                Nota máxima: {exercicio.notaMaxima}
+                            </span>
+                        </div>
+                        <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                            {exercicio.enunciado}
+                        </p>
+                        {!exercicio.disponivel && (
+                            <p className="text-sm text-destructive">Este exercício não está disponível para envio.</p>
+                        )}
+                    </div>
+                )}
+
                 <Dropzone
                     accept={{ "images": [".jpg", ".jpeg", ".png", ".pdf"] }}
                     onDrop={handleDrop}
                     onError={() => toast.error('Formato de arquivo não suportado!')}
                     src={arquivo}
                     maxFiles={1}
+                    disabled={exercicio?.disponivel === false}
                     className="p-4"
                 >
                     <DropzoneEmptyState />
@@ -149,7 +174,7 @@ export function ModalEnviarExercicio({
                     <Button
                         type="button"
                         className={clsx("min-w-[100px]", isPending ? 'col-span-2' : '')}
-                        disabled={isPending || !arquivo?.length}
+                        disabled={isPending || !arquivo?.length || exercicio?.disponivel === false}
                         onClick={enviarExercicio}
                     >
                         {isPending && <Spinner />}

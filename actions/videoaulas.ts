@@ -30,10 +30,26 @@ interface VideoaulaProps {
     urlVideo: string;
 }
 
+interface ExercicioProps {
+    titulo: string;
+    enunciado: string;
+    notaMaxima: number;
+}
+
 interface VideoaulaModuloProps extends VideoaulaProps {
     moduloId: number;
     urlThumbnail: string;
     duracao: number;
+    exercicio?: ExercicioProps;
+}
+
+function validarExercicio(exercicio: ExercicioProps) {
+    return (
+        exercicio.titulo.trim().length >= 3 &&
+        exercicio.enunciado.trim().length >= 3 &&
+        Number.isInteger(exercicio.notaMaxima) &&
+        exercicio.notaMaxima > 0
+    )
 }
 
 export async function adicionarVideoaulaAoModulo(data: VideoaulaModuloProps) {
@@ -53,7 +69,8 @@ export async function adicionarVideoaulaAoModulo(data: VideoaulaModuloProps) {
         !data.urlVideo.trim() ||
         !data.urlThumbnail.trim() ||
         !Number.isInteger(data.duracao) ||
-        data.duracao <= 0
+        data.duracao <= 0 ||
+        (data.exercicio !== undefined && !validarExercicio(data.exercicio))
     ) {
         throw new Error('Dados inválidos para adicionar videoaula ao módulo.');
     }
@@ -71,7 +88,16 @@ export async function adicionarVideoaulaAoModulo(data: VideoaulaModuloProps) {
                     connect: {
                         id: data.moduloId
                     }
-                }
+                },
+                ...(data.exercicio && {
+                    exercicio: {
+                        create: {
+                            titulo: data.exercicio.titulo.trim(),
+                            enunciado: data.exercicio.enunciado.trim(),
+                            notaMaxima: data.exercicio.notaMaxima,
+                        }
+                    }
+                })
             }
         })
 
@@ -83,7 +109,10 @@ export async function adicionarVideoaulaAoModulo(data: VideoaulaModuloProps) {
     }
 }
 
-export async function adicionarVideoaula(data: VideoaulaProps) {
+export async function editarVideoaula(
+    id: number,
+    data: VideoaulaProps & { exercicio?: ExercicioProps }
+) {
     const session = await auth.api.getSession({
         headers: await headers()
     })
@@ -92,32 +121,15 @@ export async function adicionarVideoaula(data: VideoaulaProps) {
         throw new Error('Usuário não autorizado');
     }
 
-    try {
-        await prisma.videoaula.create({
-            data: {
-                titulo: data.titulo,
-                descricao: data.descricao,
-                urlVideo: data.urlVideo
-            }
-        })
-
-        updateTag('listar-videoaulas')
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
-    }
-}
-
-
-
-export async function editarVideoaula(id: number, data: VideoaulaProps) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-
-    if (!session?.user || session.user.role !== 'admin') {
-        throw new Error('Usuário não autorizado');
+    if (
+        !Number.isInteger(id) ||
+        id <= 0 ||
+        !data.titulo.trim() ||
+        !data.descricao.trim() ||
+        !data.urlVideo.trim() ||
+        (data.exercicio !== undefined && !validarExercicio(data.exercicio))
+    ) {
+        throw new Error('Dados inválidos para editar videoaula.');
     }
 
     try {
@@ -128,7 +140,23 @@ export async function editarVideoaula(id: number, data: VideoaulaProps) {
             data: {
                 titulo: data.titulo,
                 descricao: data.descricao,
-                urlVideo: data.urlVideo
+                urlVideo: data.urlVideo,
+                ...(data.exercicio && {
+                    exercicio: {
+                        upsert: {
+                            create: {
+                                titulo: data.exercicio.titulo.trim(),
+                                enunciado: data.exercicio.enunciado.trim(),
+                                notaMaxima: data.exercicio.notaMaxima,
+                            },
+                            update: {
+                                titulo: data.exercicio.titulo.trim(),
+                                enunciado: data.exercicio.enunciado.trim(),
+                                notaMaxima: data.exercicio.notaMaxima,
+                            },
+                        },
+                    },
+                }),
             }
         })
 
@@ -188,6 +216,15 @@ async function obterAulas(
                 skip,
                 take: limit,
                 include: {
+                    exercicio: {
+                        select: {
+                            id: true,
+                            titulo: true,
+                            enunciado: true,
+                            notaMaxima: true,
+                            disponivel: true,
+                        },
+                    },
                     professor: {
                         select: {
                             name: true,
@@ -254,6 +291,15 @@ export async function listarVideoaulaPorId(videoaulaId: number) {
                 titulo: true,
                 descricao: true,
                 urlVideo: true,
+                exercicio: {
+                    select: {
+                        id: true,
+                        titulo: true,
+                        enunciado: true,
+                        notaMaxima: true,
+                        disponivel: true,
+                    }
+                },
                 professor: {
                     select: {
                         id: true,

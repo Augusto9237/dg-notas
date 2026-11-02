@@ -51,6 +51,7 @@ export default async function RootLayout({
     --primary-foreground: ${configuracoes.coresSistema[1].valor};
     --secondary: ${configuracoes.coresSistema[2].valor};
     --secondary-foreground: ${configuracoes.coresSistema[3].valor};
+    --sidebar: ${configuracoes.coresSistema[0].valor};
   }
 `: null
 

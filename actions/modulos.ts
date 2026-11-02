@@ -85,3 +85,17 @@ export async function obterModulos() {
   })
   return modulos
 }
+
+export async function adicionarExercicioAoModulo(videoaulaId: number, titulo: string, enunciado: string) {
+  await verificarAdministrador()
+
+  const exercicio = await prisma.exercicio.create({
+    data: {
+      titulo,
+      enunciado,
+      videoaulaId
+    },
+  })
+
+  return exercicio
+}

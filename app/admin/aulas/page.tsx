@@ -5,9 +5,12 @@ import { listarVideoaulas } from "@/actions/videoaulas";
 import { TabelaVideoaulas } from "@/components/tabela-videoaulas";
 import { HeaderTeacher } from "@/components/header-professor";
 import { FormularioModuloVideoaula } from "@/components/formulario-modulo-videoaula";
+import { api } from "@/lib/eden";
 
 export default async function Page() {
   const videoaulas = await listarVideoaulas()
+  const {data} = await api.modulos.get()
+  const modulos = data?.map((modulo) => ({ id: modulo.id, titulo: modulo.nome })) || []
 
   return (
     <Suspense fallback={<Loading />}>
@@ -15,12 +18,12 @@ export default async function Page() {
         <HeaderTeacher title="Aulas" description="Lista de aulas">
           <div className="flex gap-4 items-center">
             <FormularioModuloVideoaula />
-            <FormularioVideoaula />
+            <FormularioVideoaula modulos={modulos} />
           </div>
         </HeaderTeacher>
 
         <main className="flex flex-col p-5 h-full">
-          <TabelaVideoaulas videoaulas={videoaulas} />
+          <TabelaVideoaulas videoaulas={videoaulas} modulos={modulos} />
         </main>
       </div>
     </Suspense>

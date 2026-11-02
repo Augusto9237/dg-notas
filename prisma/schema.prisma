@@ -9,16 +9,16 @@ datasource db {
 }
 
 model CorSistema {
-  id             Int      @id @default(autoincrement())
-  cor            String
-  valor          String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            Int            @id @default(autoincrement())
+  cor           String
+  valor         String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   configuracaos Configuracao[] @relation("ConfiguracoesCoresSistema")
 }
 
 model Configuracao {
-  id             Int      @id @default(autoincrement())
+  id             Int          @id @default(autoincrement())
   nomePlataforma String
   slogan         String
   sobreCurso     String
@@ -30,26 +30,31 @@ model Configuracao {
   coresSistema   CorSistema[] @relation("ConfiguracoesCoresSistema")
   telefone       String
   endereco       String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
 
 model Tema {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   nome        String
   professorId String
-  professor   User     @relation("AvaliacoesProfessor", fields: [professorId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  disponivel Boolean @default(true)
-  entrega    DateTime?
-  
+  professor   User      @relation("AvaliacoesProfessor", fields: [professorId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  disponivel  Boolean   @default(true)
+  entrega     DateTime?
+
   Avaliacao Avaliacao[]
 }
 
 enum StatusAvaliacao {
   ENVIADA // Aluno enviou a resposta
   CORRIGIDA // Correção concluída
+}
+
+enum StatusExercicio {
+  ENVIADA
+  CORRIGIDA
 }
 
 model Avaliacao {
@@ -83,6 +88,8 @@ model CriterioAvaliacao {
   criterioId  Int
   criterio    Criterio  @relation(fields: [criterioId], references: [id])
   pontuacao   Int
+
+  submissoes SubmissaoExercicio[] @relation("CriterioAvaliacaoSubmissoes")
 }
 
 model Criterio {
@@ -173,50 +180,96 @@ model Mentoria {
 }
 
 model Modulo {
-  id          Int      @id @default(autoincrement())
-  nome        String
-  descricao   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  nome      String
+  descricao String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   videoaulas Videoaula[]
 }
 
 model Videoaula {
-  id          Int     @id @default(autoincrement())
-  titulo      String
-  descricao   String
-  urlVideo    String
+  id           Int      @id @default(autoincrement())
+  titulo       String
+  descricao    String
+  urlVideo     String
   urlThumbnail String
-  duracao     Int
-  progresso   Progresso[]
-  moduloId    Int
-  modulo      Modulo  @relation(fields: [moduloId], references: [id])
-  professorId String?
-  professor   User?   @relation("VideoaulasProfessor", fields: [professorId], references: [id])
-  tags        String[]
+  duracao      Int
+  moduloId     Int
+  modulo       Modulo   @relation(fields: [moduloId], references: [id])
+  professorId  String?
+  professor    User?    @relation("VideoaulasProfessor", fields: [professorId], references: [id])
+  tags         String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  progressos ProgressoVideoaula[]
+  exercicio Exercicio?
 }
 
-model Progresso {
-  id          Int      @id @default(autoincrement())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  videoaulaId Int
+model Exercicio {
+  id          Int       @id @default(autoincrement())
+  videoaulaId Int       @unique
   videoaula   Videoaula @relation(fields: [videoaulaId], references: [id])
-  progresso   Float    @default(0.0) // Progresso em porcentagem (0.0 a 100.0)
-  assistido   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  titulo      String
+  enunciado   String
+  notaMaxima  Int       @default(100)
+  disponivel  Boolean   @default(true)
+  ordem       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  submissoes SubmissaoExercicio[]
+
+  @@index([videoaulaId, ordem])
+}
+
+model SubmissaoExercicio {
+  id          Int             @id @default(autoincrement())
+  exercicioId Int
+  exercicio   Exercicio       @relation(fields: [exercicioId], references: [id], onDelete: Cascade)
+  alunoId     String
+  aluno       User            @relation("SubmissaoExercicioAluno", fields: [alunoId], references: [id], onDelete: Cascade)
+  professorId String?
+  professor   User?           @relation("SubmissaoExercicioProfessor", fields: [professorId], references: [id], onDelete: SetNull)
+  resposta    String
+  correcao    String?
+  feedback    String?
+  nota        Int? // só existe depois de corrigida
+  status      StatusExercicio @default(ENVIADA)
+  corrigidaEm DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // Um envio por aluno em cada exercício.
+  // Para permitir reenvio: adicionar `tentativa Int @default(1)` e incluir na unique.
+  @@unique([exercicioId, alunoId])
+  @@index([alunoId, status])
+  @@index([professorId, status])
+  criterioAvaliacaos CriterioAvaliacao[] @relation("CriterioAvaliacaoSubmissoes")
+}
+
+// Progresso individual do aluno em cada videoaula
+model ProgressoVideoaula {
+  id              Int       @id @default(autoincrement())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoaulaId     Int
+  videoaula       Videoaula @relation(fields: [videoaulaId], references: [id], onDelete: Cascade)
+  posicaoSegundos Int       @default(0) // onde o aluno parou (retomar de onde parou)
+  concluidoEm     DateTime? // definido uma vez (ex.: ao passar de 90%) e nunca desfeito
+  ultimoAcessoEm  DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@unique([userId, videoaulaId])
+  @@index([userId, ultimoAcessoEm]) // "continuar assistindo"
 }
 
-
 model User {
-  id                      String             @id
+  id                      String               @id
   name                    String
   email                   String
   emailVerified           Boolean
@@ -226,22 +279,24 @@ model User {
   sessions                Session[]
   accounts                Account[]
   role                    String?
-  matriculado             Boolean?           @default(false)
-  banned                  Boolean?           @default(false)
+  matriculado             Boolean?             @default(false)
+  banned                  Boolean?             @default(false)
   banReason               String?
   banExpires              DateTime?
-  avaliacoesComoAluno     Avaliacao[]        @relation("AvaliacoesAluno")
-  avaliacoesComoProfessor Avaliacao[]        @relation("AvaliacoesProfessor")
-  mentoriasComoAluno      Mentoria[]         @relation("MentoriasAluno")
-  mentoriasComoProfessor  Mentoria[]         @relation("MentoriasProfessor")
+  avaliacoesComoAluno     Avaliacao[]          @relation("AvaliacoesAluno")
+  avaliacoesComoProfessor Avaliacao[]          @relation("AvaliacoesProfessor")
+  mentoriasComoAluno      Mentoria[]           @relation("MentoriasAluno")
+  mentoriasComoProfessor  Mentoria[]           @relation("MentoriasProfessor")
   especialidade           String?
   telefone                String?
   bio                     String?
   // Relação com tokens FCM
-  temas                   Tema[]             @relation("AvaliacoesProfessor")
+  temas                   Tema[]               @relation("AvaliacoesProfessor")
   pushSubscriptions       PushSubscription[]
-  videoaulas              Videoaula[]        @relation("VideoaulasProfessor")
-  progressoVideoaulas     Progresso[]
+  videoaulas              Videoaula[]          @relation("VideoaulasProfessor")
+  progressos              ProgressoVideoaula[]
+  submissoesExercicioAluno      SubmissaoExercicio[]  @relation("SubmissaoExercicioAluno")
+  submissoesExercicioProfessor  SubmissaoExercicio[]  @relation("SubmissaoExercicioProfessor")
 
   @@unique([email])
   @@index([email, role])

@@ -6,7 +6,7 @@ import { format } from "date-fns"
 import { toast } from "sonner"
 import { Ellipsis } from "lucide-react"
 
-import { Prisma, Videoaula } from "@/app/generated/prisma"
+import { Videoaula } from "@/app/generated/prisma"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { DeleteButton } from "./ui/delete-button"
@@ -25,11 +25,16 @@ import { FormularioVideoaula } from "./formulario-videoaula"
 import { ModalVisualizarVideoaula } from "./modal-visualizar-aula"
 import { deleteObject, ref } from "firebase/storage"
 import { storage } from "@/lib/firebase"
+import type { VideoaulaComExercicio } from "./formulario-videoaula"
 
 
 interface TabelaVideoaulasProps {
+  modulos?: {
+    id: number
+    titulo: string
+  }[]
   videoaulas: {
-    data: Videoaula[],
+    data: VideoaulaComExercicio[],
     meta: {
       total: number;
       page: number;
@@ -39,8 +44,8 @@ interface TabelaVideoaulasProps {
   }
 }
 
-export function TabelaVideoaulas({ videoaulas }: TabelaVideoaulasProps) {
-  const [listaVideoaulas, setListaVideoaulas] = useState<Videoaula[]>([]);
+export function TabelaVideoaulas({ videoaulas, modulos = [] }: TabelaVideoaulasProps) {
+  const [listaVideoaulas, setListaVideoaulas] = useState<VideoaulaComExercicio[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isPending, startTransition] = useTransition()
@@ -159,7 +164,7 @@ export function TabelaVideoaulas({ videoaulas }: TabelaVideoaulasProps) {
                   <TableCell>
                     <div className="flex items-center justify-center gap-4">
                       <ModalVisualizarVideoaula videoaula={videoaula} />
-                      <FormularioVideoaula aula={videoaula} />
+                      <FormularioVideoaula aula={videoaula} modulos={modulos} />
                       <DeleteButton disabled={isPending} onClick={() => excluirVideoaula(videoaula.id, videoaula.titulo)} />
                     </div>
                   </TableCell>

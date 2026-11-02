@@ -100,7 +100,12 @@ export default async function Page({
                             </Button>
                         </div>
                         <div className="w-full ">
-                            <ModalEnviarExercicio videoaulaId={videoaula.id} videoaulaTitulo={videoaula.titulo} professorId={videoaula.professor?.id ?? null} />
+                            <ModalEnviarExercicio
+                                videoaulaId={videoaula.id}
+                                videoaulaTitulo={videoaula.titulo}
+                                professorId={videoaula.professor?.id ?? null}
+                                exercicio={videoaula.exercicio}
+                            />
                         </div>
                     </div>
                 </section>

@@ -99,16 +99,16 @@ export function FormularioModuloVideoaula({ modulo }: FormularioModuloVideoaulaP
         {ehModoEdicao ? (
           <EditButton />
         ) : (
-          <Button variant="outline">
+          <Button>
             <Plus />
-            <span>Novo módulo</span>
+            <span>Novo Módulo</span>
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-center">
-            {ehModoEdicao ? "Editar módulo" : "Adicionar módulo"}
+            {ehModoEdicao ? "Editar Módulo" : "Adicionar Módulo"}
           </DialogTitle>
         </DialogHeader>
 
